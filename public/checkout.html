@@ -949,6 +949,7 @@ var stripe, stripeElements, elNum, elExp, elCvc;
 var expElements, expCheckout;
 
 function initStripeElements(pk) {
+  try {
   stripe = Stripe(pk);
   stripeElements = stripe.elements({
     appearance:{
@@ -963,10 +964,11 @@ function initStripeElements(pk) {
     }
   });
   var fieldStyle = {style:{base:{fontSize:'16px',fontFamily:'-apple-system,BlinkMacSystemFont,sans-serif',color:'#07090D','::placeholder':{color:'#C8CDD6'}},invalid:{color:'#FF3B30'}}};
-  elNum = stripeElements.create('cardNumber',{showIcon:true,...fieldStyle});
-  elExp = stripeElements.create('cardExpiry',fieldStyle);
-  elCvc = stripeElements.create('cardCvc',fieldStyle);
+  elNum = stripeElements.create('cardNumber',{showIcon:true,style:fieldStyle.style});
+  elExp = stripeElements.create('cardExpiry',{style:fieldStyle.style});
+  elCvc = stripeElements.create('cardCvc',{style:fieldStyle.style});
   elNum.mount('#el-num'); elExp.mount('#el-exp'); elCvc.mount('#el-cvc');
+  } catch(initErr) { console.error('Stripe init error:', initErr.message||initErr); showErr('Payment system error: '+initErr.message); return; }
   [['el-num',elNum],['el-exp',elExp],['el-cvc',elCvc]].forEach(function(p){
     p[1].on('focus',function(){ document.getElementById(p[0]).classList.add('focused'); });
     p[1].on('blur', function(){ document.getElementById(p[0]).classList.remove('focused'); });
@@ -978,11 +980,12 @@ function initStripeElements(pk) {
 (async function loadStripeConfig(){
   try{
     var r = await fetch('/api/stripe?action=config');
+    if(!r.ok){ showErr('Payment system unavailable. Please refresh.'); return; }
     var cfg = await r.json();
     if(cfg.pk){ PK = cfg.pk; initStripeElements(cfg.pk); }
-    else showErr('Payment system unavailable. Please refresh.');
+    else showErr(cfg.error || 'Payment system unavailable. Please refresh.');
   }catch(e){
-    console.error('Stripe config failed:', e);
+    console.error('Stripe config failed:', e.message || e);
     showErr('Could not connect to payment system. Please refresh.');
   }
 })();
@@ -998,8 +1001,7 @@ function initExpressCheckout(){
   // then extract payment_method from the resulting PaymentIntent.
   // We show a $0 amount (trial) — Stripe's sheet displays "Free trial" automatically.
   expElements = stripe.elements({
-    mode: 'payment',
-    amount: 0,
+    mode: 'setup',
     currency: 'usd',
     setup_future_usage: 'off_session',
   });
@@ -1058,15 +1060,15 @@ function initExpressCheckout(){
     try{
       // Step 1: confirm the payment with Stripe — this resolves the Apple Pay sheet
       // For a $0 trial we still need to confirm so Stripe can store the payment method.
-      var confirmResult = await expElements.confirmPayment({
+      var confirmResult = await expElements.confirmSetup({
         elements: expElements,
         confirmParams: {
-          return_url: window.location.href, // not actually redirected; used as fallback
+          return_url: window.location.href,
           payment_method_data: {
             billing_details: { name: name, email: email },
           },
         },
-        redirect: 'if_required', // avoid redirect for Apple Pay
+        redirect: 'if_required',
       });
 
       if(confirmResult.error){
@@ -1076,9 +1078,9 @@ function initExpressCheckout(){
       }
 
       // Step 2: extract payment method ID from the confirmed PaymentIntent
-      var paymentMethodId = confirmResult.paymentIntent
-        ? confirmResult.paymentIntent.payment_method
-        : null;
+      var paymentMethodId = confirmResult.setupIntent
+        ? confirmResult.setupIntent.payment_method
+        : (confirmResult.paymentIntent ? confirmResult.paymentIntent.payment_method : null);
 
       if(!paymentMethodId){
         event.paymentFailed({ reason: 'fail' });
