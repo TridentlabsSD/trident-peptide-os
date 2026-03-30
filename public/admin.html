@@ -282,6 +282,10 @@ tr:hover td{background:rgba(255,255,255,0.02);}
     <div class="topbar-title" id="topbar-title">Overview</div>
     <div class="topbar-right">
       <div class="live-pill"><div class="live-dot"></div><span id="refresh-time">Loading...</span></div>
+      <button class="refresh-btn" onclick="syncStripe()" id="sync-btn" style="border-color:rgba(52,211,153,0.3);color:#34D399;">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 11-2.12-9.36L23 10"/></svg>
+        Sync Stripe
+      </button>
       <button class="refresh-btn" onclick="refreshTab()">
         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 11-2.12-9.36L23 10"/></svg>
         Refresh
@@ -1000,6 +1004,18 @@ function svg(name,color){
 }
 
 // ── MISC ──
+function syncStripe(){
+  var btn=document.getElementById('sync-btn');
+  btn.textContent='Syncing...';btn.disabled=true;
+  api('sync-stripe',[],'POST').then(function(d){
+    btn.textContent='Sync Stripe';btn.disabled=false;
+    if(d.error){toast('Sync failed: '+d.error);return;}
+    toast('Synced '+d.synced+' of '+d.total+' Stripe users to Supabase');
+    cachedStats=null;
+    api('stats').then(function(s){cachedStats=s;loadOverview(s);updateTime();});
+  }).catch(function(){btn.textContent='Sync Stripe';btn.disabled=false;toast('Sync failed');});
+}
+
 function refreshTab(){
   cachedStats=null;
   api('stats').then(function(d){

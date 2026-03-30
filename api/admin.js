@@ -453,3 +453,47 @@ module.exports = async function handler(req, res) {
 
   return res.status(400).json({ error: `Unknown action: ${action}` });
 };
+
+// ── SYNC ALL STRIPE → SUPABASE ─────────────────────────────
+// One-click backfill: pulls every active/trialing Stripe sub and upserts into user_subscriptions
+if (action === 'sync-stripe' && req.method === 'POST') {
+  try {
+    const [activeSubs, trialSubs] = await Promise.all([
+      stripe.subscriptions.list({ status: 'active',   limit: 100, expand: ['data.customer'] }),
+      stripe.subscriptions.list({ status: 'trialing', limit: 100, expand: ['data.customer'] }),
+    ]);
+
+    const all = [...activeSubs.data, ...trialSubs.data];
+    let synced = 0, errors = [];
+
+    for (const sub of all) {
+      const customer = typeof sub.customer === 'object' ? sub.customer : null;
+      const email = customer?.email;
+      if (!email) continue;
+
+      const interval = sub.items.data[0]?.price?.recurring?.interval;
+      const plan = interval === 'year' ? 'annual' : 'monthly';
+      const trialEnd = sub.trial_end ? new Date(sub.trial_end * 1000).toISOString() : null;
+      const periodEnd = new Date(sub.current_period_end * 1000).toISOString();
+
+      try {
+        await sbFetch('/rest/v1/user_subscriptions', 'POST', {
+          email: email.toLowerCase().trim(),
+          status: sub.status,
+          plan,
+          stripe_customer_id: customer.id,
+          stripe_subscription_id: sub.id,
+          trial_ends_at: trialEnd,
+          period_end: periodEnd,
+          created_at: new Date(sub.created * 1000).toISOString(),
+          updated_at: new Date().toISOString(),
+        }, { 'Prefer': 'resolution=merge-duplicates,return=minimal' });
+        synced++;
+      } catch (e) {
+        errors.push(email + ': ' + e.message);
+      }
+    }
+
+    return res.status(200).json({ synced, total: all.length, errors });
+  } catch (err) { return res.status(500).json({ error: err.message }); }
+}
