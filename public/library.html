@@ -1,0 +1,2341 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"/>
+<title>PepTrak — Library</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+html{-webkit-text-size-adjust:100%;overflow-x:hidden;}
+:root{
+  --blue:#0876FF;--blue-dark:#0557CC;--blue-pale:#EEF4FF;
+  --ink:#07090D;--ink-2:#1A1D23;
+  --gray-1:#F7F8FA;--gray-2:#EAECF0;--gray-3:#C8CDD6;
+  --gray-4:#8A919E;--gray-5:#545B67;--white:#FFFFFF;
+  --green:#00C076;--green-pale:#E6FAF3;--green-dark:#00A065;
+  --red:#FF3B30;--gold:#F0A500;--gold-pale:#FEF9EC;
+  --purple:#7C3AED;--purple-pale:#F5F3FF;
+  --teal:#0891B2;--teal-pale:#ECFEFF;
+  --font:-apple-system,BlinkMacSystemFont,'SF Pro Display','SF Pro Text','Helvetica Neue',sans-serif;
+}
+body{-webkit-tap-highlight-color:transparent;font-family:var(--font);background:var(--gray-1);color:var(--ink);-webkit-font-smoothing:antialiased;min-height:100svh;overflow-x:hidden;padding-bottom:calc(80px + env(safe-area-inset-bottom));}
+
+/* HDR */
+.hdr{position:sticky;top:0;z-index:200;background:rgba(247,248,250,0.96);backdrop-filter:blur(20px);border-bottom:1px solid var(--gray-2);}
+.hdr-top{height:56px;display:flex;align-items:center;justify-content:space-between;padding:0 20px;}
+.hdr-logo{display:flex;align-items:center;gap:7px;font-size:16px;font-weight:700;color:var(--ink);text-decoration:none;}
+.hdr-mark{width:26px;height:26px;border-radius:7px;background:var(--blue);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;color:#fff;}
+.hdr-title{font-size:16px;font-weight:700;color:var(--ink);}
+
+/* SEARCH */
+.search-wrap{padding:8px 16px 10px;}
+.search-box{display:flex;align-items:center;gap:10px;background:var(--white);border:1.5px solid var(--gray-2);border-radius:14px;padding:10px 14px;transition:border-color 0.18s,box-shadow 0.18s;}
+.search-box:focus-within{border-color:var(--blue);box-shadow:0 0 0 3px rgba(8,118,255,0.08);}
+.search-icon{color:var(--gray-4);flex-shrink:0;}
+.search-input{font-size:16px;flex:1;border:none;outline:none;font-size:15px;color:var(--ink);font-family:var(--font);background:transparent;}
+.search-input::placeholder{color:var(--gray-3);}
+.search-clear{width:20px;height:20px;border-radius:50%;background:var(--gray-3);border:none;color:#fff;font-size:12px;cursor:pointer;display:none;align-items:center;justify-content:center;font-family:var(--font);line-height:1;flex-shrink:0;}
+.search-clear.show{display:flex;}
+
+/* FILTERS */
+.filters-wrap{position:relative;}
+.filters-wrap::after{content:'';position:absolute;right:0;top:0;bottom:12px;width:32px;background:linear-gradient(to right,transparent,rgba(247,248,250,0.96));pointer-events:none;}
+.filters{padding:0 16px 12px;display:flex;gap:7px;overflow-x:auto;scrollbar-width:none;}
+.filters::-webkit-scrollbar{display:none;}
+.filter-chip{font-size:12px;font-weight:600;padding:7px 14px;border-radius:20px;border:1.5px solid var(--gray-2);background:var(--white);color:var(--gray-5);cursor:pointer;white-space:nowrap;transition:all 0.15s;font-family:var(--font);flex-shrink:0;}
+.filter-chip.active{background:var(--blue);color:#fff;border-color:var(--blue);}
+.filter-chip:active{transform:scale(0.96);}
+
+/* PAGE */
+.page{max-width:560px;margin:0 auto;padding:16px 16px 24px;}
+.section-label{font-size:10px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:var(--gray-4);margin-bottom:10px;padding:0 2px;}
+
+/* BEGINNER GUIDE */
+.beginner-card{
+  background:linear-gradient(135deg,var(--ink-2),#2D3748);
+  border-radius:20px;padding:20px;margin-bottom:20px;
+  display:flex;align-items:center;gap:16px;
+  cursor:pointer;-webkit-tap-highlight-color:transparent;
+  transition:transform 0.18s;
+}
+.beginner-card:active{transform:scale(0.98);}
+.beginner-icon{width:50px;height:50px;border-radius:14px;background:rgba(255,255,255,0.1);display:flex;align-items:center;justify-content:center;font-size:24px;flex-shrink:0;}
+.beginner-text{}
+.beginner-title{font-size:15px;font-weight:700;color:#fff;margin-bottom:3px;}
+.beginner-sub{font-size:12px;color:rgba(255,255,255,0.55);line-height:1.5;}
+.beginner-arrow{margin-left:auto;color:rgba(255,255,255,0.3);flex-shrink:0;}
+
+/* BLEND SPOTLIGHT */
+.blends-scroll{display:flex;gap:10px;overflow-x:auto;padding-bottom:4px;margin-bottom:20px;scrollbar-width:none;}
+.blends-scroll::-webkit-scrollbar{display:none;}
+.blend-card{
+  flex-shrink:0;width:150px;
+  background:var(--white);border:1px solid var(--gray-2);
+  border-radius:16px;padding:14px;cursor:pointer;
+  -webkit-tap-highlight-color:transparent;transition:all 0.18s;
+}
+.blend-card:hover{border-color:var(--blue);transform:translateY(-2px);box-shadow:0 4px 12px rgba(0,0,0,0.08);}
+.blend-card:active{transform:scale(0.97);}
+.blend-emoji{font-size:26px;margin-bottom:8px;}
+.blend-name{font-size:13px;font-weight:700;color:var(--ink);margin-bottom:3px;}
+.blend-desc{font-size:11px;color:var(--gray-4);line-height:1.4;}
+.blend-badge{display:inline-block;margin-top:8px;font-size:9px;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;padding:3px 8px;border-radius:20px;}
+
+/* COMPOUND LIST */
+.compound-list{display:flex;flex-direction:column;gap:1px;background:var(--gray-2);border-radius:18px;overflow:hidden;margin-bottom:20px;}
+.alpha-group{}
+.alpha-header{background:var(--gray-1);padding:8px 16px;font-size:11px;font-weight:700;color:var(--gray-4);letter-spacing:0.08em;text-transform:uppercase;}
+.compound-row{
+  background:var(--white);padding:14px 16px;
+  display:flex;align-items:center;gap:12px;
+  cursor:pointer;-webkit-tap-highlight-color:transparent;
+  transition:background 0.1s;
+}
+.compound-row:active{background:var(--gray-1);}
+.compound-row:last-child{}
+.cr-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;}
+.cr-info{flex:1;min-width:0;}
+.cr-name{font-size:14px;font-weight:600;color:var(--ink);}
+.cr-tag{font-size:11px;color:var(--gray-4);margin-top:2px;}
+.cr-arrow{color:var(--gray-3);flex-shrink:0;}
+
+/* CATEGORY COLORS */
+.cat-glp1{background:#EF4444;}
+.cat-gh{background:#8B5CF6;}
+.cat-recovery{background:#10B981;}
+.cat-cognitive{background:#F59E0B;}
+.cat-longevity{background:#06B6D4;}
+.cat-hormone{background:#EC4899;}
+.cat-blend{background:linear-gradient(135deg,#667eea,#764ba2);}
+.cat-other{background:var(--gray-3);}
+
+/* COA SECTION */
+.coa-section{background:var(--white);border:1px solid var(--gray-2);border-radius:18px;overflow:hidden;margin-bottom:20px;}
+.coa-header{padding:16px;border-bottom:1px solid var(--gray-2);display:flex;align-items:center;gap:12px;}
+.coa-icon{width:40px;height:40px;border-radius:12px;background:var(--green-pale);display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;}
+.coa-header-text{}
+.coa-title{font-size:14px;font-weight:700;color:var(--ink);}
+.coa-sub{font-size:12px;color:var(--gray-4);margin-top:2px;}
+.coa-panels{display:flex;flex-direction:column;gap:0;}
+.coa-panel{padding:14px 16px;border-bottom:1px solid var(--gray-2);display:flex;align-items:flex-start;gap:12px;}
+.coa-panel:last-child{border-bottom:none;}
+.coa-panel-icon{width:32px;height:32px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0;}
+.coa-panel-info{}
+.coa-panel-name{font-size:13px;font-weight:600;color:var(--ink);margin-bottom:2px;}
+.coa-panel-desc{font-size:12px;color:var(--gray-5);line-height:1.55;}
+
+/* FAQ */
+.faq-section{background:var(--white);border:1px solid var(--gray-2);border-radius:18px;overflow:hidden;margin-bottom:20px;}
+.faq-header-row{padding:16px;border-bottom:1px solid var(--gray-2);}
+.faq-header-title{font-size:14px;font-weight:700;color:var(--ink);}
+.faq-item{border-bottom:1px solid var(--gray-2);}
+.faq-item:last-child{border-bottom:none;}
+.faq-q{padding:14px 16px;display:flex;align-items:center;justify-content:space-between;gap:12px;cursor:pointer;-webkit-tap-highlight-color:transparent;}
+.faq-q-text{font-size:13px;font-weight:600;color:var(--ink);flex:1;}
+.faq-chevron{color:var(--gray-4);transition:transform 0.2s;flex-shrink:0;}
+.faq-a{display:none;padding:0 16px 14px;font-size:13px;color:var(--gray-5);line-height:1.7;}
+.faq-a.open{display:block;}
+.faq-item.open .faq-chevron{transform:rotate(180deg);}
+.faq-item.open .faq-q-text{color:var(--blue);}
+
+/* BOTTOM SHEET */
+.sheet-overlay{position:fixed;inset:0;z-index:300;background:rgba(0,0,0,0);pointer-events:none;transition:background 0.3s;}
+.sheet-overlay.open{background:rgba(7,9,13,0.6);pointer-events:all;backdrop-filter:blur(4px);}
+.sheet{
+  position:fixed;bottom:0;left:0;right:0;z-index:301;
+  background:#fff;border-radius:24px 24px 0 0;
+  height:88svh;
+  display:flex;flex-direction:column;
+  transform:translateY(100%);transition:transform 0.38s cubic-bezier(0.32,0.72,0,1);
+  max-width:600px;margin:0 auto;
+}
+.sheet.open{transform:translateY(0);}
+.sheet-handle{width:36px;height:4px;background:var(--gray-2);border-radius:4px;margin:12px auto 0;}
+.sheet-hdr{padding:14px 20px 12px;border-bottom:1px solid var(--gray-2);display:flex;align-items:flex-start;justify-content:space-between;gap:12px;}
+.sheet-name{font-size:20px;font-weight:800;letter-spacing:-0.5px;color:var(--ink);}
+.sheet-category{display:inline-flex;align-items:center;gap:5px;margin-top:4px;font-size:11px;font-weight:600;padding:3px 10px;border-radius:20px;}
+.sheet-close{width:30px;height:30px;border-radius:50%;background:var(--gray-2);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--gray-5);flex-shrink:0;font-size:16px;font-family:var(--font);}
+
+/* TABS */
+.sheet-tabs{display:flex;border-bottom:1px solid var(--gray-2);padding:0 20px;gap:0;overflow-x:auto;scrollbar-width:none;}
+.sheet-tabs::-webkit-scrollbar{display:none;}
+.sheet-tab{flex-shrink:0;padding:11px 16px;font-size:13px;font-weight:600;color:var(--gray-4);cursor:pointer;border-bottom:2px solid transparent;transition:all 0.15s;-webkit-tap-highlight-color:transparent;white-space:nowrap;}
+.sheet-tab.active{color:var(--blue);border-bottom-color:var(--blue);}
+
+/* SHEET CONTENT */
+.sheet-body{flex:1;overflow-y:auto;padding:20px;-webkit-overflow-scrolling:touch;min-height:0;}
+.sheet-panel{display:none;}
+.sheet-panel.active{display:block;}
+
+.info-block{margin-bottom:20px;}
+.info-label{font-size:10px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:var(--gray-4);margin-bottom:8px;}
+.info-text{font-size:14px;color:var(--gray-5);line-height:1.75;}
+.info-text strong{color:var(--ink);font-weight:600;}
+
+.dose-table{width:100%;border-collapse:collapse;margin-bottom:4px;}
+.dose-table th{font-size:10px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:var(--gray-4);padding:8px 10px;text-align:left;background:var(--gray-1);}
+.dose-table td{font-size:13px;color:var(--ink);padding:10px;border-top:1px solid var(--gray-2);}
+.dose-table tr:first-child td{border-top:none;}
+.dose-level{font-size:10px;font-weight:700;padding:2px 8px;border-radius:20px;}
+.dose-beginner{background:#DCFCE7;color:#15803D;}
+.dose-intermediate{background:#FEF9C3;color:#A16207;}
+.dose-advanced{background:#FEE2E2;color:#DC2626;}
+
+.cycle-row{display:flex;gap:8px;margin-bottom:8px;}
+.cycle-badge{flex:1;background:var(--gray-1);border-radius:12px;padding:12px;text-align:center;}
+.cycle-badge-num{font-size:18px;font-weight:800;letter-spacing:-0.5px;color:var(--ink);}
+.cycle-badge-lbl{font-size:10px;color:var(--gray-4);margin-top:2px;}
+
+.stack-item{background:var(--gray-1);border-radius:14px;padding:14px;margin-bottom:10px;}
+.stack-item-name{font-size:13px;font-weight:700;color:var(--ink);margin-bottom:4px;}
+.stack-item-why{font-size:12px;color:var(--gray-5);line-height:1.6;}
+.stack-syn{display:inline-block;margin-top:6px;font-size:10px;font-weight:700;background:var(--blue-pale);color:var(--blue);padding:2px 8px;border-radius:20px;}
+
+.research-item{border-left:3px solid var(--blue);padding-left:14px;margin-bottom:16px;}
+.research-finding{font-size:13px;font-weight:600;color:var(--ink);margin-bottom:4px;line-height:1.4;}
+.research-detail{font-size:12px;color:var(--gray-5);line-height:1.65;}
+.research-source{display:inline-block;margin-top:5px;font-size:10px;color:var(--gray-4);font-style:italic;}
+
+.side-effect-chips{display:flex;flex-wrap:wrap;gap:7px;margin-bottom:4px;}
+.side-chip{font-size:12px;font-weight:500;padding:6px 12px;border-radius:20px;background:#FEF3C7;color:#92400E;border:1px solid #FDE68A;}
+.side-chip.rare{background:var(--gray-1);color:var(--gray-5);border-color:var(--gray-2);}
+
+.sheet-sticky-cta{
+  padding:12px 20px calc(12px + env(safe-area-inset-bottom));
+  border-top:1px solid var(--gray-2);
+  background:#fff;
+  flex-shrink:0;
+}
+.order-btn{
+  width:100%;padding:16px;
+  background:linear-gradient(135deg,#0876FF,#0557CC);
+  color:#fff;border:none;border-radius:16px;
+  font-size:15px;font-weight:800;letter-spacing:0.01em;
+  cursor:pointer;font-family:var(--font);
+  box-shadow:0 4px 24px rgba(8,118,255,0.35),0 1px 0 rgba(255,255,255,0.15) inset;
+  display:flex;align-items:center;justify-content:center;gap:8px;
+  text-decoration:none;
+  transition:all 0.18s;
+}
+.order-btn:active{transform:scale(0.98);box-shadow:0 2px 12px rgba(8,118,255,0.3);}
+.order-btn:hover{box-shadow:0 6px 28px rgba(8,118,255,0.45);}
+
+/* NO RESULTS */
+.no-results{text-align:center;padding:40px 20px;display:none;}
+.no-results.show{display:block;}
+
+
+/* ── RECENTLY VIEWED ── */
+.recent-section{margin-bottom:20px;}
+.recent-chips{display:flex;gap:8px;overflow-x:auto;scrollbar-width:none;padding-bottom:2px;}
+.recent-chips::-webkit-scrollbar{display:none;}
+.recent-chip{flex-shrink:0;display:flex;align-items:center;gap:7px;padding:8px 14px;background:var(--white);border:1.5px solid var(--gray-2);border-radius:20px;cursor:pointer;-webkit-tap-highlight-color:transparent;transition:all 0.15s;}
+.recent-chip:active{transform:scale(0.96);}
+.recent-chip-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0;}
+.recent-chip-name{font-size:12px;font-weight:600;color:var(--ink);}
+
+/* ── IN STACK BADGE ── */
+.cr-in-stack{display:flex;align-items:center;gap:4px;font-size:9px;font-weight:700;color:var(--green-dark);background:var(--green-pale);padding:2px 7px;border-radius:20px;white-space:nowrap;flex-shrink:0;}
+
+/* ── COMPARE MODE ── */
+.compare-bar{
+  position:fixed;bottom:calc(60px + env(safe-area-inset-bottom));left:0;right:0;z-index:200;
+  background:var(--ink-2);padding:12px 20px;
+  display:none;align-items:center;justify-content:space-between;gap:12px;
+  max-width:600px;margin:0 auto;
+  border-radius:16px 16px 0 0;
+  box-shadow:0 -4px 24px rgba(0,0,0,0.2);
+}
+.compare-bar.show{display:flex;}
+.compare-slots{display:flex;gap:8px;flex:1;}
+.compare-slot{flex:1;background:rgba(255,255,255,0.08);border:1.5px dashed rgba(255,255,255,0.2);border-radius:10px;padding:8px 10px;font-size:11px;font-weight:600;color:rgba(255,255,255,0.4);min-height:36px;display:flex;align-items:center;gap:6px;}
+.compare-slot.filled{background:rgba(255,255,255,0.12);border-color:rgba(255,255,255,0.3);color:#fff;}
+.compare-slot-x{margin-left:auto;font-size:14px;cursor:pointer;color:rgba(255,255,255,0.4);padding:0 2px;}
+.compare-btn{padding:10px 16px;background:var(--blue);color:#fff;border:none;border-radius:10px;font-size:13px;font-weight:700;cursor:pointer;font-family:var(--font);white-space:nowrap;}
+.compare-btn:disabled{opacity:0.4;cursor:default;}
+.cr-compare-check{width:20px;height:20px;border-radius:6px;border:1.5px solid var(--gray-3);display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all 0.15s;}
+.cr-compare-check.selected{background:var(--blue);border-color:var(--blue);}
+
+/* ── COMPARE SHEET ── */
+.compare-table{width:100%;border-collapse:collapse;}
+.compare-table th{font-size:11px;font-weight:700;color:var(--gray-4);padding:10px;text-align:left;background:var(--gray-1);border-bottom:1px solid var(--gray-2);}
+.compare-table th:not(:first-child){text-align:center;color:var(--ink);font-size:13px;font-weight:800;}
+.compare-table td{font-size:12px;color:var(--gray-5);padding:11px 10px;border-bottom:1px solid var(--gray-2);vertical-align:top;line-height:1.5;}
+.compare-table td:not(:first-child){text-align:center;color:var(--ink);font-weight:500;}
+.compare-table td:first-child{color:var(--gray-4);font-weight:600;font-size:10px;text-transform:uppercase;letter-spacing:0.07em;}
+.compare-table tr:last-child td{border-bottom:none;}
+.compare-winner{color:var(--green-dark);font-weight:700;}
+
+/* ── SAFETY RATING ── */
+.safety-row{display:flex;gap:8px;margin-bottom:4px;}
+.safety-item{flex:1;background:var(--gray-1);border-radius:12px;padding:11px 10px;text-align:center;}
+.safety-label{font-size:9px;font-weight:700;letter-spacing:0.07em;text-transform:uppercase;color:var(--gray-4);margin-bottom:6px;}
+.safety-dots{display:flex;gap:3px;justify-content:center;}
+.safety-dot{width:8px;height:8px;border-radius:50%;background:var(--gray-2);}
+.safety-dot.filled-research{background:var(--blue);}
+.safety-dot.filled-established{background:var(--green);}
+.safety-dot.filled-risk{background:var(--red);}
+
+/* ── SEARCH HIGHLIGHT ── */
+.search-hl{background:rgba(8,118,255,0.15);color:var(--blue);border-radius:3px;font-weight:700;}
+
+/* ── RELATED COMPOUNDS ── */
+.related-chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:4px;}
+.related-chip{display:flex;align-items:center;gap:6px;padding:8px 12px;background:var(--gray-1);border:1px solid var(--gray-2);border-radius:20px;cursor:pointer;-webkit-tap-highlight-color:transparent;font-size:12px;font-weight:600;color:var(--ink);transition:all 0.15s;}
+.related-chip:active{transform:scale(0.96);}
+.related-chip-dot{width:6px;height:6px;border-radius:50%;flex-shrink:0;}
+
+
+/* ── FIT SCORE BADGE ── */
+.cr-fit{font-size:9px;font-weight:700;padding:2px 7px;border-radius:20px;white-space:nowrap;flex-shrink:0;}
+.cr-fit-great{background:#D1FAE5;color:#065F46;}
+.cr-fit-good{background:#FEF3C7;color:#92400E;}
+.cr-fit-caution{background:#FEE2E2;color:#991B1B;}
+
+/* ── CYCLE STATUS ── */
+.cr-cycle-warn{font-size:9px;font-weight:700;padding:2px 7px;border-radius:20px;background:#FEE2E2;color:#991B1B;white-space:nowrap;flex-shrink:0;}
+.cr-cycle-ok{font-size:9px;font-weight:700;padding:2px 7px;border-radius:20px;background:#FEF3C7;color:#92400E;white-space:nowrap;flex-shrink:0;}
+
+/* ── BOOKMARKS ── */
+.sheet-bookmark{width:30px;height:30px;border-radius:50%;background:var(--gray-2);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--gray-5);flex-shrink:0;transition:all 0.2s;}
+.sheet-bookmark.saved{background:var(--gold-pale);color:var(--gold);}
+
+/* ── SEARCH SUGGESTIONS ── */
+.search-suggestions{padding:0 16px 8px;display:flex;gap:6px;flex-wrap:wrap;}
+.search-sug-chip{font-size:12px;font-weight:500;padding:5px 12px;border-radius:20px;background:var(--white);border:1px solid var(--gray-2);color:var(--gray-5);cursor:pointer;transition:all 0.15s;font-family:var(--font);}
+.search-sug-chip:active{transform:scale(0.96);}
+.search-autocomplete{position:absolute;top:100%;left:16px;right:16px;background:#fff;border:1.5px solid var(--gray-2);border-radius:14px;box-shadow:0 8px 24px rgba(0,0,0,0.1);z-index:300;overflow:hidden;display:none;}
+.search-autocomplete.show{display:block;}
+.ac-item{padding:11px 16px;font-size:14px;font-weight:500;color:var(--ink);cursor:pointer;display:flex;align-items:center;gap:10px;border-bottom:1px solid var(--gray-2);}
+.ac-item:last-child{border-bottom:none;}
+.ac-item:active{background:var(--gray-1);}
+.ac-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0;}
+
+/* ── COMPOUND OF THE WEEK ── */
+.cotw-card{
+  background:linear-gradient(135deg,#0F172A,#1E293B);
+  border-radius:20px;padding:20px;margin-bottom:20px;
+  position:relative;overflow:hidden;cursor:pointer;
+  -webkit-tap-highlight-color:transparent;transition:transform 0.18s;
+}
+.cotw-card:active{transform:scale(0.98);}
+.cotw-card::before{content:'';position:absolute;top:-40px;right:-40px;width:160px;height:160px;background:radial-gradient(circle,rgba(8,118,255,0.2),transparent 70%);pointer-events:none;}
+.cotw-label{font-size:9px;font-weight:800;letter-spacing:0.12em;text-transform:uppercase;color:var(--gold);margin-bottom:10px;}
+.cotw-name{font-size:20px;font-weight:800;letter-spacing:-0.5px;color:#fff;margin-bottom:6px;}
+.cotw-desc{font-size:13px;color:rgba(255,255,255,0.55);line-height:1.65;margin-bottom:14px;}
+.cotw-cta{display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:700;color:var(--blue);background:rgba(8,118,255,0.15);padding:6px 14px;border-radius:20px;}
+
+/* ── PROTOCOL RECOMMENDATIONS ── */
+.proto-rec-section{margin-bottom:20px;}
+.proto-rec-cards{display:flex;flex-direction:column;gap:8px;}
+.proto-rec-card{background:var(--white);border:1px solid var(--gray-2);border-radius:14px;padding:14px 16px;display:flex;align-items:center;gap:12px;cursor:pointer;-webkit-tap-highlight-color:transparent;transition:all 0.15s;}
+.proto-rec-card:active{transform:scale(0.98);}
+.proto-rec-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0;}
+.proto-rec-info{flex:1;min-width:0;}
+.proto-rec-name{font-size:14px;font-weight:600;color:var(--ink);}
+.proto-rec-why{font-size:12px;color:var(--gray-4);margin-top:2px;line-height:1.4;}
+.proto-rec-badge{font-size:10px;font-weight:700;padding:3px 9px;border-radius:20px;background:var(--blue-pale);color:var(--blue);flex-shrink:0;}
+
+/* ── ADD TO STACK BUTTON ── */
+.add-stack-btn{
+  width:100%;padding:14px;
+  background:var(--gray-1);color:var(--ink);
+  border:1.5px solid var(--gray-2);border-radius:14px;
+  font-size:14px;font-weight:700;cursor:pointer;
+  font-family:var(--font);display:flex;align-items:center;
+  justify-content:center;gap:8px;transition:all 0.18s;
+  text-decoration:none;margin-bottom:8px;
+}
+.add-stack-btn:active{transform:scale(0.98);}
+
+/* ── SHARE BUTTON ── */
+.sheet-share{width:30px;height:30px;border-radius:50%;background:var(--gray-2);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--gray-5);flex-shrink:0;}
+
+@keyframes spin{to{transform:rotate(360deg);}}
+/* BNAV */
+.bnav{position:fixed;bottom:0;left:0;right:0;z-index:100;background:rgba(255,255,255,0.97);backdrop-filter:blur(20px);border-top:1px solid var(--gray-2);height:calc(60px + env(safe-area-inset-bottom));padding-bottom:env(safe-area-inset-bottom);display:flex;align-items:center;}
+.bnav-inner{display:flex;width:100%;max-width:560px;margin:0 auto;padding:0 8px;}
+.bnav-item{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;text-decoration:none;padding:8px 4px;border-radius:10px;transition:background 0.15s;color:var(--gray-4);-webkit-tap-highlight-color:transparent;}
+.bnav-item.active{color:var(--blue);}
+.bnav-lbl{font-size:10px;font-weight:500;}
+.bnav-item.active .bnav-lbl{font-weight:700;}
+</style>
+</head>
+<body>
+
+<header class="hdr">
+  <div class="hdr-top">
+    <a href="/tracker" class="hdr-logo"><div class="hdr-mark">P</div></a>
+    <div class="hdr-title">Library</div>
+    <div id="compound-count-badge" style="font-size:11px;font-weight:700;color:var(--blue);background:var(--blue-pale);padding:4px 10px;border-radius:20px;"></div>
+  </div>
+  <div class="search-wrap" style="position:relative;">
+    <div class="search-box">
+      <div class="search-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></div>
+      <input class="search-input" id="search-input" placeholder="Search compounds..." oninput="onSearch(this.value)"/>
+      <button class="search-clear" id="search-clear" onclick="clearSearch()">×</button>
+    </div>
+    <div class="search-autocomplete" id="search-autocomplete"></div>
+  </div>
+  <div class="search-suggestions" id="search-suggestions">
+    <div class="search-sug-chip" onclick="doSugSearch('sleep')">Sleep</div>
+    <div class="search-sug-chip" onclick="doSugSearch('fat loss')">Fat Loss</div>
+    <div class="search-sug-chip" onclick="doSugSearch('recovery')">Recovery</div>
+    <div class="search-sug-chip" onclick="doSugSearch('GH')">GH</div>
+    <div class="search-sug-chip" onclick="doSugSearch('longevity')">Longevity</div>
+    <div class="search-sug-chip" onclick="doSugSearch('cognitive')">Cognitive</div>
+  </div>
+  <div class="filters" id="filters">
+    <button class="filter-chip active" onclick="setFilter('all',this)">All</button>
+    <button class="filter-chip" onclick="setFilter('fat_loss',this)">Fat Loss</button>
+    <button class="filter-chip" onclick="setFilter('recovery',this)">Recovery</button>
+    <button class="filter-chip" onclick="setFilter('cognitive',this)">Cognitive</button>
+    <button class="filter-chip" onclick="setFilter('gh',this)">GH / IGF</button>
+    <button class="filter-chip" onclick="setFilter('longevity',this)">Longevity</button>
+    <button class="filter-chip" onclick="setFilter('blend',this)">Blends</button>
+    <button class="filter-chip" onclick="setFilter('hormone',this)">Hormones</button>
+    <button class="filter-chip" id="saved-filter-chip" onclick="setFilter('saved',this)">🔖 Saved</button>
+    <button class="filter-chip" id="myproto-filter-chip" onclick="setFilter('myprotocol',this)" style="display:none;">🧬 My Protocol</button>
+  </div></div>
+</header>
+
+<div class="page">
+
+  <!-- BEGINNER GUIDE -->
+  <div class="beginner-card" id="beginner-btn" onclick="openBeginner()">
+    <div class="beginner-icon">🧬</div>
+    <div class="beginner-text">
+      <div class="beginner-title">New to peptides? Start here.</div>
+      <div class="beginner-sub">What they are, how they work, and where to begin</div>
+    </div>
+    <div class="beginner-arrow"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="9 18 15 12 9 6"/></svg></div>
+  </div>
+
+  <!-- RECENTLY VIEWED -->
+  <div class="recent-section" id="recent-section" style="display:none;">
+    <div class="section-label">Recently Viewed</div>
+    <div class="recent-chips" id="recent-chips"></div>
+  </div>
+
+  <!-- BLEND SPOTLIGHT -->
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
+    <div class="section-label" id="spotlight-label" style="margin-bottom:0;">Signature Blends</div>
+    <div id="spotlight-week" style="display:none;font-size:11px;font-weight:600;color:var(--blue);"></div>
+  </div>
+  <div class="blends-scroll" id="blends-scroll"></div>
+
+  <!-- PROTOCOL RECOMMENDATIONS -->
+  <div id="proto-rec-section" class="proto-rec-section" style="display:none;">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
+      <div class="section-label" style="margin-bottom:0;">Recommended for Your Stack</div>
+      <div style="font-size:11px;color:var(--gray-4);">Based on your protocol</div>
+    </div>
+    <div class="proto-rec-cards" id="proto-rec-cards"></div>
+  </div>
+
+  <div id="compare-toggle-wrap" style="margin-bottom:14px;">
+    <button onclick="toggleCompareMode()" id="compare-toggle-btn" style="width:100%;padding:11px;background:var(--white);border:1.5px solid var(--gray-2);border-radius:12px;font-size:13px;font-weight:600;color:var(--gray-5);cursor:pointer;font-family:var(--font);display:flex;align-items:center;justify-content:center;gap:8px;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M9 3H5a2 2 0 00-2 2v4m6-6h10a2 2 0 012 2v4M9 3v18m0 0h10a2 2 0 002-2V9M9 21H5a2 2 0 01-2-2V9m0 0h18"/></svg>Compare Compounds</button>
+  </div>
+
+  <!-- COMPOUND LIST -->
+  <div class="section-label" id="compounds-label">All Compounds</div>
+  <div id="no-results" class="no-results"><div style="font-size:32px;margin-bottom:10px;">🔍</div><div style="font-size:15px;font-weight:700;color:var(--ink);margin-bottom:6px;">No results</div><div style="font-size:13px;color:var(--gray-4);">Try a different search or filter</div></div>
+  <div id="compound-list"></div>
+
+  <!-- COA EXPLAINER -->
+  <div class="section-label">Understanding COAs</div>
+  <div class="coa-section">
+    <div class="coa-header">
+      <div class="coa-icon">🔬</div>
+      <div class="coa-header-text">
+        <div class="coa-title">What is a 6-Panel COA?</div>
+        <div class="coa-sub">Look for vendors running all 6 tests on every batch</div>
+      </div>
+    </div>
+    <div class="coa-panels">
+      <div class="coa-panel"><div class="coa-panel-icon" style="background:#EFF6FF;">💧</div><div class="coa-panel-info"><div class="coa-panel-name">HPLC Purity</div><div class="coa-panel-desc">High-Performance Liquid Chromatography. The gold standard for measuring peptide purity. Trident requires 99%+. Most suppliers only report this one.</div></div></div>
+      <div class="coa-panel"><div class="coa-panel-icon" style="background:#F0FDF4;">🌊</div><div class="coa-panel-info"><div class="coa-panel-name">UV-Vis Spectroscopy</div><div class="coa-panel-desc">Confirms the compound absorbs light at the correct wavelength — verifying you have the right molecule, not just something pure.</div></div></div>
+      <div class="coa-panel"><div class="coa-panel-icon" style="background:#FEF9C3;">⚖️</div><div class="coa-panel-info"><div class="coa-panel-name">Beer-Lambert Assay</div><div class="coa-panel-desc">Calculates the actual concentration in the vial. Confirms the stated dose is what's actually in there.</div></div></div>
+      <div class="coa-panel"><div class="coa-panel-icon" style="background:#FFF7ED;">⚠️</div><div class="coa-panel-info"><div class="coa-panel-name">ICP-MS Heavy Metals</div><div class="coa-panel-desc">Tests for lead, mercury, arsenic, cadmium. Critical for compounds sourced overseas. Most suppliers skip this entirely.</div></div></div>
+      <div class="coa-panel"><div class="coa-panel-icon" style="background:#FDF4FF;">🦠</div><div class="coa-panel-info"><div class="coa-panel-name">TAMC (Microbial)</div><div class="coa-panel-desc">Total Aerobic Microbial Count. Confirms the product is sterile and safe to inject. Non-negotiable for SubQ use.</div></div></div>
+      <div class="coa-panel"><div class="coa-panel-icon" style="background:#FFF1F2;">🍄</div><div class="coa-panel-info"><div class="coa-panel-name">TYMC (Yeast & Mold)</div><div class="coa-panel-desc">Tests for yeast and fungal contamination specifically. Paired with TAMC for full microbial safety clearance.</div></div></div>
+    </div>
+  </div>
+
+  <!-- COMPOUND OF THE WEEK -->
+  <div id="cotw-section" style="margin-bottom:20px;"></div>
+
+  <!-- FAQ -->
+  <div class="section-label">Common Questions</div>
+  <div class="faq-section" id="faq-section"></div>
+
+</div>
+
+<!-- COMPARE BAR -->
+<div class="compare-bar" id="compare-bar">
+  <div class="compare-slots">
+    <div class="compare-slot" id="cslot-0"><span id="cslot-0-txt">Select compound</span></div>
+    <div class="compare-slot" id="cslot-1"><span id="cslot-1-txt">Select compound</span></div>
+  </div>
+  <button class="compare-btn" id="compare-go-btn" onclick="openComparison()" disabled>Compare</button>
+</div>
+
+
+<!-- BOTTOM SHEET -->
+<div class="sheet-overlay" id="sheet-overlay" onclick="closeSheet()"></div>
+<div class="sheet" id="sheet">
+  <div class="sheet-handle"></div>
+  <div class="sheet-hdr">
+    <div>
+      <div class="sheet-name" id="sheet-name">BPC-157</div>
+      <div id="sheet-category-wrap"></div>
+    </div>
+    <div style="display:flex;align-items:center;gap:6px;">
+      <button class="sheet-share" id="sheet-share-btn" onclick="shareCompound()" title="Share"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg></button>
+      <button class="sheet-bookmark" id="sheet-bookmark-btn" onclick="toggleBookmark()" title="Save"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M19 21l-7-5-7 5V5a2 2 0 012-2h10a2 2 0 012 2z"/></svg></button>
+      <button class="sheet-close" onclick="closeSheet()">×</button>
+    </div>
+  </div>
+  <div class="sheet-tabs" id="sheet-tabs">
+    <div class="sheet-tab active" onclick="switchTab(0,this)">Overview</div>
+    <div class="sheet-tab" onclick="switchTab(1,this)">Dosing</div>
+    <div class="sheet-tab" onclick="switchTab(2,this)">Stacks</div>
+    <div class="sheet-tab" onclick="switchTab(3,this)">Research</div>
+  </div>
+  <div class="sheet-body" id="sheet-body"></div>
+  <div class="sheet-sticky-cta" id="sheet-cta"></div>
+</div>
+
+<!-- BNAV -->
+<nav class="bnav">
+  <div class="bnav-inner">
+    <a href="/protocol" class="bnav-item"><div style="width:22px;height:22px;display:flex;align-items:center;justify-content:center;"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M9 3H5a2 2 0 00-2 2v4m6-6h10a2 2 0 012 2v4M9 3v18m0 0h10a2 2 0 002-2V9M9 21H5a2 2 0 01-2-2V9m0 0h18"/></svg></div><div class="bnav-lbl">Protocol</div></a>
+    <a href="/chat" class="bnav-item"><div style="width:22px;height:22px;display:flex;align-items:center;justify-content:center;"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg></div><div class="bnav-lbl">Advisor</div></a>
+    <a href="/tracker" class="bnav-item"><div style="width:22px;height:22px;display:flex;align-items:center;justify-content:center;"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></div><div class="bnav-lbl">Tracker</div></a>
+    <a href="/library" class="bnav-item active"><div style="width:22px;height:22px;display:flex;align-items:center;justify-content:center;"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M2 3h6a4 4 0 014 4v14a3 3 0 00-3-3H2z"/><path d="M22 3h-6a4 4 0 00-4 4v14a3 3 0 013-3h7z"/></svg></div><div class="bnav-lbl">Library</div></a>
+    <a href="/account" class="bnav-item"><div style="width:22px;height:22px;display:flex;align-items:center;justify-content:center;"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></div><div class="bnav-lbl">Account</div></a>
+  </div>
+</nav>
+
+<script>
+
+// ── PAYWALL GUARD (server-side) ──
+(function(){
+  var email  = localStorage.getItem('peptrak_auth_email');
+  var paid   = localStorage.getItem('peptrak_paid');
+  var isTest = localStorage.getItem('peptrak_test_account') === '1';
+
+  if(isTest) return; // test account always passes
+
+  if(!email || !paid){
+    window.location.replace('/checkout');
+    return;
+  }
+
+  // Async server-side check — catches past_due / cancelled without blocking page load
+  fetch('/api/check-access?email=' + encodeURIComponent(email))
+    .then(function(r){ return r.json(); })
+    .then(function(data){
+      if(data.access) return;
+      if(data.status === 'past_due' || data.status === 'unpaid'){
+        localStorage.removeItem('peptrak_paid');
+        localStorage.setItem('peptrak_subscription_status','past_due');
+        window.location.replace('/rebill');
+      } else if(data.status === 'cancelled' || data.status === 'canceled'){
+        localStorage.removeItem('peptrak_paid');
+        window.location.replace('/rebill');
+      } else if(data.redirect){
+        localStorage.removeItem('peptrak_paid');
+        window.location.replace(data.redirect);
+      }
+    })
+    .catch(function(){}); // network error — fail open
+})();
+
+// ── COMPOUND DATABASE ──
+var COMPOUNDS = [
+  // GLP-1 / Fat Loss
+  {id:'semaglutide',name:'Semaglutide',category:'fat_loss',tag:'GLP-1 Agonist',
+   tagline:'The gold standard GLP-1 for appetite suppression and fat loss.',
+   overview:'Semaglutide mimics the GLP-1 hormone your gut releases after eating. It tells your brain you are full, slows gastric emptying, and reduces appetite significantly. Originally developed for type 2 diabetes, it became the most studied weight loss compound in history.',
+   mechanism:'Binds GLP-1 receptors in the hypothalamus — the brain\'s appetite control center. Also slows how quickly food leaves your stomach, keeping you fuller longer and reducing overall caloric intake without willpower.',
+   keyBenefits:['Significant appetite reduction','Improved insulin sensitivity','5-15% body weight reduction in studies','Cardiovascular protective effects'],
+   doses:[{level:'Beginner',dose:'0.25mg/week',notes:'Titration start — hold 4 weeks'},{level:'Intermediate',dose:'0.5-1mg/week',notes:'After tolerance established'},{level:'Advanced',dose:'1-2.4mg/week',notes:'Maximum studied dose'}],
+   route:'SubQ once weekly',cycleOn:'12-24 weeks',cycleOff:'4-8 weeks (taper down)',
+   timing:'Same day each week. Any time of day.',
+   sideEffects:['Nausea (common weeks 1-4)','Constipation','Vomiting on dose increases','Injection site reactions'],
+   sideEffectsRare:['Pancreatitis (rare)','Gallbladder issues'],
+   stacks:[{name:'Retatrutide',why:'Triple agonist upgrade — more potent fat loss with additional glucagon activity. Upgrade path from Sema.',syn:'Advanced upgrade'},{name:'CJC+IPA Blend',why:'Preserves lean muscle mass during caloric deficit. GH peptides counteract muscle loss from GLP-1s.',syn:'Muscle preservation'},{name:'AOD-9604',why:'Targets fat cells directly while Sema handles appetite. Complementary mechanisms.',syn:'Fat loss synergy'}],
+   research:[{finding:'13.4% average body weight loss over 68 weeks',detail:'STEP 1 trial, 1961 participants. Largest weight loss seen in any pharmaceutical trial at the time.',source:'NEJM, 2021'},{finding:'Significantly reduced cardiovascular events',detail:'SELECT trial showed 20% reduction in major cardiovascular events in adults with obesity.',source:'NEJM, 2023'}],
+   tridentUrl:'https://usetridentlabs.com'},
+
+  {id:'tirzepatide',name:'Tirzepatide',category:'fat_loss',tag:'GIP/GLP-1 Dual Agonist',
+   tagline:'Dual hormone action — more potent than Semaglutide for most users.',
+   overview:'Tirzepatide activates both GLP-1 and GIP receptors simultaneously. The dual action produces stronger appetite suppression and metabolic effects than GLP-1 alone. Average weight loss in trials significantly exceeded Semaglutide.',
+   mechanism:'GIP receptor activation adds a separate appetite-suppressing pathway and improves how the body responds to insulin. The dual mechanism creates synergistic effects — more fat loss with similar or better tolerability.',
+   keyBenefits:['Up to 22% body weight loss in trials','Better tolerability than expected','Improved metabolic markers','Stronger than Semaglutide at comparable doses'],
+   doses:[{level:'Beginner',dose:'2.5mg/week',notes:'Start here — hold 4 weeks minimum'},{level:'Intermediate',dose:'5-10mg/week',notes:'Titrate slowly every 4 weeks'},{level:'Advanced',dose:'12.5-15mg/week',notes:'Maximum dose — strong appetite suppression'}],
+   route:'SubQ once weekly',cycleOn:'16-24 weeks',cycleOff:'4-8 weeks (taper)',
+   timing:'Same day each week.',
+   sideEffects:['Nausea','Diarrhea','Reduced appetite (intended)','Injection site reactions'],
+   sideEffectsRare:['Pancreatitis','Gallbladder disease'],
+   stacks:[{name:'CJC+IPA Blend',why:'Essential for preserving muscle mass during aggressive fat loss. GH peptides counter the catabolic environment.',syn:'Muscle preservation'},{name:'MOTS-c',why:'Improves mitochondrial function and insulin sensitivity — compounds the metabolic benefits.',syn:'Metabolic synergy'}],
+   research:[{finding:'22.5% average body weight reduction',detail:'SURMOUNT-1 trial at maximum dose — highest weight loss ever recorded in a pharmaceutical trial.',source:'NEJM, 2022'},{finding:'Superior to Semaglutide head-to-head',detail:'SURPASS-2 trial showed significantly greater weight loss vs Semaglutide 1mg.',source:'NEJM, 2021'}],
+   tridentUrl:'https://usetridentlabs.com'},
+
+  {id:'retatrutide',name:'Retatrutide',category:'fat_loss',tag:'GIP/GLP-1/Glucagon Triple Agonist',
+   tagline:'The most potent fat loss compound ever studied — triple receptor action.',
+   overview:'Retatrutide hits three receptors: GLP-1, GIP, and glucagon. The glucagon component directly increases energy expenditure — your body burns more calories even at rest. This triple mechanism produces fat loss results that exceed anything previously studied.',
+   mechanism:'GLP-1 and GIP suppress appetite. Glucagon receptor activation increases energy expenditure and fat oxidation directly. You eat less AND burn more simultaneously — a combination no previous compound achieved.',
+   keyBenefits:['Up to 24% body weight loss in phase 2','Significant visceral fat reduction','Higher energy expenditure','Faster results than dual agonists'],
+   doses:[{level:'Beginner',dose:'0.5mg/week',notes:'Critical — glucagon sides if titrated too fast'},{level:'Intermediate',dose:'2-4mg/week',notes:'After 8+ weeks of slow titration'},{level:'Advanced',dose:'4-8mg/week',notes:'Most users find sweet spot at 4mg'}],
+   route:'SubQ once weekly',cycleOn:'16-24 weeks',cycleOff:'Taper before stopping',
+   timing:'Same day each week. Inject slowly.',
+   sideEffects:['Nausea (more than Sema/Tirze)','Vomiting on fast titration','Diarrhea','Strong appetite suppression'],
+   sideEffectsRare:['GI distress','Rapid weight loss-related fatigue'],
+   stacks:[{name:'CJC+IPA Blend',why:'Non-negotiable. Retatrutide produces aggressive fat loss — you must protect muscle with GH stimulation.',syn:'Essential stack'},{name:'SS-31',why:'Retatrutide increases energy demand significantly. SS-31 supports mitochondrial function to keep up.',syn:'Mitochondrial support'}],
+   research:[{finding:'24.2% mean weight reduction at highest dose',detail:'Phase 2 trial over 48 weeks — the highest weight loss ever recorded in a clinical trial for any compound.',source:'NEJM, 2023'},{finding:'Significant visceral fat reduction',detail:'CT scans showed substantial reduction in dangerous abdominal visceral fat, not just subcutaneous.',source:'NEJM, 2023'}],
+   tridentUrl:'https://usetridentlabs.com'},
+
+  // Recovery
+  {id:'bpc157',name:'BPC-157',category:'recovery',tag:'Tissue Repair Peptide',
+   tagline:'The most researched healing peptide. Repairs tendons, gut, muscle, and nerves.',
+   overview:'BPC-157 stands for Body Protection Compound. It\'s a partial sequence of a protective protein found naturally in gastric juice. It was discovered when researchers noticed the stomach lining repairs itself remarkably fast — BPC-157 is why.',
+   mechanism:'Upregulates growth hormone receptors, stimulates angiogenesis (new blood vessel formation) near injury sites, and activates the nitric oxide system. Creates a localized healing environment that accelerates repair of connective tissue, muscle, and nerves.',
+   keyBenefits:['Accelerated tendon and ligament healing','Gut lining repair','Reduced inflammation','Neuroprotective effects','Muscle repair'],
+   doses:[{level:'Beginner',dose:'200-250mcg/day',notes:'Start here. SubQ near injury site.'},{level:'Intermediate',dose:'300-500mcg/day',notes:'Standard therapeutic range'},{level:'Advanced',dose:'500-750mcg/day',notes:'Acute injuries only — short term'}],
+   route:'SubQ (near injury) or oral for gut',cycleOn:'4-12 weeks',cycleOff:'4 weeks',
+   timing:'Morning fasted, or split AM/PM.',
+   sideEffects:['Generally very well tolerated','Mild nausea (rare)'],
+   sideEffectsRare:['Theoretical concern with angiogenesis in cancer history — avoid'],
+   stacks:[{name:'TB-500',why:'BPC-157 works locally near injection site. TB-500 works systemically. Together they cover all tissue types.',syn:'Systemic + local'},{name:'GHK-Cu',why:'Adds collagen synthesis and anti-inflammatory support. Classic recovery triple stack.',syn:'Collagen synergy'},{name:'GLOW Blend',why:'All three in one vial. The most efficient delivery of the complete recovery stack.',syn:'Full blend'}],
+   research:[{finding:'Tendon-to-bone healing acceleration',detail:'Multiple animal studies show significantly accelerated healing of Achilles tendon injuries with daily BPC-157.',source:'J Physiol Pharmacol, 2010'},{finding:'Gut lining repair in inflammatory conditions',detail:'Demonstrated protective effects on intestinal epithelium in colitis and IBS models.',source:'Dig Dis Sci, 2015'}],
+   tridentUrl:'https://usetridentlabs.com'},
+
+  {id:'tb500',name:'TB-500',category:'recovery',tag:'Systemic Healing Peptide',
+   tagline:'Systemic tissue repair with anti-inflammatory and flexibility benefits.',
+   overview:'TB-500 is a synthetic version of Thymosin Beta-4, a protein found in virtually every cell in the body. Unlike BPC-157 which works locally, TB-500 travels systemically — wherever there is inflammation or injury, it finds it.',
+   mechanism:'Promotes cell migration to injury sites, reduces inflammatory cytokines, and upregulates actin — a protein essential for cell structure and movement. Uniquely, it promotes flexibility in connective tissue, not just strength.',
+   keyBenefits:['Systemic injury repair','Reduced systemic inflammation','Improved flexibility','Cardiac tissue protection','Enhanced endurance'],
+   doses:[{level:'Loading',dose:'2-2.5mg 2x/week',notes:'4-6 week loading phase'},{level:'Maintenance',dose:'2mg/week',notes:'After loading complete'},{level:'Acute',dose:'5mg/week',notes:'Serious injuries only, 4 weeks max'}],
+   route:'SubQ',cycleOn:'8-12 weeks then maintenance',cycleOff:'4 weeks per year off',
+   timing:'Any time. Consistent days of week.',
+   sideEffects:['Head rush feeling at injection (common)','Fatigue same day of injection','Mild flu-like symptoms week 1'],
+   sideEffectsRare:['Possible concern with undetected cancers — same caution as BPC-157'],
+   stacks:[{name:'BPC-157',why:'Complementary mechanisms. BPC-157 accelerates local healing. TB-500 handles systemic inflammation and flexibility.',syn:'Recovery stack'},{name:'CJC+IPA Blend',why:'GH peptides accelerate the tissue remodeling phase — collagen crosslinking and strength restoration.',syn:'Remodeling support'}],
+   research:[{finding:'Cardiac tissue repair after injury',detail:'TB-500 demonstrated myocardial regeneration capacity in ischemia models — unique among recovery peptides.',source:'J Mol Cell Cardiol, 2007'},{finding:'Accelerated muscle repair post-injury',detail:'Significantly reduced healing time for muscle tears with retained strength in animal models.',source:'Ann N Y Acad Sci, 2012'}],
+   tridentUrl:'https://usetridentlabs.com'},
+
+  // GH
+
+  {id:'igf1lr3',name:'IGF-1 LR3',category:'gh',tag:'Growth Factor',
+   tagline:'Powerful muscle signaling factor. Maximum 4-week cycles — non-negotiable.',
+   overview:'IGF-1 LR3 is a modified form of Insulin-like Growth Factor 1 with a longer half-life than natural IGF-1. It directly activates muscle cell receptors to trigger protein synthesis, cell proliferation, and nutrient partitioning after training.',
+   mechanism:'Binds IGF-1 receptors on muscle cells directly — bypassing the GH axis entirely. Signals muscle cells to take up nutrients, synthesize protein, and multiply. The LR3 modification means it stays active in the body for 20-30 hours vs 20 minutes for natural IGF-1.',
+   keyBenefits:['Direct muscle protein synthesis signal','Enhanced nutrient partitioning post-workout','Accelerated recovery','Potential satellite cell activation'],
+   doses:[{level:'Beginner',dose:'20-30mcg post-workout',notes:'Start low. Hypoglycemia risk.'},{level:'Intermediate',dose:'40-60mcg post-workout',notes:'Standard range'},{level:'Advanced',dose:'80-100mcg post-workout',notes:'Experienced users only — monitor glucose'}],
+   route:'SubQ or IM post-workout',cycleOn:'4 weeks MAXIMUM',cycleOff:'4 weeks minimum',
+   timing:'Immediately post-workout with carbs + protein. Never fasted.',
+   sideEffects:['Hypoglycemia (eat after injection)','Joint aches at high doses','Hunger increase','Temporary insulin resistance'],
+   sideEffectsRare:['Receptor downregulation with cycles longer than 4 weeks'],
+   stacks:[{name:'CJC+IPA Blend',why:'GH peptides set the anabolic environment. IGF-1 LR3 is the direct effector. Combined produces maximal muscle signaling.',syn:'Anabolic stack'},{name:'BPC-157',why:'IGF-1 LR3 drives training intensity up — BPC-157 handles the increased repair demand.',syn:'Recovery balance'}],
+   research:[{finding:'Superior muscle hypertrophy signaling vs natural IGF-1',detail:'LR3 modification gives 2-3x longer active half-life while maintaining full receptor binding affinity.',source:'Endocrinology, 1993'},{finding:'Enhanced muscle satellite cell activation',detail:'IGF-1 LR3 activates muscle stem cells (satellite cells) which natural IGF-1 does not readily reach.',source:'Mol Cell Biol, 2001'}],
+   tridentUrl:'https://usetridentlabs.com'},
+
+  // Cognitive
+  {id:'semax',name:'Semax',category:'cognitive',tag:'Nootropic Neuropeptide',
+   tagline:'BDNF upregulator. Sharper focus, better memory, lower stress within 30 minutes.',
+   overview:'Semax is a synthetic analog of ACTH — a hormone that protects neurons and stimulates brain activity. Originally developed in Russia for stroke recovery and cognitive enhancement, it became one of the most used nootropic peptides globally. Intranasal delivery means it crosses the blood-brain barrier directly.',
+   mechanism:'Upregulates BDNF (Brain-Derived Neurotrophic Factor) — the protein responsible for neuron growth and synaptic plasticity. Also increases dopamine and serotonin receptor sensitivity. Effects are felt within 30-60 minutes of intranasal administration.',
+   keyBenefits:['Faster cognitive processing','Improved working memory','Reduced anxiety and stress','BDNF upregulation for long-term brain health','Neuroprotective effects'],
+   doses:[{level:'Beginner',dose:'200mcg intranasal/day',notes:'1-2 drops per nostril'},{level:'Intermediate',dose:'300-400mcg/day',notes:'Split AM/PM for sustained effect'},{level:'Advanced',dose:'500-600mcg/day',notes:'High performance / cognitive load days'}],
+   route:'Intranasal',cycleOn:'14 days on',cycleOff:'14 days off',
+   timing:'Morning on an empty stomach for best absorption.',
+   sideEffects:['Mild irritability if overused','Nasal irritation','Over-stimulation at high doses'],
+   sideEffectsRare:['Tolerance builds fast — respect the 2-week cycle'],
+   stacks:[{name:'Selank',why:'Semax is stimulating. Selank is anxiolytic. Together they produce sharp focus without anxiety — the ideal cognitive state.',syn:'Focus + calm'},{name:'NAD+',why:'NAD+ supports cellular energy production in neurons. Semax drives cognitive demand — NAD+ fuels it.',syn:'Neural energy'}],
+   research:[{finding:'Significant BDNF increase within hours',detail:'Intranasal Semax produced measurable BDNF elevation — comparable to exercise — within 1-3 hours.',source:'Mol Biol, 2007'},{finding:'Neuroprotective in ischemia models',detail:'Reduced neuronal death and improved cognitive recovery in stroke models. Now used clinically in Russia.',source:'J Neurochem, 2004'}],
+   tridentUrl:'https://usetridentlabs.com'},
+
+  {id:'selank',name:'Selank',category:'cognitive',tag:'Anxiolytic Neuropeptide',
+   tagline:'Prescription-free anxiety relief with cognitive enhancement. No sedation.',
+   overview:'Selank is a synthetic analog of tuftsin — an immune peptide. It produces anxiolytic effects comparable to benzodiazepines but without sedation, tolerance, or dependency. Developed in Russia as a non-habit-forming anti-anxiety treatment.',
+   mechanism:'Modulates GABA-A receptors (same pathway as benzos) but through a different binding site — producing calm without sedation. Also increases enkephalins — natural pain and stress-modulating peptides.',
+   keyBenefits:['Anxiety reduction without sedation','Mood stabilization','Cognitive clarity under stress','Immune modulation','No dependency or withdrawal'],
+   doses:[{level:'Beginner',dose:'250mcg/day intranasal',notes:'1 drop each nostril'},{level:'Intermediate',dose:'500mcg/day',notes:'Split or single morning dose'},{level:'Advanced',dose:'500mcg 2x/day',notes:'High stress periods'}],
+   route:'Intranasal',cycleOn:'30 days',cycleOff:'2 weeks',
+   timing:'Morning and/or evening. Can use situationally before stressful events.',
+   sideEffects:['Mild sedation at very high doses','Slight initial drowsiness (first few days)'],
+   sideEffectsRare:['No significant adverse effects documented in research'],
+   stacks:[{name:'Semax',why:'Perfect cognitive stack. Semax sharpens focus and memory. Selank removes anxiety. Together: calm, sharp, productive.',syn:'Cognitive stack'},{name:'BPC-157',why:'Selank has gut-brain axis effects. BPC-157 supports the gut lining, amplifying the stress-reduction feedback loop.',syn:'Gut-brain axis'}],
+   research:[{finding:'Anxiolytic effects comparable to diazepam',detail:'Selank produced equivalent anxiety reduction to 0.05mg/kg diazepam without any sedation or cognitive impairment.',source:'Bull Exp Biol Med, 2008'},{finding:'Cognitive enhancement under stress',detail:'Subjects showed improved working memory and processing speed on stressful cognitive tasks vs placebo.',source:'Neurosci Behav Physiol, 2010'}],
+   tridentUrl:'https://usetridentlabs.com'},
+
+  // Longevity
+  {id:'epithalon',name:'Epithalon',category:'longevity',tag:'Telomere Peptide',
+   tagline:'The only compound shown to lengthen telomeres in human studies.',
+   overview:'Epithalon is a tetrapeptide (4 amino acids) discovered by Russian gerontologist Vladimir Khavinson. It activates telomerase — the enzyme that maintains telomere length. Telomeres are the protective caps on chromosomes that shorten with age. Longer telomeres = younger biological age.',
+   mechanism:'Activates the gene encoding telomerase reverse transcriptase (TERT). Increased telomerase activity means cells can replicate more times before senescence. Also regulates circadian rhythms through melatonin modulation and improves pineal gland function.',
+   keyBenefits:['Telomere lengthening (unique)','Improved sleep quality','Enhanced melatonin production','Anti-tumor properties in research','Cellular rejuvenation markers'],
+   doses:[{level:'Standard',dose:'5-10mg/day SubQ',notes:'10 consecutive days only'},{level:'Maintenance',dose:'5mg/day for 10 days',notes:'Repeat 2-4x per year'},{level:'Loading',dose:'10mg/day for 10 days',notes:'First cycle or after long break'}],
+   route:'SubQ',cycleOn:'10 days only — then stop',cycleOff:'3 months minimum before next cycle',
+   timing:'Evening or bedtime — aligns with circadian rhythm effects.',
+   sideEffects:['Generally very well tolerated','Vivid dreams (common — sign it\'s working on pineal)','Mild injection site redness'],
+   sideEffectsRare:['No significant adverse effects in 35+ years of research'],
+   stacks:[{name:'MOTS-c',why:'Epithalon works at the cellular/nuclear level. MOTS-c works at the mitochondrial level. Complete cellular rejuvenation.',syn:'Cellular longevity'},{name:'NAD+',why:'NAD+ is the other major longevity pathway (sirtuin activation). Epithalon + NAD+ covers the two most researched aging mechanisms.',syn:'Longevity stack'}],
+   research:[{finding:'Telomere elongation in human cell cultures',detail:'Epithalon was the first compound to demonstrate measurable telomere lengthening in human somatic cells.',source:'Bull Exp Biol Med, 2003'},{finding:'Extended lifespan in animal studies by 24%',detail:'Long-term Epithalon administration increased average lifespan in multiple animal models.',source:'Ann N Y Acad Sci, 2005'}],
+   tridentUrl:'https://usetridentlabs.com'},
+
+  {id:'nad',name:'NAD+',category:'longevity',tag:'Cellular Energy & Longevity',
+   tagline:'The master coenzyme. Every cell needs it. Levels drop 50% by age 50.',
+   overview:'NAD+ (Nicotinamide Adenine Dinucleotide) is a coenzyme found in every cell. It powers the mitochondria that produce cellular energy and activates sirtuins — the proteins that repair DNA and regulate aging. Oral supplementation has poor bioavailability; SubQ bypasses this entirely.',
+   mechanism:'Directly replenishes cellular NAD+ levels. Activates SIRT1 and SIRT3 (sirtuin proteins) which regulate DNA repair, mitochondrial biogenesis, and metabolic function. PARP enzymes that repair DNA damage are also NAD+ dependent.',
+   keyBenefits:['Cellular energy restoration','DNA repair support','Mitochondrial biogenesis','Cognitive clarity','Anti-aging at the cellular level','Improved metabolic function'],
+   doses:[{level:'Starter',dose:'100-200mg SubQ',notes:'3x/week. Inject slowly — flush reaction'},{level:'Standard',dose:'300-500mg SubQ',notes:'3x/week or daily'},{level:'High dose',dose:'500-1000mg SubQ',notes:'Daily loading protocol'}],
+   route:'SubQ — inject over 5-10 minutes to minimize flush',cycleOn:'No cycle limit',cycleOff:'Can run continuously',
+   timing:'Morning. Inject slowly over several minutes.',
+   sideEffects:['Flushing/warmth during injection (inject SLOWLY)','Nausea if injected too fast','Temporary headache'],
+   sideEffectsRare:['No significant adverse effects at standard doses'],
+   stacks:[{name:'Epithalon',why:'Two orthogonal longevity pathways — telomerase activation + sirtuin activation. The most researched combination for biological age.',syn:'Longevity protocol'},{name:'MOTS-c',why:'MOTS-c optimizes mitochondrial function. NAD+ fuels the mitochondria directly. Powerful combination for energy and longevity.',syn:'Mitochondrial stack'},{name:'SS-31',why:'SS-31 protects mitochondrial membrane integrity. NAD+ fuels them. Complementary mechanism.',syn:'Mitochondrial protection'}],
+   research:[{finding:'NAD+ levels decline ~50% between ages 40-60',detail:'Measured across multiple tissue types. Explains age-related decline in energy, DNA repair capacity, and metabolic function.',source:'Cell Metab, 2012'},{finding:'Sirtuin activation linked to lifespan extension',detail:'Sirtuins activated by NAD+ have been linked to up to 30% lifespan extension in multiple model organisms.',source:'Science, 2013'}],
+   tridentUrl:'https://usetridentlabs.com'},
+
+  {id:'ss31',name:'SS-31',category:'longevity',tag:'Mitochondrial Protectant',
+   tagline:'The most targeted mitochondrial protectant discovered. Cardioprotective.',
+   overview:'SS-31 (Elamipretide) is a tetrapeptide that concentrates specifically in the inner mitochondrial membrane — the site of energy production. It was discovered when researchers noticed its extraordinary ability to reduce oxidative stress exactly where cellular damage occurs.',
+   mechanism:'Interacts with cardiolipin — a phospholipid unique to the inner mitochondrial membrane. Stabilizes the electron transport chain, reduces reactive oxygen species (ROS) production, and maintains the proton gradient needed for ATP synthesis.',
+   keyBenefits:['Mitochondrial efficiency','Reduced oxidative stress','Significant anti-fatigue effects','Cardiac protection','Exercise capacity improvement'],
+   doses:[{level:'Standard',dose:'2-5mg/day SubQ',notes:'Daily or 5 days on / 2 off'},{level:'Therapeutic',dose:'5-10mg/day',notes:'Clinical studies used up to 40mg IV'}],
+   route:'SubQ',cycleOn:'4-8 weeks',cycleOff:'4 weeks',
+   timing:'Morning before exercise if possible.',
+   sideEffects:['Injection site reactions','Mild nausea initially'],
+   sideEffectsRare:['No serious adverse effects in clinical trials'],
+   stacks:[{name:'NAD+',why:'NAD+ fuels the mitochondria. SS-31 protects the membrane. Together they optimize both the fuel supply and the machinery.',syn:'Mitochondrial stack'},{name:'MOTS-c',why:'Three complementary mitochondrial mechanisms: SS-31 protects membranes, MOTS-c improves function, NAD+ provides fuel.',syn:'Longevity triple'}],
+   research:[{finding:'Significant improvement in exercise tolerance in heart failure patients',detail:'Phase 2 trial showed improved 6-minute walk distance and quality of life markers.',source:'JACC Heart Fail, 2020'},{finding:'Reduced age-related mitochondrial dysfunction',detail:'Restored mitochondrial membrane potential to youthful levels in aged skeletal muscle.',source:'Aging Cell, 2018'}],
+   tridentUrl:'https://usetridentlabs.com'},
+
+  // ── ADDITIONAL COMPOUNDS ──
+
+  {id:'cagrilintide',name:'Cagrilintide',category:'fat_loss',tag:'Amylin Analog',
+   tagline:'Amylin receptor agonist — reduces hunger via pathway separate from GLP-1s.',
+   overview:'Cagrilintide is a long-acting amylin analog. Amylin is co-secreted with insulin to signal fullness and slow gastric emptying. It works through completely different receptors than GLP-1 agonists, making it synergistic when combined as CagriSema.',
+   mechanism:'Activates amylin and calcitonin receptors in the brain area postrema — a key satiety center. Slows gastric emptying, reduces glucagon secretion, and suppresses appetite through pathways independent of the GLP-1 axis.',
+   keyBenefits:['Appetite suppression via separate pathway from GLP-1','Slows gastric emptying','Reduces glucagon','Synergistic with Semaglutide (CagriSema)','Once-weekly dosing'],
+   doses:[{level:'Standard',dose:'0.3-2.4mg/week SubQ',notes:'Titrate slowly over 16 weeks'},{level:'Combo (CagriSema)',dose:'2.4mg/week',notes:'With Semaglutide 2.4mg'}],
+   route:'SubQ once weekly',cycleOn:'16-24 weeks',cycleOff:'4-8 weeks',timing:'Same day each week.',
+   sideEffects:['Nausea','Vomiting','Injection site reactions'],sideEffectsRare:['Hypoglycemia in combination with insulin'],
+   stacks:[{name:'Semaglutide',why:'CagriSema combination showed 22.7% weight loss — dual amylin + GLP-1 mechanism.',syn:'CagriSema protocol'},{name:'CJC+IPA Blend',why:'Preserve muscle mass during aggressive fat loss.',syn:'Muscle preservation'}],
+   research:[{finding:'22.7% weight loss with CagriSema combination',detail:'Phase 3 REDEFINE trials showed additive amylin + GLP-1 effects exceeding either alone.',source:'NEJM, 2024'},{finding:'Superior to Semaglutide alone head-to-head',detail:'CagriSema consistently outperformed single-agent GLP-1 therapy in direct comparisons.',source:'Lancet, 2023'}],
+   tridentUrl:'https://usetridentlabs.com'},
+
+  {id:'hgh',name:'HGH',category:'gh',tag:'Human Growth Hormone',
+   tagline:'The master anabolic hormone. Fat loss, muscle gain, recovery, anti-aging.',
+   overview:'Human Growth Hormone drives protein synthesis, fat metabolism, and cell regeneration. Levels peak in youth and decline significantly with age — exogenous HGH directly replaces what time takes away.',
+   mechanism:'Binds GH receptors triggering IGF-1 production in the liver, lipolysis in fat cells, and anabolic signaling in muscle. Stimulates collagen synthesis, bone density, and immune function.',
+   keyBenefits:['Significant visceral fat loss','Lean muscle gain','Improved recovery','Skin and collagen','Better sleep','Cognitive enhancement'],
+   doses:[{level:'Wellness',dose:'1-2 IU/day SubQ',notes:'5 on 2 off'},{level:'Recomposition',dose:'2-4 IU/day',notes:'Morning fasted + post-workout'},{level:'Advanced',dose:'4-6 IU/day',notes:'Monitor IGF-1'}],
+   route:'SubQ',cycleOn:'3-6 months',cycleOff:'2-3 months',timing:'Morning fasted.',
+   sideEffects:['Water retention','Carpal tunnel at high doses','Joint aches','Insulin resistance at high doses'],sideEffectsRare:['Acromegaly with very long high-dose use'],
+   stacks:[{name:'IGF-1 LR3',why:'HGH drives IGF-1. Adding exogenous IGF-1 LR3 amplifies downstream anabolic signaling.',syn:'Anabolic amplifier'},{name:'Retatrutide',why:'HGH builds muscle, Retatrutide burns fat. Ultimate recomposition combination.',syn:'Recomp stack'}],
+   research:[{finding:'10-20% visceral fat reduction in GH deficiency',detail:'Adults with GH deficiency showed significant VAT reduction with HGH replacement therapy.',source:'J Clin Endocrinol Metab, 2019'},{finding:'Improved lean mass and reduced fat mass in healthy adults',detail:'Even non-deficient adults showed measurable body composition improvement.',source:'Ann Intern Med, 1990'}],
+   tridentUrl:'https://usetridentlabs.com'},
+
+  {id:'hghfrag',name:'HGH Fragment 176-191',category:'fat_loss',tag:'GH Fragment — Fat Loss Only',
+   tagline:'The fat-burning fragment of HGH. All the lipolysis, none of the IGF-1.',
+   overview:'HGH Fragment 176-191 is the C-terminal end of the HGH molecule responsible for fat metabolism. It has HGH fat-burning effects without stimulating growth or IGF-1 production — making it ideal for pure fat loss protocols.',
+   mechanism:'Directly activates lipolysis and inhibits lipogenesis through the same pathway as HGH, but without binding the full GH receptor. No impact on blood glucose or IGF-1 levels.',
+   keyBenefits:['Targeted fat loss without anabolic effects','No insulin resistance','No IGF-1 elevation','Visceral fat reduction','Better tolerability than full HGH'],
+   doses:[{level:'Standard',dose:'200-500mcg/day SubQ',notes:'Split AM and pre-sleep'},{level:'Aggressive',dose:'500-1000mcg/day',notes:'Short-term only'}],
+   route:'SubQ',cycleOn:'8-12 weeks',cycleOff:'4 weeks',timing:'Morning fasted and/or pre-bed. Avoid carbs 30 min before/after.',
+   sideEffects:['Mild hypoglycemia if taken with carbs','Injection site irritation'],sideEffectsRare:['Generally very well tolerated'],
+   stacks:[{name:'CJC+IPA Blend',why:'Fragment handles fat. CJC+IPA provides anabolic and recovery GH benefits.',syn:'Complete GH stack'}],
+   research:[{finding:'12x more potent than HGH for lipolysis',detail:'Fragment showed dose-dependent fat reduction significantly more potent than equivalent HGH doses.',source:'Biochemistry, 1996'},{finding:'No effect on IGF-1 or blood glucose',detail:'Unlike full HGH, Fragment showed no measurable impact on IGF-1 or insulin sensitivity.',source:'J Pept Sci, 2006'}],
+   tridentUrl:'https://usetridentlabs.com'},
+
+  {id:'melatonin',name:'Melatonin',category:'longevity',tag:'Sleep & Circadian Peptide',
+   tagline:'The master sleep hormone. Potent antioxidant beyond just sleep.',
+   overview:'Melatonin regulates circadian rhythm. At research doses it demonstrates antioxidant, anti-tumor, immune-modulating, and anti-aging properties far beyond OTC doses provide.',
+   mechanism:'Binds MT1 and MT2 receptors for circadian timing. At higher doses acts as a direct free radical scavenger — one of the most potent antioxidants in biology.',
+   keyBenefits:['Sleep quality improvement','Powerful antioxidant','Anti-tumor in research','Immune modulation','Circadian rhythm regulation'],
+   doses:[{level:'Sleep',dose:'0.5-3mg before bed',notes:'Lower often more effective'},{level:'Research',dose:'10-20mg',notes:'Antioxidant / anti-aging doses'}],
+   route:'Oral or SubQ',cycleOn:'Continuous for sleep',cycleOff:'Not required',timing:'30-60 minutes before sleep.',
+   sideEffects:['Morning grogginess at high doses','Vivid dreams'],sideEffectsRare:['Autoimmune caution at very high doses'],
+   stacks:[{name:'Epithalon',why:'Epithalon restores pineal melatonin production. Together: exogenous + endogenous restoration.',syn:'Pineal restoration'},{name:'Selank',why:'Selank reduces stress hormones disrupting sleep. Melatonin signals onset.',syn:'Sleep stack'}],
+   research:[{finding:'Antioxidant capacity exceeds Vitamin E',detail:'Melatonin showed free radical scavenging significantly more potent than Vitamin C or E.',source:'J Pineal Res, 1993'},{finding:'Anti-tumor in multiple cancer models',detail:'Growth inhibition in breast, prostate, and colorectal cancer models through multiple mechanisms.',source:'Int J Mol Sci, 2021'}],
+   tridentUrl:'https://usetridentlabs.com'},
+
+  {id:'mt1',name:'MT-1',category:'hormone',tag:'Melanocyte Stimulating Hormone',
+   tagline:'Tanning peptide. Activates melanin production with less UV needed.',
+   overview:'MT-1 (Afamelanotide) directly stimulates melanin production in skin via MC1 receptor activation. EU-approved for erythropoietic protoporphyria — the first approved melanocortin peptide.',
+   mechanism:'Binds MC1 receptors on melanocytes triggering melanogenesis independently of UV. UV deepens and accelerates results but is not required.',
+   keyBenefits:['Increased melanin production','Photoprotection','Reduced UV damage','EU-approved for photodermatosis'],
+   doses:[{level:'Standard',dose:'500mcg-1mg SubQ EOD',notes:'Until desired result'},{level:'Maintenance',dose:'500mcg/week',notes:'After desired tan'}],
+   route:'SubQ',cycleOn:'Until result, then maintenance',cycleOff:'Discontinue when not needed',timing:'Evening.',
+   sideEffects:['Nausea (first few uses)','Flushing','Darkening of moles'],sideEffectsRare:['Monitor moles during use'],
+   stacks:[{name:'BPC-157',why:'Complementary for skin health and photoprotection.',syn:'Skin health'}],
+   research:[{finding:'Significant melanin density increase vs placebo',detail:'MT-1 produced measurable skin pigmentation with minimal side effects in phase 2 trials.',source:'J Invest Dermatol, 1998'},{finding:'EU approval for rare photodermatosis',detail:'Afamelanotide received EU approval for EPP — first approved melanocortin peptide.',source:'Orphanet J Rare Dis, 2016'}],
+   tridentUrl:'https://usetridentlabs.com'},
+
+  {id:'mt2',name:'MT-2 (Melanotan II)',category:'hormone',tag:'Tanning & Libido Peptide',
+   tagline:'Tanning + libido + appetite suppression. Broader receptor activation than MT-1.',
+   overview:'Melanotan II activates melanocortin receptors MC1-MC5 producing tanning, sexual arousal, appetite suppression, and energy simultaneously. More potent and faster acting than MT-1 with broader side effect profile.',
+   mechanism:'Non-selective melanocortin agonist. MC1 = pigmentation. MC3/MC4 = appetite suppression, sexual function. The broad activation produces multiple simultaneous effects.',
+   keyBenefits:['Rapid tanning','Libido enhancement','Appetite suppression','Increased energy'],
+   doses:[{level:'Beginner',dose:'0.25-0.5mg SubQ',notes:'Start very low — strong effects'},{level:'Standard',dose:'0.5-1mg',notes:'1-2 hours before desired effect'}],
+   route:'SubQ',cycleOn:'As needed',cycleOff:'Allow breaks',timing:'1-2 hours before activity.',
+   sideEffects:['Nausea','Spontaneous erections','Flushing','Yawning'],sideEffectsRare:['Monitor moles','Blood pressure changes'],
+   stacks:[{name:'PT-141',why:'More selective for sexual function with fewer systemic sides. Use MT-2 for tanning + PT-141 for libido.',syn:'Targeted approach'}],
+   research:[{finding:'Reliable erectile function in psychogenic ED',detail:'MT-2 produced erections in 17/20 men with psychogenic ED vs 5/20 placebo.',source:'Int J Impot Res, 1998'},{finding:'10-fold greater melanin than MT-1 at equivalent doses',detail:'MT-2 produced significantly greater pigmentation than MT-1 in direct comparison.',source:'J Pharmacol Exp Ther, 2000'}],
+   tridentUrl:'https://usetridentlabs.com'},
+
+  {id:'ghkcu',name:'GHK-Cu',category:'recovery',tag:'Copper Peptide',
+   tagline:'The skin, collagen, and anti-aging peptide. Naturally declines after age 20.',
+   overview:'GHK-Cu is a naturally occurring human peptide declining sharply after age 20. Activates genes for tissue repair, collagen synthesis, and anti-inflammatory signaling. Among the most researched anti-aging peptides.',
+   mechanism:'Binds and transports copper to repair sites. Activates over 4,000 genes including collagen, elastin, and glycosaminoglycan synthesis. Downregulates inflammatory signaling.',
+   keyBenefits:['Collagen and elastin synthesis','Wound healing','Anti-inflammatory','Skin quality','Hair follicle stimulation','Nerve regeneration'],
+   doses:[{level:'Standard',dose:'1-2mg/day SubQ',notes:'Daily or 5 on / 2 off'},{level:'Topical',dose:'Apply cream to skin/scalp',notes:'Available in topical form'}],
+   route:'SubQ or topical',cycleOn:'8-12 weeks',cycleOff:'4 weeks',timing:'Any time.',
+   sideEffects:['Very well tolerated','Mild injection site redness'],sideEffectsRare:['Copper toxicity at extremely high doses'],
+   stacks:[{name:'BPC-157',why:'BPC-157 drives angiogenesis. GHK-Cu adds collagen matrix. Complete tissue remodeling.',syn:'Collagen + repair'},{name:'TB-500',why:'The GLOW stack triple. Systemic healing + local repair + collagen synthesis.',syn:'GLOW stack'}],
+   research:[{finding:'Activation of 4,000+ genes related to tissue repair',detail:'GHK-Cu modulates thousands of human genes governing tissue remodeling and inflammation.',source:'Genome Med, 2012'},{finding:'Skin thickness and wrinkle reduction',detail:'Topical GHK-Cu showed significant improvement in skin density, elasticity, and fine lines.',source:'J Cosmet Dermatol, 2015'}],
+   tridentUrl:'https://usetridentlabs.com'},
+
+  {id:'snap8',name:'Snap-8',category:'recovery',tag:'Anti-Wrinkle Peptide',
+   tagline:'Non-invasive Botox alternative. Reduces expression lines by relaxing muscle contractions.',
+   overview:'Snap-8 inhibits the SNARE protein complex responsible for neurotransmitter release at the neuromuscular junction, reducing facial muscle contraction and softening expression lines without injections.',
+   mechanism:'Mimics N-terminal SNAP-25, competing in the SNARE complex. Partial inhibition reduces acetylcholine release, softening expression wrinkles over weeks.',
+   keyBenefits:['Reduces expression wrinkle depth','Non-invasive','Improves skin smoothness','Combines well with GHK-Cu'],
+   doses:[{level:'Topical',dose:'Apply to target area 2x daily',notes:'10% concentration most studied'}],
+   route:'Topical primarily',cycleOn:'Continuous',cycleOff:'Not required',timing:'Morning and evening.',
+   sideEffects:['Minimal — topical only'],sideEffectsRare:['Rare skin irritation'],
+   stacks:[{name:'GHK-Cu',why:'Snap-8 reduces wrinkle contraction. GHK-Cu builds the collagen matrix.',syn:'Anti-aging stack'}],
+   research:[{finding:'49% reduction in wrinkle volume vs placebo',detail:'Snap-8 10% cream applied twice daily showed significant reduction in forehead wrinkle depth.',source:'Int J Cosmet Sci, 2009'},{finding:'Same SNARE pathway as Botox — without complete blockade',detail:'Acts on same pathway as Botulinum toxin type A but without full neuromuscular blockade.',source:'J Cosmet Laser Ther, 2010'}],
+   tridentUrl:'https://usetridentlabs.com'},
+
+  {id:'lpv',name:'Lysine-Proline-Valine',category:'recovery',tag:'Collagen Tripeptide',
+   tagline:'Bioactive collagen tripeptide for tendon, joint, and connective tissue support.',
+   overview:'LPV is a bioactive collagen tripeptide sequence that stimulates fibroblast activity and collagen synthesis. The isolated tripeptide provides targeted connective tissue support beyond what whole collagen hydrolysate offers.',
+   mechanism:'Acts on fibroblast receptors upregulating Type I and III collagen. Stimulates TGF-beta in connective tissue cells promoting structural protein synthesis in tendons, ligaments, and cartilage.',
+   keyBenefits:['Tendon and ligament collagen synthesis','Joint cartilage support','Skin elasticity','Wound healing'],
+   doses:[{level:'Standard',dose:'5-10mg SubQ daily',notes:'Or oral (lower bioavailability)'}],
+   route:'SubQ or oral',cycleOn:'8-12 weeks',cycleOff:'4 weeks',timing:'Morning.',
+   sideEffects:['Very well tolerated'],sideEffectsRare:['No significant effects reported'],
+   stacks:[{name:'BPC-157',why:'LPV provides collagen building blocks. BPC-157 creates the angiogenic environment.',syn:'Tendon repair'},{name:'GHK-Cu',why:'GHK-Cu activates collagen genes. LPV provides the structural tripeptide.',syn:'Collagen matrix'}],
+   research:[{finding:'Fibroblast collagen synthesis upregulation',detail:'LPV significantly increased Type I collagen in human fibroblast cultures.',source:'J Dermatol Sci, 2014'},{finding:'Improved tendon healing markers',detail:'LPV showed accelerated tendon healing with improved tensile strength in animal models.',source:'Connect Tissue Res, 2018'}],
+   tridentUrl:'https://usetridentlabs.com'},
+
+  {id:'igfdes',name:'IGF-DES',category:'gh',tag:'IGF-1 Variant — Highly Potent Local',
+   tagline:'Truncated IGF-1. More potent locally because it bypasses binding proteins.',
+   overview:'IGF-DES (des(1-3)-IGF-1) is missing the first 3 amino acids of IGF-1, preventing IGFBP binding. Nearly 100% reaches tissue receptors, making it significantly more potent per microgram than IGF-1 LR3.',
+   mechanism:'Cannot bind IGF binding proteins — so nearly all of it reaches IGF-1 receptors directly on target tissues. More potent per mcg than IGF-1 LR3 for local muscle protein synthesis.',
+   keyBenefits:['More potent than IGF-1 LR3 locally','100% bioavailability at receptors','Muscle cell hyperplasia','Localized IM effect'],
+   doses:[{level:'Standard',dose:'20-50mcg post-workout IM',notes:'Target muscle for local effect'},{level:'Advanced',dose:'50-100mcg',notes:'Monitor glucose'}],
+   route:'IM or SubQ',cycleOn:'4 weeks MAXIMUM',cycleOff:'4 weeks minimum',timing:'Post-workout immediately.',
+   sideEffects:['Hypoglycemia — eat after injection','Local swelling','Joint aches'],sideEffectsRare:['Same desensitization risk as IGF-1 LR3'],
+   stacks:[{name:'CJC+IPA Blend',why:'GH sets environment. IGF-DES provides direct local signal. Maximum muscle protocol.',syn:'Anabolic protocol'}],
+   research:[{finding:'10x more potent than IGF-1 in muscle tissue',detail:'IGFBP resistance produces equivalent anabolic effects at 10% of IGF-1 dose in muscle.',source:'Endocrinology, 1992'},{finding:'Greater satellite cell activation than standard IGF-1',detail:'IGF-DES showed greater muscle stem cell activation and proliferation in myoblast studies.',source:'J Physiol, 2004'}],
+   tridentUrl:'https://usetridentlabs.com'},
+
+  {id:'tesamorelin',name:'Tesamorelin',category:'gh',tag:'GHRH Analog — FDA Approved Visceral Fat',
+   tagline:'FDA-approved for visceral fat reduction. Most targeted GH peptide for belly fat.',
+   overview:'Tesamorelin is a stabilized GHRH analog — FDA-approved for HIV-associated lipodystrophy. The only research peptide with pharmaceutical approval for visceral fat reduction, it produces the most targeted belly fat results of any GH peptide.',
+   mechanism:'Binds GHRH receptors on pituitary somatotrophs producing prolonged GH release. Stabilized structure gives longer half-life and stronger GH elevation than natural GHRH. GH specifically mobilizes visceral fat.',
+   keyBenefits:['Significant visceral fat reduction','FDA-approved mechanism','Improved body composition','IGF-1 elevation','Cognitive benefits'],
+   doses:[{level:'Standard',dose:'1-2mg SubQ daily',notes:'Morning fasted'},{level:'Research',dose:'2mg daily',notes:'Upper studied range'}],
+   route:'SubQ',cycleOn:'3-6 months',cycleOff:'2-3 months',timing:'Morning fasted. Consistent time.',
+   sideEffects:['Injection site reactions','Water retention','Joint aches','Glucose changes'],sideEffectsRare:['Hypersensitivity (rare)'],
+   stacks:[{name:'Retatrutide',why:'Tesamorelin targets visceral fat via GH. Retatrutide via GLP-1/glucagon. Dual mechanism visceral fat protocol.',syn:'Visceral fat attack'}],
+   research:[{finding:'15% visceral adipose reduction over 26 weeks',detail:'EGRIFTA Phase 3 trials showed significant VAT reduction — the only peptide with this pharmaceutical approval.',source:'NEJM, 2010'},{finding:'Cognitive improvement in older adults',detail:'12-month Tesamorelin improved executive function and verbal memory independently of body composition.',source:'JAMA Neurol, 2018'}],
+   tridentUrl:'https://usetridentlabs.com'},
+
+  {id:'vip',name:'VIP',category:'cognitive',tag:'Vasoactive Intestinal Peptide',
+   tagline:'Neuroprotective, immune-modulating, anti-inflammatory. Rare and powerful.',
+   overview:'VIP is a 28-amino acid neuropeptide with profound effects on immune regulation, circadian rhythm, gut function, and neuroprotection. Acts as both neurotransmitter and immune modulator.',
+   mechanism:'Activates VPAC1 and VPAC2 receptors in immune cells, neurons, and smooth muscle. Potently suppresses inflammatory cytokines while promoting anti-inflammatory IL-10. Regulates circadian clock genes directly.',
+   keyBenefits:['Potent anti-inflammatory','Immune regulation','Neuroprotection','Circadian support','Gut motility','Pulmonary vasodilation'],
+   doses:[{level:'Standard',dose:'50-200mcg SubQ daily',notes:'Start low — significant systemic effects'},{level:'Research',dose:'200-500mcg',notes:'For immune conditions'}],
+   route:'SubQ or intranasal',cycleOn:'4-8 weeks',cycleOff:'4 weeks',timing:'Morning. Monitor BP initially.',
+   sideEffects:['Flushing','BP reduction','Diarrhea'],sideEffectsRare:['Hypotension at high doses'],
+   stacks:[{name:'BPC-157',why:'VIP reduces inflammation. BPC-157 repairs the tissue damage from it.',syn:'Anti-inflammatory protocol'},{name:'Semax',why:'Both neuroprotective — VIP via immune, Semax via BDNF.',syn:'Neuroprotection stack'}],
+   research:[{finding:'60-80% reduction in TNF-alpha and IL-6',detail:'VIP produced potent pro-inflammatory cytokine reduction in multiple inflammatory models.',source:'J Neuroimmunol, 2006'},{finding:'Neuroprotective in Parkinson and Alzheimer models',detail:'VIP reduced dopaminergic neuron death and amyloid plaque formation in respective models.',source:'Neurobiol Dis, 2020'}],
+   tridentUrl:'https://usetridentlabs.com'},
+
+  {id:'ipamorelin',name:'Ipamorelin',category:'gh',tag:'GH Secretagogue — Selective',
+   tagline:'The cleanest GH secretagogue. No cortisol, no prolactin. Pure GH pulse.',
+   overview:'Ipamorelin selectively activates ghrelin receptors to stimulate GH release without cortisol or prolactin elevation — unlike older GH secretagogues. The preferred standalone GH peptide for most protocols.',
+   mechanism:'Selectively binds GHS-R1a in the pituitary for GH pulse release. Selectivity means ACTH (cortisol) and prolactin receptors are not activated — key advantage over GHRP-2/6.',
+   keyBenefits:['Pure GH pulse without cortisol spike','No prolactin elevation','Improved sleep','Fat loss','Muscle recovery','Safer for long-term use'],
+   doses:[{level:'Beginner',dose:'100-200mcg SubQ daily',notes:'Bedtime only'},{level:'Advanced',dose:'200mcg 2-3x/day',notes:'Fasted — AM/pre-workout/bedtime'}],
+   route:'SubQ',cycleOn:'3-6 months',cycleOff:'1 month',timing:'MUST be fasted. Bedtime optimal.',
+   sideEffects:['Mild water retention','Increased appetite','Tingling'],sideEffectsRare:['Pituitary desensitization with very long continuous use'],
+   stacks:[{name:'CJC-1295 N/D',why:'CJC provides GHRH signal. Ipamorelin provides ghrelin signal. Synergistic 3-10x larger GH pulse.',syn:'Synergistic GH'}],
+   research:[{finding:'Selective GH release without cortisol',detail:'Ipamorelin produced GH pulses with zero measurable ACTH or cortisol response.',source:'J Endocrinol, 1999'},{finding:'Dose-dependent GH pulse amplitude',detail:'Linear dose-response with high receptor selectivity confirmed.',source:'Eur J Endocrinol, 1998'}],
+   tridentUrl:'https://usetridentlabs.com'},
+
+  {id:'motsc',name:'MOTS-c',category:'longevity',tag:'Mitochondrial Peptide',
+   tagline:'Mitochondria-encoded peptide. Insulin sensitivity, fat metabolism, longevity.',
+   overview:'MOTS-c is microprotein encoded in the mitochondrial genome — not the nuclear genome. Discovered 2015, the first mitochondrial-encoded peptide shown to have systemic metabolic effects. Levels decline with age and increase with exercise.',
+   mechanism:'Travels from mitochondria to nucleus activating AMPK — the master metabolic regulator. Inhibits AICAR transformylase shunting metabolism toward fat oxidation. Exercise mimetic properties.',
+   keyBenefits:['Exercise mimetic','Improved insulin sensitivity','Enhanced fat oxidation','Muscle preservation','Mitochondrial biogenesis','Anti-aging metabolic effects'],
+   doses:[{level:'Standard',dose:'5-10mg SubQ 2-3x/week',notes:'Pre-workout timing'},{level:'Research',dose:'10-20mg',notes:'Higher dose studies ongoing'}],
+   route:'SubQ',cycleOn:'4-8 weeks',cycleOff:'4 weeks',timing:'Pre-workout or morning. Exercise amplifies effects.',
+   sideEffects:['Very well tolerated'],sideEffectsRare:['No significant adverse effects'],
+   stacks:[{name:'SS-31',why:'SS-31 protects mitochondrial membrane. MOTS-c activates signaling pathways.',syn:'Mitochondrial stack'},{name:'NAD+',why:'NAD+ fuels mitochondria. MOTS-c activates metabolic programs.',syn:'Longevity protocol'}],
+   research:[{finding:'Insulin sensitivity improvement comparable to exercise',detail:'MOTS-c produced significant AMPK activation and glucose uptake mimicking aerobic exercise.',source:'Cell Metab, 2015'},{finding:'Plasma levels inversely correlate with metabolic disease',detail:'Lower MOTS-c in T2D, obese, and sedentary older adults confirmed.',source:'Sci Rep, 2019'}],
+   tridentUrl:'https://usetridentlabs.com'},
+
+  {id:'slupps322',name:'SLU-PP-322',category:'longevity',tag:'ERR Agonist — Exercise Mimetic',
+   tagline:'Activates the same genes as aerobic exercise. The true exercise pill.',
+   overview:'SLU-PP-322 is an ERR (Estrogen-Related Receptor) agonist activating the transcriptional programs induced by aerobic exercise — mitochondrial biogenesis, fat oxidation, and increased oxidative capacity.',
+   mechanism:'Activates ERRalpha/beta/gamma receptors simultaneously — triggering the PGC-1alpha pathway that coordinates exercise-induced mitochondrial adaptation.',
+   keyBenefits:['Mitochondrial biogenesis','Increased oxidative capacity','Exercise-like metabolic adaptations','Fat oxidation','Cardiac protection','Endurance improvement'],
+   doses:[{level:'Research',dose:'5-10mg SubQ',notes:'Protocols being established'}],
+   route:'SubQ',cycleOn:'4-6 weeks',cycleOff:'4 weeks',timing:'Morning before activity.',
+   sideEffects:['Research compound — profile being characterized'],sideEffectsRare:['Unknown long-term effects'],
+   stacks:[{name:'MOTS-c',why:'Both exercise mimetics through different mitochondrial pathways.',syn:'Exercise mimetic stack'},{name:'AICAR',why:'AICAR activates AMPK. SLU-PP-322 activates ERR. Two major exercise adaptation pathways.',syn:'Exercise pathways'}],
+   research:[{finding:'Activates 200+ exercise-induced genes without exercise',detail:'SLU-PP-322 upregulated genes normally only activated by aerobic training including mitochondrial biogenesis genes.',source:'J Pharmacol Exp Ther, 2022'},{finding:'Improved endurance and fat burning in animal models',detail:'Treated animals showed significantly improved endurance and fat oxidation vs sedentary controls.',source:'Cell Chem Biol, 2023'}],
+   tridentUrl:'https://usetridentlabs.com'},
+
+  {id:'pt141',name:'PT-141',category:'hormone',tag:'Sexual Health Peptide',
+   tagline:'The only peptide working directly in the brain for sexual function. FDA approved.',
+   overview:'PT-141 (Bremelanotide) works centrally through the brain — unlike PDE5 inhibitors. FDA-approved as Vyleesi for HSDD in women. Effective for both psychological and physiological sexual dysfunction.',
+   mechanism:'Activates MC3R and MC4R in the hypothalamus, directly stimulating desire and arousal pathways centrally. Works where Viagra cannot — psychological drivers of dysfunction.',
+   keyBenefits:['Increases libido','Works centrally','Effective for men and women','FDA-approved for HSDD','Useful for psychological ED'],
+   doses:[{level:'Standard',dose:'0.5-1mg SubQ',notes:'1-2 hrs before. Start at 0.5mg.'},{level:'Advanced',dose:'1.5-2mg',notes:'Higher nausea risk above 1mg'}],
+   route:'SubQ',cycleOn:'As needed — not daily',cycleOff:'3+ days between uses',timing:'1-2 hours before. Test dose first.',
+   sideEffects:['Nausea (most common)','Flushing','Headache','BP elevation'],sideEffectsRare:['Hyperpigmentation with chronic use'],
+   stacks:[{name:'Selank',why:'Anxiety drives dysfunction. Selank removes it. PT-141 activates desire.',syn:'Performance support'}],
+   research:[{finding:'Significant improvement vs placebo in HSDD',detail:'PT-141 produced clinically meaningful improvements in desire and satisfaction in Phase 3 HSDD trials.',source:'J Sex Med, 2019'},{finding:'Effective in men who failed Viagra',detail:'Central mechanism confirmed — PT-141 improved function where PDE5 inhibitors failed.',source:'Ann N Y Acad Sci, 2003'}],
+   tridentUrl:'https://usetridentlabs.com'},
+
+  {id:'dsip',name:'DSIP',category:'cognitive',tag:'Delta Sleep Inducing Peptide',
+   tagline:'The original sleep peptide. Deep sleep enhancement and cortisol normalization.',
+   overview:'DSIP was discovered in 1974 from rabbit CSF. Named for inducing delta wave (deep) sleep. Also normalizes cortisol and LH secretion — demonstrating anti-stress and analgesic properties beyond just sleep.',
+   mechanism:'Modulates serotonin, noradrenaline, and opioid receptors. Normalizes HPA axis function — reducing stress-induced cortisol dysregulation.',
+   keyBenefits:['Deep sleep induction','Cortisol normalization','Anti-stress','LH support','Mild analgesia','Circadian regulation'],
+   doses:[{level:'Standard',dose:'100-500mcg SubQ',notes:'30-60 min before bed'},{level:'Research',dose:'200-300mcg',notes:'Most used range'}],
+   route:'SubQ or intranasal',cycleOn:'2-4 weeks',cycleOff:'2 weeks',timing:'30-60 min before sleep.',
+   sideEffects:['Drowsiness (intended)','Mild hypotension'],sideEffectsRare:['Nausea at high doses'],
+   stacks:[{name:'CJC+IPA Blend',why:'Both bedtime compounds improving sleep quality through different mechanisms.',syn:'Sleep protocol'},{name:'Epithalon',why:'Epithalon via pineal/melatonin. DSIP via delta wave. Comprehensive sleep optimization.',syn:'Sleep stack'}],
+   research:[{finding:'Delta wave sleep increase in multiple species',detail:'DSIP reliably increased slow-wave sleep duration — the deepest, most restorative sleep stage.',source:'Experientia, 1977'},{finding:'Cortisol normalization in stress states',detail:'DSIP normalized elevated cortisol levels in chronically stressed animals.',source:'Life Sci, 1984'}],
+   tridentUrl:'https://usetridentlabs.com'},
+
+  {id:'dermorphin',name:'Dermorphin',category:'other',tag:'Opioid Peptide — Research Only',
+   tagline:'Naturally occurring opioid from frog skin. 40x more potent than morphine. Research only.',
+   overview:'Dermorphin is a heptapeptide from South American phyllomedusa frogs. One of the most potent naturally occurring opioid peptides — binding mu-opioid receptors with extraordinary affinity.',
+   mechanism:'Selective mu-opioid receptor agonist with extreme binding affinity. The D-Ala at position 2 provides peptidase resistance contributing to potency.',
+   keyBenefits:['Research into opioid receptor biology','Pain research applications','Understanding opioid receptor pharmacology'],
+   doses:[{level:'Research only',dose:'Microgram range',notes:'Extreme potency — handle with caution'}],
+   route:'Research compound only',cycleOn:'Research protocols only',cycleOff:'Research protocols only',timing:'Research only.',
+   sideEffects:['Full opioid-class effects','Respiratory depression at high doses','Dependence potential'],sideEffectsRare:['All standard opioid precautions apply'],
+   stacks:[],
+   research:[{finding:'40x more potent than morphine at mu-opioid receptors',detail:'Dermorphin showed 40-fold higher binding affinity for MOR vs morphine in binding assays.',source:'Science, 1981'},{finding:'D-amino acid structure confers peptidase resistance',detail:'D-Ala2 configuration prevents rapid degradation explaining longer duration.',source:'Biochem Biophys Res Commun, 1985'}],
+   tridentUrl:'https://usetridentlabs.com'},
+
+  {id:'thymosin1',name:'Thymosin Alpha-1',category:'longevity',tag:'Immune Modulator',
+   tagline:'The thymus peptide. Immune optimization and anti-viral defense. Approved in 37 countries.',
+   overview:'Thymosin Alpha-1 matures T-cells. Thymic involution with age leads to declining levels and reduced immune capability. Clinically used in China and 37 other countries for hepatitis B, C, and cancer immunotherapy support.',
+   mechanism:'Activates dendritic cells, T-helper cells, and NK cells. Upregulates MHC-II for better antigen presentation. Direct T-cell maturation signal.',
+   keyBenefits:['T-cell maturation','NK cell enhancement','Anti-viral defense','Anti-tumor immune support','Clinically approved in 37+ countries'],
+   doses:[{level:'Standard',dose:'1.6mg SubQ 2x/week',notes:'Standard clinical protocol'},{level:'Loading',dose:'1.6mg daily x 6 days',notes:'Acute immune need'}],
+   route:'SubQ',cycleOn:'4-12 weeks',cycleOff:'4 weeks',timing:'Any time. Consistent schedule.',
+   sideEffects:['Very well tolerated','Mild injection site reactions'],sideEffectsRare:['Theoretical autoimmune activation'],
+   stacks:[{name:'VIP',why:'Thymosin activates immune cells. VIP modulates to prevent over-activation.',syn:'Immune balance'},{name:'BPC-157',why:'Gut-immune axis synergy.',syn:'Immune + repair'}],
+   research:[{finding:'Approved in 37 countries for hepatitis B and C',detail:'Thymosin Alpha-1 (Zadaxin) FDA orphan designated and approved as immune adjunct for viral hepatitis.',source:'Drugs, 2005'},{finding:'Enhanced vaccine response in elderly',detail:'Significantly improved antibody response to influenza vaccine in elderly and immunocompromised.',source:'Vaccine, 2010'}],
+   tridentUrl:'https://usetridentlabs.com'},
+
+  {id:'sermorelin',name:'Sermorelin',category:'gh',tag:'GHRH Analog — Anti-Aging',
+   tagline:'The original GH releasing peptide. Physiological GH restoration for anti-aging.',
+   overview:'Sermorelin is the shortest GHRH fragment retaining full biological activity. FDA-approved historically, now used in research for age-related GH decline. Stimulates your own pituitary maintaining natural feedback loops — safer than exogenous HGH.',
+   mechanism:'Binds pituitary GHRH receptors stimulating GH release in physiological pulsatile pattern. Unlike HGH, Sermorelin works through natural regulation.',
+   keyBenefits:['Physiological GH restoration','Maintains pituitary feedback','Anti-aging GH support','Sleep improvement','Body composition','Lower side effects than HGH'],
+   doses:[{level:'Standard',dose:'100-300mcg SubQ daily',notes:'Bedtime'},{level:'Research',dose:'200-500mcg',notes:'Up to 3x daily fasted'}],
+   route:'SubQ',cycleOn:'3-6 months',cycleOff:'1-2 months',timing:'Bedtime fasted.',
+   sideEffects:['Injection site reactions','Facial flushing','Headache','Water retention'],sideEffectsRare:['Antibody formation long-term (rare)'],
+   stacks:[{name:'Ipamorelin',why:'Sermorelin is GHRH. Ipamorelin is ghrelin mimetic. Same synergy as CJC+IPA.',syn:'GH synergy'},{name:'Epithalon',why:'Both work through pituitary/pineal axis. Complete anti-aging hormonal support.',syn:'Anti-aging protocol'}],
+   research:[{finding:'GH levels restored to younger adult levels',detail:'3-month treatment in older adults restored GH pulsatility and IGF-1 to younger-subject levels.',source:'Endocrinol Metab Clin, 2007'},{finding:'Improved body composition comparable to HGH',detail:'Significant lean mass increase and fat mass decrease vs placebo.',source:'J Clin Endocrinol Metab, 2003'}],
+   tridentUrl:'https://usetridentlabs.com'},
+
+  {id:'hcg',name:'HCG',category:'hormone',tag:'Human Chorionic Gonadotropin',
+   tagline:'LH mimic. Testicular function support and PCT foundation.',
+   overview:'HCG mimics Luteinizing Hormone — the pituitary signal that tells testes to produce testosterone. Essential for PCT after exogenous testosterone and for fertility protocols.',
+   mechanism:'Binds LH receptors on Leydig cells in testes, directly stimulating testosterone and sperm production. Maintains testicular size and function during hormonal disruption.',
+   keyBenefits:['Testicular function maintenance','Testosterone production stimulation','PCT foundation','Fertility support','Prevents testicular atrophy'],
+   doses:[{level:'PCT',dose:'500-1000 IU EOD x 2-3 weeks',notes:'Post-cycle protocol'},{level:'TRT support',dose:'250-500 IU 2x/week',notes:'Maintain function on TRT'}],
+   route:'SubQ or IM',cycleOn:'As needed for PCT or TRT support',cycleOff:'Not required ongoing',timing:'Consistent schedule.',
+   sideEffects:['Gynecomastia risk at high doses','Acne','Temporary testicular pain'],sideEffectsRare:['Ovarian hyperstimulation in women at clinical doses'],
+   stacks:[{name:'Sermorelin',why:'HCG maintains testicular testosterone. Sermorelin restores pituitary GH. Complete hormonal restoration.',syn:'Hormonal restoration'}],
+   research:[{finding:'LH receptor activation equivalent to natural LH',detail:'HCG binds LH receptors with equal affinity producing equivalent testicular stimulation.',source:'J Clin Endocrinol Metab, 1985'},{finding:'Testicular volume maintained during TRT',detail:'Men on TRT with concurrent HCG maintained testicular volume vs significant atrophy without.',source:'Fertil Steril, 2013'}],
+   tridentUrl:'https://usetridentlabs.com'},
+
+  {id:'klow',name:'KLOW',category:'blend',tag:'Advanced Recovery Blend',
+   tagline:'80mg advanced recovery blend engineered for high-demand athletes.',
+   overview:'KLOW is an 80mg multi-compound recovery blend formulated for athletes with significant injury history or high training loads. The compound ratios are optimized for more intensive repair demand than standard single-compound approaches.',
+   mechanism:'Multi-pathway recovery: angiogenesis, cell migration, collagen synthesis, and systemic inflammation reduction simultaneously.',
+   keyBenefits:['Comprehensive tissue repair','Joint and connective tissue focus','Systemic inflammation reduction','Collagen improvement','Single injection convenience'],
+   doses:[{level:'Standard',dose:'500mcg-1mg/day SubQ',notes:'Based on component equivalent'},{level:'Loading',dose:'1mg/day x 6 weeks',notes:'For significant injuries'}],
+   route:'SubQ',cycleOn:'6-12 weeks',cycleOff:'4 weeks',timing:'Morning near injury sites.',
+   sideEffects:['Similar to component peptides','Mild head rush (TB-500)'],sideEffectsRare:['Standard angiogenic cautions'],
+   stacks:[{name:'CJC+IPA Blend',why:'GH peptides accelerate collagen remodeling that KLOW initiates.',syn:'Complete repair'}],
+   research:[{finding:'Component compounds validated in peer-reviewed literature',detail:'BPC-157, TB-500, and GHK-Cu each have independent research supporting recovery and repair.',source:'Component research'}],
+   tridentUrl:'https://usetridentlabs.com'},
+
+  {id:'cagrisema',name:'Cagrilintide+Semaglutide',category:'fat_loss',tag:'Dual Agonist Combination Blend',
+   tagline:'CagriSema — the most effective weight loss combination in clinical history.',
+   overview:'Fixed-dose combination of Cagrilintide (amylin) + Semaglutide (GLP-1). The dual amylin + GLP-1 mechanism produces synergistic weight loss exceeding either alone by a significant margin.',
+   mechanism:'Cagrilintide activates amylin receptors (area postrema). Semaglutide activates GLP-1 receptors (hypothalamus, vagus). Two pathways are additive/synergistic for stronger appetite suppression.',
+   keyBenefits:['22.7% weight loss in trials','Dual mechanism','Weekly dosing','Superior to either alone','Improved metabolic markers'],
+   doses:[{level:'Standard',dose:'2.4mg each weekly',notes:'Combined injection'},{level:'Titration',dose:'Start low each',notes:'32-week titration to full dose'}],
+   route:'SubQ once weekly',cycleOn:'24-52 weeks',cycleOff:'Taper before stopping',timing:'Same day weekly.',
+   sideEffects:['Nausea','GI disturbance during titration'],sideEffectsRare:['Pancreatitis (rare, class effect)'],
+   stacks:[{name:'CJC+IPA Blend',why:'Muscle preservation is non-negotiable with aggressive fat loss.',syn:'Muscle preservation'}],
+   research:[{finding:'22.7% weight loss — best in class',detail:'REDEFINE-1 showed 22.7% average weight loss vs 8.1% placebo over 68 weeks.',source:'NEJM, 2024'},{finding:'3x weight loss of Semaglutide alone',detail:'CagriSema consistently produced approximately 3x the loss of Semaglutide monotherapy.',source:'Lancet, 2023'}],
+   tridentUrl:'https://usetridentlabs.com'},
+
+  {id:'cjc1295',name:'CJC-1295 N/D',category:'gh',tag:'GHRH Analog',
+   tagline:'Long-acting GHRH. The GHRH half of the classic CJC+Ipamorelin protocol.',
+   overview:'CJC-1295 No-DAC is a modified GHRH peptide with extended half-life and higher receptor affinity than natural GHRH. Without DAC it produces discrete GH pulses — more physiological and the preferred form.',
+   mechanism:'Binds GHRH receptors with higher affinity due to D-Ala substitution. Produces an amplified GH pulse mimicking but exceeding natural GHRH signaling.',
+   keyBenefits:['GHRH receptor stimulation','Synergistic with Ipamorelin','Improved body composition','Better sleep','Anti-aging GH restoration'],
+   doses:[{level:'Standard',dose:'100-300mcg SubQ',notes:'1-3x daily fasted'},{level:'In blend',dose:'200mcg in CJC+IPA',notes:'Recommended as CJC+IPA blend'}],
+   route:'SubQ',cycleOn:'3-6 months',cycleOff:'1 month',timing:'FASTED. Bedtime optimal.',
+   sideEffects:['Water retention','Increased hunger','Tingling'],sideEffectsRare:['Pituitary desensitization long-term'],
+   stacks:[{name:'Ipamorelin',why:'GHRH + ghrelin receptor pathways. 3-10x larger GH pulse than either alone. Available as CJC+IPA blend.',syn:'Synergistic combination'}],
+   research:[{finding:'2-10x GH pulse amplitude vs natural GHRH',detail:'Significant dose-dependent GH elevation compared to natural GHRH.',source:'J Clin Endocrinol Metab, 2006'},{finding:'Sustained IGF-1 elevation with good tolerability',detail:'Multiple doses showed sustained IGF-1 elevation over weeks.',source:'J Clin Pharmacol, 2006'}],
+   tridentUrl:'https://usetridentlabs.com'},
+
+  {id:'hexarelin',name:'Hexarelin',category:'gh',tag:'GH Secretagogue — Most Potent',
+   tagline:'Most potent GH secretagogue available. Unique cardioprotective properties.',
+   overview:'Hexarelin produces the largest GH pulses of any peptide. Uniquely activates CD36 receptors on cardiac tissue for cardioprotective effects independent of GH.',
+   mechanism:'Activates ghrelin receptor more potently than other GH peptides. CD36 cardiac receptor activation produces ischemic preconditioning and anti-fibrotic effects.',
+   keyBenefits:['Highest GH pulse of any peptide','Cardioprotective via CD36','Ischemic preconditioning','Anti-fibrotic cardiac','Strong fat loss','Muscle recovery'],
+   doses:[{level:'Standard',dose:'100-200mcg SubQ',notes:'1-2x daily fasted'},{level:'GH max',dose:'200mcg 3x/day',notes:'AM/pre-workout/bedtime fasted'}],
+   route:'SubQ',cycleOn:'8-12 weeks',cycleOff:'4 weeks (desensitizes faster than Ipamorelin)',timing:'FASTED.',
+   sideEffects:['More cortisol than Ipamorelin','Prolactin increase','Water retention','Desensitizes faster'],sideEffectsRare:['Significant cortisol at high doses'],
+   stacks:[{name:'CJC-1295 N/D',why:'Hexarelin handles ghrelin pathway (more potent than Ipamorelin). CJC provides GHRH pathway.',syn:'Maximum GH pulse'}],
+   research:[{finding:'Cardioprotection via CD36 independent of GH',detail:'Hexarelin protected cardiac tissue from ischemia/reperfusion injury through CD36 — GH-independent.',source:'Circulation, 2004'},{finding:'Most potent GH pulse among all secretagogues tested',detail:'Hexarelin produced significantly larger GH pulses than GHRP-6, Ipamorelin, and CJC at equivalent doses.',source:'Endocrinology, 1996'}],
+   tridentUrl:'https://usetridentlabs.com'},
+
+  {id:'ara290',name:'Ara-290',category:'cognitive',tag:'EPO Analog — Neuroprotective',
+   tagline:'Non-hematopoietic EPO fragment. Nerve regeneration without blood-thickening.',
+   overview:'Ara-290 is derived from EPO — specifically the tissue-protective segment without erythropoiesis effects. Activates the Innate Repair Receptor to promote nerve regeneration and neuroprotection.',
+   mechanism:'Selectively binds IRR (Innate Repair Receptor) without activating classical EPO receptor. IRR activation triggers neuroprotective, anti-inflammatory, and regenerative pathways.',
+   keyBenefits:['Peripheral nerve regeneration','Neuroprotection','No erythropoiesis','Anti-inflammatory nerve tissue','In trials for diabetic neuropathy'],
+   doses:[{level:'Research',dose:'4-10mg SubQ',notes:'From clinical trial protocols'},{level:'Standard',dose:'4mg SubQ daily x 4 weeks',notes:'Most studied protocol'}],
+   route:'SubQ',cycleOn:'4-8 weeks',cycleOff:'4 weeks',timing:'Any time. Consistent daily.',
+   sideEffects:['Well tolerated in trials','Injection site reactions'],sideEffectsRare:['No hematopoietic effects — no blood thickening'],
+   stacks:[{name:'BPC-157',why:'Ara-290 regenerates peripheral nerves. BPC-157 supports vascular supply for repair.',syn:'Nerve regeneration'},{name:'Semax',why:'Ara-290 peripheral neuroprotection. Semax central. Complete nervous system support.',syn:'Neuroprotection stack'}],
+   research:[{finding:'Significant improvement in corneal nerve density',detail:'Ara-290 increased small fiber nerve density in diabetic neuropathy patients in Phase 2 trials.',source:'Diabetes, 2015'},{finding:'Improved nerve conduction in peripheral neuropathy',detail:'Measurable improvement in conduction velocity and pain reduction over 28 days.',source:'J Intern Med, 2014'}],
+   tridentUrl:'https://usetridentlabs.com'},
+
+  {id:'cerebrolysin',name:'Cerebrolysin',category:'cognitive',tag:'Neurotrophic Peptide Mixture',
+   tagline:'Clinically proven for stroke, TBI, and cognitive decline. 30+ years of data.',
+   overview:'Cerebrolysin is a purified peptide mixture from porcine brain proteins containing neurotrophic fragments similar to NGF and BDNF. Used clinically in Europe and Asia for 30+ years for stroke, TBI, and dementia.',
+   mechanism:'Multiple neurotrophic peptide fragments crossing the BBB mimicking endogenous neurotrophins. Stimulates neuroplasticity, neuroprotection, and neurogenesis through BDNF, NGF, and CNTF-like activity.',
+   keyBenefits:['Neuroplasticity','Neuroprotection','Cognitive improvement in dementia','Stroke recovery','TBI rehabilitation','Memory enhancement'],
+   doses:[{level:'Cognitive enhancement',dose:'2-5ml IM daily',notes:'10-20 day cycles'},{level:'Therapeutic',dose:'10-30ml IV',notes:'Clinical stroke/TBI doses'}],
+   route:'IM or IV',cycleOn:'10-20 days',cycleOff:'4 weeks',timing:'Morning.',
+   sideEffects:['IM injection site pain','Dizziness','Initial headache'],sideEffectsRare:['Allergic reactions — start with test dose'],
+   stacks:[{name:'Semax',why:'Semax upregulates BDNF. Cerebrolysin provides neurotrophic peptide fragments. Powerful neuroprotection.',syn:'Neuroprotection stack'},{name:'NAD+',why:'NAD+ powers neurogenesis. Cerebrolysin provides neurotrophic signals.',syn:'Brain regeneration'}],
+   research:[{finding:'Significant improvement in Alzheimer symptoms',detail:'Multiple RCTs showed Cerebrolysin improved cognitive scores and daily function vs placebo.',source:'J Neural Transm, 2012'},{finding:'Improved outcomes after ischemic stroke',detail:'Meta-analysis of 6 RCTs showed significantly improved neurological outcomes when given within 24-48 hours.',source:'Stroke, 2019'}],
+   tridentUrl:'https://usetridentlabs.com'},
+
+  {id:'thymalin',name:'Thymalin',category:'longevity',tag:'Thymic Peptide — Immune Restoration',
+   tagline:'Thymus peptide complex. Immune system restoration and anti-aging.',
+   overview:'Thymalin is a polypeptide complex from calf thymus studied by Khavinson as part of the peptide bioregulator approach to aging. Clinical use in Russia for immune restoration across decades.',
+   mechanism:'Activates T-lymphocyte maturation through thymic hormone mechanisms. Restores immune competence lost through thymic involution with age.',
+   keyBenefits:['T-cell maturation restoration','Immune rejuvenation','Anti-aging immune','Clinically used in Russia','Complements Thymosin Alpha-1'],
+   doses:[{level:'Standard',dose:'10mg SubQ daily x 10 days',notes:'Khavinson protocol'},{level:'Maintenance',dose:'10mg x 10 days, 2x/year',notes:'Preventive anti-aging'}],
+   route:'SubQ',cycleOn:'10 days then stop',cycleOff:'Months between cycles',timing:'Daily during cycle.',
+   sideEffects:['Well tolerated','Local injection site reactions'],sideEffectsRare:['Theoretical autoimmune activation'],
+   stacks:[{name:'Epithalon',why:'Thymalin restores immune. Epithalon restores cellular/telomere. Khavinson longevity protocol.',syn:'Khavinson protocol'},{name:'Thymosin Alpha-1',why:'Both restore thymic function through different mechanisms.',syn:'Immune restoration'}],
+   research:[{finding:'Extended lifespan and improved immune function in elderly',detail:'Long-term Thymalin reduced cancer incidence, infections, and extended lifespan vs controls.',source:'Ann N Y Acad Sci, 2005'},{finding:'T-lymphocyte restoration in immunocompromised patients',detail:'Thymalin restored T-cell counts and activity in secondary immunodeficiency.',source:'Immunol Lett, 2007'}],
+   tridentUrl:'https://usetridentlabs.com'},
+
+  {id:'ll37',name:'LL-37',category:'longevity',tag:'Host Defense Peptide',
+   tagline:'The body natural antibiotic. Broad-spectrum antimicrobial and immune modulator.',
+   overview:'LL-37 is the only cathelicidin family member in humans. Produced by neutrophils and epithelial cells, it provides first-line defense against pathogens while modulating inflammation and promoting wound healing.',
+   mechanism:'Disrupts bacterial membranes (broad-spectrum antimicrobial). Modulates TLR signaling — activating immune responses to pathogens while dampening excessive inflammation. Promotes angiogenesis.',
+   keyBenefits:['Broad-spectrum antimicrobial','Wound healing','Immunomodulation','Angiogenesis','Anti-biofilm activity'],
+   doses:[{level:'Research',dose:'1-5mg SubQ',notes:'Varies by application'}],
+   route:'SubQ or topical',cycleOn:'2-4 weeks',cycleOff:'2 weeks',timing:'Any time.',
+   sideEffects:['Local irritation','Inflammatory response at high doses'],sideEffectsRare:['Pro-inflammatory at very high doses'],
+   stacks:[{name:'BPC-157',why:'LL-37 provides antimicrobial protection. BPC-157 repairs the tissue. For infected or at-risk wounds.',syn:'Wound protection + repair'}],
+   research:[{finding:'Active against bacteria, fungi, and enveloped viruses',detail:'LL-37 showed antimicrobial activity against gram-positive, gram-negative bacteria, fungi, and HIV.',source:'Antimicrob Agents Chemother, 2000'},{finding:'Wound healing via VEGF-A angiogenesis',detail:'Significantly accelerated wound closure through angiogenic mechanisms.',source:'J Invest Dermatol, 2008'}],
+   tridentUrl:'https://usetridentlabs.com'},
+
+  {id:'survodutide',name:'Survodutide',category:'fat_loss',tag:'GLP-1/Glucagon Dual Agonist',
+   tagline:'Dual GLP-1 and glucagon agonist. Appetite down, metabolism up.',
+   overview:'Survodutide is a balanced GLP-1 and glucagon receptor co-agonist. The glucagon component adds energy expenditure increase to GLP-1 appetite suppression — with promising NASH liver disease data.',
+   mechanism:'Equal GLP-1R and GCGR activation. GLP-1 suppresses appetite. Glucagon increases energy expenditure and hepatic fat mobilization.',
+   keyBenefits:['Appetite suppression + metabolic rate increase','Liver fat reduction (NASH)','Body weight reduction','Visceral fat targeting','Weekly dosing'],
+   doses:[{level:'Standard',dose:'1-6mg weekly SubQ',notes:'Titrate slowly over 12+ weeks'}],
+   route:'SubQ once weekly',cycleOn:'16-24 weeks',cycleOff:'Taper',timing:'Same day weekly.',
+   sideEffects:['Nausea','Vomiting','GI discomfort'],sideEffectsRare:['Hypoglycemia in combination'],
+   stacks:[{name:'CJC+IPA Blend',why:'Muscle preservation essential with GLP-1/glucagon combination.',syn:'Muscle protection'}],
+   research:[{finding:'Significant NASH improvement',detail:'Survodutide showed significant liver fat and NASH activity score reduction in Phase 2.',source:'Hepatology, 2024'},{finding:'Superior weight loss to GLP-1 monotherapy',detail:'Glucagon component added meaningful additional weight loss above GLP-1 alone.',source:'J Hepatol, 2023'}],
+   tridentUrl:'https://usetridentlabs.com'},
+
+  {id:'pinealon',name:'Pinealon',category:'cognitive',tag:'Pineal Peptide — Neuroprotective',
+   tagline:'Pineal gland tripeptide. Neuroprotection, sleep, and cognitive longevity.',
+   overview:'Pinealon is Khavinson tripeptide (Glu-Asp-Arg) targeting pineal gland and CNS for neuroprotection and circadian support. Part of the peptide bioregulator series.',
+   mechanism:'Penetrates BBB activating neuronal gene expression governing antioxidant defense, neurotrophic production, and circadian timing. Accumulates preferentially in pineal and neural tissue.',
+   keyBenefits:['Neuroprotection','Cognitive longevity','Sleep quality','Circadian regulation','Neuronal antioxidant defense','Anti-aging brain'],
+   doses:[{level:'Standard',dose:'5-10mg SubQ daily x 10 days',notes:'Khavinson protocol'},{level:'Maintenance',dose:'5-10mg x 10 days 2-4x/year',notes:'Preventive neurological anti-aging'}],
+   route:'SubQ',cycleOn:'10 days',cycleOff:'Months between cycles',timing:'Evening — aligns with circadian function.',
+   sideEffects:['Well tolerated','Vivid dreams (sign of activity)'],sideEffectsRare:['No significant adverse effects'],
+   stacks:[{name:'Epithalon',why:'Khavinson protocols combine these for anti-aging neurological support.',syn:'Khavinson neural protocol'},{name:'Semax',why:'Pinealon: long-term neuronal health. Semax: immediate enhancement.',syn:'Cognitive longevity'}],
+   research:[{finding:'Neuroprotection in ischemic brain injury',detail:'Significantly reduced neuronal death and improved outcomes in rat cerebral ischemia models.',source:'Bull Exp Biol Med, 2010'},{finding:'Gene expression activation in neuronal cells',detail:'Activated antioxidant and neurotrophic genes in human neuroblastoma cultures.',source:'Cell Mol Neurobiol, 2016'}],
+   tridentUrl:'https://usetridentlabs.com'},
+
+  {id:'oxytocinacetate',name:'Oxytocin Acetate',category:'cognitive',tag:'Bonding Neuropeptide',
+   tagline:'The bonding molecule. Social connection, trust, anxiety reduction, and recovery.',
+   overview:'Beyond bonding and childbirth, oxytocin modulates anxiety, social cognition, inflammation, and muscle repair. Relevant for psychological and physiological applications.',
+   mechanism:'Binds OXTR throughout brain, peripheral nervous system, and immune cells. Reduces amygdala reactivity. Anti-inflammatory peripherally.',
+   keyBenefits:['Anxiety reduction','Enhanced social connection','Improved trust','Anti-inflammatory','Muscle repair support','PTSD and autism research'],
+   doses:[{level:'Intranasal',dose:'20-40 IU intranasal',notes:'24 IU per nostril'},{level:'SubQ',dose:'2-5mg',notes:'Systemic effects'}],
+   route:'Intranasal or SubQ',cycleOn:'4-6 weeks or as needed',cycleOff:'2 weeks',timing:'30 min before social interaction or evening.',
+   sideEffects:['Headache','Nasal irritation','Temporary emotional sensitivity'],sideEffectsRare:['Hyponatremia at very high doses'],
+   stacks:[{name:'Selank',why:'Both reduce anxiety through different mechanisms. Complementary anxiolytic effects.',syn:'Anti-anxiety stack'}],
+   research:[{finding:'Significant reduction in amygdala reactivity',detail:'Intranasal oxytocin reduced amygdala response to threatening faces, reducing social anxiety.',source:'Nature, 2005'},{finding:'Accelerated wound healing via anti-inflammatory mechanism',detail:'Oxytocin receptor activation reduced pro-inflammatory cytokines and accelerated wound closure.',source:'J Invest Dermatol, 2020'}],
+   tridentUrl:'https://usetridentlabs.com'},
+
+  {id:'hmg',name:'HMG',category:'hormone',tag:'Human Menopausal Gonadotropin',
+   tagline:'FSH + LH combination. Fertility and hormonal axis restoration.',
+   overview:'HMG contains both FSH and LH activity. Used for fertility treatments and hormonal axis restoration, stimulating both gonadal steroidogenesis and gamete production.',
+   mechanism:'FSH stimulates follicular development and spermatogenesis. LH component stimulates steroidogenesis — testosterone in men, estrogen/progesterone in women.',
+   keyBenefits:['Fertility stimulation','Hormonal axis restoration','Spermatogenesis','Ovarian stimulation','PCT adjunct'],
+   doses:[{level:'Standard',dose:'75 IU IM 3x/week',notes:'Clinical fertility protocols'},{level:'Hormonal restoration',dose:'75-150 IU 2-3x/week',notes:'Axis support'}],
+   route:'IM or SubQ',cycleOn:'As clinically indicated',cycleOff:'Per protocol',timing:'As directed.',
+   sideEffects:['Injection site reactions','Gynecomastia risk in men','OHSS risk in women'],sideEffectsRare:['Ovarian hyperstimulation at high doses'],
+   stacks:[{name:'HCG',why:'HMG provides FSH+LH. HCG provides additional LH-like stimulation. Used together in fertility and PCT.',syn:'Fertility / PCT'}],
+   research:[{finding:'Standard of care in assisted reproductive technology',detail:'HMG has decades of clinical use as controlled ovarian stimulation in IVF worldwide.',source:'Hum Reprod Update, 2007'},{finding:'Spermatogenesis in hypogonadotropic hypogonadism',detail:'HMG + HCG induced spermatogenesis in 71% of men with HH.',source:'J Clin Endocrinol Metab, 2002'}],
+   tridentUrl:'https://usetridentlabs.com'},
+
+  {id:'aicar',name:'AICAR',category:'longevity',tag:'AMPK Activator — Endurance',
+   tagline:'Exercise in a vial. AMPK activation and 44% endurance increase without training.',
+   overview:'AICAR converts intracellularly to ZMP — a direct AMPK activator. AMPK is the master energy sensor activated by exercise. The famous 2008 Salk Institute study showed untrained mice ran 44% further with AICAR.',
+   mechanism:'Converts to ZMP inside cells mimicking energy depletion — activating AMPK. Switches cells to fat-burning, mitochondrial biogenesis, and glucose uptake exactly as exercise does.',
+   keyBenefits:['AMPK activation (exercise mimetic)','Enhanced fat oxidation','Mitochondrial biogenesis','Improved insulin sensitivity','44% endurance increase in animal studies'],
+   doses:[{level:'Research',dose:'50-100mg SubQ',notes:'Human doses scale from 500mg mouse study'},{level:'Standard',dose:'25-50mg SubQ daily',notes:'For metabolic benefits'}],
+   route:'SubQ',cycleOn:'4-6 weeks',cycleOff:'4 weeks',timing:'Morning before exercise.',
+   sideEffects:['Lactic acidosis at high doses','Hypoglycemia','GI distress'],sideEffectsRare:['Cardiac arrhythmias at very high research doses'],
+   stacks:[{name:'MOTS-c',why:'Both AMPK activators through different mechanisms.',syn:'Exercise mimetic stack'},{name:'SLU-PP-322',why:'AICAR activates AMPK. SLU-PP-322 activates ERR. Two major exercise adaptation pathways.',syn:'Exercise pathways'}],
+   research:[{finding:'Sedentary mice ran 44% further after AICAR',detail:'The 2008 Salk Institute study showing AICAR increased endurance 44% in untrained mice without exercise.',source:'Cell, 2008'},{finding:'Insulin sensitivity comparable to exercise',detail:'AICAR produced muscle glucose uptake and insulin sensitivity similar to acute exercise.',source:'Diabetes, 2002'}],
+   tridentUrl:'https://usetridentlabs.com'},
+
+  {id:'fox04',name:'FOX04',category:'longevity',tag:'Senolytic Peptide',
+   tagline:'Targets and eliminates senescent cells. The anti-aging breakthrough.',
+   overview:'FOX04-DRI selectively triggers apoptosis in senescent "zombie cells" that accumulate with age and drive inflammation and tissue dysfunction. Senolytics are considered the most promising anti-aging approach in current research.',
+   mechanism:'Disrupts FOX04-p53 interaction keeping senescent cells alive. Allows p53 to trigger apoptosis specifically in senescent cells — leaving healthy cells completely unaffected.',
+   keyBenefits:['Selective senescent cell elimination','Reduced SASP inflammation','Tissue function restoration','Physical function improvement','Potential cancer prevention','Genuine cellular anti-aging'],
+   doses:[{level:'Research',dose:'2-5mg/kg SubQ',notes:'From animal studies'},{level:'Common',dose:'5-10mg SubQ',notes:'Emerging human protocol'}],
+   route:'SubQ',cycleOn:'3 consecutive days per month',cycleOff:'Monthly dosing — not daily',timing:'3-day monthly protocol.',
+   sideEffects:['Not well characterized in humans','Temporary fatigue during cell clearance'],sideEffectsRare:['Unknown long-term effects — cutting edge'],
+   stacks:[{name:'Epithalon',why:'FOX04 clears senescent cells. Epithalon rejuvenates remaining cells via telomerase. Most powerful anti-aging combination.',syn:'Anti-aging protocol'},{name:'NAD+',why:'NAD+ supports energy for apoptosis and tissue restoration after clearance.',syn:'Cellular rejuvenation'}],
+   research:[{finding:'Restored physical function in aged mice to youthful levels',detail:'FOX04-DRI cleared senescent cells and restored exercise capacity, organ function in geriatric mice.',source:'Cell, 2017'},{finding:'Selective apoptosis in senescent vs normal cells',detail:'Induced apoptosis only in senescent cells — healthy cells completely unaffected.',source:'Cell, 2017'}],
+   tridentUrl:'https://usetridentlabs.com'},
+
+  {id:'adipotide',name:'Adipotide',category:'fat_loss',tag:'Proapoptotic Fat Targeting Peptide',
+   tagline:'Directly targets and destroys fat cell blood supply. Rapid visceral fat loss.',
+   overview:'Adipotide specifically binds receptors on blood vessels supplying white adipose tissue, delivering a cell-death signal to fat cell vasculature — causing fat cell death through selective ischemia.',
+   mechanism:'CKGGRAKDC sequence homes to prohibitin on fat cell vessel walls. KLAKLAK disrupts mitochondrial membranes in those cells. Result: selective destruction of fat supply triggering adipocyte death.',
+   keyBenefits:['Targeted fat cell destruction','Rapid visceral fat reduction','Different mechanism to all other fat loss compounds'],
+   doses:[{level:'Research',dose:'0.5-1mg/kg SubQ daily',notes:'Primate study basis'},{level:'Common',dose:'2-5mg SubQ daily',notes:'Emerging human protocol'}],
+   route:'SubQ',cycleOn:'4-6 weeks',cycleOff:'8 weeks minimum',timing:'Daily.',
+   sideEffects:['Kidney stress at high doses','Initial fluid retention','Injection site reactions'],sideEffectsRare:['Renal toxicity at high doses — monitor creatinine'],
+   stacks:[{name:'Retatrutide',why:'Adipotide destroys fat cells. Retatrutide prevents new storage. Dual attack on fat.',syn:'Fat elimination stack'}],
+   research:[{finding:'11% body fat loss in 28 days in obese primates',detail:'Rapid, significant visceral fat loss with minimal lean mass loss in rhesus monkeys.',source:'Sci Transl Med, 2011'},{finding:'Selective targeting of white adipose vasculature confirmed',detail:'Fluorescent tracking confirmed accumulation specifically in fat tissue blood vessels.',source:'Science, 2004'}],
+   tridentUrl:'https://usetridentlabs.com'},
+
+  {id:'kisspeptin',name:'KissPeptin',category:'hormone',tag:'GnRH Pulse Generator',
+   tagline:'Master switch for reproductive hormones. Upstream control of testosterone and estrogen.',
+   overview:'Kisspeptin directly stimulates GnRH release — the upstream control of the entire reproductive hormone cascade. Acts at the hypothalamic level unlike HCG (testes) or clomiphene (pituitary).',
+   mechanism:'Binds Kiss1 receptors (GPR54) on GnRH neurons triggering pulsatile GnRH secretion that drives the full reproductive hormone cascade.',
+   keyBenefits:['Hypothalamic hormonal restoration','LH/FSH pulse generation','Testosterone stimulation via natural axis','Fertility support','PCT alternative','Approved use in hypothalamic amenorrhea'],
+   doses:[{level:'Research',dose:'1-10mcg/kg SubQ',notes:'Clinical study doses'},{level:'Standard',dose:'2-5mg SubQ',notes:'Common protocol'}],
+   route:'SubQ',cycleOn:'4-8 weeks',cycleOff:'4 weeks',timing:'Pulsatile administration optimal.',
+   sideEffects:['LH surge and testosterone elevation (intended)','Potential desensitization continuous use'],sideEffectsRare:['Receptor downregulation with non-pulsatile dosing'],
+   stacks:[{name:'HCG',why:'Kisspeptin at hypothalamus. HCG at testes. Full axis support top to bottom.',syn:'Full axis support'}],
+   research:[{finding:'Direct LH pulse stimulation in both sexes',detail:'Kisspeptin-10 produced robust LH pulses and testosterone elevation in healthy men.',source:'J Clin Invest, 2005'},{finding:'Hypothalamic amenorrhea reversal',detail:'Kisspeptin restored LH pulsatility and menstrual cycles in women with HA.',source:'NEJM, 2017'}],
+   tridentUrl:'https://usetridentlabs.com'},
+
+  {id:'aod9604',name:'AOD-9604',category:'fat_loss',tag:'Lipolytic Peptide — FDA GRAS',
+   tagline:'HGH fat-burning fragment. FDA food safety approved. No blood sugar impact.',
+   overview:'AOD-9604 is the C-terminal HGH fragment (176-191) developed to isolate fat-metabolizing properties of HGH without growth or blood-sugar effects. Has unique FDA GRAS designation.',
+   mechanism:'Stimulates lipolysis and inhibits lipogenesis through HGH pathway but via different receptor — no effect on IGF-1, insulin resistance, or cell proliferation.',
+   keyBenefits:['Fat oxidation stimulation','No IGF-1 impact','No insulin resistance','FDA GRAS status','Cartilage repair properties'],
+   doses:[{level:'Standard',dose:'200-300mcg SubQ daily',notes:'Morning fasted'},{level:'Higher',dose:'500mcg/day',notes:'Research upper range'}],
+   route:'SubQ',cycleOn:'8-12 weeks',cycleOff:'4 weeks',timing:'Morning fasted. No carbs 30 min either side.',
+   sideEffects:['Very well tolerated','Occasional injection site reactions'],sideEffectsRare:['No significant adverse effects in trials'],
+   stacks:[{name:'CJC+IPA Blend',why:'AOD-9604 handles fat metabolism. CJC+IPA provides anabolic GH benefits. Complete GH-axis stack.',syn:'GH axis stack'}],
+   research:[{finding:'FDA GRAS designation',detail:'AOD-9604 received Generally Recognized As Safe status from FDA — unique among peptide compounds.',source:'FDA Database, 2014'},{finding:'Fat reduction without glucose or IGF-1 impact',detail:'Reduced body fat in obese subjects without affecting blood glucose, insulin, or IGF-1.',source:'Am J Physiol, 2001'}],
+   tridentUrl:'https://usetridentlabs.com'},
+
+  {id:'aminomq',name:'5-Amino-1MQ',category:'fat_loss',tag:'NNMT Inhibitor',
+   tagline:'Blocks the fat-storing enzyme. Converts fat cells to energy-burning state.',
+   overview:'5-Amino-1MQ inhibits NNMT — an enzyme overexpressed in obese adipose tissue that promotes fat storage. By blocking it, fat cells revert to a metabolically active, energy-burning phenotype.',
+   mechanism:'NNMT inhibition increases cellular SAM and NAD+ in fat cells — reversing metabolic suppression of obesity and causing fat cells to behave more like brown adipose tissue.',
+   keyBenefits:['Reverses metabolic suppression in fat cells','Increases cellular NAD+','Fat oxidation at cellular level','No appetite side effects','Novel mechanism'],
+   doses:[{level:'Standard',dose:'5-10mg SubQ or oral',notes:'Oral has reasonable bioavailability'},{level:'Research',dose:'10mg daily',notes:'Most studied dose'}],
+   route:'SubQ or oral',cycleOn:'8-12 weeks',cycleOff:'4 weeks',timing:'Morning.',
+   sideEffects:['Limited human data','Well tolerated in animal studies'],sideEffectsRare:['Unknown long-term effects'],
+   stacks:[{name:'NAD+',why:'5-Amino-1MQ increases cellular NAD+ by blocking NNMT. Exogenous NAD+ amplifies this directly.',syn:'NAD+ amplification'},{name:'Retatrutide',why:'Cellular fat mechanism (5-AMQ) + central appetite/expenditure (Retatrutide). Multi-mechanism fat loss.',syn:'Multi-mechanism fat loss'}],
+   research:[{finding:'Significant fat mass reduction without caloric restriction',detail:'5-Amino-1MQ treated mice showed reduced fat mass and improved metabolic parameters on identical diets.',source:'Cell Chem Biol, 2020'},{finding:'NNMT inhibition restores lean fat cell phenotype',detail:'Fat cells showed gene expression more similar to lean tissue after treatment.',source:'J Biol Chem, 2022'}],
+   tridentUrl:'https://usetridentlabs.com'},
+
+  {id:'glutathione',name:'Glutathione',category:'longevity',tag:'Master Antioxidant',
+   tagline:'The body most important antioxidant. Every cell depends on it. Declines with age.',
+   overview:'Glutathione (GSH) is the most abundant endogenous antioxidant. Essential for detoxification, immune function, and oxidative stress protection. Levels decline with age, stress, and disease. SubQ bypasses poor oral bioavailability.',
+   mechanism:'Directly neutralizes ROS and free radicals. Regenerates Vitamin C and E. Essential cofactor for glutathione peroxidase. Critical for Phase II liver detoxification.',
+   keyBenefits:['Master antioxidant','Liver detoxification','Immune function','Skin brightening','Mitochondrial protection','Heavy metal chelation'],
+   doses:[{level:'Standard',dose:'600-1200mg SubQ 3x/week',notes:'Systemic antioxidant'},{level:'Skin brightening',dose:'1500mg IV',notes:'Clinical whitening protocols'},{level:'Oral',dose:'500-1000mg',notes:'Lower bioavailability'}],
+   route:'SubQ, IV, or oral',cycleOn:'Continuous or 4-8 week cycles',cycleOff:'Not required for maintenance',timing:'Any time. Evening for detoxification.',
+   sideEffects:['Very well tolerated','Skin lightening (intended by some)','Mild GI oral form'],sideEffectsRare:['Zinc depletion long-term high dose'],
+   stacks:[{name:'NAD+',why:'NAD+ and Glutathione are the two master antioxidant/energy systems. Foundational longevity pairing.',syn:'Longevity foundation'},{name:'Epithalon',why:'Epithalon at telomere level. Glutathione protects cellular environment.',syn:'Anti-aging protocol'}],
+   research:[{finding:'Depletion correlates with multiple age-related diseases',detail:'Lower glutathione consistently found in Parkinson, Alzheimer, cardiovascular disease, and T2D patients.',source:'Eur J Pharmacol, 2020'},{finding:'IV Glutathione reduced Parkinson symptoms',detail:'Significant improvement in motor function and quality of life with IV glutathione in early Parkinson.',source:'Eur J Neurol, 2009'}],
+   tridentUrl:'https://usetridentlabs.com'},
+
+  {id:'bacwater',name:'BAC Water',category:'other',tag:'Essential Supply',
+   tagline:'Bacteriostatic water. Required for reconstituting every injectable peptide.',
+   overview:'BAC Water contains 0.9% benzyl alcohol preventing microbial growth. Extends reconstituted peptide life to 4-6 weeks refrigerated. Not optional — plain sterile water allows contamination within 24-72 hours.',
+   mechanism:'Benzyl alcohol at 0.9% provides broad-spectrum antimicrobial preservation in multi-dose vials without affecting peptide activity or stability.',
+   keyBenefits:['Essential for reconstitution','Prevents microbial contamination','Extends reconstituted peptide life to 4-6 weeks','Available from verified peptide suppliers in 3ml and 10ml vials'],
+   doses:[{level:'Reconstitution',dose:'1-2ml per 5mg vial',notes:'1ml = 5mg/ml. 2ml = 2.5mg/ml concentration'},{level:'Small vials',dose:'0.5-1ml per 2mg vial',notes:'Adjust for desired concentration'}],
+   route:'Used to reconstitute then peptide injected SubQ',cycleOn:'Replace every 4-6 weeks',cycleOff:'N/A',timing:'Add slowly DOWN the side of vial. Never directly onto powder. Gently swirl — never shake.',
+   sideEffects:['None when used correctly'],sideEffectsRare:['Benzyl alcohol sensitivity (very rare)'],
+   stacks:[{name:'All peptides',why:'Required for reconstitution of every injectable peptide.',syn:'Universal requirement'}],
+   research:[{finding:'0.9% benzyl alcohol is pharmaceutical standard for multi-dose injectables',detail:'Validated across decades of clinical pharmaceutical use for multi-dose vial preservation.',source:'USP Pharmacopeia'},{finding:'Maintains peptide stability 4-6 weeks refrigerated',detail:'BAC water extends reconstituted peptide shelf life significantly vs sterile water which degrades within 24-72 hours.',source:'Peptide stability research'}],
+   tridentUrl:'https://usetridentlabs.com'},
+
+  {id:'glow',name:'GLOW',category:'blend',tag:'Recovery Blend — BPC-157 + TB-500 + GHK-Cu',
+   tagline:'Complete recovery blend — three synergistic compounds in a single vial.',
+   overview:'GLOW combines BPC-157, TB-500, and GHK-Cu in a single vial. BPC-157 for local tissue repair. TB-500 for systemic healing and flexibility. GHK-Cu for collagen synthesis and anti-inflammatory signaling. All three are synergistic.',
+   mechanism:'BPC-157 drives angiogenesis and local repair. TB-500 mobilizes cells systemically and reduces inflammation. GHK-Cu triggers collagen gene expression and delivers copper directly to repair sites.',
+   keyBenefits:['Full-spectrum tissue repair','Skin and collagen improvement','Systemic + local healing','Anti-inflammatory','One injection instead of three'],
+   doses:[{level:'Standard',dose:'500mcg-1mg/day SubQ',notes:'Based on BPC-157 equivalent'},{level:'Loading',dose:'1mg/day x 4 weeks',notes:'For acute injuries'}],
+   route:'SubQ',cycleOn:'6-12 weeks',cycleOff:'4 weeks',timing:'Morning. Near injury site if applicable.',
+   sideEffects:['Same profile as component peptides individually','Head rush feeling (TB-500 component)'],sideEffectsRare:['Same cancer caution as BPC-157'],
+   stacks:[{name:'CJC+IPA Blend',why:'GH peptides accelerate the remodeling phase once GLOW initiates healing.',syn:'Complete recovery'}],
+   research:[{finding:'BPC-157 + TB-500 synergistic healing superior to individual peptides',detail:'Combination shows faster healing outcomes than either compound alone in connective tissue injury models.',source:'J Orthop Res, 2019'},{finding:'GHK-Cu activates 4,000+ repair genes',detail:'GHK-Cu component modulates thousands of human genes governing tissue remodeling.',source:'Genome Med, 2012'}],
+   tridentUrl:'https://usetridentlabs.com'},
+
+  {id:'wolverine',name:'Wolverine',category:'blend',tag:'Advanced Recovery Blend',
+   tagline:'Named for a reason. Aggressive tissue repair for serious athletes.',
+   overview:'Wolverine is an advanced multi-compound recovery blend designed for athletes dealing with serious injuries, high training loads, or who need accelerated healing across multiple tissue pathways simultaneously.',
+   mechanism:'Multi-pathway recovery activation targeting connective tissue, muscle, and the inflammatory response simultaneously for maximum repair velocity.',
+   keyBenefits:['Accelerated injury recovery','Joint and tendon repair','Reduced recovery time between sessions','Anti-inflammatory cascade'],
+   doses:[{level:'Standard',dose:'500mcg-1mg/day SubQ',notes:'Based on body weight and injury severity'}],
+   route:'SubQ',cycleOn:'6-10 weeks',cycleOff:'4 weeks',timing:'Morning fasted.',
+   sideEffects:['Similar to BPC-157 and TB-500'],sideEffectsRare:['Same precautions as component peptides'],
+   stacks:[{name:'CJC+IPA Blend',why:'GH stimulation amplifies the anabolic repair environment Wolverine creates.',syn:'Recovery amplifier'}],
+   research:[{finding:'Component compounds individually validated in tissue repair research',detail:'Each component has extensive peer-reviewed research for tissue repair, inflammation reduction, and recovery.',source:'Component research'},{finding:'Multi-pathway approach superior to single compound',detail:'Combining tissue repair peptides with complementary mechanisms accelerates outcomes vs monotherapy.',source:'Peptide synergy research'}],
+   tridentUrl:'https://usetridentlabs.com'},
+
+  {id:'cjcipa',name:'CJC+IPA Blend',category:'blend',tag:'GH Secretagogue Blend',
+   tagline:'The most popular GH stack. One injection, two synergistic peptides.',
+   overview:'CJC-1295 (no DAC) is a GHRH analog — tells the pituitary to release GH. Ipamorelin is a ghrelin mimetic — also triggers GH release through a completely different receptor. Together they create a GH pulse 3-10x larger than either alone.',
+   mechanism:'CJC-1295 stimulates GHRH receptors. Ipamorelin stimulates ghrelin receptors. Both pathways converge at the pituitary producing a synergistic GH pulse that mimics natural pulses — just amplified.',
+   keyBenefits:['Enhanced GH pulse amplitude','Improved deep sleep quality','Accelerated fat loss','Muscle repair and recovery','Better body composition'],
+   doses:[{level:'Beginner',dose:'100mcg each/day SubQ',notes:'Start here, bedtime only'},{level:'Standard',dose:'200mcg each/day',notes:'Bedtime fasted'},{level:'Advanced',dose:'200mcg 2x/day',notes:'AM fasted + bedtime'}],
+   route:'SubQ',cycleOn:'3-6 months',cycleOff:'1 month',timing:'MUST be fasted. Bedtime is optimal — amplifies natural sleep GH pulse.',
+   sideEffects:['Water retention (first 2-3 weeks)','Increased hunger','Tingling or numbness (temporary)'],sideEffectsRare:['Pituitary desensitization with very long unbroken cycles'],
+   stacks:[{name:'BPC-157',why:'GH peptides enhance collagen synthesis and healing that BPC-157 initiates.',syn:'Recovery amplifier'},{name:'Retatrutide',why:'GH preserves muscle while Retatrutide aggressively burns fat. Essential recomp pairing.',syn:'Recomp stack'}],
+   research:[{finding:'2-10x GH pulse amplitude increase',detail:'CJC-1295 produced significant GH elevation. Ipamorelin adds synergistic amplification through separate receptor.',source:'J Clin Endocrinol Metab, 2006'},{finding:'Improved body composition over 12 weeks',detail:'Reduced fat mass and increased lean muscle with no change in cortisol or prolactin.',source:'Growth Horm IGF Res, 2008'}],
+   tridentUrl:'https://usetridentlabs.com'},
+
+];
+
+// ── SAFETY RATINGS ──
+// [researchDepth 1-5, establishedUse 1-5, sideEffectRisk 1-5]
+var SAFETY_RATINGS = {'bpc157': [5, 5, 1], 'tb500': [5, 5, 1], 'glow': [5, 5, 1], 'wolverine': [4, 4, 1], 'ghkcu': [5, 5, 1], 'klow': [4, 4, 1], 'snap8': [3, 4, 1], 'lpv': [3, 3, 1], 'semaglutide': [5, 5, 2], 'tirzepatide': [5, 4, 2], 'retatrutide': [4, 3, 3], 'cagrilintide': [3, 2, 2], 'cagrisema': [3, 2, 2], 'hghfrag': [3, 3, 1], 'aod9604': [3, 3, 1], 'adipotide': [2, 1, 3], 'aminomq': [2, 1, 2], 'survodutide': [3, 2, 2], 'tesamorelin': [5, 5, 2], 'hgh': [5, 5, 3], 'cjcipa': [5, 5, 1], 'cjc1295': [5, 5, 1], 'ipamorelin': [5, 5, 1], 'hexarelin': [4, 4, 2], 'sermorelin': [5, 5, 1], 'igf1lr3': [4, 4, 2], 'igfdes': [3, 2, 2], 'semax': [4, 4, 1], 'selank': [4, 4, 1], 'vip': [4, 3, 2], 'dsip': [3, 3, 1], 'pinealon': [3, 3, 1], 'cerebrolysin': [5, 5, 1], 'ara290': [3, 2, 1], 'oxytocinacetate': [4, 3, 1], 'epithalon': [4, 4, 1], 'nad': [5, 5, 1], 'ss31': [4, 3, 1], 'motsc': [4, 3, 1], 'slupps322': [2, 1, 2], 'aicar': [4, 3, 2], 'fox04': [3, 1, 2], 'thymalin': [4, 4, 1], 'thymosin1': [5, 5, 1], 'melatonin': [5, 5, 1], 'glutathione': [5, 5, 1], 'll37': [3, 2, 2], 'mt1': [4, 4, 1], 'mt2': [4, 4, 2], 'pt141': [4, 4, 2], 'hcg': [5, 5, 2], 'hmg': [5, 5, 2], 'kisspeptin': [3, 3, 1], 'dermorphin': [3, 1, 5], 'bacwater': [5, 5, 1]};
+
+
+// ── BLEND SPOTLIGHT DATA ──
+var BLENDS = [
+  {id:'glow',emoji:'✨',name:'GLOW',desc:'BPC-157 + TB-500 + GHK-Cu',badge:'Recovery',badgeColor:'#10B981',badgeBg:'#D1FAE5'},
+  {id:'wolverine',emoji:'⚡',name:'Wolverine',desc:'Advanced recovery blend',badge:'Repair',badgeColor:'#DC2626',badgeBg:'#FEE2E2'},
+  {id:'cjcipa',emoji:'🌙',name:'CJC+IPA',desc:'CJC-1295 + Ipamorelin',badge:'GH',badgeColor:'#7C3AED',badgeBg:'#EDE9FE'},
+];
+
+// ── FAQ DATA ──
+var FAQS = [
+  {q:'Are peptides safe?',a:'Peptides are generally well-tolerated when sourced from reputable suppliers and used responsibly. The key variables are purity (hence the 6-panel COA), accurate dosing, and respecting cycle lengths. Most peptides have much better safety profiles than traditional performance compounds. That said, all research should be conducted responsibly.'},
+  {q:'How are peptides different from steroids?',a:'Peptides are short chains of amino acids — the building blocks of protein. They work by signaling your body\'s own receptors to produce effects (more GH, better healing, etc.). Steroids are synthetic hormones that directly replace or amplify your hormonal environment. Peptides have substantially fewer side effects and no impact on the HPTA (hormonal axis).'},
+  {q:'Why does purity matter so much?',a:'Impurities in peptides can cause immune reactions, injection site infections, or simply mean you\'re not getting the dose you think. Heavy metal contamination from overseas manufacturing is a real risk. A 6-panel COA rules out all of these. When sourcing, look for vendors publishing 99%+ purity with third-party HPLC verification.'},
+  {q:'Do I need to refrigerate peptides?',a:'Lyophilized (freeze-dried, powder) peptides can be stored at room temperature away from light, or frozen for long-term storage. Once reconstituted with BAC water, they must be refrigerated and used within 4-6 weeks. BAC water (bacteriostatic water) is essential — never use regular water as it won\'t preserve the peptide.'},
+  {q:'What is BAC water and why do I need it?',a:'BAC water (bacteriostatic water) contains 0.9% benzyl alcohol which prevents bacterial growth in your reconstituted peptide vial. Using sterile water without a bacteriostat means your peptide can become contaminated within days. BAC water extends vial life to 4-6 weeks in the fridge. Available from verified peptide suppliers and Amazon.'},
+  {q:'How do I inject SubQ?',a:'SubQ (subcutaneous) means just under the skin, not into muscle. Pinch a small fold of skin on your abdomen or thigh. Insert the needle at 45 degrees. Slowly depress the plunger. Remove and apply gentle pressure. Use a fresh 29-31 gauge insulin syringe each time. Rotate sites to prevent scar tissue.'},
+  {q:'Can I stack multiple peptides?',a:'Yes — many peptides are designed to stack. Classic combinations: BPC-157 + TB-500 for recovery, CJC-1295 + Ipamorelin for GH, Semax + Selank for cognition. The key is not to overstack — more compounds means harder to identify what\'s working or causing a side effect. Start with 2-3 compounds max.'},
+  {q:'When will I feel results?',a:'It depends on the compound. Semax and Selank are felt within 30-60 minutes. BPC-157 and TB-500 show measurable healing in 1-3 weeks. GH peptides (CJC+IPA) typically show sleep improvement in 1-2 weeks, body composition changes in 4-8 weeks. GLP-1s reduce appetite within days but significant weight loss takes 4-8 weeks.'},
+];
+
+
+// ── STATE ──
+var compareMode = false;
+var compareSlots = [null, null];
+var recentlyViewed = JSON.parse(localStorage.getItem('peptrak_lib_recent') || '[]');
+
+// ── PROTOCOL COMPOUNDS ──
+var protocolCompounds = [];
+try {
+  var proto = JSON.parse(localStorage.getItem('peptrak_protocol') || '{}');
+  if(proto.compounds) {
+    protocolCompounds = proto.compounds.map(function(c){ return (c.name||'').toLowerCase(); });
+  }
+} catch(e){}
+
+// ── COMPOUND COUNT BADGE ──
+function updateCountBadge(){
+  var el = document.getElementById('compound-count-badge');
+  if(el) el.textContent = COMPOUNDS.length + ' compounds';
+}
+
+// ── RECENTLY VIEWED ──
+function addToRecent(id){
+  recentlyViewed = recentlyViewed.filter(function(r){ return r !== id; });
+  recentlyViewed.unshift(id);
+  if(recentlyViewed.length > 6) recentlyViewed = recentlyViewed.slice(0,6);
+  localStorage.setItem('peptrak_lib_recent', JSON.stringify(recentlyViewed));
+  buildRecentChips();
+}
+
+function buildRecentChips(){
+  var section = document.getElementById('recent-section');
+  var wrap = document.getElementById('recent-chips');
+  if(!section || !wrap) return;
+  var valid = recentlyViewed.filter(function(id){
+    return COMPOUNDS.find(function(c){ return c.id === id; });
+  });
+  if(valid.length === 0){ section.style.display = 'none'; return; }
+  section.style.display = 'block';
+  wrap.innerHTML = '';
+  valid.forEach(function(id){
+    var compound = COMPOUNDS.find(function(c){ return c.id === id; });
+    if(!compound) return;
+    var cat = CAT_CONFIG[compound.category] || CAT_CONFIG.other;
+    var chip = document.createElement('div');
+    chip.className = 'recent-chip';
+    chip.innerHTML = '<div class="recent-chip-dot" style="background:'+cat.color+'"></div><div class="recent-chip-name">'+compound.name+'</div>';
+    chip.onclick = (function(cid){ return function(){ openSheet(cid); }; })(id);
+    wrap.appendChild(chip);
+  });
+}
+
+// ── IN-STACK CHECK ──
+function isInStack(compound){
+  var name = compound.name.toLowerCase();
+  return protocolCompounds.some(function(p){
+    return p.indexOf(name) > -1 || name.indexOf(p) > -1;
+  });
+}
+
+// ── SEARCH HIGHLIGHT ──
+function highlight(text, query){
+  if(!query) return text;
+  var escaped = query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  return text.replace(new RegExp('('+escaped+')', 'gi'), '<span class="search-hl">$1</span>');
+}
+
+// ── COMPARE MODE ──
+function toggleCompareMode(){
+  compareMode = !compareMode;
+  compareSlots = [null, null];
+  var btn = document.getElementById('compare-toggle-btn');
+  var bar = document.getElementById('compare-bar');
+  if(compareMode){
+    btn.style.background = 'var(--blue)';
+    btn.style.color = '#fff';
+    btn.style.borderColor = 'var(--blue)';
+    btn.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg> Exit Compare';
+    bar.classList.add('show');
+  } else {
+    btn.style.background = 'var(--white)';
+    btn.style.color = 'var(--gray-5)';
+    btn.style.borderColor = 'var(--gray-2)';
+    btn.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M9 3H5a2 2 0 00-2 2v4m6-6h10a2 2 0 012 2v4M9 3v18m0 0h10a2 2 0 002-2V9M9 21H5a2 2 0 01-2-2V9m0 0h18"/></svg>Compare Compounds';
+    bar.classList.remove('show');
+  }
+  buildCompoundList();
+}
+
+function toggleCompareSelect(id){
+  var idx = compareSlots.indexOf(id);
+  if(idx > -1){
+    compareSlots[idx] = null;
+  } else {
+    var empty = compareSlots.indexOf(null);
+    if(empty === -1) { compareSlots[0] = id; }
+    else { compareSlots[empty] = id; }
+  }
+  updateCompareBar();
+  buildCompoundList();
+}
+
+function updateCompareBar(){
+  [0,1].forEach(function(i){
+    var slot = document.getElementById('cslot-'+i);
+    var txt = document.getElementById('cslot-'+i+'-txt');
+    var id = compareSlots[i];
+    if(id){
+      var compound = COMPOUNDS.find(function(c){ return c.id === id; });
+      slot.classList.add('filled');
+      txt.textContent = compound ? compound.name : id;
+      txt.innerHTML += ' <span class="compare-slot-x" onclick="removeFromCompare('+i+')">×</span>';
+    } else {
+      slot.classList.remove('filled');
+      txt.textContent = 'Select compound';
+    }
+  });
+  var goBtn = document.getElementById('compare-go-btn');
+  if(goBtn) goBtn.disabled = !compareSlots[0] || !compareSlots[1];
+}
+
+function removeFromCompare(idx){
+  compareSlots[idx] = null;
+  updateCompareBar();
+  buildCompoundList();
+}
+
+function openComparison(){
+  var c1 = COMPOUNDS.find(function(c){ return c.id === compareSlots[0]; });
+  var c2 = COMPOUNDS.find(function(c){ return c.id === compareSlots[1]; });
+  if(!c1 || !c2) return;
+
+  document.getElementById('sheet-name').textContent = 'Comparison';
+  document.getElementById('sheet-category-wrap').innerHTML = 
+    '<div class="sheet-category" style="color:var(--blue);background:var(--blue-pale);">'+c1.name+' vs '+c2.name+'</div>';
+  document.getElementById('sheet-tabs').style.display = 'none';
+  document.getElementById('sheet-cta').innerHTML = '';
+
+  var rows = [
+    ['Category', CAT_CONFIG[c1.category]&&CAT_CONFIG[c1.category].label||'—', CAT_CONFIG[c2.category]&&CAT_CONFIG[c2.category].label||'—'],
+    ['Route', c1.route, c2.route],
+    ['Cycle On', c1.cycleOn, c2.cycleOn],
+    ['Cycle Off', c1.cycleOff, c2.cycleOff],
+    ['Timing', c1.timing, c2.timing],
+    ['Side Effect Risk', getSafetyLabel(c1.id, 2), getSafetyLabel(c2.id, 2)],
+    ['Research Depth', getSafetyLabel(c1.id, 0), getSafetyLabel(c2.id, 0)],
+    ['Established Use', getSafetyLabel(c1.id, 1), getSafetyLabel(c2.id, 1)],
+  ];
+
+  var html = '<div class="info-block">'+
+    '<div style="background:var(--blue-pale);border-radius:12px;padding:11px 14px;margin-bottom:16px;font-size:12px;color:var(--blue);line-height:1.6;">Side-by-side comparison. Tap either compound name to view full details.</div>'+
+    '<table class="compare-table">'+
+    '<thead><tr><th></th>'+
+    '<th onclick="openSheet(\''+c1.id+'\')" style="cursor:pointer;">'+c1.name+'</th>'+
+    '<th onclick="openSheet(\''+c2.id+'\')" style="cursor:pointer;">'+c2.name+'</th>'+
+    '</tr></thead><tbody>';
+
+  rows.forEach(function(row){
+    html += '<tr><td>'+row[0]+'</td><td>'+row[1]+'</td><td>'+row[2]+'</td></tr>';
+  });
+
+  // Key benefits comparison
+  html += '<tr><td>Key Benefits</td>';
+  [c1,c2].forEach(function(comp){
+    html += '<td style="text-align:left;">'+comp.keyBenefits.slice(0,3).map(function(b){
+      return '<div style="display:flex;align-items:flex-start;gap:5px;margin-bottom:4px;"><div style="width:5px;height:5px;border-radius:50%;background:var(--green);margin-top:5px;flex-shrink:0;"></div><div style="font-size:11px;line-height:1.4;">'+b+'</div></div>';
+    }).join('')+'</td>';
+  });
+  html += '</tr>';
+
+  // Best stack partner
+  html += '<tr><td>Stack With</td>';
+  [c1,c2].forEach(function(comp){
+    var top = comp.stacks && comp.stacks[0];
+    html += '<td>'+(top ? top.name : '—')+'</td>';
+  });
+  html += '</tr>';
+
+  html += '</tbody></table></div>';
+
+  document.getElementById('sheet-body').innerHTML = html;
+  document.getElementById('sheet-overlay').classList.add('open');
+  document.getElementById('sheet').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+
+function getSafetyLabel(id, idx){
+  var rating = SAFETY_RATINGS[id];
+  if(!rating) return '—';
+  var val = rating[idx];
+  var labels = [['Low','Moderate','Good','High','Extensive'],['Experimental','Early','Moderate','Established','Clinical'],['Minimal','Low','Moderate','Notable','High']];
+  return labels[idx][val-1] || '—';
+}
+
+// ── SAFETY RATING RENDERER ──
+function renderSafetyRating(id){
+  var rating = SAFETY_RATINGS[id];
+  if(!rating) return '';
+  function dots(val, cls){
+    var h = '';
+    for(var i=1;i<=5;i++) h += '<div class="safety-dot'+(i<=val?' '+cls:'')+'"></div>';
+    return h;
+  }
+  return '<div class="info-block">'+
+    '<div class="info-label">Safety Profile</div>'+
+    '<div class="safety-row">'+
+      '<div class="safety-item"><div class="safety-label">Research</div><div class="safety-dots">'+dots(rating[0],'filled-research')+'</div></div>'+
+      '<div class="safety-item"><div class="safety-label">Established</div><div class="safety-dots">'+dots(rating[1],'filled-established')+'</div></div>'+
+      '<div class="safety-item"><div class="safety-label">Side Effect Risk</div><div class="safety-dots">'+dots(rating[2],'filled-risk')+'</div></div>'+
+    '</div>'+
+    '<div style="font-size:11px;color:var(--gray-4);line-height:1.55;margin-top:8px;">For research context only. Not medical guidance. Individual responses vary.</div>'+
+  '</div>';
+}
+
+// ── RELATED COMPOUNDS RENDERER ──
+function renderRelated(compound){
+  var related = [];
+  // Gather from stacks
+  (compound.stacks||[]).forEach(function(s){
+    var found = COMPOUNDS.find(function(c){ return c.name === s.name || c.id === s.name.toLowerCase().replace(/[^a-z0-9]/g,''); });
+    if(found && found.id !== compound.id) related.push(found);
+  });
+  // Fill up to 4 from same category
+  if(related.length < 4){
+    COMPOUNDS.filter(function(c){ return c.category === compound.category && c.id !== compound.id; })
+      .slice(0,4-related.length).forEach(function(c){
+        if(!related.find(function(r){ return r.id === c.id; })) related.push(c);
+      });
+  }
+  related = related.slice(0,4);
+  if(!related.length) return '';
+  var chipsHtml = related.map(function(r){
+    var cat = CAT_CONFIG[r.category] || CAT_CONFIG.other;
+    return '<div class="related-chip" onclick="openSheet(\''+r.id+'\')">'+
+      '<div class="related-chip-dot" style="background:'+cat.color+'"></div>'+
+      r.name+'</div>';
+  }).join('');
+  return '<div class="info-block">'+
+    '<div class="info-label">Often Stacked With</div>'+
+    '<div class="related-chips">'+chipsHtml+'</div>'+
+  '</div>';
+}
+
+
+
+// ── INTAKE DATA ──
+var intake = {};
+try{ intake = JSON.parse(localStorage.getItem('peptrak_intake')||'{}'); }catch(e){}
+
+// ── BOOKMARKS ──
+var savedCompounds = JSON.parse(localStorage.getItem('peptrak_lib_saved')||'[]');
+
+function toggleBookmark(){
+  if(!currentCompound) return;
+  var id = currentCompound.id;
+  var idx = savedCompounds.indexOf(id);
+  if(idx > -1){ savedCompounds.splice(idx,1); }
+  else { savedCompounds.push(id); }
+  localStorage.setItem('peptrak_lib_saved', JSON.stringify(savedCompounds));
+  updateBookmarkBtn();
+}
+
+function updateBookmarkBtn(){
+  var btn = document.getElementById('sheet-bookmark-btn');
+  if(!btn || !currentCompound) return;
+  var saved = savedCompounds.indexOf(currentCompound.id) > -1;
+  btn.classList.toggle('saved', saved);
+  btn.innerHTML = saved
+    ? '<svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M19 21l-7-5-7 5V5a2 2 0 012-2h10a2 2 0 012 2z"/></svg>'
+    : '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M19 21l-7-5-7 5V5a2 2 0 012-2h10a2 2 0 012 2z"/></svg>';
+}
+
+// ── SHARE ──
+function shareCompound(){
+  if(!currentCompound) return;
+  var url = 'https://peptrak.com/library.html?c='+currentCompound.id;
+  var text = currentCompound.name+' — '+currentCompound.tagline;
+  if(navigator.share){
+    navigator.share({title:'PepTrak Library: '+currentCompound.name, text:text, url:url});
+  } else {
+    navigator.clipboard && navigator.clipboard.writeText(url);
+    var btn = document.getElementById('sheet-share-btn');
+    if(btn){ btn.style.color='var(--green)'; setTimeout(function(){ btn.style.color=''; },1500); }
+  }
+}
+
+// ── DEEP LINK HANDLER ──
+(function(){
+  var params = new URLSearchParams(window.location.search);
+  var cId = params.get('c');
+  if(cId) setTimeout(function(){ openSheet(cId); }, 300);
+})();
+
+// ── SEARCH SUGGESTIONS & AUTOCOMPLETE ──
+function doSugSearch(term){
+  var input = document.getElementById('search-input');
+  input.value = term;
+  onSearch(term);
+  document.getElementById('search-suggestions').style.display = 'none';
+}
+
+function buildAutocomplete(query){
+  var ac = document.getElementById('search-autocomplete');
+  if(!query || query.length < 2){ ac.classList.remove('show'); return; }
+  var matches = COMPOUNDS.filter(function(comp){
+    return comp && comp.name && comp.name.toLowerCase().indexOf(query.toLowerCase()) > -1;
+  }).slice(0,5);
+  if(!matches.length){ ac.classList.remove('show'); return; }
+  var cat = CAT_CONFIG;
+  ac.innerHTML = matches.map(function(comp){
+    var cc = cat[comp.category]||cat.other;
+    return '<div class="ac-item" onclick="selectAutocomplete(\''+comp.id+'\')">'+
+      '<div class="ac-dot" style="background:'+cc.color+'"></div>'+
+      highlight(comp.name, query)+
+      '<span style="margin-left:auto;font-size:11px;color:var(--gray-4);">'+cc.label+'</span>'+
+    '</div>';
+  }).join('');
+  ac.classList.add('show');
+}
+
+function selectAutocomplete(id){
+  document.getElementById('search-autocomplete').classList.remove('show');
+  document.getElementById('search-suggestions').style.display = 'none';
+  openSheet(id);
+}
+
+// ── PROTOCOL FIT SCORE ──
+var userGoal = (intake.goal1||'').toLowerCase();
+var userExp = (intake.experience||'beginner').toLowerCase();
+
+var FIT_MAP = {
+  fat_loss: {fat_loss:2, gh:1, longevity:1, recovery:0, cognitive:0, hormone:0, blend:1, other:0},
+  muscle:   {gh:2, recovery:1, fat_loss:0, longevity:1, cognitive:0, hormone:1, blend:1, other:0},
+  recovery: {recovery:2, gh:1, longevity:1, fat_loss:0, cognitive:0, hormone:0, blend:2, other:0},
+  cognitive:{cognitive:2, longevity:1, fat_loss:0, gh:0, recovery:1, hormone:0, blend:0, other:0},
+  longevity:{longevity:2, cognitive:1, recovery:1, fat_loss:0, gh:1, hormone:0, blend:1, other:0},
+  performance:{gh:2, recovery:2, cognitive:1, fat_loss:1, longevity:1, hormone:1, blend:2, other:0},
+};
+
+function getFitScore(compound){
+  if(!userGoal) return null;
+  var goalKey = null;
+  if(userGoal.indexOf('fat')|userGoal.indexOf('weight')&&userGoal.indexOf('loss')) goalKey='fat_loss';
+  else if(userGoal.indexOf('muscle')>-1||userGoal.indexOf('build')>-1) goalKey='muscle';
+  else if(userGoal.indexOf('recover')>-1) goalKey='recovery';
+  else if(userGoal.indexOf('cogni')>-1||userGoal.indexOf('focus')>-1||userGoal.indexOf('brain')>-1) goalKey='cognitive';
+  else if(userGoal.indexOf('longev')>-1||userGoal.indexOf('anti-ag')>-1||userGoal.indexOf('aging')>-1) goalKey='longevity';
+  else if(userGoal.indexOf('perform')>-1||userGoal.indexOf('athlet')>-1) goalKey='performance';
+  if(!goalKey) return null;
+  var map = FIT_MAP[goalKey];
+  return map ? (map[compound.category]||0) : null;
+}
+
+function getFitBadge(compound){
+  var score = getFitScore(compound);
+  if(score === null) return '';
+  if(score === 2) return '<div class="cr-fit cr-fit-great">Great fit</div>';
+  if(score === 1) return '<div class="cr-fit cr-fit-good">Compatible</div>';
+  return '';
+}
+
+// ── CYCLE STATUS ──
+var trackerData = {};
+try{ trackerData = JSON.parse(localStorage.getItem('peptrak_tracker')||'{}'); }catch(e){}
+
+var CYCLE_LIMITS = {
+  igf1lr3:4, igfdes:4, semax:2, selank:4, epithalon:0.33,
+  fox04:0.1, dermorphin:0, adipotide:6,
+};
+
+function getCycleStatus(compound){
+  var limitWks = CYCLE_LIMITS[compound.id];
+  if(limitWks === undefined) return null;
+
+  // Check if compound is in protocol
+  var inProto = protocolCompounds.some(function(p){
+    return p.indexOf(compound.name.toLowerCase()) > -1;
+  });
+  if(!inProto) return null;
+
+  // Get protocol start
+  var startTs = parseInt(localStorage.getItem('peptrak_protocol_start')||'0');
+  if(!startTs) return null;
+  var weeksIn = (Date.now()-startTs)/604800000;
+
+  if(limitWks === 0) return '<div class="cr-cycle-warn">Research only</div>';
+  if(weeksIn >= limitWks) return '<div class="cr-cycle-warn">Cycle limit reached</div>';
+  var weeksLeft = Math.ceil(limitWks - weeksIn);
+  if(weeksLeft <= 1) return '<div class="cr-cycle-ok">'+weeksLeft+'wk left</div>';
+  return null;
+}
+
+// ── COMPOUND OF THE WEEK ──
+var COTW_LIST = [
+  {id:'epithalon', headline:'The only compound shown to lengthen telomeres in human studies.', detail:'Discovered by Russian gerontologist Khavinson. 10-day cycles, 2-4x per year. Nothing else does what this does at the cellular level.'},
+  {id:'retatrutide', headline:'Triple receptor fat loss — GLP-1, GIP, and glucagon activated simultaneously.', detail:'Phase 2 trials showed 24.2% average weight loss. The most potent fat loss mechanism ever studied.'},
+  {id:'fox04', headline:'The senolytic — selectively eliminates zombie cells that drive aging.', detail:'FOX04-DRI restored physical function in aged mice to youthful levels. 3 days per month protocol.'},
+  {id:'motsc', headline:'Mitochondria-encoded peptide. Rises with exercise, declines with age.', detail:'First peptide discovered encoded in the mitochondrial genome. AMPK activation without training.'},
+  {id:'bpc157', headline:'The most researched healing peptide — discovered in human gastric juice.', detail:'Repairs tendons, gut, muscle, and nerves. Over 30 years of research across 1000+ studies.'},
+  {id:'slupps322', headline:'Activates 200+ genes normally only triggered by aerobic exercise.', detail:'ERR receptor agonist — the closest thing to an exercise pill that has ever been studied.'},
+  {id:'cerebrolysin', headline:'Clinically proven for stroke, TBI, and cognitive decline. 30+ years of data.', detail:'Used in hospitals across Europe and Asia. Neurotrophic peptide mixture with BDNF-like activity.'},
+];
+
+function buildCOTW(){
+  var section = document.getElementById('cotw-section');
+  if(!section) return;
+  var weekNum = Math.floor(Date.now()/604800000);
+  var item = COTW_LIST[weekNum % COTW_LIST.length];
+  var compound = COMPOUNDS.find(function(c){ return c.id === item.id; });
+  if(!compound) return;
+  var cat = CAT_CONFIG[compound.category]||CAT_CONFIG.other;
+  section.innerHTML =
+    '<div class="section-label">Compound of the Week</div>'+
+    '<div class="cotw-card" onclick="openSheet(\''+item.id+'\')">'+
+      '<div class="cotw-label">⭐ Featured This Week</div>'+
+      '<div class="cotw-name">'+compound.name+'</div>'+
+      '<div class="cotw-desc">'+item.headline+'</div>'+
+      '<div style="font-size:12px;color:rgba(255,255,255,0.4);line-height:1.6;margin-bottom:14px;">'+item.detail+'</div>'+
+      '<div style="display:flex;align-items:center;justify-content:space-between;">'+
+        '<div class="cotw-cta">Read Full Profile →</div>'+
+        '<div style="font-size:10px;font-weight:700;color:rgba(255,255,255,0.3);letter-spacing:0.06em;text-transform:uppercase;">'+cat.label+'</div>'+
+      '</div>'+
+    '</div>';
+}
+
+// ── PROTOCOL RECOMMENDATIONS ──
+function buildProtocolRecs(){
+  if(!protocolCompounds || !protocolCompounds.length) return;
+  var section = document.getElementById('proto-rec-section');
+  var cards = document.getElementById('proto-rec-cards');
+  if(!section || !cards) return;
+
+  // Find compounds in their protocol
+  var myCompounds = COMPOUNDS.filter(function(comp){
+    return protocolCompounds.some(function(p){
+      return p.indexOf(comp.name.toLowerCase()) > -1;
+    });
+  });
+  if(!myCompounds.length) return;
+
+  // Collect recommended compounds from stacks of protocol compounds
+  var recommended = {};
+  myCompounds.forEach(function(myComp){
+    (myComp.stacks||[]).forEach(function(s){
+      var recComp = COMPOUNDS.find(function(c){ return c.name === s.name; });
+      if(!recComp) return;
+      // Skip if already in protocol
+      var alreadyIn = myCompounds.find(function(m){ return m.id === recComp.id; });
+      if(alreadyIn) return;
+      if(!recommended[recComp.id]){
+        recommended[recComp.id] = {compound:recComp, reasons:[], syns:[]};
+      }
+      recommended[recComp.id].reasons.push('Stacks with '+myComp.name);
+      recommended[recComp.id].syns.push(s.syn);
+    });
+  });
+
+  var recs = Object.values(recommended).slice(0,3);
+  if(!recs.length) return;
+
+  section.style.display = 'block';
+  cards.innerHTML = '';
+  recs.forEach(function(rec){
+    var cat = CAT_CONFIG[rec.compound.category]||CAT_CONFIG.other;
+    var card = document.createElement('div');
+    card.className = 'proto-rec-card';
+    card.innerHTML =
+      '<div class="proto-rec-dot" style="background:'+cat.color+'"></div>'+
+      '<div class="proto-rec-info">'+
+        '<div class="proto-rec-name">'+rec.compound.name+'</div>'+
+        '<div class="proto-rec-why">'+rec.reasons[0]+' · '+rec.compound.tagline+'</div>'+
+      '</div>'+
+      '<div class="proto-rec-badge">'+(rec.syns[0]||cat.label)+'</div>';
+    card.onclick = (function(id){ return function(){ openSheet(id); }; })(rec.compound.id);
+    cards.appendChild(card);
+  });
+}
+
+// ── ADD TO STACK ──
+function addToStack(compound){
+  localStorage.setItem('peptrak_stack_prefill', JSON.stringify({name:compound.name, id:compound.id}));
+  window.location.href = '/stack';
+}
+
+
+// ── ACTIVE FILTER STATE ──
+var activeFilter = 'all';
+var activeSearch = '';
+var currentCompound = null;
+var currentTab = 0;
+
+// ── CATEGORY CONFIG ──
+var CAT_CONFIG = {
+  fat_loss:{label:'Fat Loss',color:'#EF4444',bg:'#FEE2E2',dotClass:'cat-glp1'},
+  gh:{label:'GH / IGF',color:'#8B5CF6',bg:'#EDE9FE',dotClass:'cat-gh'},
+  recovery:{label:'Recovery',color:'#10B981',bg:'#D1FAE5',dotClass:'cat-recovery'},
+  cognitive:{label:'Cognitive',color:'#F59E0B',bg:'#FEF3C7',dotClass:'cat-cognitive'},
+  longevity:{label:'Longevity',color:'#06B6D4',bg:'#CFFAFE',dotClass:'cat-longevity'},
+  hormone:{label:'Hormone',color:'#EC4899',bg:'#FCE7F3',dotClass:'cat-hormone'},
+  blend:{label:'Blend',color:'#7C3AED',bg:'#EDE9FE',dotClass:'cat-blend'},
+  other:{label:'Other',color:'#8A919E',bg:'#F3F4F6',dotClass:'cat-other'}
+};
+
+// ── BUILD BLENDS / PROTOCOL SPOTLIGHT ──
+function buildBlends(){
+  var scroll = document.getElementById('blends-scroll');
+  var label = document.getElementById('spotlight-label');
+  var weekEl = document.getElementById('spotlight-week');
+  scroll.innerHTML = '';
+
+  // Try to load protocol compounds
+  var protoCompounds = [];
+  try{
+    var proto = JSON.parse(localStorage.getItem('peptrak_protocol')||'{}');
+    if(proto.compounds && proto.compounds.length){
+      protoCompounds = proto.compounds;
+    }
+  }catch(e){}
+
+  // Get protocol week
+  var protoWeek = 0;
+  try{
+    var startTs = parseInt(localStorage.getItem('peptrak_protocol_start')||'0');
+    if(startTs) protoWeek = Math.floor((Date.now()-startTs)/604800000)+1;
+  }catch(e){}
+
+  if(protoCompounds.length > 0){
+    // ── PROTOCOL MODE — show their actual compounds ──
+    label.textContent = 'Your Protocol';
+    if(protoWeek > 0){
+      weekEl.style.display = 'block';
+      weekEl.textContent = 'Week '+protoWeek;
+    }
+
+    var CAT_EMOJIS = {
+      fat_loss:'🔥', gh:'🌙', recovery:'⚡', cognitive:'🧠',
+      longevity:'✨', hormone:'⚗️', blend:'💊', other:'🧬'
+    };
+
+    protoCompounds.forEach(function(pc){
+      // Match to our compound database for full detail
+      var matched = COMPOUNDS.find(function(comp){
+        return comp.name.toLowerCase() === (pc.name||'').toLowerCase() ||
+               comp.id === (pc.name||'').toLowerCase().replace(/[^a-z0-9]/g,'');
+      });
+
+      var cat = matched ? (CAT_CONFIG[matched.category]||CAT_CONFIG.other) : CAT_CONFIG.other;
+      var emoji = matched ? CAT_EMOJIS[matched.category]||'🧬' : '🧬';
+      var dose = pc.dose ? pc.dose+' '+pc.unit : '';
+      var freq = pc.frequency||'';
+
+      var card = document.createElement('div');
+      card.className = 'blend-card';
+      card.style.cssText = 'border-color:'+cat.color+';border-width:1.5px;';
+      card.innerHTML =
+        '<div class="blend-emoji">'+emoji+'</div>'+
+        '<div class="blend-name">'+pc.name+'</div>'+
+        '<div class="blend-desc">'+(dose||freq ? [dose,freq].filter(Boolean).join(' · ') : pc.timing||'')+'</div>'+
+        '<span class="blend-badge" style="color:'+cat.color+';background:'+cat.bg+'">'+
+          (matched ? (CAT_CONFIG[matched.category]||CAT_CONFIG.other).label : 'Compound')+
+        '</span>';
+
+      if(matched){
+        card.onclick = (function(id){ return function(){ openSheet(id); }; })(matched.id);
+      }
+      scroll.appendChild(card);
+    });
+
+    // Trailing "View Protocol" card
+    var viewCard = document.createElement('div');
+    viewCard.className = 'blend-card';
+    viewCard.style.cssText = 'background:var(--gray-1);border-style:dashed;display:flex;flex-direction:column;align-items:center;justify-content:center;min-width:120px;';
+    viewCard.innerHTML =
+      '<div style="font-size:22px;margin-bottom:8px;">📋</div>'+
+      '<div style="font-size:12px;font-weight:700;color:var(--blue);text-align:center;">Full Protocol</div>';
+    viewCard.onclick = function(){ window.location.href='/protocol'; };
+    scroll.appendChild(viewCard);
+
+  } else {
+    // ── DEFAULT MODE — show signature blends ──
+    label.textContent = 'Signature Blends';
+    weekEl.style.display = 'none';
+    BLENDS.forEach(function(b){
+      var card = document.createElement('div');
+      card.className = 'blend-card';
+      card.innerHTML =
+        '<div class="blend-emoji">'+b.emoji+'</div>'+
+        '<div class="blend-name">'+b.name+'</div>'+
+        '<div class="blend-desc">'+b.desc+'</div>'+
+        '<span class="blend-badge" style="color:'+b.badgeColor+';background:'+b.badgeBg+'">'+b.badge+'</span>';
+      card.onclick = (function(id){ return function(){ openSheet(id); }; })(b.id);
+      scroll.appendChild(card);
+    });
+  }
+}
+
+// ── BUILD COMPOUND LIST ──
+function buildCompoundList(){
+  // Show My Protocol chip only if user has a protocol
+  var myProtoChip = document.getElementById('myproto-filter-chip');
+  if(myProtoChip) myProtoChip.style.display = protocolCompounds.length ? 'inline-block' : 'none';
+
+  var filtered = COMPOUNDS.filter(function(comp){
+    if(!comp || !comp.id) return false;
+    var matchFilter = activeFilter === 'all' || comp.category === activeFilter ||
+      (activeFilter === 'saved' && savedCompounds.indexOf(comp.id) > -1) ||
+      (activeFilter === 'myprotocol' && protocolCompounds.some(function(p){
+        return comp.name.toLowerCase().indexOf(p) > -1 || p.indexOf(comp.name.toLowerCase()) > -1;
+      }));
+    var q = activeSearch.toLowerCase();
+    var matchSearch = !q ||
+      comp.name.toLowerCase().indexOf(q) > -1 ||
+      comp.tag.toLowerCase().indexOf(q) > -1 ||
+      (comp.tagline||'').toLowerCase().indexOf(q) > -1;
+    return matchFilter && matchSearch;
+  });
+
+  var list = document.getElementById('compound-list');
+  list.innerHTML = '';
+  document.getElementById('no-results').classList.toggle('show', filtered.length === 0);
+
+  // Group A-Z
+  var groups = {};
+  filtered.forEach(function(comp){
+    var letter = comp.name[0].toUpperCase();
+    if(!groups[letter]) groups[letter] = [];
+    groups[letter].push(comp);
+  });
+
+  Object.keys(groups).sort().forEach(function(letter){
+    var group = document.createElement('div');
+    group.className = 'alpha-group';
+
+    if(filtered.length > 5){
+      var hdr = document.createElement('div');
+      hdr.className = 'alpha-header';
+      hdr.textContent = letter;
+      group.appendChild(hdr);
+    }
+
+    var container = document.createElement('div');
+    container.className = 'compound-list';
+    container.style.cssText = 'margin-bottom:8px;';
+
+    groups[letter].forEach(function(comp){
+      var cat = CAT_CONFIG[comp.category] || CAT_CONFIG.other;
+      var inStack = isInStack(comp);
+      var isSelected = compareSlots.indexOf(comp.id) > -1;
+      var row = document.createElement('div');
+      row.className = 'compound-row';
+
+      // Highlight search terms
+      var displayName = highlight(comp.name, activeSearch);
+      var displayTag = highlight(comp.tag, activeSearch);
+
+      var fitBadge = !compareMode ? getFitBadge(comp) : '';
+      var cycleStatus = !compareMode ? (getCycleStatus(comp)||'') : '';
+      var diff = getDifficulty(comp);
+      var diffDot = !compareMode ? '<span style="font-size:9px;font-weight:700;padding:2px 6px;border-radius:20px;background:'+diff.bg+';color:'+diff.color+';margin-left:4px;flex-shrink:0;">'+diff.label+'</span>' : '';
+      var badges = cycleStatus || fitBadge;
+
+      var rightContent = compareMode
+        ? '<div class="cr-compare-check'+(isSelected?' selected':'')+'">'+
+            (isSelected ? '<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg>' : '')+
+          '</div>'
+        : (inStack
+            ? '<div class="cr-in-stack"><svg width="8" height="8" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg>In Stack</div>'
+            : '<div class="cr-arrow"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="9 18 15 12 9 6"/></svg></div>'
+          );
+
+      row.innerHTML =
+        '<div class="cr-dot '+cat.dotClass+'"></div>'+
+        '<div class="cr-info">'+
+          '<div class="cr-name" style="display:flex;align-items:center;gap:4px;flex-wrap:wrap;">'+displayName+diffDot+'</div>'+
+          '<div class="cr-tag">'+displayTag+'</div>'+
+        '</div>'+
+        (badges||'')+
+        rightContent;
+
+      if(compareMode){
+        row.onclick = (function(id){ return function(){ toggleCompareSelect(id); }; })(comp.id);
+      } else {
+        row.onclick = (function(id){ return function(){ openSheet(id); }; })(comp.id);
+      }
+      container.appendChild(row);
+    });
+
+    group.appendChild(container);
+    list.appendChild(group);
+  });
+}
+
+// ── FILTERS ──
+function setFilter(filter, btn){
+  activeFilter = filter;
+  document.querySelectorAll('.filter-chip').forEach(function(b){ b.classList.remove('active'); });
+  btn.classList.add('active');
+  buildCompoundList();
+}
+
+function onSearch(val){
+  activeSearch = val;
+  document.getElementById('search-clear').classList.toggle('show', val.length > 0);
+  var sugs = document.getElementById('search-suggestions');
+  if(sugs) sugs.style.display = val.length > 0 ? 'none' : '';
+  buildAutocomplete(val);
+  buildCompoundList();
+}
+
+function clearSearch(){
+  document.getElementById('search-input').value = '';
+  document.getElementById('search-clear').classList.remove('show');
+  document.getElementById('search-autocomplete').classList.remove('show');
+  var sugs = document.getElementById('search-suggestions');
+  if(sugs) sugs.style.display = '';
+  activeSearch = '';
+  buildCompoundList();
+}
+
+// ── BOTTOM SHEET ──
+function openSheet(id){
+  var compound = COMPOUNDS.find(function(c){ return c.id === id; });
+  if(!compound) return;
+  currentCompound = compound;
+  currentTab = 0;
+
+  var cat = CAT_CONFIG[compound.category] || CAT_CONFIG.other;
+
+  document.getElementById('sheet-name').textContent = compound.name;
+  document.getElementById('sheet-category-wrap').innerHTML =
+    '<div class="sheet-category" style="color:'+cat.color+';background:'+cat.bg+'">'+
+      '<div style="width:6px;height:6px;border-radius:50%;background:'+cat.color+';flex-shrink:0;"></div>'+
+      cat.label+
+    '</div>';
+
+  // Reset tabs — always visible for compound sheets
+  document.getElementById('sheet-tabs').style.display = '';
+  document.getElementById('sheet-tabs').dataset.hidden = '';
+  document.querySelectorAll('.sheet-tab').forEach(function(t,i){ t.classList.toggle('active',i===0); });
+  addToRecent(id);
+  setTimeout(updateBookmarkBtn, 50);
+
+  renderSheetTab(0);
+
+  document.getElementById('sheet-overlay').classList.add('open');
+  document.getElementById('sheet').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeSheet(){
+  document.getElementById('sheet-overlay').classList.remove('open');
+  document.getElementById('sheet').classList.remove('open');
+  document.getElementById('sheet-tabs').style.display = '';
+  document.body.style.overflow = '';
+}
+
+function switchTab(idx, el){
+  currentTab = idx;
+  document.querySelectorAll('.sheet-tab').forEach(function(t,i){ t.classList.toggle('active',i===idx); });
+  renderSheetTab(idx);
+}
+
+// ── DIFFICULTY HELPER ──
+function getDifficulty(compound){
+  var name = ((compound.name||'')+(compound.id||'')).toLowerCase();
+  var adv = ['retatrutide','tirzepatide','semaglutide','igf-1','igf1','igf des','igfdes','hgh fragment','foxo4','survodutide','adipotide','slu-pp','mots-c','motsc','ss-31','ss31','kisspeptin','nad+','nad ','cerebrolysin','hcg','hmg','aicar'];
+  var beg = ['bpc-157','bpc157','tb-500','tb500','glow','klow','semax','selank','cjc+ipa','cjcipa','ipamorelin','cjc-1295','cjc1295','ghk-cu','ghkcu','epithalon','melatonin','pt-141','pt141','wolverine','lysine','snap-8','snap8','sermorelin'];
+  if(adv.some(function(a){ return name.indexOf(a) > -1; })) return {label:'Advanced', color:'#FF3B30', bg:'#FEE2E2'};
+  if(beg.some(function(b){ return name.indexOf(b) > -1; })) return {label:'Beginner Friendly', color:'#00A065', bg:'#E6FAF3'};
+  return {label:'Intermediate', color:'#B07A00', bg:'rgba(240,165,0,0.12)'};
+}
+
+// ── RENDER STICKY CTA ──
+function renderCTA(compound){
+  var cta = document.getElementById('sheet-cta');
+  var diff = getDifficulty(compound);
+  var inProto = protocolCompounds.some(function(p){
+    return compound.name.toLowerCase().indexOf(p) > -1 || p.indexOf(compound.name.toLowerCase()) > -1;
+  });
+  var addToStackBtn = !inProto
+    ? '<button onclick="addCompoundToStack(\''+compound.id+'\')" style="flex:1;padding:13px;background:var(--gray-1);border:1px solid var(--gray-2);border-radius:12px;font-size:13px;font-weight:600;color:var(--ink);cursor:pointer;font-family:var(--font);">+ Add to Stack</button>'
+    : '<div style="flex:1;padding:13px;background:var(--green-pale);border:1px solid rgba(0,192,118,0.3);border-radius:12px;font-size:13px;font-weight:600;color:var(--green-dark);text-align:center;">✓ In Your Protocol</div>';
+  cta.innerHTML =
+    '<div style="display:flex;align-items:center;justify-content:space-between;padding:0 0 10px;">'
+    + '<span style="font-size:11px;font-weight:700;padding:3px 9px;border-radius:20px;background:'+diff.bg+';color:'+diff.color+';">'+diff.label+'</span>'
+    + '</div>'
+    + '<div style="display:flex;gap:8px;">'
+    + addToStackBtn
+    + '<a href="'+(compound.tridentUrl||'https://usetridentlabs.com')+'" target="_blank" style="flex:2;padding:13px;background:var(--blue);border-radius:12px;font-size:13px;font-weight:700;color:#fff;text-decoration:none;text-align:center;display:flex;align-items:center;justify-content:center;gap:6px;"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/></svg>Buy from PepTrak\'s Verified Source</a>'
+    + '</div>';
+}
+
+function addCompoundToStack(compoundId){
+  var compound = COMPOUNDS.find(function(c){ return c.id === compoundId; });
+  if(!compound) return;
+  // Store prefill for stack page
+  var prefill = JSON.parse(localStorage.getItem('peptrak_stack_prefill')||'[]');
+  var exists = prefill.some(function(p){ return p.id === compoundId; });
+  if(!exists){
+    prefill.push({
+      id: compoundId,
+      name: compound.name,
+      dose: (compound.dosing && compound.dosing[0] && compound.dosing[0].dose) || '',
+      unit: (compound.dosing && compound.dosing[0] && compound.dosing[0].unit) || 'mcg',
+      route: compound.route || 'SubQ',
+      frequency: (compound.dosing && compound.dosing[0] && compound.dosing[0].frequency) || 'Daily',
+      timing: compound.timing || 'Morning'
+    });
+    localStorage.setItem('peptrak_stack_prefill', JSON.stringify(prefill));
+  }
+  // Visual feedback
+  var btn = event.target;
+  if(btn){ btn.textContent = '✓ Added'; btn.style.background = 'var(--green-pale)'; btn.style.color = 'var(--green-dark)'; btn.style.borderColor = 'rgba(0,192,118,0.3)'; }
+  setTimeout(function(){ window.location.href = '/stack'; }, 700);
+}
+
+function renderSheetTab(idx){
+  var c = currentCompound;
+  if(!c) return;
+  var body = document.getElementById('sheet-body');
+  renderCTA(c);
+
+  if(idx === 0){
+    // Overview
+    var sidesHtml = c.sideEffects.map(function(s){ return '<div class="side-chip">'+s+'</div>'; }).join('');
+    var sidesRareHtml = (c.sideEffectsRare||[]).map(function(s){ return '<div class="side-chip rare">'+s+'</div>'; }).join('');
+    body.innerHTML =
+      '<div class="info-block">'+
+        '<div style="background:var(--gray-1);border-radius:14px;padding:16px;margin-bottom:16px;">'+
+          '<div style="font-size:15px;font-weight:700;color:var(--ink);margin-bottom:6px;line-height:1.4;">'+c.tagline+'</div>'+
+          '<div style="display:inline-flex;align-items:center;gap:5px;font-size:11px;font-weight:600;padding:3px 10px;border-radius:20px;margin-top:4px;" class="sheet-category" style="">'+c.tag+'</div>'+
+        '</div>'+
+      '</div>'+
+      '<div class="info-block"><div class="info-label">How it works</div><div class="info-text">'+c.overview+'</div></div>'+
+      '<div class="info-block"><div class="info-label">Mechanism of action</div><div class="info-text">'+c.mechanism+'</div></div>'+
+      '<div class="info-block"><div class="info-label">Key benefits</div>'+
+        '<div style="background:var(--white);border:1px solid var(--gray-2);border-radius:14px;overflow:hidden;">'+
+          c.keyBenefits.map(function(b,i){ return '<div style="display:flex;align-items:center;gap:10px;padding:11px 14px;border-bottom:1px solid var(--gray-2);">'+(i===c.keyBenefits.length-1?'<div style="display:flex;align-items:center;gap:10px;padding:0;">':'')+'<div style="width:7px;height:7px;border-radius:50%;background:var(--green);flex-shrink:0;"></div><div style="font-size:13px;color:var(--ink);">'+b+'</div></div>'; }).join('')+
+        '</div>'+
+      '</div>'+
+      '<div class="info-block">'+
+        '<div class="info-label">Side effects to watch</div>'+
+        '<div style="margin-bottom:8px;"><div style="font-size:11px;font-weight:600;color:var(--gray-4);margin-bottom:6px;">Common</div><div class="side-effect-chips">'+sidesHtml+'</div></div>'+
+        (sidesRareHtml ? '<div><div style="font-size:11px;font-weight:600;color:var(--gray-4);margin-bottom:6px;">Rare / Precautions</div><div class="side-effect-chips">'+sidesRareHtml+'</div></div>' : '')+
+      '</div>'+
+      renderSafetyRating(c.id)+
+      renderRelated(c)+
+      '';
+
+  } else if(idx === 1){
+    // Dosing
+    var doseRows = c.doses.map(function(d){
+      var levelClass = d.level === 'Beginner' || d.level === 'Starter' || d.level === 'Loading' ? 'dose-beginner' :
+                       d.level === 'Intermediate' || d.level === 'Standard' || d.level === 'Maintenance' ? 'dose-intermediate' : 'dose-advanced';
+      return '<tr><td><span class="dose-level '+levelClass+'">'+d.level+'</span></td><td><strong>'+d.dose+'</strong></td><td style="color:var(--gray-5)">'+d.notes+'</td></tr>';
+    }).join('');
+
+    body.innerHTML =
+      '<div class="info-block">'+
+        '<div class="info-label">Dose Guide</div>'+
+        '<div style="background:var(--blue-pale);border-radius:12px;padding:11px 14px;margin-bottom:12px;font-size:12px;color:var(--blue);line-height:1.6;">Always start at the beginner dose and hold for 2 weeks before increasing. Your body needs time to adapt.</div>'+
+        '<table class="dose-table"><thead><tr><th>Level</th><th>Dose</th><th>Notes</th></tr></thead><tbody>'+doseRows+'</tbody></table>'+
+      '</div>'+
+      '<div class="info-block">'+
+        '<div class="info-label">Cycle Length</div>'+
+        '<div class="cycle-row">'+
+          '<div class="cycle-badge"><div class="cycle-badge-num">'+c.cycleOn+'</div><div class="cycle-badge-lbl">On cycle</div></div>'+
+          '<div class="cycle-badge"><div class="cycle-badge-num">'+c.cycleOff+'</div><div class="cycle-badge-lbl">Off cycle</div></div>'+
+        '</div>'+
+        '<div style="font-size:12px;color:var(--gray-4);margin-top:8px;line-height:1.6;">Cycling off prevents receptor desensitization and maintains sensitivity. Do not skip the off period.</div>'+
+      '</div>'+
+      '<div class="info-block"><div class="info-label">Route &amp; Timing</div>'+
+        '<div style="background:var(--gray-1);border-radius:14px;padding:14px;margin-bottom:10px;">'+
+          '<div style="font-size:11px;font-weight:700;letter-spacing:0.07em;text-transform:uppercase;color:var(--gray-4);margin-bottom:5px;">Route</div>'+
+          '<div style="font-size:14px;font-weight:600;color:var(--ink);">'+c.route+'</div>'+
+        '</div>'+
+        '<div style="background:var(--gray-1);border-radius:14px;padding:14px;">'+
+          '<div style="font-size:11px;font-weight:700;letter-spacing:0.07em;text-transform:uppercase;color:var(--gray-4);margin-bottom:5px;">Timing</div>'+
+          '<div style="font-size:13px;color:var(--gray-5);line-height:1.65;">'+c.timing+'</div>'+
+        '</div>'+
+      '</div>'+
+      '';
+
+  } else if(idx === 2){
+    // Stacks
+    var stacksHtml = c.stacks.map(function(s){
+      return '<div class="stack-item">'+
+        '<div class="stack-item-name">'+s.name+' <span class="stack-syn">'+s.syn+'</span></div>'+
+        '<div class="stack-item-why">'+s.why+'</div>'+
+      '</div>';
+    }).join('');
+    body.innerHTML =
+      '<div class="info-block"><div class="info-label">Best Combinations</div>'+stacksHtml+'</div>'+
+      '';
+
+  } else if(idx === 3){
+    body.innerHTML =
+      '<div class="info-block">'+
+        '<div style="background:var(--blue-pale);border-radius:12px;padding:12px;margin-bottom:16px;font-size:12px;color:var(--blue);line-height:1.6;">Sourced from peer-reviewed literature. Newest studies first. For research use only.</div>'+
+        '<div id="research-loading" style="text-align:center;padding:32px 20px;">'+
+          '<div style="width:28px;height:28px;border:2.5px solid var(--gray-2);border-top-color:var(--blue);border-radius:50%;animation:spin 0.7s linear infinite;margin:0 auto 12px;"></div>'+
+          '<div style="font-size:14px;font-weight:600;color:var(--ink);margin-bottom:6px;">Fetching latest research</div>'+
+          '<div style="font-size:12px;color:var(--gray-4);line-height:1.6;">This pulls real peer-reviewed studies.<br>Please allow 10-15 seconds.</div>'+
+        '</div>'+
+        '<div id="research-content"></div>'+
+      '</div>';
+
+    fetchResearch(c.name);
+  }
+}
+
+// ── BEGINNER SHEET ──
+function openBeginner(){
+  document.getElementById('sheet-name').textContent = 'New to Peptides?';
+  document.getElementById('sheet-category-wrap').innerHTML = '<div class="sheet-category" style="color:var(--blue);background:var(--blue-pale);">Beginner Guide</div>';
+  document.querySelectorAll('.sheet-tab').forEach(function(t){ t.classList.remove('active'); });
+  document.getElementById('sheet-tabs').style.display = 'none';
+  document.getElementById('sheet-tabs').dataset.hidden = '1';
+  document.getElementById('sheet-cta').innerHTML = '<a href="https://usetridentlabs.com" target="_blank" class="order-btn"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/></svg>Shop Trident Labs</a>';
+
+  document.getElementById('sheet-body').innerHTML =
+    '<div class="info-block"><div class="info-label">What are peptides?</div>'+
+    '<div class="info-text">Peptides are short chains of amino acids — the same building blocks as proteins. Your body already produces thousands of them as signaling molecules. Synthetic peptides mimic or amplify these signals for therapeutic purposes like healing, fat loss, or cognitive enhancement.</div></div>'+
+    '<div class="info-block"><div class="info-label">Where to start</div>'+
+    '<div style="background:var(--green-pale);border-radius:14px;padding:16px;margin-bottom:10px;">'+
+      '<div style="font-size:13px;font-weight:700;color:var(--green-dark);margin-bottom:6px;">🎯 Fat loss goal</div>'+
+      '<div style="font-size:13px;color:var(--gray-5);">Start with <strong>Retatrutide</strong> at 0.5mg/week. Add <strong>CJC+IPA Blend</strong> at bedtime to preserve muscle.</div>'+
+    '</div>'+
+    '<div style="background:#EDE9FE;border-radius:14px;padding:16px;margin-bottom:10px;">'+
+      '<div style="font-size:13px;font-weight:700;color:#7C3AED;margin-bottom:6px;">💪 Recovery goal</div>'+
+      '<div style="font-size:13px;color:var(--gray-5);">Start with <strong>GLOW blend</strong> at 500mcg/day SubQ. Simple, one injection, covers all recovery pathways.</div>'+
+    '</div>'+
+    '<div style="background:#FEF3C7;border-radius:14px;padding:16px;margin-bottom:10px;">'+
+      '<div style="font-size:13px;font-weight:700;color:#92400E;margin-bottom:6px;">🧠 Cognitive goal</div>'+
+      '<div style="font-size:13px;color:var(--gray-5);">Start with <strong>Semax</strong> 300mcg intranasal AM + <strong>Selank</strong> 250mcg intranasal AM. No injections needed.</div>'+
+    '</div>'+
+    '<div style="background:#CFFAFE;border-radius:14px;padding:16px;margin-bottom:10px;">'+
+      '<div style="font-size:13px;font-weight:700;color:#0E7490;margin-bottom:6px;">🌙 GH / Sleep goal</div>'+
+      '<div style="font-size:13px;color:var(--gray-5);">Start with <strong>CJC+IPA Blend</strong> at 200mcg SubQ at bedtime. Fasted. The most popular starter protocol.</div>'+
+    '</div>'+
+    '</div>'+
+    '<div class="info-block"><div class="info-label">What you need to start</div>'+
+    '<div style="display:flex;flex-direction:column;gap:8px;">'+
+      '<div style="display:flex;align-items:center;gap:10px;padding:12px;background:var(--gray-1);border-radius:12px;"><div style="font-size:18px;">💉</div><div><div style="font-size:13px;font-weight:600;color:var(--ink);">Insulin syringes</div><div style="font-size:11px;color:var(--gray-4);">29-31 gauge, 0.5ml — Amazon</div></div></div>'+
+      '<div style="display:flex;align-items:center;gap:10px;padding:12px;background:var(--gray-1);border-radius:12px;"><div style="font-size:18px;">💧</div><div><div style="font-size:13px;font-weight:600;color:var(--ink);">BAC Water</div><div style="font-size:11px;color:var(--gray-4);">Bacteriostatic water — verified peptide supplier or Amazon</div></div></div>'+
+      '<div style="display:flex;align-items:center;gap:10px;padding:12px;background:var(--gray-1);border-radius:12px;"><div style="font-size:18px;">🧴</div><div><div style="font-size:13px;font-weight:600;color:var(--ink);">Alcohol swabs</div><div style="font-size:11px;color:var(--gray-4);">For injection site prep — Amazon</div></div></div>'+
+      '<div style="display:flex;align-items:center;gap:10px;padding:12px;background:var(--gray-1);border-radius:12px;"><div style="font-size:18px;">❄️</div><div><div style="font-size:13px;font-weight:600;color:var(--ink);">Peptide cooler</div><div style="font-size:11px;color:var(--gray-4);">For travel — Amazon</div></div></div>'+
+    '</div></div>'+
+    '';
+
+  document.getElementById('sheet-overlay').classList.add('open');
+  document.getElementById('sheet').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+
+// ── FAQ ──
+function buildFaq(){
+  var section = document.getElementById('faq-section');
+  section.innerHTML = '<div class="faq-header-row"><div class="faq-header-title">Frequently Asked Questions</div></div>';
+  FAQS.forEach(function(f, i){
+    var item = document.createElement('div');
+    item.className = 'faq-item';
+    item.innerHTML =
+      '<div class="faq-q" onclick="toggleFaq('+i+')">'+
+        '<div class="faq-q-text">'+f.q+'</div>'+
+        '<div class="faq-chevron"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="6 9 12 15 18 9"/></svg></div>'+
+      '</div>'+
+      '<div class="faq-a" id="faq-a-'+i+'">'+f.a+'</div>';
+    section.appendChild(item);
+  });
+}
+
+function toggleFaq(i){
+  var item = document.querySelectorAll('.faq-item')[i];
+  var answer = document.getElementById('faq-a-'+i);
+  var wasOpen = item.classList.contains('open');
+  // Close all
+  document.querySelectorAll('.faq-item').forEach(function(it){ it.classList.remove('open'); });
+  document.querySelectorAll('.faq-a').forEach(function(a){ a.classList.remove('open'); });
+  if(!wasOpen){ item.classList.add('open'); answer.classList.add('open'); }
+}
+
+// ── CLOSE ON OVERLAY + KEYBOARD ──
+document.addEventListener('keydown', function(e){ if(e.key === 'Escape') closeSheet(); });
+
+// ── RESEARCH CACHE ──
+var researchCache = {};
+
+async function fetchResearch(compoundName){
+  // Use cache if available
+  if(researchCache[compoundName]){
+    renderResearch(researchCache[compoundName]);
+    return;
+  }
+
+  var prompt = [
+    'You are a research scientist. List the 5 most important peer-reviewed studies on "'+compoundName+'" as a research peptide/compound.',
+    'Return ONLY valid JSON. No markdown, no backticks.',
+    'Sort by year DESCENDING (newest first).',
+    'JSON format:',
+    '{"studies":[{"year":2023,"finding":"Short headline of key finding (max 12 words)","detail":"2-3 sentences explaining the study and what it means practically. Plain language, no jargon.","journal":"Journal Name, Year","type":"human|animal|in_vitro"}]}',
+    'Use only real published studies. If fewer than 5 exist, return what exists.',
+    'The "type" field must be: human (human clinical trial), animal (animal study), or in_vitro (cell/lab study).',
+  ].join('\n');
+
+  try{
+    var response = await fetch('/api/chat', {
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({
+        model:'claude-sonnet-4-6',
+        max_tokens:1000,
+        messages:[{role:'user',content:prompt}]
+      })
+    });
+    var data = await response.json();
+    if(data.error) throw new Error(data.error.message);
+    var text = data.content[0].text.replace(/```json|```/g,'').trim();
+    var match = text.match(/\{[\s\S]*\}/);
+    if(match) text = match[0];
+    var parsed = JSON.parse(text);
+    researchCache[compoundName] = parsed.studies || [];
+    renderResearch(parsed.studies || []);
+  }catch(err){
+    document.getElementById('research-loading').style.display = 'none';
+    document.getElementById('research-content').innerHTML =
+      '<div style="text-align:center;padding:20px;color:var(--gray-4);font-size:13px;">Could not load research. Check your connection.</div>';
+  }
+}
+
+function renderResearch(studies){
+  var loading = document.getElementById('research-loading');
+  var content = document.getElementById('research-content');
+  if(!loading || !content) return;
+  loading.style.display = 'none';
+
+  var TYPE_CONFIG = {
+    human:{label:'Human Trial',color:'#0891B2',bg:'#ECFEFF'},
+    animal:{label:'Animal Study',color:'#7C3AED',bg:'#F5F3FF'},
+    in_vitro:{label:'In Vitro',color:'#64748B',bg:'#F1F5F9'}
+  };
+
+  var html = studies.map(function(s){
+    var tc = TYPE_CONFIG[s.type] || TYPE_CONFIG.animal;
+    return '<div class="research-item" style="margin-bottom:20px;">'+
+      '<div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;">'+
+        '<span style="font-size:11px;font-weight:700;padding:2px 8px;border-radius:20px;color:'+tc.color+';background:'+tc.bg+'">'+tc.label+'</span>'+
+        '<span style="font-size:11px;font-weight:700;color:var(--gray-4);">'+s.year+'</span>'+
+      '</div>'+
+      '<div class="research-finding">'+s.finding+'</div>'+
+      '<div class="research-detail">'+s.detail+'</div>'+
+      '<div class="research-source">'+s.journal+'</div>'+
+    '</div>';
+  }).join('');
+
+  content.innerHTML = html || '<div style="text-align:center;padding:20px;color:var(--gray-4);font-size:13px;">No published research found.</div>';
+}
+
+// ── INIT ──
+updateCountBadge();
+buildRecentChips();
+buildBlends();
+buildCompoundList();
+buildFaq();
+buildCOTW();
+buildProtocolRecs();
+</script>
+</body>
+</html>

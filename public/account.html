@@ -1,0 +1,1395 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"/>
+<title>PepTrak — Account</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+html{-webkit-text-size-adjust:100%;overflow-x:hidden;}
+:root{
+  --blue:#0876FF;
+  --blue-pale:#EEF4FF;
+  --ink:#07090D;
+  --ink-2:#1A1D23;
+  --gray-1:#F7F8FA;
+  --gray-2:#EAECF0;
+  --gray-3:#C8CDD6;
+  --gray-4:#8A919E;
+  --gray-5:#545B67;
+  --white:#FFFFFF;
+  --green:#00C076;
+  --green-pale:#E6FAF3;
+  --green-dark:#00A065;
+  --red:#FF3B30;
+  --gold:#F0A500;
+  --font:-apple-system,BlinkMacSystemFont,'SF Pro Display','SF Pro Text','Helvetica Neue',sans-serif;
+}
+body{-webkit-tap-highlight-color:transparent;
+  overflow-x:hidden;
+  font-family:var(--font);
+  background:var(--gray-1);
+  color:var(--ink);
+  -webkit-font-smoothing:antialiased;
+  min-height:100svh;
+  padding-bottom:calc(80px + env(safe-area-inset-bottom));
+}
+
+/* ── HEADER ── */
+.hdr{
+  position:sticky;top:0;z-index:100;
+  background:rgba(247,248,250,0.96);
+  backdrop-filter:blur(20px);
+  border-bottom:1px solid var(--gray-2);
+  height:56px;
+  display:flex;align-items:center;justify-content:space-between;
+  padding:0 20px;
+}
+.hdr-logo{display:flex;align-items:center;gap:7px;font-size:16px;font-weight:700;color:var(--ink);text-decoration:none;}
+.hdr-mark{width:26px;height:26px;border-radius:7px;background:var(--blue);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;color:#fff;}
+.hdr-edit{font-size:14px;font-weight:600;color:var(--blue);cursor:pointer;padding:6px 0;-webkit-tap-highlight-color:transparent;}
+
+/* ── PAGE ── */
+.page{max-width:520px;margin:0 auto;padding:20px 16px 24px;}
+
+/* ── SECTION LABEL ── */
+.section-label{
+  font-size:10px;font-weight:700;letter-spacing:0.08em;
+  text-transform:uppercase;color:var(--gray-4);
+  margin-bottom:10px;padding:0 2px;
+}
+
+/* ── PROFILE HERO ── */
+.profile-hero{
+  background:var(--ink-2);
+  border-radius:22px;padding:24px 20px 20px;
+  margin-bottom:14px;
+  position:relative;overflow:hidden;
+}
+.profile-hero::before{
+  content:'';position:absolute;top:-80px;right:-80px;
+  width:260px;height:260px;
+  background:radial-gradient(circle,rgba(8,118,255,0.2),transparent 65%);
+  pointer-events:none;
+}
+.profile-hero::after{
+  content:'';position:absolute;bottom:-60px;left:-40px;
+  width:180px;height:180px;
+  background:radial-gradient(circle,rgba(240,165,0,0.07),transparent 65%);
+  pointer-events:none;
+}
+.profile-top{display:flex;align-items:center;gap:14px;margin-bottom:18px;position:relative;z-index:1;}
+.avatar{
+  width:60px;height:60px;border-radius:50%;
+  background:linear-gradient(135deg,rgba(8,118,255,0.3),rgba(8,118,255,0.15));
+  border:1.5px solid rgba(8,118,255,0.4);
+  display:flex;align-items:center;justify-content:center;
+  font-size:22px;font-weight:700;color:#fff;
+  flex-shrink:0;letter-spacing:-1px;
+}
+.profile-info{flex:1;min-width:0;}
+.profile-name{
+  font-size:22px;font-weight:700;letter-spacing:-0.4px;
+  color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+  line-height:1.1;
+}
+.profile-since{font-size:11px;color:rgba(255,255,255,0.35);margin-top:4px;font-weight:500;}
+.profile-badges{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px;}
+.profile-badge{
+  display:inline-flex;align-items:center;gap:4px;
+  font-size:10px;font-weight:700;letter-spacing:0.04em;
+  padding:3px 9px;border-radius:20px;
+}
+.profile-badge.plan-free{background:rgba(255,255,255,0.08);color:rgba(255,255,255,0.4);}
+.profile-badge.plan-pro{background:rgba(240,165,0,0.18);border:1px solid rgba(240,165,0,0.3);color:var(--gold);}
+.profile-badge.goal-tag{background:rgba(8,118,255,0.18);border:1px solid rgba(8,118,255,0.25);color:rgba(120,180,255,0.9);}
+.hero-stats{
+  display:grid;grid-template-columns:1fr 1fr 1fr 1fr;
+  gap:1px;background:rgba(255,255,255,0.08);
+  border-radius:14px;overflow:hidden;
+  position:relative;z-index:1;
+}
+.hero-stat{background:rgba(255,255,255,0.04);padding:12px 8px;text-align:center;}
+.hero-stat-val{font-size:20px;font-weight:700;letter-spacing:-0.5px;color:#fff;line-height:1;}
+.hero-stat-val.green{color:var(--green);}
+.hero-stat-val.blue{color:rgba(100,170,255,0.95);}
+.hero-stat-val.gold{color:var(--gold);}
+.hero-stat-val.red{color:#FF6B6B;}
+.hero-stat-lbl{font-size:9px;font-weight:600;letter-spacing:0.06em;text-transform:uppercase;color:rgba(255,255,255,0.28);margin-top:4px;}
+
+/* ── PROTOCOL CARD ── */
+.protocol-card{
+  background:var(--white);border:1px solid var(--gray-2);
+  border-radius:16px;padding:16px;margin-bottom:14px;cursor:pointer;
+  transition:border-color 0.15s;-webkit-tap-highlight-color:transparent;
+}
+.protocol-card:active{border-color:var(--blue);}
+.pcard-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;}
+.pcard-eyebrow{font-size:10px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:var(--gray-4);}
+.pcard-link{font-size:12px;font-weight:600;color:var(--blue);display:flex;align-items:center;gap:2px;}
+.pcard-name{font-size:17px;font-weight:700;color:var(--ink);letter-spacing:-0.3px;margin-bottom:3px;}
+.pcard-compounds{font-size:12px;color:var(--gray-4);margin-bottom:14px;line-height:1.5;}
+.week-bar-row{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;}
+.week-label{font-size:12px;font-weight:600;color:var(--ink);}
+.week-pct{font-size:12px;color:var(--gray-4);}
+.week-bar-bg{height:5px;background:var(--gray-2);border-radius:99px;overflow:hidden;}
+.week-bar-fill{height:100%;border-radius:99px;background:var(--blue);transition:width 0.9s cubic-bezier(0.16,1,0.3,1);}
+.week-bar-fill.warning{background:var(--gold);}
+.week-bar-fill.done{background:var(--green);}
+.empty-state{text-align:center;padding:8px 0 4px;}
+.empty-state-title{font-size:15px;font-weight:700;color:var(--ink);margin-bottom:4px;}
+.empty-state-sub{font-size:13px;color:var(--gray-4);margin-bottom:16px;line-height:1.5;}
+.empty-cta{display:inline-block;background:var(--blue);color:#fff;font-size:14px;font-weight:600;padding:11px 24px;border-radius:980px;text-decoration:none;}
+
+/* ── MEMBERSHIP CARD ── */
+.membership-card{
+  background:var(--ink-2);border-radius:16px;
+  margin-bottom:14px;overflow:hidden;position:relative;
+}
+.membership-card::before{
+  content:'';position:absolute;top:-40px;right:-40px;
+  width:160px;height:160px;
+  background:radial-gradient(circle,rgba(240,165,0,0.12),transparent 65%);
+  pointer-events:none;z-index:0;
+}
+.membership-main{display:flex;align-items:center;gap:14px;padding:18px 18px 16px;position:relative;z-index:1;}
+.membership-icon{
+  width:44px;height:44px;border-radius:12px;
+  background:rgba(240,165,0,0.15);border:1px solid rgba(240,165,0,0.25);
+  display:flex;align-items:center;justify-content:center;
+  font-size:20px;flex-shrink:0;
+}
+.membership-icon.free-icon{background:rgba(255,255,255,0.06);border-color:rgba(255,255,255,0.1);}
+.membership-info{flex:1;}
+.membership-plan{font-size:16px;font-weight:700;color:#fff;letter-spacing:-0.2px;}
+.membership-billing{font-size:12px;color:rgba(255,255,255,0.38);margin-top:3px;}
+.membership-status{flex-shrink:0;font-size:10px;font-weight:700;letter-spacing:0.06em;padding:4px 10px;border-radius:20px;}
+.membership-status.active{background:rgba(0,192,118,0.15);border:1px solid rgba(0,192,118,0.3);color:var(--green);}
+.membership-status.free-status{background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.12);color:rgba(255,255,255,0.38);}
+.billing-row{display:flex;gap:1px;background:rgba(255,255,255,0.06);position:relative;z-index:1;}
+.billing-cell{flex:1;padding:11px 14px;background:rgba(255,255,255,0.02);}
+.billing-val{font-size:13px;font-weight:600;color:#fff;}
+.billing-lbl{font-size:10px;color:rgba(255,255,255,0.28);font-weight:500;margin-top:2px;text-transform:uppercase;letter-spacing:0.05em;}
+.membership-divider{height:1px;background:rgba(255,255,255,0.06);position:relative;z-index:1;}
+.membership-actions{display:flex;position:relative;z-index:1;}
+.membership-action{
+  flex:1;padding:13px 16px;font-size:13px;font-weight:600;
+  color:rgba(255,255,255,0.45);background:none;border:none;
+  cursor:pointer;font-family:var(--font);text-align:center;
+  -webkit-tap-highlight-color:transparent;transition:color 0.15s,background 0.15s;
+}
+.membership-action:active{background:rgba(255,255,255,0.04);color:rgba(255,255,255,0.8);}
+.membership-action.primary{color:var(--blue);}
+.membership-action-divider{width:1px;background:rgba(255,255,255,0.06);flex-shrink:0;}
+
+/* ── LIST CARDS ── */
+.list-card{background:var(--white);border:1px solid var(--gray-2);border-radius:16px;overflow:hidden;margin-bottom:14px;}
+.list-item{
+  display:flex;align-items:center;gap:14px;
+  padding:14px 16px;border-bottom:1px solid var(--gray-2);
+  cursor:pointer;transition:background 0.1s;
+  text-decoration:none;color:inherit;-webkit-tap-highlight-color:transparent;
+}
+.list-item:last-child{border-bottom:none;}
+.list-item:active{background:var(--gray-1);}
+.list-icon{width:34px;height:34px;border-radius:9px;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.list-icon.blue{background:var(--blue-pale);}
+.list-icon.green{background:var(--green-pale);}
+.list-icon.gold{background:rgba(240,165,0,0.1);}
+.list-icon.red{background:#FEE2E2;}
+.list-icon.gray{background:var(--gray-2);}
+.list-text{flex:1;}
+.list-title{font-size:14px;font-weight:600;color:var(--ink);}
+.list-sub{font-size:11px;color:var(--gray-4);margin-top:1px;}
+.list-right{display:flex;align-items:center;gap:6px;flex-shrink:0;}
+.list-chevron{color:var(--gray-3);}
+.list-value{font-size:13px;color:var(--gray-4);font-weight:500;}
+
+/* ── WEEKLY RECAPS ── */
+.recap-hist-card{background:var(--white);border:1px solid var(--gray-2);border-radius:16px;overflow:hidden;margin-bottom:14px;}
+.recap-hist-empty{padding:24px;text-align:center;font-size:13px;color:var(--gray-4);line-height:1.6;}
+.recap-hist-empty-icon{font-size:28px;margin-bottom:8px;}
+.recap-row{border-bottom:1px solid var(--gray-2);cursor:pointer;-webkit-tap-highlight-color:transparent;transition:background 0.1s;}
+.recap-row:last-child{border-bottom:none;}
+.recap-row:active{background:var(--gray-1);}
+.recap-row-header{display:flex;align-items:center;gap:10px;padding:14px 16px;}
+.recap-week-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;}
+.recap-week-dot.green{background:var(--green);}
+.recap-week-dot.gold{background:var(--gold);}
+.recap-week-dot.red{background:var(--red);}
+.recap-week-dot.gray{background:var(--gray-3);}
+.recap-row-week{font-size:13px;font-weight:700;color:var(--ink);flex:1;}
+.recap-row-date{font-size:11px;color:var(--gray-4);}
+.recap-row-adh{font-size:14px;font-weight:700;margin-left:4px;}
+.recap-row-adh.green{color:var(--green);}
+.recap-row-adh.gold{color:var(--gold);}
+.recap-row-adh.red{color:var(--red);}
+.recap-chevron{color:var(--gray-3);transition:transform 0.22s cubic-bezier(0.16,1,0.3,1);flex-shrink:0;}
+.recap-chevron.open{transform:rotate(90deg);}
+.recap-detail{display:none;padding:0 16px 16px;}
+.recap-detail.open{display:block;}
+.recap-detail-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;margin-bottom:10px;padding-top:4px;}
+.recap-detail-stat{background:var(--gray-1);border-radius:10px;padding:10px;text-align:center;}
+.recap-detail-val{font-size:15px;font-weight:700;color:var(--ink);letter-spacing:-0.3px;}
+.recap-detail-lbl{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;color:var(--gray-4);margin-top:2px;}
+.recap-commentary{font-size:12px;color:var(--gray-5);line-height:1.7;font-style:italic;padding:12px;background:var(--gray-1);border-radius:10px;margin-bottom:8px;}
+.recap-sides-line{font-size:11px;color:var(--gray-4);}
+.recap-sides-line span{color:var(--gray-5);font-weight:500;}
+
+/* ── LOGOUT ── */
+.logout-btn{
+  width:100%;padding:15px;background:var(--white);border:1px solid var(--gray-2);
+  border-radius:16px;font-size:15px;font-weight:600;color:var(--red);
+  cursor:pointer;font-family:var(--font);transition:background 0.1s;margin-bottom:8px;
+  -webkit-tap-highlight-color:transparent;
+}
+.logout-btn:active{background:#FEF2F2;}
+.version-note{text-align:center;font-size:11px;color:var(--gray-3);padding:4px 0 12px;}
+
+/* ── EDIT SHEET ── */
+.sheet-overlay{display:none;position:fixed;inset:0;background:rgba(7,9,13,0.5);backdrop-filter:blur(6px);z-index:300;justify-content:flex-end;flex-direction:column;}
+.sheet-overlay.open{display:flex;}
+.sheet{background:#fff;border-radius:22px 22px 0 0;padding:20px 20px calc(24px + env(safe-area-inset-bottom));animation:slideUp 0.32s cubic-bezier(0.16,1,0.3,1);}
+@keyframes slideUp{from{transform:translateY(100%);}to{transform:translateY(0);}}
+.sheet-handle{width:36px;height:4px;background:var(--gray-2);border-radius:99px;margin:0 auto 20px;}
+.sheet-title{font-size:17px;font-weight:700;color:var(--ink);margin-bottom:4px;text-align:center;}
+.sheet-sub{font-size:13px;color:var(--gray-4);text-align:center;margin-bottom:20px;}
+.field{margin-bottom:14px;}
+.field-label{font-size:10px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:var(--gray-4);margin-bottom:6px;}
+.field-input{width:100%;background:var(--gray-1);border:1.5px solid var(--gray-2);border-radius:12px;padding:13px 14px;font-size:16px;color:var(--ink);font-family:var(--font);outline:none;transition:border-color 0.15s;}
+.field-input:focus{border-color:var(--blue);}
+.sheet-save{width:100%;background:var(--blue);color:#fff;border:none;border-radius:980px;padding:15px;font-size:15px;font-weight:700;font-family:var(--font);cursor:pointer;margin-top:4px;}
+.sheet-cancel{width:100%;background:none;border:none;color:var(--gray-4);font-size:14px;font-weight:500;font-family:var(--font);cursor:pointer;padding:12px;margin-top:2px;}
+
+/* ── TOAST ── */
+#save-toast{display:none;position:fixed;top:68px;left:50%;transform:translateX(-50%);background:var(--ink);color:#fff;font-size:12px;font-weight:600;padding:8px 18px;border-radius:20px;z-index:400;white-space:nowrap;pointer-events:none;transition:opacity 0.3s;}
+
+
+/* ── AFFILIATE CARD ── */
+.affiliate-card{
+  background:var(--ink-2);
+  border-radius:20px;overflow:hidden;
+  margin-bottom:24px;
+  position:relative;
+}
+.affiliate-card::before{
+  content:'';position:absolute;top:-60px;right:-60px;
+  width:220px;height:220px;
+  background:radial-gradient(circle,rgba(8,118,255,0.18),transparent 65%);
+  pointer-events:none;
+}
+.aff-header{
+  padding:20px 20px 16px;
+  position:relative;z-index:1;
+}
+.aff-eyebrow{
+  font-size:10px;font-weight:700;letter-spacing:0.1em;
+  text-transform:uppercase;color:rgba(8,118,255,0.8);
+  margin-bottom:8px;
+}
+.aff-title{
+  font-size:18px;font-weight:700;letter-spacing:-0.4px;
+  color:#fff;margin-bottom:4px;
+}
+.aff-sub{font-size:13px;color:rgba(255,255,255,0.4);line-height:1.55;}
+
+.aff-stats{
+  display:grid;grid-template-columns:1fr 1fr 1fr;
+  gap:1px;background:rgba(255,255,255,0.06);
+  margin:0 0 0;
+  position:relative;z-index:1;
+}
+.aff-stat{background:rgba(255,255,255,0.03);padding:14px 16px;}
+.aff-stat-val{font-size:22px;font-weight:700;letter-spacing:-0.5px;color:#fff;}
+.aff-stat-val.blue{color:rgba(100,170,255,0.95);}
+.aff-stat-val.green{color:var(--green);}
+.aff-stat-lbl{font-size:9px;font-weight:600;letter-spacing:0.07em;text-transform:uppercase;color:rgba(255,255,255,0.25);margin-top:3px;}
+
+.aff-code-section{
+  padding:16px 20px;
+  border-top:1px solid rgba(255,255,255,0.06);
+  position:relative;z-index:1;
+}
+.aff-code-label{
+  font-size:10px;font-weight:700;letter-spacing:0.1em;
+  text-transform:uppercase;color:rgba(255,255,255,0.3);
+  margin-bottom:10px;
+}
+.aff-code-row{
+  display:flex;align-items:center;gap:8px;
+}
+.aff-code-display{
+  flex:1;background:rgba(255,255,255,0.07);
+  border:1px solid rgba(255,255,255,0.1);
+  border-radius:12px;padding:12px 14px;
+  font-size:15px;font-weight:700;color:#fff;
+  letter-spacing:0.05em;font-family:monospace;
+  display:flex;align-items:center;justify-content:space-between;
+}
+.aff-code-edit{
+  font-size:11px;color:rgba(8,118,255,0.7);
+  cursor:pointer;font-weight:600;
+  -webkit-tap-highlight-color:transparent;
+}
+.aff-copy-btn{
+  padding:12px 16px;background:var(--blue);
+  border:none;border-radius:12px;
+  font-size:13px;font-weight:600;color:#fff;
+  cursor:pointer;font-family:var(--font);
+  transition:opacity 0.15s;white-space:nowrap;
+  -webkit-tap-highlight-color:transparent;
+}
+.aff-copy-btn:active{opacity:0.8;}
+.aff-copy-btn.copied{background:var(--green);}
+
+.aff-link-section{
+  padding:0 20px 16px;
+  position:relative;z-index:1;
+}
+.aff-link-box{
+  background:rgba(255,255,255,0.04);
+  border:1px solid rgba(255,255,255,0.08);
+  border-radius:12px;padding:11px 14px;
+  font-size:11px;color:rgba(255,255,255,0.35);
+  word-break:break-all;line-height:1.5;
+}
+.aff-actions{
+  display:flex;gap:8px;margin-top:10px;
+}
+.aff-action-btn{
+  flex:1;padding:12px;border:none;border-radius:12px;
+  font-size:13px;font-weight:600;font-family:var(--font);
+  cursor:pointer;transition:opacity 0.15s;
+  -webkit-tap-highlight-color:transparent;
+}
+.aff-action-btn.share{background:rgba(255,255,255,0.1);color:#fff;}
+.aff-action-btn.copy-link{background:var(--blue);color:#fff;}
+.aff-action-btn:active{opacity:0.75;}
+
+.aff-payout-section{
+  padding:14px 20px 20px;
+  border-top:1px solid rgba(255,255,255,0.06);
+  position:relative;z-index:1;
+}
+.aff-payout-row{
+  display:flex;align-items:center;justify-content:space-between;
+  margin-bottom:10px;
+}
+.aff-payout-label{font-size:13px;color:rgba(255,255,255,0.5);}
+.aff-payout-val{font-size:14px;font-weight:700;color:var(--green);}
+.aff-payout-note{
+  font-size:11px;color:rgba(255,255,255,0.2);
+  line-height:1.6;
+}
+
+/* Code edit modal */
+.aff-edit-modal{
+  display:none;position:fixed;inset:0;z-index:999;
+  background:rgba(7,9,13,0.7);backdrop-filter:blur(8px);
+  align-items:flex-end;justify-content:center;
+}
+.aff-edit-modal.open{display:flex;}
+.aff-edit-sheet{
+  background:var(--white);border-radius:22px 22px 0 0;
+  padding:24px 20px calc(28px + env(safe-area-inset-bottom));
+  width:100%;max-width:520px;
+}
+.aff-edit-handle{width:36px;height:4px;background:var(--gray-2);border-radius:99px;margin:0 auto 20px;}
+.aff-edit-title{font-size:18px;font-weight:700;color:var(--ink);margin-bottom:6px;}
+.aff-edit-sub{font-size:13px;color:var(--gray-5);line-height:1.6;margin-bottom:16px;}
+.aff-edit-input{
+  width:100%;padding:13px 14px;
+  border:1.5px solid var(--gray-2);border-radius:12px;
+  font-size:16px;font-weight:700;letter-spacing:0.05em;
+  font-family:monospace;color:var(--ink);
+  background:var(--white);outline:none;
+  text-transform:uppercase;
+  transition:border-color 0.18s;
+  -webkit-appearance:none;
+  margin-bottom:8px;
+}
+.aff-edit-input:focus{border-color:var(--blue);}
+.aff-edit-err{font-size:12px;color:var(--red);margin-bottom:10px;display:none;}
+.aff-edit-save{
+  width:100%;padding:14px;background:var(--blue);
+  color:#fff;border:none;border-radius:980px;
+  font-size:15px;font-weight:600;cursor:pointer;
+  font-family:var(--font);margin-bottom:8px;
+}
+.aff-edit-cancel{
+  width:100%;padding:14px;background:var(--gray-1);
+  color:var(--gray-5);border:none;border-radius:980px;
+  font-size:15px;font-weight:600;cursor:pointer;
+  font-family:var(--font);
+}
+
+/* ── BOTTOM NAV ── */
+.bnav{position:fixed;bottom:0;left:0;right:0;z-index:100;background:rgba(255,255,255,0.97);backdrop-filter:blur(20px);border-top:1px solid var(--gray-2);height:calc(60px + env(safe-area-inset-bottom));padding-bottom:env(safe-area-inset-bottom);display:flex;align-items:center;}
+.bnav-inner{display:flex;width:100%;max-width:560px;margin:0 auto;padding:0 8px;}
+.bnav-item{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;text-decoration:none;padding:8px 4px;border-radius:10px;transition:background 0.15s;color:var(--gray-4);-webkit-tap-highlight-color:transparent;}
+.bnav-item.active{color:var(--blue);}
+.bnav-icon{width:22px;height:22px;display:flex;align-items:center;justify-content:center;}
+.bnav-lbl{font-size:10px;font-weight:500;}
+.bnav-item.active .bnav-lbl{font-weight:700;}
+</style>
+</head>
+<body>
+
+<header class="hdr">
+  <a href="/" class="hdr-logo">
+    <div class="hdr-mark">P</div>
+    PepTrak
+  </a>
+  <div class="hdr-edit" id="editBtn" onclick="openEdit()" style="display:none;">Edit</div>
+</header>
+
+<div id="save-toast">Saved</div>
+
+<div class="page">
+
+  <div class="profile-hero">
+    <div class="profile-top">
+      <div class="avatar" id="avatarEl">?</div>
+      <div class="profile-info">
+        <div class="profile-name" id="profileName">Loading…</div>
+        <div class="profile-since" id="profileSince"></div>
+        <div class="profile-badges">
+          <div class="profile-badge plan-free" id="planBadge">Free Plan</div>
+          <div class="profile-badge goal-tag" id="goalBadge" style="display:none;"></div>
+        </div>
+      </div>
+    </div>
+    <div class="hero-stats">
+      <div class="hero-stat">
+        <div class="hero-stat-val green" id="statStreak">0</div>
+        <div class="hero-stat-lbl">Streak</div>
+      </div>
+      <div class="hero-stat">
+        <div class="hero-stat-val blue" id="statWeek">—</div>
+        <div class="hero-stat-lbl">Week</div>
+      </div>
+      <div class="hero-stat">
+        <div class="hero-stat-val gold" id="statDoses">0</div>
+        <div class="hero-stat-lbl">Doses</div>
+      </div>
+      <div class="hero-stat">
+        <div class="hero-stat-val" id="statAdherence">—</div>
+        <div class="hero-stat-lbl">Adherence</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section-label">Active Protocol</div>
+  <div class="protocol-card" id="protocolCard" onclick="window.location.href='/protocol'"></div>
+
+  <div class="section-label">Membership</div>
+  <div class="membership-card" id="membershipCard"></div>
+
+  <div class="section-label">Cycle History</div>
+  <div class="recap-hist-card" id="cycleHistCard">
+    <div class="recap-hist-empty"><div class="recap-hist-empty-icon">🧬</div>No cycles yet — generate your first protocol to begin.</div>
+  </div>
+
+  <div class="section-label">Weekly Recaps</div>
+  <div class="recap-hist-card" id="recapHistCard">
+    <div class="recap-hist-empty"><div class="recap-hist-empty-icon">📋</div>No recaps yet — check back Sunday.</div>
+  </div>
+
+  <div class="section-label">Settings</div>
+  <div class="list-card">
+    <a class="list-item" href="/onboarding">
+      <div class="list-icon blue"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#0876FF" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg></div>
+      <div class="list-text"><div class="list-title">Update Goals & Profile</div><div class="list-sub">Retake the intake questionnaire</div></div>
+      <div class="list-right"><div class="list-chevron"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="9 18 15 12 9 6"/></svg></div></div>
+    </a>
+    <a class="list-item" href="/library">
+      <div class="list-icon green"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#00A065" stroke-width="2" stroke-linecap="round"><path d="M2 3h6a4 4 0 014 4v14a3 3 0 00-3-3H2z"/><path d="M22 3h-6a4 4 0 00-4 4v14a3 3 0 013-3h7z"/></svg></div>
+      <div class="list-text"><div class="list-title">Compound Library</div><div class="list-sub">55+ research compounds</div></div>
+      <div class="list-right"><div class="list-chevron"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="9 18 15 12 9 6"/></svg></div></div>
+    </a>
+    <a class="list-item" href="/stack">
+      <div class="list-icon gold"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#B07A00" stroke-width="2" stroke-linecap="round"><polyline points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg></div>
+      <div class="list-text"><div class="list-title">Stack Builder</div><div class="list-sub">Build & save custom protocols</div></div>
+      <div class="list-right"><div class="list-chevron"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="9 18 15 12 9 6"/></svg></div></div>
+    </a>
+    <div class="list-item" onclick="resetData()">
+      <div class="list-icon red"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#FF3B30" stroke-width="2" stroke-linecap="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4h6v2"/></svg></div>
+      <div class="list-text"><div class="list-title">Reset All Data</div><div class="list-sub">Clears protocol, tracker, and intake</div></div>
+      <div class="list-right"><div class="list-chevron"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="9 18 15 12 9 6"/></svg></div></div>
+    </div>
+  </div>
+
+  <div class="section-label">About</div>
+  <div class="list-card">
+    <div class="list-item" onclick="window.location.href='/privacy'">
+      <div class="list-icon gray"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="var(--gray-5)" stroke-width="2" stroke-linecap="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></div>
+      <div class="list-text"><div class="list-title">Privacy Policy</div></div>
+      <div class="list-right"><div class="list-chevron"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="9 18 15 12 9 6"/></svg></div></div>
+    </div>
+    <div class="list-item" onclick="window.location.href='/terms'">
+      <div class="list-icon gray"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="var(--gray-5)" stroke-width="2" stroke-linecap="round"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg></div>
+      <div class="list-text"><div class="list-title">Terms of Service</div></div>
+      <div class="list-right"><div class="list-chevron"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="9 18 15 12 9 6"/></svg></div></div>
+    </div>
+    <div class="list-item">
+      <div class="list-icon gray"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="var(--gray-5)" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg></div>
+      <div class="list-text"><div class="list-title">Version</div></div>
+      <div class="list-right"><div class="list-value">1.0.0</div></div>
+    </div>
+  </div>
+
+  <div class="section-label" style="margin-top:28px;">Refer a Friend</div>
+  <div class="affiliate-card" id="affiliateCard">
+
+    <div class="aff-header">
+      <div class="aff-eyebrow">Affiliate Program</div>
+      <div class="aff-title">Earn 50% for life</div>
+      <div class="aff-sub">Share your link. Every friend who subscribes earns you 50% of their payments — forever on monthly plans, or the full annual amount upfront.</div>
+    </div>
+
+    <div class="aff-stats">
+      <div class="aff-stat">
+        <div class="aff-stat-val blue" id="aff-referrals">0</div>
+        <div class="aff-stat-lbl">Referrals</div>
+      </div>
+      <div class="aff-stat">
+        <div class="aff-stat-val green" id="aff-active">0</div>
+        <div class="aff-stat-lbl">Active Subs</div>
+      </div>
+      <div class="aff-stat">
+        <div class="aff-stat-val" id="aff-earnings">$0</div>
+        <div class="aff-stat-lbl">Est. Monthly</div>
+      </div>
+    </div>
+
+    <!-- Hold status bar -->
+    <div id="aff-hold-bar" style="display:none;background:rgba(255,165,0,0.08);border:1px solid rgba(255,165,0,0.18);border-radius:10px;padding:11px 14px;margin:0 0 2px;">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;">
+        <span style="font-size:12px;font-weight:600;color:rgba(255,165,0,0.9);">&#9679; Pending (30-day hold)</span>
+        <span style="font-size:13px;font-weight:700;color:rgba(255,255,255,0.85);" id="aff-pending-amt">$0.00</span>
+      </div>
+      <div style="font-size:11px;color:rgba(255,255,255,0.35);line-height:1.5;" id="aff-hold-note">Releases after dispute window closes.</div>
+    </div>
+
+    <div id="aff-available-bar" style="display:none;background:rgba(0,192,118,0.08);border:1px solid rgba(0,192,118,0.18);border-radius:10px;padding:11px 14px;margin:8px 0 2px;">
+      <div style="display:flex;justify-content:space-between;align-items:center;">
+        <span style="font-size:12px;font-weight:600;color:var(--green);">&#10003; Ready to pay out</span>
+        <span style="font-size:13px;font-weight:700;color:var(--green);" id="aff-available-amt">$0.00</span>
+      </div>
+      <div style="font-size:11px;color:rgba(255,255,255,0.35);margin-top:4px;">Connect your bank to receive this.</div>
+    </div>
+
+    <div class="aff-code-section">
+      <div class="aff-code-label">Your Code</div>
+      <div class="aff-code-row">
+        <div class="aff-code-display">
+          <span id="aff-code-text">LOADING</span>
+          <span class="aff-code-edit" onclick="openCodeEdit()">Edit</span>
+        </div>
+        <button class="aff-copy-btn" id="aff-copy-code-btn" onclick="copyCode()">Copy</button>
+      </div>
+    </div>
+
+    <div class="aff-link-section">
+      <div class="aff-code-label">Your Referral Link</div>
+      <div class="aff-link-box" id="aff-link-display">https://www.peptrak.com?ref=LOADING</div>
+      <div class="aff-actions">
+        <button class="aff-action-btn share" onclick="shareLink()">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" style="margin-right:5px;vertical-align:-2px;"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>Share
+        </button>
+        <button class="aff-action-btn copy-link" onclick="copyLink()">Copy Link</button>
+      </div>
+    </div>
+
+    <div class="aff-payout-section">
+      <div class="aff-payout-row">
+        <div class="aff-payout-label">Payout rate</div>
+        <div class="aff-payout-val">50% lifetime</div>
+      </div>
+      <div class="aff-payout-row">
+        <div class="aff-payout-label">Hold period</div>
+        <div class="aff-payout-val">30 days</div>
+      </div>
+      <div class="aff-payout-row">
+        <div class="aff-payout-label">Total paid out</div>
+        <div class="aff-payout-val green" id="aff-total-paid">$0.00</div>
+      </div>
+      <div class="aff-payout-row" style="margin-bottom:0;">
+        <div class="aff-payout-label">Total earned</div>
+        <div class="aff-payout-val" id="aff-total-earned">$0.00</div>
+      </div>
+      <button id="connect-btn" data-label="Set Up Payouts" onclick="openConnectOnboarding()" style="width:100%;margin-top:14px;padding:13px;background:var(--blue);color:#fff;border:none;border-radius:980px;font-size:14px;font-weight:600;cursor:pointer;font-family:var(--font);">Set Up Payouts via Stripe</button>
+      <div style="margin-top:12px;font-size:11px;color:rgba(255,255,255,0.3);text-align:center;line-height:1.6;">
+        Commissions are held for 30 days to cover payment disputes, then transferred automatically to your bank. Monthly referrals pay every month. Annual referrals pay once, upfront.
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Code Edit Modal -->
+  <div class="aff-edit-modal" id="aff-edit-modal">
+    <div class="aff-edit-sheet">
+      <div class="aff-edit-handle"></div>
+      <div class="aff-edit-title">Set your affiliate code</div>
+      <div class="aff-edit-sub">3–12 characters. Letters and numbers only. This is what your friends will see in their URL.</div>
+      <input class="aff-edit-input" id="aff-edit-input" type="text" maxlength="12" placeholder="YOURCODE" oninput="this.value=this.value.toUpperCase().replace(/[^A-Z0-9]/g,'')"/>
+      <div class="aff-edit-err" id="aff-edit-err"></div>
+      <button class="aff-edit-save" onclick="saveAffCode()">Save Code</button>
+      <button class="aff-edit-cancel" onclick="closeCodeEdit()">Cancel</button>
+    </div>
+  </div>
+
+  <button class="logout-btn" onclick="logout()">Sign Out</button>
+  <div class="version-note">PepTrak · For research purposes only</div>
+
+</div>
+
+<div class="sheet-overlay" id="editOverlay" onclick="closeIfBg(event)">
+  <div class="sheet">
+    <div class="sheet-handle"></div>
+    <div class="sheet-title">Edit Profile</div>
+    <div class="sheet-sub">Saved locally to your device</div>
+    <div class="field">
+      <div class="field-label">Name</div>
+      <input class="field-input" id="editName" type="text" placeholder="Your name" autocomplete="off">
+    </div>
+    <div class="field">
+      <div class="field-label">Primary Goal</div>
+      <input class="field-input" id="editGoal" type="text" placeholder="e.g. Body composition, Recovery">
+    </div>
+    <button class="sheet-save" onclick="saveEdit()">Save Changes</button>
+    <button class="sheet-cancel" onclick="closeEdit()">Cancel</button>
+  </div>
+</div>
+
+
+<!-- RESET CONFIRM MODAL -->
+<div id="reset-modal" style="display:none;position:fixed;inset:0;z-index:999;background:rgba(7,9,13,0.6);backdrop-filter:blur(6px);align-items:flex-end;justify-content:center;">
+  <div style="background:#fff;border-radius:22px 22px 0 0;padding:24px 20px calc(28px + env(safe-area-inset-bottom));width:100%;max-width:520px;">
+    <div style="width:36px;height:4px;background:var(--gray-2);border-radius:99px;margin:0 auto 20px;"></div>
+    <div style="font-size:18px;font-weight:700;color:var(--ink);margin-bottom:6px;">Reset all data?</div>
+    <div style="font-size:13px;color:var(--gray-5);line-height:1.6;margin-bottom:18px;">This clears your protocol, tracker history, and all settings. This cannot be undone.</div>
+    <div style="font-size:12px;color:var(--gray-4);font-weight:600;margin-bottom:6px;">Type RESET to confirm</div>
+    <input id="reset-input" type="text" placeholder="RESET" style="width:100%;padding:12px 14px;border:1.5px solid var(--gray-2);border-radius:11px;font-size:16px;font-family:var(--font);letter-spacing:2px;text-transform:uppercase;outline:none;margin-bottom:8px;-webkit-appearance:none;" oninput="this.value=this.value.toUpperCase();">
+    <div id="reset-err" style="display:none;font-size:12px;color:var(--red);margin-bottom:8px;"></div>
+    <button onclick="confirmReset()" style="width:100%;padding:14px;background:var(--red);color:#fff;border:none;border-radius:980px;font-size:15px;font-weight:600;cursor:pointer;font-family:var(--font);margin-bottom:10px;">Reset Everything</button>
+    <button onclick="closeResetModal()" style="width:100%;padding:14px;background:var(--gray-1);color:var(--gray-5);border:none;border-radius:980px;font-size:15px;font-weight:600;cursor:pointer;font-family:var(--font);">Cancel</button>
+  </div>
+</div>
+
+<!-- LOGOUT CONFIRM MODAL -->
+<div id="logout-modal" style="display:none;position:fixed;inset:0;z-index:999;background:rgba(7,9,13,0.6);backdrop-filter:blur(6px);align-items:flex-end;justify-content:center;">
+  <div style="background:#fff;border-radius:22px 22px 0 0;padding:24px 20px calc(28px + env(safe-area-inset-bottom));width:100%;max-width:520px;">
+    <div style="width:36px;height:4px;background:var(--gray-2);border-radius:99px;margin:0 auto 20px;"></div>
+    <div style="font-size:18px;font-weight:700;color:var(--ink);margin-bottom:6px;">Sign out?</div>
+    <div style="font-size:13px;color:var(--gray-5);line-height:1.6;margin-bottom:20px;">Your protocol and tracker data stays saved on this device.</div>
+    <button onclick="confirmLogout()" style="width:100%;padding:14px;background:var(--ink);color:#fff;border:none;border-radius:980px;font-size:15px;font-weight:600;cursor:pointer;font-family:var(--font);margin-bottom:10px;">Sign Out</button>
+    <button onclick="closeLogoutModal()" style="width:100%;padding:14px;background:var(--gray-1);color:var(--gray-5);border:none;border-radius:980px;font-size:15px;font-weight:600;cursor:pointer;font-family:var(--font);">Cancel</button>
+  </div>
+</div>
+<nav class="bnav">
+  <div class="bnav-inner">
+    <a href="/protocol" class="bnav-item">
+      <div class="bnav-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M9 3H5a2 2 0 00-2 2v4m6-6h10a2 2 0 012 2v4M9 3v18m0 0h10a2 2 0 002-2V9M9 21H5a2 2 0 01-2-2V9m0 0h18"/></svg></div>
+      <div class="bnav-lbl">Protocol</div>
+    </a>
+    <a href="/chat" class="bnav-item">
+      <div class="bnav-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg></div>
+      <div class="bnav-lbl">Advisor</div>
+    </a>
+    <a href="/tracker" class="bnav-item">
+      <div class="bnav-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></div>
+      <div class="bnav-lbl">Tracker</div>
+    </a>
+    <a href="/library" class="bnav-item">
+      <div class="bnav-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M2 3h6a4 4 0 014 4v14a3 3 0 00-3-3H2z"/><path d="M22 3h-6a4 4 0 00-4 4v14a3 3 0 013-3h7z"/></svg></div>
+      <div class="bnav-lbl">Library</div>
+    </a>
+    <a href="/account" class="bnav-item active">
+      <div class="bnav-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></div>
+      <div class="bnav-lbl">Account</div>
+    </a>
+  </div>
+</nav>
+
+<script>
+
+// ── PAYWALL GUARD ──
+(function(){
+  var paid = localStorage.getItem('peptrak_paid');
+  var isTest = localStorage.getItem('peptrak_test_account') === '1';
+  if(!paid && !isTest){
+    window.location.replace('/checkout');
+  }
+})();
+
+var KEYS={
+  protocol:'peptrak_protocol',intake:'peptrak_intake',
+  tracker:'peptrak_tracker',start:'peptrak_protocol_start',
+  saved:'peptrak_lib_saved',recent:'peptrak_lib_recent',
+  stack:'peptrak_custom_stack',profile:'peptrak_profile'
+};
+
+// ── AFFILIATE SYSTEM ──
+function generateDefaultCode(name){
+  var base = (name||'USER').toUpperCase().replace(/[^A-Z0-9]/g,'').slice(0,6);
+  if(base.length < 3) base = 'PT' + base;
+  var suffix = Math.floor(100 + Math.random() * 900);
+  return base + suffix;
+}
+
+function getAffCode(){
+  var stored = localStorage.getItem('peptrak_aff_code');
+  if(stored) return stored;
+  // Generate from name
+  var profile = {};
+  try{ profile = JSON.parse(localStorage.getItem('peptrak_profile')||'{}'); }catch(e){}
+  var intake = {};
+  try{ intake = JSON.parse(localStorage.getItem('peptrak_intake')||'{}'); }catch(e){}
+  var name = profile.name || intake.first_name || intake.name || '';
+  var code = generateDefaultCode(name);
+  localStorage.setItem('peptrak_aff_code', code);
+  return code;
+}
+
+function getAffLink(code){
+  return 'https://www.peptrak.com/?ref=' + (code || getAffCode());
+}
+
+function getAffStats(){
+  try{
+    var stored = localStorage.getItem('peptrak_aff_stats');
+    if(!stored){
+      var defaults = {referrals:0, active:0, earned:0};
+      localStorage.setItem('peptrak_aff_stats', JSON.stringify(defaults));
+      return defaults;
+    }
+    return JSON.parse(stored);
+  }catch(e){ return {referrals:0,active:0,earned:0}; }
+}
+
+async function loadAffiliate(){
+  var code = getAffCode();
+  var link = getAffLink(code);
+
+  var codeEl = document.getElementById('aff-code-text');
+  var linkEl = document.getElementById('aff-link-display');
+  if(codeEl) codeEl.textContent = code;
+  if(linkEl) linkEl.textContent = link;
+
+  try{
+    var res = await fetch('/api/affiliate?action=stats?refCode=' + encodeURIComponent(code));
+    var s = await res.json();
+
+    // Summary stats
+    var refEl = document.getElementById('aff-referrals');
+    var actEl = document.getElementById('aff-active');
+    var earnEl = document.getElementById('aff-earnings');
+    if(refEl) refEl.textContent = s.referrals || 0;
+    if(actEl) actEl.textContent = s.active || 0;
+    if(earnEl) earnEl.textContent = '$' + (s.monthlyEstimate || '0.00');
+
+    // Payout section
+    var paidEl = document.getElementById('aff-total-paid');
+    var totalEl = document.getElementById('aff-total-earned');
+    if(paidEl) paidEl.textContent = '$' + (s.totalPaid || '0.00');
+    if(totalEl) totalEl.textContent = '$' + (s.totalEarned || '0.00');
+
+    // Pending hold bar
+    var pendingBar = document.getElementById('aff-hold-bar');
+    var pendingAmt = document.getElementById('aff-pending-amt');
+    var holdNote = document.getElementById('aff-hold-note');
+    if(s.pendingCents > 0 && pendingBar){
+      pendingBar.style.display = 'block';
+      if(pendingAmt) pendingAmt.textContent = '$' + s.pendingDollars;
+      if(holdNote && s.nextRelease){
+        var releaseDate = new Date(s.nextRelease).toLocaleDateString('en-US',{month:'short',day:'numeric'});
+        holdNote.textContent = 'Earliest release: ' + releaseDate + '. Held 30 days to protect against payment disputes.';
+      }
+    }
+
+    // Available bar (hold expired, not yet transferred)
+    var availBar = document.getElementById('aff-available-bar');
+    var availAmt = document.getElementById('aff-available-amt');
+    if(parseFloat(s.availableDollars) > 0 && availBar){
+      availBar.style.display = 'block';
+      if(availAmt) availAmt.textContent = '$' + s.availableDollars;
+    }
+
+  }catch(e){
+    ['aff-referrals','aff-active','aff-earnings'].forEach(function(id){
+      var el = document.getElementById(id);
+      if(el) el.textContent = '—';
+    });
+  }
+}
+
+async function openConnectOnboarding(){
+  var code = getAffCode();
+  var email = localStorage.getItem('peptrak_auth_email') || '';
+  if(!email){ showToast('Please sign in first.'); return; }
+  var btn = document.getElementById('connect-btn');
+  if(btn){ btn.disabled = true; btn.textContent = 'Opening...'; }
+  try{
+    var res = await fetch('/api/affiliate?action=connect?refCode=' + encodeURIComponent(code) + '&email=' + encodeURIComponent(email));
+    var data = await res.json();
+    if(data.url) window.location.href = data.url;
+    else showToast('Could not open payout setup. Try again.');
+  }catch(e){
+    showToast('Could not open payout setup. Try again.');
+  }
+  if(btn){ btn.disabled = false; btn.textContent = btn.dataset.label || 'Set Up Payouts'; }
+}
+
+function copyCode(){
+  var code = getAffCode();
+  navigator.clipboard.writeText(code).then(function(){
+    var btn = document.getElementById('aff-copy-code-btn');
+    if(btn){ btn.textContent = 'Copied!'; btn.classList.add('copied'); }
+    setTimeout(function(){
+      if(btn){ btn.textContent = 'Copy'; btn.classList.remove('copied'); }
+    }, 2000);
+  }).catch(function(){
+    // Fallback
+    var ta = document.createElement('textarea');
+    ta.value = code; document.body.appendChild(ta);
+    ta.select(); document.execCommand('copy');
+    document.body.removeChild(ta);
+    showToast('Code copied!');
+  });
+}
+
+function copyLink(){
+  var link = getAffLink();
+  navigator.clipboard.writeText(link).then(function(){
+    showToast('Link copied!');
+  }).catch(function(){
+    var ta = document.createElement('textarea');
+    ta.value = link; document.body.appendChild(ta);
+    ta.select(); document.execCommand('copy');
+    document.body.removeChild(ta);
+    showToast('Link copied!');
+  });
+}
+
+function shareLink(){
+  var link = getAffLink();
+  var code = getAffCode();
+  if(navigator.share){
+    navigator.share({
+      title: 'PepTrak — Personalized Peptide Protocols',
+      text: 'Get your personalized peptide protocol built from your exact biology. Use my code ' + code + ' for 50% off.',
+      url: link
+    }).catch(function(){});
+  } else {
+    copyLink();
+  }
+}
+
+function openCodeEdit(){
+  var code = getAffCode();
+  var input = document.getElementById('aff-edit-input');
+  if(input) input.value = code;
+  var err = document.getElementById('aff-edit-err');
+  if(err) err.style.display = 'none';
+  var modal = document.getElementById('aff-edit-modal');
+  if(modal) modal.classList.add('open');
+}
+
+function closeCodeEdit(){
+  var modal = document.getElementById('aff-edit-modal');
+  if(modal) modal.classList.remove('open');
+}
+
+function saveAffCode(){
+  var input = document.getElementById('aff-edit-input');
+  var val = (input ? input.value : '').trim().toUpperCase();
+  var err = document.getElementById('aff-edit-err');
+
+  if(val.length < 3){
+    if(err){ err.textContent = 'Code must be at least 3 characters.'; err.style.display = 'block'; }
+    return;
+  }
+  if(val.length > 12){
+    if(err){ err.textContent = 'Code must be 12 characters or less.'; err.style.display = 'block'; }
+    return;
+  }
+  if(!/^[A-Z0-9]+$/.test(val)){
+    if(err){ err.textContent = 'Letters and numbers only.'; err.style.display = 'block'; }
+    return;
+  }
+
+  localStorage.setItem('peptrak_aff_code', val);
+  closeCodeEdit();
+  loadAffiliate();
+  showToast('Affiliate code saved!');
+}
+
+function showErr(msg){
+  var t = document.getElementById('save-toast');
+  if(t){ t.textContent = msg; t.style.background='var(--red)'; t.style.opacity='1';
+    setTimeout(function(){ t.style.opacity='0'; t.style.background=''; },3000); }
+}
+function load(k){try{return JSON.parse(localStorage.getItem(k)||'null');}catch(e){return null;}}
+function save(k,v){localStorage.setItem(k,JSON.stringify(v));}
+
+function calcStreak(tracker){
+  if(!tracker||!tracker.logs) return 0;
+  var logs=tracker.logs,streak=0,d=new Date();
+  var todayKey=d.toISOString().slice(0,10);
+  while(true){
+    var key=d.toISOString().slice(0,10);
+    var log=logs.find(function(l){return l.date===key;});
+    if(log&&log.complete){streak++;d.setDate(d.getDate()-1);}
+    else if(key===todayKey){
+      // Today not complete yet — skip and check yesterday
+      d.setDate(d.getDate()-1);
+    } else break;
+  }
+  return streak;
+}
+function calcWeek(raw){
+  if(!raw) return null;
+  return Math.max(1,Math.floor((Date.now()-parseInt(raw))/(1000*60*60*24*7))+1);
+}
+function calcDoses(tracker){
+  if(!tracker||!tracker.logs) return 0;
+  return tracker.logs.reduce(function(s,l){
+    if(!l.doses) return s;
+    return s+Object.values(l.doses).filter(function(d){return d.taken;}).length;
+  },0);
+}
+function calcAdherence(tracker){
+  if(!tracker||!tracker.logs||!tracker.logs.length) return null;
+  var total=0,taken=0;
+  tracker.logs.forEach(function(l){
+    if(l.doses) Object.values(l.doses).forEach(function(d){total++;if(d.taken)taken++;});
+  });
+  return total>0?Math.round(taken/total*100):null;
+}
+function fmtDate(ts){
+  if(!ts) return null;
+  return new Date(parseInt(ts)).toLocaleDateString('en-US',{month:'long',day:'numeric',year:'numeric'});
+}
+function nextBillingDate(ts,plan){
+  if(!ts) return 'N/A';
+  var d=new Date(parseInt(ts));
+  if(plan==='annual') d.setFullYear(d.getFullYear()+1);
+  else d.setMonth(d.getMonth()+1);
+  return d.toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'});
+}
+function trialDaysLeft(ts){
+  if(!ts) return null;
+  var diff=Math.ceil((parseInt(ts)+21*86400000-Date.now())/86400000);
+  return diff>0?diff:0;
+}
+
+function loadPage(){
+  var profile=load(KEYS.profile)||{};
+  var intake=load(KEYS.intake)||{};
+  var protocol=load(KEYS.protocol);
+  var tracker=load(KEYS.tracker)||{};
+  var startRaw=localStorage.getItem(KEYS.start);
+  var intakeTs=localStorage.getItem('peptrak_intake_ts');
+  var paidTs=localStorage.getItem('peptrak_paid_ts');
+  var isPro=!!(profile.isPro||localStorage.getItem('peptrak_paid'));
+  var plan=profile.plan||'annual';
+
+  var name=profile.name||intake.name||intake.first_name||intake.firstName||'Researcher';
+  var goal=profile.goal||intake.primaryGoal||intake.goal||'';
+
+  var initials=name.trim().split(/\s+/).map(function(w){return w[0]||'';}).join('').slice(0,2).toUpperCase();
+  document.getElementById('avatarEl').textContent=initials||'?';
+  document.getElementById('profileName').textContent=name;
+  document.getElementById('editBtn').style.display='block';
+
+  var since=fmtDate(intakeTs||startRaw);
+  document.getElementById('profileSince').textContent=since?'Member since '+since:'PepTrak member';
+
+  var planBadge=document.getElementById('planBadge');
+  if(isPro){planBadge.textContent='\u2605 Pro';planBadge.className='profile-badge plan-pro';}
+  else{planBadge.style.display='none';}
+
+  var goalBadge=document.getElementById('goalBadge');
+  if(goal){goalBadge.textContent=goal;goalBadge.style.display='inline-flex';}
+
+  var streak=calcStreak(tracker);
+  var week=calcWeek(startRaw);
+  var doses=calcDoses(tracker);
+  var adherence=calcAdherence(tracker);
+  document.getElementById('statStreak').textContent=streak;
+  document.getElementById('statWeek').textContent=week||'\u2014';
+  document.getElementById('statDoses').textContent=doses;
+  var adhEl=document.getElementById('statAdherence');
+  if(adherence!==null){
+    adhEl.textContent=adherence+'%';
+    adhEl.className='hero-stat-val'+(adherence>=85?' green':adherence>=60?' gold':' red');
+  } else {
+    adhEl.textContent='\u2014';adhEl.className='hero-stat-val';
+  }
+
+  renderProtocol(protocol,week);
+  renderMembership(isPro,plan,paidTs||intakeTs);
+  renderCycles();
+  renderRecaps();
+  loadAffiliate();
+}
+
+function renderProtocol(p,week){
+  var el=document.getElementById('protocolCard');
+  if(!p||!p.compounds){
+    el.onclick=null;el.style.cursor='default';
+    el.innerHTML='<div class="pcard-header"><div class="pcard-eyebrow">Active Protocol</div></div>'
+      +'<div class="empty-state"><div class="empty-state-title">No active protocol yet</div>'
+      +'<div class="empty-state-sub">Answer a few questions and we\'ll build your personalized protocol.</div>'
+      +'<a class="empty-cta" href="/onboarding">Build My Protocol</a></div>';
+    return;
+  }
+  var compounds=p.compounds||[];
+  var preview=compounds.slice(0,3).map(function(c){return c.name||c.compound||'';}).filter(Boolean).join(' \u00b7 ');
+  if(compounds.length>3) preview+=' +'+(compounds.length-3)+' more';
+  var total=parseInt((p.duration||'12').replace(/\D/g,''))||12;
+  var cur=Math.min(week||1,total);
+  var pct=Math.round((cur/total)*100);
+  var cls='week-bar-fill'+(pct>=100?' done':pct>=75?' warning':'');
+  el.innerHTML='<div class="pcard-header"><div class="pcard-eyebrow">Active Protocol</div>'
+    +'<div class="pcard-link">View <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="9 18 15 12 9 6"/></svg></div></div>'
+    +'<div class="pcard-name">'+(p.headline||p.name||'Custom Protocol')+'</div>'
+    +'<div class="pcard-compounds">'+preview+'</div>'
+    +'<div class="week-bar-row"><span class="week-label">Week '+cur+' of '+total+'</span><span class="week-pct">'+pct+'%</span></div>'
+    +'<div class="week-bar-bg"><div class="'+cls+'" id="wbf" style="width:0%"></div></div>';
+  setTimeout(function(){var f=document.getElementById('wbf');if(f)f.style.width=pct+'%';},80);
+}
+
+function renderMembership(isPro, plan, billingTs){
+  // Always try to fetch live data from Stripe first
+  var customerId = localStorage.getItem('peptrak_stripe_customer_id');
+  var el = document.getElementById('membershipCard');
+  if(!el) return;
+
+  if(customerId){
+    // Show skeleton while loading
+    el.innerHTML = '<div style="padding:20px;text-align:center;">'
+      + '<div style="width:80px;height:12px;background:rgba(255,255,255,0.08);border-radius:6px;margin:0 auto 10px;"></div>'
+      + '<div style="width:120px;height:8px;background:rgba(255,255,255,0.05);border-radius:6px;margin:0 auto;"></div>'
+      + '</div>';
+    fetchStripeStatus(customerId, el, plan);
+  } else {
+    // No customer ID yet — show activate CTA
+    renderMembershipActivate(el);
+  }
+}
+
+async function fetchStripeStatus(customerId, el, fallbackPlan){
+  try{
+    var res = await fetch('/api/stripe?action=status?customerId=' + customerId);
+    if(!res.ok) throw new Error('API error');
+    var data = await res.json();
+
+    // Cache for offline use
+    localStorage.setItem('peptrak_sub_cache', JSON.stringify({ts: Date.now(), data: data}));
+    renderMembershipCard(el, data);
+
+  }catch(err){
+    // Network error — try cached data
+    var cached = null;
+    try{ cached = JSON.parse(localStorage.getItem('peptrak_sub_cache')||'null'); }catch(e){}
+    if(cached && cached.data && (Date.now() - cached.ts) < 3600000){
+      renderMembershipCard(el, cached.data);
+    } else {
+      // Complete fallback from localStorage
+      renderMembershipFallback(el, fallbackPlan);
+    }
+  }
+}
+
+function renderMembershipCard(el, data){
+  // data: { status, plan, amountStr, trialDaysLeft, nextBillingDate, cancelAtPeriodEnd, cardLast4 }
+  var status = data.status || 'trialing';
+  var isCanceling = data.cancelAtPeriodEnd;
+
+  var statusLabel, statusColor, statusBg;
+  if(status === 'trialing'){
+    statusLabel = data.trialDaysLeft > 0 ? data.trialDaysLeft + 'd trial left' : 'Trial ending';
+    statusColor = '#F0A500'; statusBg = 'rgba(240,165,0,0.15)';
+  } else if(status === 'active'){
+    statusLabel = isCanceling ? 'Cancels ' + data.nextBillingDate : 'ACTIVE';
+    statusColor = isCanceling ? '#FF6B6B' : 'var(--green)';
+    statusBg = isCanceling ? 'rgba(255,59,48,0.12)' : 'rgba(0,192,118,0.12)';
+  } else if(status === 'past_due'){
+    statusLabel = 'PAST DUE';
+    statusColor = 'var(--red)'; statusBg = 'rgba(255,59,48,0.15)';
+  } else if(status === 'canceled'){
+    statusLabel = 'CANCELED';
+    statusColor = 'var(--gray-4)'; statusBg = 'rgba(255,255,255,0.07)';
+  } else {
+    statusLabel = status.toUpperCase();
+    statusColor = 'var(--gray-4)'; statusBg = 'rgba(255,255,255,0.07)';
+  }
+
+  // Build billing cells
+  var cells = '';
+  if(status === 'trialing' && data.trialDaysLeft > 0){
+    cells += billingCell(data.trialDaysLeft + ' days', 'Trial Remaining');
+    cells += billingCell(data.nextBillingDate, 'First Charge');
+    cells += billingCell(data.plan === 'annual' ? 'Annual' : 'Monthly', 'Billing Cycle');
+  } else if(status === 'active'){
+    cells += billingCell(data.nextBillingDate, isCanceling ? 'Access Until' : 'Next Billing');
+    cells += billingCell(data.plan === 'annual' ? 'Annual' : 'Monthly', 'Billing Cycle');
+    if(data.cardLast4) cells += billingCell('···· ' + data.cardLast4, 'Payment Method');
+  } else if(status === 'past_due'){
+    cells += billingCell(data.nextBillingDate, 'Due Date');
+    cells += billingCell(data.plan === 'annual' ? 'Annual' : 'Monthly', 'Billing Cycle');
+  }
+
+  // Past due alert
+  var alertHtml = '';
+  if(status === 'past_due'){
+    alertHtml = '<div style="background:rgba(255,59,48,0.1);border:1px solid rgba(255,59,48,0.2);border-radius:10px;padding:10px 14px;margin:12px 0;font-size:12px;color:#FF6B6B;line-height:1.5;">'
+      + '⚠️ Your last payment failed. Please update your payment method to keep access.'
+      + '</div>';
+  }
+
+  el.innerHTML = '<div class="membership-main">'
+    + '<div class="membership-icon">🧬</div>'
+    + '<div class="membership-info">'
+    + '<div class="membership-plan">PepTrak Pro</div>'
+    + '<div class="membership-billing">' + (data.amountStr || '') + '</div>'
+    + '</div>'
+    + '<div class="membership-status" style="background:'+statusBg+';color:'+statusColor+';border:none;font-size:10px;font-weight:700;letter-spacing:0.04em;padding:4px 10px;border-radius:20px;">'+statusLabel+'</div>'
+    + '</div>'
+    + (cells ? '<div class="billing-row">' + cells + '</div>' : '')
+    + alertHtml
+    + '<div class="membership-divider"></div>'
+    + '<div class="membership-actions">'
+    + (status === 'past_due'
+        ? '<button class="membership-action primary" onclick="openBillingPortal()">Update Payment Method</button>'
+        : isCanceling
+          ? '<button class="membership-action primary" onclick="openBillingPortal()">Reactivate</button>'
+          : '<button class="membership-action" onclick="openBillingPortal()">Manage Subscription</button>'
+      )
+    + '</div>';
+}
+
+function billingCell(val, lbl){
+  return '<div class="billing-cell">'
+    + '<div class="billing-val">'+val+'</div>'
+    + '<div class="billing-lbl">'+lbl+'</div>'
+    + '</div>';
+}
+
+function renderMembershipActivate(el){
+  el.innerHTML = '<div class="membership-main">'
+    + '<div class="membership-icon">🧬</div>'
+    + '<div class="membership-info"><div class="membership-plan">PepTrak Pro</div><div class="membership-billing">21-day free trial · then $12/mo</div></div>'
+    + '</div>'
+    + '<div class="membership-divider"></div>'
+    + '<div class="membership-actions">'
+    + '<button class="membership-action primary" onclick="window.location.href=\'/checkout\'">Activate Subscription</button>'
+    + '</div>';
+}
+
+function renderMembershipFallback(el, plan){
+  // Use localStorage timestamps as best guess
+  var trialEndStr = localStorage.getItem('peptrak_trial_end');
+  var periodEndStr = localStorage.getItem('peptrak_period_end');
+  var status = localStorage.getItem('peptrak_subscription_status') || 'trialing';
+  var now = Date.now();
+
+  var trialDaysLeft = null;
+  if(trialEndStr){
+    var trialEndMs = new Date(trialEndStr).getTime();
+    trialDaysLeft = Math.max(0, Math.ceil((trialEndMs - now) / 86400000));
+  }
+  var nextDate = periodEndStr
+    ? new Date(periodEndStr).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'})
+    : '—';
+
+  renderMembershipCard(el, {
+    status: trialDaysLeft > 0 ? 'trialing' : status,
+    plan: plan || 'monthly',
+    amountStr: plan === 'annual' ? '$12/mo · billed $149/yr' : '$24.99/mo',
+    trialDaysLeft: trialDaysLeft,
+    nextBillingDate: nextDate,
+    cancelAtPeriodEnd: false,
+    cardLast4: null,
+  });
+}
+
+async function openBillingPortal(){
+  var customerId = localStorage.getItem('peptrak_stripe_customer_id');
+  if(!customerId){ window.location.href = '/checkout'; return; }
+  try{
+    var res = await fetch('/api/stripe?action=portal', {
+      method: 'POST',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({ customerId: customerId, returnUrl: window.location.href })
+    });
+    var data = await res.json();
+    if(data.url) window.location.href = data.url;
+    else throw new Error('No portal URL');
+  }catch(err){
+    // Fallback: open Stripe's generic portal
+    window.open('https://billing.stripe.com', '_blank');
+  }
+}
+
+
+function renderCycles(){
+  var el=document.getElementById('cycleHistCard');
+  if(!el) return;
+  var cycles=[];
+  try{cycles=JSON.parse(localStorage.getItem('peptrak_cycle_history')||'[]');}catch(e){}
+  if(!cycles.length){
+    el.innerHTML='<div class="recap-hist-empty"><div class="recap-hist-empty-icon">🧬</div>No cycles yet — generate your first protocol to begin.</div>';
+    return;
+  }
+  el.innerHTML=cycles.map(function(c,i){
+    var isActive=i===0;
+    var compStr=(c.compounds||[]).slice(0,3).join(' · ');
+    if((c.compounds||[]).length>3) compStr+=' +'+(c.compounds.length-3)+' more';
+    var id='cy'+i;
+    return '<div class="recap-row" onclick="toggleRecap(\'' + id + '\')">'
+      +'<div class="recap-row-header">'
+      +'<div class="recap-week-dot '+(isActive?'green':'gray')+'"></div>'
+      +'<div class="recap-row-week">Cycle '+c.cycle+' · '+c.goal+'</div>'
+      +'<div class="recap-row-date">'+c.date+'</div>'
+      +'<div class="recap-row-adh '+(isActive?'green':'')+'">'+c.duration+'</div>'
+      +'<div class="recap-chevron" id="recap-chev-'+id+'"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="9 18 15 12 9 6"/></svg></div>'
+      +'</div>'
+      +'<div class="recap-detail" id="recap-detail-'+id+'">'
+      +'<div style="font-size:12px;color:var(--gray-5);padding:4px 0 8px;line-height:1.6;">'+(compStr||'No compounds recorded')+'</div>'
+      +(isActive?'<div style="font-size:11px;font-weight:700;color:var(--green);padding:4px 0;">● Active cycle</div>':'<div style="font-size:11px;color:var(--gray-4);padding:4px 0;">Completed '+c.date+'</div>')
+      +'</div>'
+      +'</div>';
+  }).join('');
+}
+function renderRecaps(){
+  var el=document.getElementById('recapHistCard');
+  if(!el) return;
+  var recaps=[];
+  try{recaps=JSON.parse(localStorage.getItem('peptrak_weekly_recaps')||'[]');}catch(e){}
+  if(!recaps.length){
+    el.innerHTML='<div class="recap-hist-empty"><div class="recap-hist-empty-icon">\ud83d\udccb</div>No recaps yet \u2014 check back Sunday.</div>';
+    return;
+  }
+  el.innerHTML=recaps.map(function(r,i){
+    var adh=r.adherence;
+    var dotCls=adh>=85?'green':adh>=60?'gold':adh!==null?'red':'gray';
+    var adhDisplay=adh!==null?adh+'%':'\u2014';
+    var adhCls=adh>=85?'green':adh>=60?'gold':adh!==null?'red':'';
+    var bestDay=r.bestDay?r.bestDay.label:'\u2014';
+    var worstDay=(r.worstDay&&r.worstDay.label!==bestDay)?r.worstDay.label:'\u2014';
+    var sidesStr=r.sides&&r.sides.length?r.sides.join(', '):'None';
+    var commentary=r.commentary?'\u201c'+r.commentary+'\u201d':'';
+    var dateStr=r.date?new Date(r.date).toLocaleDateString('en-US',{month:'short',day:'numeric'}):'';
+    return '<div class="recap-row" onclick="toggleRecap('+i+')">'
+      +'<div class="recap-row-header">'
+      +'<div class="recap-week-dot '+dotCls+'"></div>'
+      +'<div class="recap-row-week">'+(r.weekLabel||r.week)+'</div>'
+      +'<div class="recap-row-date">'+dateStr+'</div>'
+      +'<div class="recap-row-adh '+adhCls+'">'+adhDisplay+'</div>'
+      +'<div class="recap-chevron" id="recap-chev-'+i+'"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="9 18 15 12 9 6"/></svg></div>'
+      +'</div>'
+      +'<div class="recap-detail" id="recap-detail-'+i+'">'
+      +'<div class="recap-detail-grid">'
+      +'<div class="recap-detail-stat"><div class="recap-detail-val">'+adhDisplay+'</div><div class="recap-detail-lbl">Adherence</div></div>'
+      +'<div class="recap-detail-stat"><div class="recap-detail-val">'+bestDay+'</div><div class="recap-detail-lbl">Best Day</div></div>'
+      +'<div class="recap-detail-stat"><div class="recap-detail-val">'+worstDay+'</div><div class="recap-detail-lbl">Worst Day</div></div>'
+      +'</div>'
+      +(commentary?'<div class="recap-commentary">'+commentary+'</div>':'')
+      +'<div class="recap-sides-line">Side effects: <span>'+sidesStr+'</span></div>'
+      +'</div>'
+      +'</div>';
+  }).join('');
+}
+
+function toggleRecap(i){
+  var detail=document.getElementById('recap-detail-'+i);
+  var chev=document.getElementById('recap-chev-'+i);
+  if(!detail) return;
+  var isOpen=detail.classList.contains('open');
+  document.querySelectorAll('.recap-detail').forEach(function(d){d.classList.remove('open');});
+  document.querySelectorAll('.recap-chevron').forEach(function(c){c.classList.remove('open');});
+  if(!isOpen){detail.classList.add('open');if(chev)chev.classList.add('open');}
+}
+
+function openEdit(){
+  var p=load(KEYS.profile)||{},i=load(KEYS.intake)||{};
+  document.getElementById('editName').value=p.name||i.name||i.first_name||i.firstName||'';
+  document.getElementById('editGoal').value=p.goal||i.primaryGoal||i.goal||'';
+  document.getElementById('editOverlay').classList.add('open');
+}
+function closeEdit(){document.getElementById('editOverlay').classList.remove('open');}
+function closeIfBg(e){if(e.target===document.getElementById('editOverlay'))closeEdit();}
+function saveEdit(){
+  var p=load(KEYS.profile)||{};
+  var n=document.getElementById('editName').value.trim();
+  var g=document.getElementById('editGoal').value.trim();
+  if(n)p.name=n;if(g)p.goal=g;
+  save(KEYS.profile,p);closeEdit();showToast('Profile updated');loadPage();
+}
+function showToast(msg){
+  var t=document.getElementById('save-toast');
+  t.textContent=msg;t.style.display='block';t.style.opacity='1';
+  setTimeout(function(){t.style.opacity='0';setTimeout(function(){t.style.display='none';},300);},1800);
+}
+function logout(){
+  var modal = document.getElementById('logout-modal');
+  if(modal) modal.style.display='flex';
+}
+function confirmLogout(){
+  // Clear all auth and session keys — data (protocol, tracker, intake) preserved for same-device re-login
+  var AUTH_KEYS = [
+    'peptrak_paid','peptrak_paid_ts',
+    'peptrak_auth_email','peptrak_auth_pw',
+    'peptrak_test_account',
+    'peptrak_stripe_customer_id','peptrak_stripe_subscription_id',
+    'peptrak_subscription_status','peptrak_trial_end','peptrak_period_end'
+  ];
+  AUTH_KEYS.forEach(function(k){ localStorage.removeItem(k); });
+  sessionStorage.clear();
+  window.location.href = '/';
+}
+function closeLogoutModal(){
+  var modal = document.getElementById('logout-modal');
+  if(modal) modal.style.display='none';
+}
+function resetData(){
+  var modal = document.getElementById('reset-modal');
+  if(modal) modal.style.display='flex';
+}
+function confirmReset(){
+  var val = (document.getElementById('reset-input')||{value:''}).value.trim().toUpperCase();
+  if(val !== 'RESET'){
+    var err = document.getElementById('reset-err');
+    if(err){err.style.display='block';err.textContent='Type RESET in all caps to confirm.';}
+    return;
+  }
+  // Clear all data AND auth keys — full wipe
+  ['peptrak_protocol','peptrak_intake','peptrak_tracker','peptrak_protocol_start',
+   'peptrak_lib_saved','peptrak_lib_recent','peptrak_custom_stack','peptrak_profile',
+   'peptrak_intake_ts','peptrak_protocol_ts','peptrak_weekly_recaps','peptrak_alex_memory',
+   'peptrak_chat_history','peptrak_paid','peptrak_paid_ts',
+   'peptrak_auth_email','peptrak_auth_pw','peptrak_test_account',
+   'peptrak_stripe_customer_id','peptrak_stripe_subscription_id',
+   'peptrak_subscription_status','peptrak_trial_end','peptrak_period_end',
+   'peptrak_aff_code','peptrak_ref_code','peptrak_response_profile_v1',
+   'peptrak_body_metrics','peptrak_advisor_context','peptrak_alex_memory',
+   'peptrak_cycle_history','peptrak_sub_cache'].forEach(function(k){localStorage.removeItem(k);});
+  sessionStorage.clear();
+  window.location.href='/onboarding';
+}
+function closeResetModal(){
+  var modal = document.getElementById('reset-modal');
+  if(modal) modal.style.display='none';
+  var inp = document.getElementById('reset-input');
+  if(inp) inp.value='';
+  var err = document.getElementById('reset-err');
+  if(err) err.style.display='none';
+}
+
+loadPage();
+</script>
+</body>
+</html>

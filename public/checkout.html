@@ -1,0 +1,1350 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"/>
+<title>PepTrak — Unlock Your Protocol</title>
+<script src="https://js.stripe.com/v3/"></script>
+<script>
+if(typeof Stripe==='undefined'){
+  window.Stripe=function(){return{
+    elements:function(){return{create:function(){return{mount:function(){},on:function(){return this;}};}};},
+    createPaymentMethod:async function(){return{paymentMethod:{id:'pm_stub'}};},
+    confirmCardPayment:async function(){return{};}
+  };};
+}
+</script>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+html{-webkit-text-size-adjust:100%;}
+:root{
+  --blue:#0876FF;
+  --blue-dark:#0557CC;
+  --blue-pale:#EEF4FF;
+  --ink:#07090D;
+  --ink-2:#1A1D23;
+  --gray-1:#F7F8FA;
+  --gray-2:#EAECF0;
+  --gray-3:#C8CDD6;
+  --gray-4:#8A919E;
+  --gray-5:#545B67;
+  --white:#FFFFFF;
+  --green:#00C076;
+  --green-pale:#E6FAF3;
+  --red:#FF3B30;
+  --gold:#F0A500;
+  --font:-apple-system,BlinkMacSystemFont,'SF Pro Display','SF Pro Text','Helvetica Neue',sans-serif;
+}
+body{
+  font-family:var(--font);
+  background:var(--gray-1);
+  color:var(--ink);
+  -webkit-font-smoothing:antialiased;
+  min-height:100svh;
+  overflow-x:hidden;
+}
+
+/* ── HEADER ── */
+.hdr{
+  background:rgba(255,255,255,0.96);
+  backdrop-filter:blur(20px);
+  border-bottom:1px solid var(--gray-2);
+  height:56px;
+  display:flex;align-items:center;justify-content:space-between;
+  padding:0 20px;
+  position:sticky;top:0;z-index:100;
+}
+.hdr-logo{
+  display:flex;align-items:center;gap:7px;
+  font-size:16px;font-weight:700;color:var(--ink);
+  text-decoration:none;
+}
+.hdr-mark{
+  width:26px;height:26px;border-radius:7px;
+  background:var(--blue);
+  display:flex;align-items:center;justify-content:center;
+  font-size:12px;font-weight:800;color:#fff;
+}
+.hdr-timer{
+  display:flex;align-items:center;gap:6px;
+  font-size:12px;font-weight:600;color:var(--blue);
+  background:var(--blue-pale);padding:5px 11px;border-radius:20px;
+  border:1px solid rgba(8,118,255,0.12);
+}
+.timer-dot{
+  width:6px;height:6px;border-radius:50%;background:var(--blue);
+  animation:blink 1.4s ease-in-out infinite;
+}
+@keyframes blink{0%,100%{opacity:1;}50%{opacity:0.25;}}
+.hdr-secure{
+  display:flex;align-items:center;gap:5px;
+  font-size:11px;color:var(--gray-4);font-weight:500;
+}
+
+/* ── PAGE ── */
+.page{
+  max-width:520px;margin:0 auto;
+  padding:24px 16px 80px;
+}
+
+/* ── SECTION SPACING ── */
+.section{margin-bottom:14px;}
+
+/* ── HERO ── */
+.hero{text-align:center;margin-bottom:20px;padding:0 4px;}
+.hero-eyebrow{
+  display:inline-flex;align-items:center;gap:6px;
+  font-size:11px;font-weight:600;letter-spacing:0.09em;
+  text-transform:uppercase;color:var(--blue);
+  margin-bottom:10px;
+}
+.hero-dot{width:5px;height:5px;border-radius:50%;background:var(--blue);}
+.hero-title{
+  font-size:clamp(24px,5.5vw,32px);
+  font-weight:700;letter-spacing:-0.8px;
+  line-height:1.1;color:var(--ink);
+  margin-bottom:8px;
+}
+.hero-title em{
+  font-style:normal;color:var(--blue);
+}
+.hero-sub{
+  font-size:14px;color:var(--gray-5);
+  line-height:1.6;max-width:380px;margin:0 auto;
+}
+
+/* ── BLURRED PROTOCOL CARD ── */
+.protocol-card{
+  background:var(--white);
+  border:1px solid var(--gray-2);
+  border-radius:18px;padding:16px 18px;
+  box-shadow:0 1px 4px rgba(0,0,0,0.04);
+}
+.pc-header{
+  display:flex;align-items:center;justify-content:space-between;
+  margin-bottom:10px;
+}
+.pc-label{
+  font-size:10px;font-weight:700;letter-spacing:0.1em;
+  text-transform:uppercase;color:var(--blue);
+}
+.pc-count{
+  display:flex;align-items:center;gap:5px;
+  font-size:11px;font-weight:500;color:var(--gray-4);
+}
+.compound-list{display:flex;flex-direction:column;gap:6px;}
+.compound-row{
+  display:flex;align-items:center;justify-content:space-between;
+  background:var(--gray-1);
+  border:1px solid var(--gray-2);
+  border-radius:11px;padding:10px 14px;gap:12px;
+}
+.c-left{flex:1;min-width:0;}
+.c-name{
+  font-size:13px;font-weight:600;color:var(--ink);
+  margin-bottom:2px;
+  filter:blur(5px);user-select:none;
+}
+.c-dose{
+  font-size:16px;color:var(--gray-4);
+  filter:blur(4px);user-select:none;
+}
+.c-right{flex-shrink:0;text-align:right;}
+.c-score{font-size:14px;font-weight:700;color:var(--green);}
+.c-score-lbl{font-size:9px;color:var(--gray-4);letter-spacing:0.07em;text-transform:uppercase;}
+.pc-lock{
+  display:flex;align-items:center;gap:6px;
+  margin-top:10px;padding-top:10px;
+  border-top:1px solid var(--gray-2);
+  font-size:11px;color:var(--gray-3);
+}
+
+/* ── PLAN TOGGLE ── */
+
+
+/* ── PLAN INSIDE CARD ── */
+.plan-inside-card{
+  padding:16px 18px 0;
+}
+.plan-tabs{
+  display:grid;grid-template-columns:1fr 1fr;
+  background:var(--gray-2);
+  border-radius:10px;padding:3px;gap:3px;
+  margin-bottom:12px;
+}
+.plan-tab{
+  padding:9px 8px;border-radius:8px;
+  cursor:pointer;transition:all 0.18s;
+  display:flex;align-items:center;justify-content:center;gap:6px;
+  font-size:13px;font-weight:500;color:var(--gray-4);
+  background:transparent;border:none;font-family:var(--font);
+}
+.plan-tab.active{
+  background:var(--white);
+  color:var(--ink);font-weight:700;
+  box-shadow:0 2px 8px rgba(0,0,0,0.1),0 1px 2px rgba(0,0,0,0.06);
+}
+.plan-tab#tab-annual.active{
+  color:var(--blue);
+}
+.plan-badge{
+  background:var(--gold);color:#fff;
+  font-size:9px;font-weight:800;letter-spacing:0.05em;
+  text-transform:uppercase;padding:2px 6px;border-radius:5px;flex-shrink:0;
+}
+.plan-detail{
+  display:none;
+  align-items:center;justify-content:space-between;
+  gap:8px;padding-bottom:14px;
+}
+.plan-detail.show{display:flex;}
+.pd-left{display:flex;align-items:baseline;gap:6px;}
+.pd-price{
+  font-size:22px;font-weight:700;letter-spacing:-0.8px;color:var(--ink);
+}
+.pd-per{font-size:13px;color:var(--gray-4);font-weight:400;letter-spacing:0;}
+.pd-sub{font-size:11px;color:var(--gray-4);margin-left:2px;}
+.pd-save{
+  background:var(--green-pale);color:var(--green);
+  font-size:12px;font-weight:700;padding:4px 11px;
+  border-radius:20px;white-space:nowrap;flex-shrink:0;
+}
+.plan-divider{height:1px;background:var(--gray-2);margin:0 -18px 0;}
+
+/* ── PAYMENT CARD ── */
+.pay-card{
+  background:var(--white);
+  border:1px solid var(--gray-2);
+  border-radius:18px;overflow:hidden;
+  box-shadow:0 4px 24px rgba(0,0,0,0.08),0 1px 3px rgba(0,0,0,0.04);
+}
+.pay-card-top{
+  background:var(--blue-pale);
+  border-bottom:1px solid rgba(8,118,255,0.08);
+  padding:14px 18px;
+}
+.pct-row{display:flex;align-items:baseline;gap:8px;margin-bottom:5px;}
+.pct-free{
+  font-size:30px;font-weight:700;letter-spacing:-1.5px;color:var(--ink);
+}
+.pct-today{font-size:13px;color:var(--gray-4);font-weight:400;}
+.pct-trial{
+  display:flex;align-items:center;gap:6px;
+  font-size:12px;font-weight:500;color:var(--gray-5);
+}
+.pct-trial strong{color:var(--blue);font-weight:600;}
+
+.pay-card-body{padding:16px 18px 18px;}
+
+/* Express pay */
+.express-wrap{margin-bottom:14px;}
+.express-lbl{
+  font-size:10px;font-weight:600;letter-spacing:0.07em;
+  text-transform:uppercase;color:var(--gray-3);
+  margin-bottom:7px;text-align:center;
+}
+#express-el{min-height:44px;}
+.divider{
+  display:flex;align-items:center;gap:10px;
+  margin-bottom:10px;
+}
+.div-line{flex:1;height:1px;background:var(--gray-2);}
+.div-txt{font-size:11px;font-weight:400;color:var(--gray-3);white-space:nowrap;}
+
+/* Fields */
+.fields{display:flex;flex-direction:column;gap:9px;margin-bottom:12px;}
+.field-row{display:flex;gap:8px;}
+.field-row .field:first-child{flex:0.9;}
+.field-row .field:last-child{flex:1.1;}
+.field-row .field{flex:1;}
+.field{display:flex;flex-direction:column;gap:5px;}
+.flbl{
+  font-size:10px;font-weight:600;letter-spacing:0.07em;
+  text-transform:uppercase;color:var(--gray-4);
+}
+.finput{
+  width:100%;padding:11px 13px;
+  border:1.5px solid var(--gray-2);border-radius:11px;
+  font-size:16px;color:var(--ink);font-family:var(--font);
+  background:#fff;outline:none;
+  -webkit-appearance:none;
+  transition:border-color 0.18s,box-shadow 0.18s;
+}
+.finput:focus{
+  border-color:var(--blue);
+  box-shadow:0 0 0 3px rgba(8,118,255,0.08);
+}
+.finput::placeholder{color:var(--gray-3);}
+.stripe-el{
+  padding:11px 13px;
+  border:1.5px solid var(--gray-2);border-radius:11px;
+  background:#fff;min-height:42px;
+  transition:border-color 0.18s,box-shadow 0.18s;
+}
+.stripe-el.focused{
+  border-color:var(--blue);
+  box-shadow:0 0 0 3px rgba(8,118,255,0.08);
+}
+.stripe-el.invalid{border-color:var(--red);}
+
+/* Error */
+.err-box{
+  display:none;font-size:12px;color:var(--red);
+  background:#FFF1F0;border-radius:9px;
+  padding:10px 13px;margin-bottom:10px;
+  align-items:center;gap:7px;
+}
+.err-box.show{display:flex;}
+
+/* CTA */
+.btn-pay{
+  width:100%;padding:17px;
+  background:linear-gradient(160deg,#1A8CFF 0%,var(--blue) 50%,var(--blue-dark) 100%);
+  color:#fff;border:none;
+  border-radius:980px;
+  font-size:16px;font-weight:600;letter-spacing:-0.2px;
+  font-family:var(--font);cursor:pointer;
+  transition:opacity 0.2s,transform 0.15s,box-shadow 0.2s;
+  box-shadow:0 4px 20px rgba(8,118,255,0.35),0 1px 3px rgba(8,118,255,0.2);
+  display:flex;align-items:center;justify-content:center;gap:8px;
+  position:relative;overflow:hidden;
+}
+.btn-pay::after{
+  content:'';position:absolute;inset:0;
+  background:linear-gradient(180deg,rgba(255,255,255,0.1) 0%,transparent 60%);
+  pointer-events:none;
+}
+.btn-pay:hover:not(:disabled){
+  opacity:0.92;
+  transform:translateY(-1px);
+  box-shadow:0 7px 24px rgba(8,118,255,0.42);
+}
+.btn-pay:disabled{opacity:0.4;cursor:not-allowed;box-shadow:none;}
+.spinner{
+  display:none;width:16px;height:16px;
+  border:2px solid rgba(255,255,255,0.3);
+  border-top-color:#fff;border-radius:50%;
+  animation:spin 0.65s linear infinite;
+}
+@keyframes spin{to{transform:rotate(360deg);}}
+.btn-micro{
+  display:flex;align-items:center;justify-content:center;gap:5px;
+  font-size:11px;color:var(--gray-3);margin-top:9px;
+}
+
+/* Trust row */
+.trust{
+  display:flex;align-items:center;justify-content:center;
+  gap:12px;margin-top:12px;padding-top:12px;
+  border-top:1px solid var(--gray-2);
+  flex-wrap:wrap;
+}
+.trust-item{
+  display:flex;align-items:center;gap:4px;
+  font-size:10px;color:var(--gray-4);font-weight:500;
+  white-space:nowrap;
+}
+
+/* ── BELOW FORM: reassurance ── */
+.reassurance{margin-top:14px;display:flex;flex-direction:column;gap:10px;}
+.reassurance > *{animation:fadeUp 0.45s ease both;}
+.reassurance > *:nth-child(1){animation-delay:0.1s;}
+.reassurance > *:nth-child(2){animation-delay:0.15s;}
+.reassurance > *:nth-child(3){animation-delay:0.2s;}
+.reassurance > *:nth-child(4){animation-delay:0.25s;}
+.reassurance > *:nth-child(5){animation-delay:0.3s;}
+.reassurance > *:nth-child(6){animation-delay:0.35s;}
+
+/* Proof */
+.proof-row{
+  display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;
+}
+.proof-item{
+  background:var(--white);border:1px solid var(--gray-2);
+  border-radius:14px;padding:13px 10px;text-align:center;
+  box-shadow:0 1px 3px rgba(0,0,0,0.03);
+}
+.proof-num{font-size:17px;font-weight:700;letter-spacing:-0.5px;color:var(--ink);}
+.proof-lbl{font-size:10px;color:var(--gray-4);margin-top:2px;line-height:1.4;}
+
+/* Feature list */
+.feature-list{
+  background:var(--white);border:1px solid var(--gray-2);
+  border-radius:18px;padding:16px 18px;
+  display:flex;flex-direction:column;gap:11px;
+  box-shadow:0 1px 3px rgba(0,0,0,0.03);
+}
+.feature-row{display:flex;align-items:flex-start;gap:10px;}
+.feat-check{
+  width:18px;height:18px;border-radius:50%;
+  background:var(--green-pale);
+  display:flex;align-items:center;justify-content:center;
+  flex-shrink:0;margin-top:1px;
+}
+.feat-text{font-size:13px;color:var(--gray-5);line-height:1.6;}
+.feat-text strong{color:var(--ink);font-weight:500;}
+
+/* Testimonial */
+.testi{
+  background:var(--white);border:1px solid var(--gray-2);
+  border-radius:18px;padding:16px 18px;
+  box-shadow:0 1px 3px rgba(0,0,0,0.03);
+}
+.testi-stars{font-size:12px;letter-spacing:1px;color:var(--gold);margin-bottom:8px;}
+.testi-quote{font-size:13px;color:var(--gray-5);line-height:1.6;font-style:italic;margin-bottom:12px;}
+.testi-author{display:flex;align-items:center;gap:9px;}
+.testi-avatar{
+  width:32px;height:32px;border-radius:50%;
+  background:linear-gradient(135deg,var(--blue),#60A5FA);
+  display:flex;align-items:center;justify-content:center;
+  font-size:13px;font-weight:700;color:#fff;flex-shrink:0;
+}
+.testi-name{font-size:12px;font-weight:600;color:var(--ink);}
+.testi-detail{font-size:11px;color:var(--gray-4);}
+
+/* Guarantee */
+.guarantee{
+  display:flex;align-items:flex-start;gap:12px;
+  background:var(--green-pale);
+  border:1px solid rgba(0,192,118,0.18);
+  border-radius:16px;padding:14px 18px;
+}
+.guarantee-text{font-size:13px;color:#065F46;line-height:1.6;}
+.guarantee-text strong{font-weight:600;}
+
+/* Disclaimer */
+.disclaimer{
+  font-size:11px;color:var(--gray-3);
+  text-align:center;line-height:1.7;
+  padding:4px 16px 0;
+}
+
+/* ── SUCCESS ── */
+.success-wrap{
+  display:none;flex-direction:column;align-items:center;
+  text-align:center;padding:12px 0;
+}
+.success-wrap.show{display:flex;}
+.success-ring{
+  width:68px;height:68px;border-radius:50%;
+  background:var(--green-pale);
+  display:flex;align-items:center;justify-content:center;
+  margin-bottom:14px;
+  animation:pop 0.35s cubic-bezier(0.34,1.56,0.64,1);
+}
+@keyframes pop{from{transform:scale(0.5);opacity:0;}to{transform:scale(1);opacity:1;}}
+.success-title{
+  font-size:22px;font-weight:700;letter-spacing:-0.4px;
+  color:var(--ink);margin-bottom:8px;
+}
+.success-sub{font-size:14px;color:var(--gray-5);line-height:1.65;margin-bottom:20px;}
+.btn-go{
+  background:var(--blue);color:#fff;border:none;
+  border-radius:980px;font-size:15px;font-weight:600;
+  padding:14px 32px;cursor:pointer;font-family:var(--font);
+  box-shadow:0 4px 14px rgba(8,118,255,0.28);
+}
+
+/* ── FAQ ── */
+.faq-wrap{
+  background:var(--white);border:1px solid var(--gray-2);
+  border-radius:16px;overflow:hidden;
+}
+.faq-title{
+  font-size:10px;font-weight:700;letter-spacing:0.1em;
+  text-transform:uppercase;color:var(--gray-4);
+  padding:14px 18px 12px;border-bottom:1px solid var(--gray-2);
+}
+.faq-item{border-bottom:1px solid var(--gray-2);}
+.faq-item:last-child{border-bottom:none;}
+.faq-q{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:13px 18px;gap:12px;
+  font-size:13px;font-weight:500;color:var(--ink);
+  cursor:pointer;user-select:none;
+  -webkit-tap-highlight-color:transparent;
+}
+.faq-q:hover{background:var(--gray-1);}
+.faq-chevron{flex-shrink:0;transition:transform 0.2s;color:var(--gray-4);}
+.faq-item.open .faq-chevron{transform:rotate(180deg);}
+.faq-a{
+  display:none;
+  padding:2px 18px 14px;
+  font-size:13px;color:var(--gray-5);line-height:1.65;
+}
+.faq-item.open .faq-a{display:block;}
+
+/* ── SECOND CTA ── */
+.second-cta{padding:2px 0 4px;}
+
+
+.modal-overlay{
+  display:none;position:fixed;inset:0;z-index:999;
+  background:rgba(7,9,13,0.55);
+  backdrop-filter:blur(8px);
+  align-items:flex-end;justify-content:center;
+  padding:0;
+}
+.modal-overlay.show{display:flex;}
+.modal{
+  background:#fff;
+  border-radius:24px 24px 0 0;
+  padding:28px 24px calc(28px + env(safe-area-inset-bottom));
+  width:100%;max-width:520px;
+  position:relative;
+  animation:slideUp 0.3s cubic-bezier(0.4,0,0.2,1);
+}
+@keyframes slideUp{from{transform:translateY(100%);}to{transform:translateY(0);}}
+.modal-handle{
+  width:36px;height:4px;background:var(--gray-2);
+  border-radius:2px;margin:0 auto 20px;
+}
+.modal-close{
+  position:absolute;top:16px;right:16px;
+  width:28px;height:28px;border-radius:50%;
+  background:var(--gray-1);border:none;cursor:pointer;
+  font-size:14px;color:var(--gray-4);
+  display:flex;align-items:center;justify-content:center;
+}
+.modal-title{
+  font-size:20px;font-weight:700;letter-spacing:-0.4px;
+  color:var(--ink);margin-bottom:8px;
+}
+.modal-sub{font-size:14px;color:var(--gray-5);line-height:1.6;margin-bottom:18px;}
+.modal-input{
+  width:100%;padding:13px 14px;
+  border:1.5px solid var(--gray-2);border-radius:11px;
+  font-size:16px;font-family:var(--font);color:var(--ink);
+  background:#fff;outline:none;margin-bottom:10px;
+  -webkit-appearance:none;
+  transition:border-color 0.18s;
+}
+.modal-input:focus{border-color:var(--blue);}
+.modal-btn{
+  width:100%;padding:14px;
+  background:var(--ink);color:#fff;border:none;
+  border-radius:980px;font-size:15px;font-weight:600;
+  cursor:pointer;font-family:var(--font);
+}
+.modal-skip{
+  display:block;text-align:center;width:100%;
+  font-size:12px;color:var(--gray-4);margin-top:10px;
+  background:none;border:none;cursor:pointer;font-family:var(--font);
+}
+
+/* ── ANIMATIONS ── */
+@keyframes fadeUp{from{opacity:0;transform:translateY(14px);}to{opacity:1;transform:none;}}
+.page > *{animation:fadeUp 0.45s ease both;}
+.page > *:nth-child(1){animation-delay:0.04s;}
+.page > *:nth-child(2){animation-delay:0.08s;}
+.page > *:nth-child(3){animation-delay:0.12s;}
+.page > *:nth-child(4){animation-delay:0.16s;}
+.page > *:nth-child(5){animation-delay:0.20s;}
+.page > *:nth-child(6){animation-delay:0.24s;}
+</style>
+</head>
+<body>
+
+<header class="hdr">
+  <a href="/" class="hdr-logo">
+    <div class="hdr-mark">P</div>
+    PepTrak
+  </a>
+  <div class="hdr-timer" id="hdr-timer">
+    <div class="timer-dot"></div>
+    Protocol saved &nbsp;·&nbsp; 21-day free trial
+  </div>
+
+</header>
+
+<div class="page">
+
+  <!-- 1. HERO -->
+  <div class="hero section">
+    <div class="hero-eyebrow"><div class="hero-dot"></div>21-day free trial</div>
+    <h1 class="hero-title" id="hero-title">Unlock your<br><em>personalized protocol.</em></h1>
+    <p class="hero-sub" id="hero-sub">Your 3-compound stack is ready. Start your free trial to access it — no charge for 21 days.</p>
+  </div>
+
+  <!-- 2. BLURRED PROTOCOL CARD -->
+  <div class="protocol-card section">
+    <div class="pc-header">
+      <div class="pc-label" id="pc-label">Your Protocol</div>
+      <div class="pc-count">
+        <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>
+        3 compounds selected
+      </div>
+    </div>
+    <div class="compound-list">
+      <div class="compound-row">
+        <div class="c-left">
+          <div class="c-name" id="c1n">Retatrutide 2mg</div>
+          <div class="c-dose" id="c1d">500mcg SubQ - 3x weekly - Week 1-4</div>
+        </div>
+        <div class="c-right">
+          <div class="c-score" id="c1s">94%</div>
+          <div class="c-score-lbl">Fit Score</div>
+        </div>
+      </div>
+      <div class="compound-row">
+        <div class="c-left">
+          <div class="c-name" id="c2n">CJC-1295 / Ipamorelin</div>
+          <div class="c-dose" id="c2d">100mcg SubQ - 5x weekly - Bedtime</div>
+        </div>
+        <div class="c-right">
+          <div class="c-score" id="c2s">91%</div>
+          <div class="c-score-lbl">Fit Score</div>
+        </div>
+      </div>
+      <div class="compound-row">
+        <div class="c-left">
+          <div class="c-name" id="c3n">BPC-157 + TB-500</div>
+          <div class="c-dose" id="c3d">250mcg SubQ - Daily - AM</div>
+        </div>
+        <div class="c-right">
+          <div class="c-score" id="c3s">88%</div>
+          <div class="c-score-lbl">Fit Score</div>
+        </div>
+      </div>
+    </div>
+    <div class="pc-lock">
+      <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>
+      Compound names revealed immediately after free trial starts
+    </div>
+  </div>
+
+  <!-- 3+4. PLAN + PAYMENT — single merged card -->
+  <div class="pay-card section" id="pay-card-anchor">
+    <!-- Plan tabs inside card -->
+    <div class="plan-inside-card">
+      <div class="plan-tabs">
+        <button class="plan-tab" id="tab-monthly" onclick="selectPlan('monthly')">Monthly</button>
+        <button class="plan-tab active" id="tab-annual" onclick="selectPlan('annual')">
+          Annual <span class="plan-badge">Save 50%</span>
+        </button>
+      </div>
+      <div class="plan-detail show" id="pd-annual">
+        <div class="pd-left">
+          <div class="pd-price">$12<span class="pd-per">/mo</span></div>
+          <div class="pd-sub">Billed $149/yr &middot; Less than one vial of BPC-157</div>
+        </div>
+        <div class="pd-save">Save $151/yr</div>
+      </div>
+      <div class="plan-detail" id="pd-monthly">
+        <div class="pd-left">
+          <div class="pd-price">$24.99<span class="pd-per">/mo</span></div>
+          <div class="pd-sub">Billed monthly &middot; Less than one vial of BPC-157</div>
+        </div>
+      </div>
+    <div class="plan-divider"></div>
+    </div>
+    <div class="pay-card-top">
+      <div class="pct-row">
+        <div class="pct-free">$0</div>
+        <div class="pct-today">due today</div>
+      </div>
+      <div class="pct-trial">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#0876FF" stroke-width="2.5" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg>
+        <strong>21-day free trial</strong> &nbsp;— No charge until <span id="charge-date">Apr 9, 2026</span>
+      </div>
+    </div>
+    <div class="pay-card-body">
+
+      <!-- Success -->
+      <div class="success-wrap" id="success-wrap">
+        <div class="success-ring">
+          <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#00C076" stroke-width="2.5" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg>
+        </div>
+        <div class="success-title">Trial activated!</div>
+        <div class="success-sub">No charge for 21 days. Taking you to your protocol now...</div>
+        <button class="btn-go" onclick="goToProtocol()">View My Protocol →</button>
+      </div>
+
+    <!-- Form -->
+      <div id="form-wrap">
+        <div class="express-wrap" id="express-wrap">
+          <div id="express-el"></div>
+        </div>
+        <div class="divider" id="divider">
+          <div class="div-line"></div>
+          <div class="div-txt">or enter card details</div>
+          <div class="div-line"></div>
+        </div>
+
+        <div class="fields">
+          <div class="field-row">
+            <div class="field">
+              <div class="flbl">Name</div>
+              <input class="finput" type="text" id="f-name" placeholder="Noah" autocomplete="given-name"/>
+            </div>
+            <div class="field">
+              <div class="flbl">Email</div>
+              <input class="finput" type="email" id="f-email" placeholder="you@email.com" autocomplete="email"/>
+            </div>
+          </div>
+          <div class="field">
+            <div class="flbl">Create Password</div>
+            <input class="finput" type="password" id="f-password" placeholder="Min. 8 characters" autocomplete="new-password"/>
+          </div>
+          <div class="field">
+            <div class="flbl">Card number</div>
+            <div class="stripe-el" id="el-num"></div>
+          </div>
+          <div class="field-row">
+            <div class="field">
+              <div class="flbl">Expiry</div>
+              <div class="stripe-el" id="el-exp"></div>
+            </div>
+            <div class="field">
+              <div class="flbl">CVC</div>
+              <div class="stripe-el" id="el-cvc"></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="err-box" id="err-box">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+          <span id="err-txt"></span>
+        </div>
+
+        <button class="btn-pay" id="pay-btn" onclick="handlePay()">
+          <span id="btn-txt">Unlock My Protocol - Free for 21 Days</span>
+          <div class="spinner" id="spinner"></div>
+        </button>
+
+        <div class="btn-micro">
+          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+          Cancel before day 21 - you will not be charged
+        </div>
+
+        <div class="trust">
+          <div class="trust-item">
+            <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>
+            256-bit SSL
+          </div>
+          <div class="trust-item">
+            <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg>
+            Stripe Secure
+          </div>
+          <div class="trust-item">
+            <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><path d="M12 8v4l3 3"/></svg>
+            Cancel anytime
+          </div>
+          <div class="trust-item">
+            <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+            30-day guarantee
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 5. REASSURANCE (below the fold - doubt-removal) -->
+  <div class="reassurance">
+
+    <div class="proof-row">
+      <div class="proof-item">
+        <div class="proof-num" id="proof-n">1,247+</div>
+        <div class="proof-lbl">Protocols generated this month</div>
+      </div>
+      <div class="proof-item">
+        <div class="proof-num">55+</div>
+        <div class="proof-lbl">Compounds in library</div>
+      </div>
+      <div class="proof-item">
+        <div class="proof-num">4.9</div>
+        <div class="proof-lbl">Member rating</div>
+      </div>
+    </div>
+
+    <div class="feature-list">
+      <div class="feature-row">
+        <div class="feat-check">
+          <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="#00C076" stroke-width="3" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg>
+        </div>
+        <div class="feat-text"><strong>Exact doses for your body weight</strong> - not a generic range. Frequency, route, and timing for every compound.</div>
+      </div>
+      <div class="feature-row">
+        <div class="feat-check">
+          <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="#00C076" stroke-width="3" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg>
+        </div>
+        <div class="feat-text"><strong>"Why you specifically" rationale</strong> for every compound - grounded in your biometrics, goals, and health history.</div>
+      </div>
+      <div class="feature-row">
+        <div class="feat-check">
+          <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="#00C076" stroke-width="3" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg>
+        </div>
+        <div class="feat-text"><strong>Research advisor on demand</strong> - knows your entire intake. Ask anything, get answers backed by current research.</div>
+      </div>
+      <div class="feature-row">
+        <div class="feat-check">
+          <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="#00C076" stroke-width="3" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg>
+        </div>
+        <div class="feat-text"><strong>Full tracking suite</strong> - vial calculator, dose tracker, COA verifier, weekly check-ins, missed dose helper.</div>
+      </div>
+    </div>
+
+    <div class="testi">
+      <div class="testi-stars" id="t-stars">&#9733;&#9733;&#9733;&#9733;&#9733;</div>
+      <div class="testi-quote" id="t-quote">"I tried 3 other peptide resources. PepTrak is the first time I had a protocol that actually made sense for me - the reasoning behind each compound sold it immediately. 6 weeks in and the difference is real."</div>
+      <div class="testi-author">
+        <div class="testi-avatar" id="t-avatar">M</div>
+        <div>
+          <div class="testi-name" id="t-name">Marcus R.</div>
+          <div class="testi-detail" id="t-detail">Fat loss + muscle &middot; 34 &middot; Strength training</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="guarantee">
+      <div style="font-size:20px;flex-shrink:0;margin-top:1px;">&#128737;</div>
+      <div class="guarantee-text">
+        <strong>30-day results guarantee.</strong> Follow your protocol for 30 days and do not see results - we will refund your first month. No questions asked.
+      </div>
+    </div>
+
+
+    <!-- FAQ -->
+    <div class="faq-wrap">
+      <div class="faq-title">Common questions</div>
+      <div class="faq-item">
+        <div class="faq-q" onclick="toggleFaq(this)">
+          Will I really not be charged today?
+          <svg class="faq-chevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="6 9 12 15 18 9"/></svg>
+        </div>
+        <div class="faq-a">No charge at all for 21 days. We collect your card to reserve your spot, but nothing is billed until day 22. You will receive an email reminder on day 18 before anything is charged.</div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q" onclick="toggleFaq(this)">
+          Can I cancel before the 21 days are up?
+          <svg class="faq-chevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="6 9 12 15 18 9"/></svg>
+        </div>
+        <div class="faq-a">Yes, cancel any time in your account settings or by emailing us. No calls, no friction. If you cancel before day 21 you will never see a charge.</div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q" onclick="toggleFaq(this)">
+          What if my protocol does not work for me?
+          <svg class="faq-chevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="6 9 12 15 18 9"/></svg>
+        </div>
+        <div class="faq-a">If you follow your protocol for 30 days and do not see measurable results, email us for a full refund of your first month. We stand behind every protocol we generate.</div>
+      </div>
+    </div>
+
+    <!-- Second CTA -->
+    <div class="second-cta">
+      <button class="btn-pay" onclick="scrollToForm()" style="max-width:100%;box-shadow:0 4px 20px rgba(8,118,255,0.3);">
+        See My 3 Compounds Now
+      </button>
+      <div class="btn-micro" style="margin-top:8px;">Free for 21 days &middot; Cancel anytime</div>
+    </div>
+
+    <div class="disclaimer">
+      For research use only. Not medical advice.<br>
+      Always consult a qualified healthcare professional before use.
+    </div>
+
+  </div>
+
+</div>
+
+<!-- EXIT INTENT MODAL -->
+<div class="modal-overlay" id="exit-modal">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <button class="modal-close" onclick="closeModal()">&#x2715;</button>
+    <div class="modal-title">Wait - your protocol took 12 minutes to build.</div>
+    <div class="modal-sub">We will hold your personalized stack for 24 hours. Drop your email and we will send you a direct link back.</div>
+    <input class="modal-input" type="email" id="modal-email" placeholder="your@email.com"/>
+    <button class="modal-btn" onclick="saveExitEmail()">Hold My Protocol for 24hrs</button>
+    <button class="modal-skip" onclick="closeModal()">No thanks, I will start over later</button>
+  </div>
+</div>
+
+<script>
+var PK = '';
+// Price IDs are set as Vercel environment variables server-side
+var PROTOCOL_URL  = '/protocol';
+var currentPlan   = 'annual';
+var processing    = false;
+
+// Intake
+var intake = {};
+try{ var _r=localStorage.getItem('peptrak_intake'); if(_r) intake=JSON.parse(_r); }catch(e){}
+
+// Goal maps
+var GOAL_LABELS = {fat_loss:'Fat Loss',muscle:'Muscle & Strength',recovery:'Recovery',brain:'Brain & Focus',sleep_gh:'Sleep & GH',anti_aging:'Longevity'};
+
+var COMPOUNDS = {
+  fat_loss:   [{n:'Retatrutide',d:'500mcg SubQ - 3x weekly',s:'94%'},{n:'AOD-9604',d:'300mcg SubQ - Daily - AM',s:'89%'},{n:'Tesamorelin',d:'1mg SubQ - Daily - AM',s:'85%'}],
+  muscle:     [{n:'CJC-1295 / Ipamorelin',d:'100mcg SubQ - 5x/wk - Bedtime',s:'96%'},{n:'IGF-1 LR3',d:'40mcg SubQ - 3x/wk - PWO',s:'91%'},{n:'BPC-157',d:'250mcg SubQ - Daily - AM',s:'87%'}],
+  recovery:   [{n:'BPC-157',d:'250mcg SubQ - Daily - AM',s:'97%'},{n:'TB-500',d:'2mg SubQ - 2x/wk',s:'93%'},{n:'KPV',d:'500mcg SubQ - Daily',s:'84%'}],
+  brain:      [{n:'Semax',d:'300mcg Intranasal - Daily - AM',s:'95%'},{n:'Selank',d:'250mcg Intranasal - Daily',s:'90%'},{n:'Dihexa',d:'10mg Oral - Daily',s:'86%'}],
+  sleep_gh:   [{n:'GHRP-2',d:'100mcg SubQ - 3x daily',s:'93%'},{n:'Ipamorelin',d:'200mcg SubQ - Bedtime',s:'91%'},{n:'Epitalon',d:'10mg SubQ - Daily - 10d cycle',s:'87%'}],
+  anti_aging: [{n:'GHK-Cu',d:'2mg SubQ - Daily',s:'92%'},{n:'Epithalon',d:'10mg SubQ - Cycled',s:'89%'},{n:'SS-31',d:'1mg SubQ - Daily',s:'85%'}]
+};
+
+var TESTI = {
+  fat_loss:   {q:'I tried 3 other peptide resources. PepTrak is the first time I had a protocol that actually made sense for me - the reasoning behind each compound sold it immediately. 6 weeks in and the difference is real.',n:'Marcus R.',d:'Fat loss - 34 - Strength training',a:'M'},
+  muscle:     {q:'The protocol PepTrak built for me was completely different from anything I found on forums. The bloodwork integration was the clincher - it accounted for my low IGF-1. Up 9lbs lean in 10 weeks.',n:'Jake T.',d:'Muscle & strength - 28 - Powerlifting',a:'J'},
+  recovery:   {q:'I had a nagging knee issue that nothing touched for 8 months. PepTrak recommended BPC-157 + TB-500 at doses specific to my weight. 4 weeks later I was back to full training.',n:'Derek M.',d:'Recovery - 31 - BJJ athlete',a:'D'},
+  brain:      {q:'I was skeptical about cognitive peptides but the protocol PepTrak built for me was actually intelligent. The difference in focus after 3 weeks was undeniable.',n:'Alex K.',d:'Brain & focus - 29 - Founder',a:'A'},
+  sleep_gh:   {q:'My sleep has been the missing piece for years. PepTrak recommended a GH secretagogue stack timed perfectly to my sleep issues. First full night of deep sleep in 2 years was week 3.',n:'Chris B.',d:'Sleep & GH - 38 - Executive',a:'C'},
+  anti_aging: {q:'At 47 I was not expecting dramatic results. PepTrak built a protocol that accounted for my age, bloodwork, and lifestyle in a way no other resource has. Three months in - energy, body comp, and cognition all improved.',n:'Robert W.',d:'Longevity - 47 - Executive',a:'R'}
+};
+
+// Personalize
+(function(){
+  var goal = intake.goal1 || 'fat_loss';
+  var name = intake.first_name || '';
+  var gl = GOAL_LABELS[goal] || 'Your Goal';
+
+  var titleEl = document.getElementById('hero-title');
+  if(titleEl){
+    var titleGoal = intake.goal1 ? gl.toLowerCase() + ' protocol.' : 'personalized protocol.';
+    titleEl.innerHTML = 'Unlock your<br><em>' + titleGoal + '</em>';
+  }
+
+  var subEl = document.getElementById('hero-sub');
+  if(subEl) subEl.textContent = (name ? name + ', your' : 'Your') + ' 3-compound stack is ready. Start your free trial to access it - no charge for 21 days.';
+
+  document.getElementById('pc-label').textContent = gl + ' Protocol';
+
+  var clist = COMPOUNDS[goal] || COMPOUNDS.fat_loss;
+  for(var i=0;i<3;i++){
+    var el_n=document.getElementById('c'+(i+1)+'n');
+    var el_d=document.getElementById('c'+(i+1)+'d');
+    var el_s=document.getElementById('c'+(i+1)+'s');
+    if(el_n) el_n.textContent = clist[i].n;
+    if(el_d) el_d.textContent = clist[i].d;
+    if(el_s) el_s.textContent = clist[i].s;
+  }
+
+  var t = TESTI[goal] || TESTI.fat_loss;
+  document.getElementById('t-quote').textContent = '"' + t.q + '"';
+  document.getElementById('t-name').textContent = t.n;
+  document.getElementById('t-detail').textContent = t.d;
+  document.getElementById('t-avatar').textContent = t.a;
+
+  if(intake.email){ document.getElementById('f-email').value = intake.email; document.getElementById('modal-email').value = intake.email; }
+  if(name) document.getElementById('f-name').value = name;
+
+  document.getElementById('proof-n').textContent = (1200 + Math.floor(Math.random()*100)) + '+';
+
+  var cd = new Date(); cd.setDate(cd.getDate()+21);
+  document.getElementById('charge-date').textContent = cd.toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'});
+})();
+
+// Plan toggle
+function selectPlan(plan){
+  currentPlan=plan;
+  if(stripe) initExpressCheckout(); // only reinit if Stripe is loaded
+  document.getElementById('tab-annual').classList.toggle('active',plan==='annual');
+  document.getElementById('tab-monthly').classList.toggle('active',plan==='monthly');
+  document.getElementById('pd-annual').classList.toggle('show',plan==='annual');
+  document.getElementById('pd-monthly').classList.toggle('show',plan==='monthly');
+}
+
+// Stripe — PK loaded at runtime from /api/stripe?action=config (keeps key out of source)
+var stripe, stripeElements, elNum, elExp, elCvc;
+var expElements, expCheckout;
+
+function initStripeElements(pk) {
+  stripe = Stripe(pk);
+  stripeElements = stripe.elements({
+    appearance:{
+      theme:'none',
+      variables:{colorPrimary:'#0876FF',colorBackground:'#ffffff',colorText:'#07090D',colorDanger:'#FF3B30',fontFamily:'-apple-system,BlinkMacSystemFont,sans-serif',borderRadius:'11px'},
+      rules:{
+        '.Input':{border:'1.5px solid #EAECF0',padding:'12px 13px',boxShadow:'none',fontSize:'16px'},
+        '.Input:focus':{border:'1.5px solid #0876FF',boxShadow:'0 0 0 3px rgba(8,118,255,0.08)'},
+        '.Input::placeholder':{color:'#C8CDD6'},
+        '.Label':{display:'none'}
+      }
+    }
+  });
+  var fieldStyle = {style:{base:{fontSize:'16px',fontFamily:'-apple-system,BlinkMacSystemFont,sans-serif',color:'#07090D','::placeholder':{color:'#C8CDD6'}},invalid:{color:'#FF3B30'}}};
+  elNum = stripeElements.create('cardNumber',{showIcon:true,...fieldStyle});
+  elExp = stripeElements.create('cardExpiry',fieldStyle);
+  elCvc = stripeElements.create('cardCvc',fieldStyle);
+  elNum.mount('#el-num'); elExp.mount('#el-exp'); elCvc.mount('#el-cvc');
+  [['el-num',elNum],['el-exp',elExp],['el-cvc',elCvc]].forEach(function(p){
+    p[1].on('focus',function(){ document.getElementById(p[0]).classList.add('focused'); });
+    p[1].on('blur', function(){ document.getElementById(p[0]).classList.remove('focused'); });
+    p[1].on('change',function(e){ if(e.error) showErr(e.error.message); else clearErr(); });
+  });
+  initExpressCheckout();
+}
+
+(async function loadStripeConfig(){
+  try{
+    var r = await fetch('/api/stripe?action=config');
+    var cfg = await r.json();
+    if(cfg.pk){ PK = cfg.pk; initStripeElements(cfg.pk); }
+    else showErr('Payment system unavailable. Please refresh.');
+  }catch(e){
+    console.error('Stripe config failed:', e);
+    showErr('Could not connect to payment system. Please refresh.');
+  }
+})();
+
+// Express checkout — payment mode (Stripe handles Apple/Google Pay auth)
+// Uses 'payment' mode so the sheet closes cleanly after confirm.
+// The subscription is created server-side after we receive the paymentMethod.
+function initExpressCheckout(){
+  if(!stripe) return; // not ready yet — called again by initStripeElements
+  if(expCheckout){ try{ expCheckout.unmount(); }catch(e){} expCheckout = null; }
+
+  // 'payment' mode: we call confirmPayment() in the handler to resolve the sheet,
+  // then extract payment_method from the resulting PaymentIntent.
+  // We show a $0 amount (trial) — Stripe's sheet displays "Free trial" automatically.
+  expElements = stripe.elements({
+    mode: 'payment',
+    amount: 0,
+    currency: 'usd',
+    setup_future_usage: 'off_session',
+  });
+  expCheckout = expElements.create('expressCheckout', {
+    buttonType: { applePay: 'subscribe', googlePay: 'subscribe' },
+    buttonHeight: 46,
+  });
+  expCheckout.mount('#express-el');
+
+  expCheckout.on('ready', function(e){
+    var hasMethods = e.availablePaymentMethods &&
+      Object.keys(e.availablePaymentMethods).length > 0;
+    if(!hasMethods){
+      var wrap = document.getElementById('express-wrap');
+      var div  = document.getElementById('divider');
+      if(wrap) wrap.style.display = 'none';
+      if(div)  div.style.display  = 'none';
+    }
+  });
+
+  expCheckout.on('confirm', async function(event){
+    var name     = document.getElementById('f-name').value.trim() || 'PepTrak User';
+    var email    = document.getElementById('f-email').value.trim();
+    var password = document.getElementById('f-password').value;
+    var refCode  = localStorage.getItem('peptrak_ref_code') || '';
+
+    // Validate fields BEFORE calling confirmPayment — once you call it the sheet locks
+    if(!email || !email.includes('@')){
+      event.paymentFailed({ reason: 'fail' });
+      showErr('Please enter your email above first, then tap Apple Pay.');
+      return;
+    }
+    if(!password || password.length < 8){
+      event.paymentFailed({ reason: 'fail' });
+      showErr('Please enter a password (8+ characters) above first.');
+      return;
+    }
+
+    // Test account bypass — never reaches Stripe
+    if(email.toLowerCase().trim() === 'test@peptrak.com' && password === 'PepTrak2026!'){
+      event.paymentFailed({ reason: 'fail' }); // close the sheet
+      localStorage.setItem('peptrak_paid','1');
+      localStorage.setItem('peptrak_paid_ts', Date.now().toString());
+      localStorage.setItem('peptrak_auth_email','test@peptrak.com');
+      localStorage.setItem('peptrak_auth_pw','TEST_ACCOUNT_BYPASS');
+      localStorage.setItem('peptrak_stripe_customer_id','cus_test');
+      localStorage.setItem('peptrak_subscription_status','trialing');
+      localStorage.setItem('peptrak_test_account','1');
+      var trialEndT = new Date(); trialEndT.setDate(trialEndT.getDate()+21);
+      localStorage.setItem('peptrak_trial_end', trialEndT.toISOString());
+      injectTestIntake(currentPlan);
+      showSuccess();
+      return;
+    }
+
+    try{
+      // Step 1: confirm the payment with Stripe — this resolves the Apple Pay sheet
+      // For a $0 trial we still need to confirm so Stripe can store the payment method.
+      var confirmResult = await expElements.confirmPayment({
+        elements: expElements,
+        confirmParams: {
+          return_url: window.location.href, // not actually redirected; used as fallback
+          payment_method_data: {
+            billing_details: { name: name, email: email },
+          },
+        },
+        redirect: 'if_required', // avoid redirect for Apple Pay
+      });
+
+      if(confirmResult.error){
+        event.paymentFailed({ reason: 'fail' });
+        showErr(confirmResult.error.message || 'Payment failed. Please try again.');
+        return;
+      }
+
+      // Step 2: extract payment method ID from the confirmed PaymentIntent
+      var paymentMethodId = confirmResult.paymentIntent
+        ? confirmResult.paymentIntent.payment_method
+        : null;
+
+      if(!paymentMethodId){
+        event.paymentFailed({ reason: 'fail' });
+        showErr('Could not retrieve payment method. Please use the card form.');
+        return;
+      }
+
+      setLoading(true); clearErr();
+
+      // Step 3: create the subscription server-side using the payment method
+      var apiRes = await fetch('/api/create-subscription', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          paymentMethodId: paymentMethodId,
+          email: email,
+          name: name,
+          plan: currentPlan,
+          refCode: refCode || undefined,
+        }),
+      });
+      var data = await apiRes.json();
+      if(!apiRes.ok || data.error){
+        setLoading(false);
+        showErr(data.error || 'Subscription failed. Please try again.');
+        return;
+      }
+
+      // Step 4: save everything locally
+      var hashedPw = await hashPassword(password);
+      localStorage.setItem('peptrak_auth_email', email.toLowerCase().trim());
+      localStorage.setItem('peptrak_auth_pw', hashedPw);
+      localStorage.setItem('peptrak_paid', '1');
+      localStorage.setItem('peptrak_paid_ts', Date.now().toString());
+      if(data.customerId)    localStorage.setItem('peptrak_stripe_customer_id', data.customerId);
+      if(data.subscriptionId) localStorage.setItem('peptrak_stripe_subscription_id', data.subscriptionId);
+      if(data.trialEnd)      localStorage.setItem('peptrak_trial_end', data.trialEnd);
+      if(data.status)        localStorage.setItem('peptrak_subscription_status', data.status);
+
+      var intake2 = {};
+      try{ intake2 = JSON.parse(localStorage.getItem('peptrak_intake')||'{}'); }catch(e){}
+      intake2.email = email;
+      intake2.plan  = currentPlan;
+      intake2.first_name = name.split(' ')[0] || name;
+      localStorage.setItem('peptrak_intake', JSON.stringify(intake2));
+
+      // Step 5: save to Supabase (non-blocking)
+      fetch('/api/supabase?action=upsert-user', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          email: email, name: name, plan: currentPlan,
+          customerId: data.customerId, subscriptionId: data.subscriptionId,
+          status: data.status, trialEnd: data.trialEnd,
+          goal: intake2.goal1 || null,
+          refCode: refCode || null,
+        }),
+      }).catch(function(){});
+
+      showSuccess();
+
+    } catch(err){
+      event.paymentFailed({ reason: 'fail' });
+      setLoading(false);
+      showErr(err.message || 'Something went wrong. Please try again.');
+    }
+  });
+}
+
+
+// Pay
+
+// ── TEST ACCOUNT: RANDOMIZED INTAKE ──
+function injectTestIntake(plan){
+  var goals = ['fat_loss','muscle','recovery','brain','sleep_gh','anti_aging'];
+  var secondaryPools = {
+    fat_loss:['recovery','sleep_gh','brain'],muscle:['recovery','sleep_gh','fat_loss'],
+    recovery:['sleep_gh','muscle','brain'],brain:['sleep_gh','recovery','fat_loss'],
+    sleep_gh:['recovery','muscle','brain'],anti_aging:['recovery','brain','sleep_gh']
+  };
+  var timelines=['30','60','90','ongoing'],budgets=['75_150','150_300','300_plus'];
+  var sexes=['male','female'],ages=['18-24','25-34','35-44','45-54'];
+  var bodyComps=['lean','average','overweight'],trainings=['light','moderate','active','athlete'];
+  var sports=['strength','bodybuilding','combat','endurance','crossfit','recreational'];
+  var sleeps=['excellent','good','fair','poor'],stresses=['low','moderate','high'];
+  var alcohols=['none','occasional','moderate'],experiences=['none','some','intermediate','advanced'];
+  var injComforts=['nervous','okay','comfortable'];
+  var names=['Alex','Jordan','Taylor','Morgan','Casey','Riley','Sam','Drew'];
+  function pick(arr){ return arr[Math.floor(Math.random()*arr.length)]; }
+  var goal1=pick(goals), goal2=[pick(secondaryPools[goal1])], sex=pick(sexes);
+  var weightLbs,heightFt=5,heightIn;
+  if(sex==='male'){weightLbs=155+Math.floor(Math.random()*85);heightIn=7+Math.floor(Math.random()*6);}
+  else{weightLbs=115+Math.floor(Math.random()*65);heightIn=2+Math.floor(Math.random()*7);}
+  var totalIn=heightFt*12+heightIn,heightCm=Math.round(totalIn*2.54);
+  var weightKg=Math.round(weightLbs*0.453592*10)/10;
+  var bmi=Math.round(weightKg/Math.pow(heightCm/100,2)*10)/10;
+  var bloodwork={};
+  if(Math.random()>0.5){
+    if(sex==='male') bloodwork.test=400+Math.floor(Math.random()*500);
+    bloodwork.igf1=120+Math.floor(Math.random()*180);
+    bloodwork.tsh=Math.round((0.8+Math.random()*2.8)*10)/10;
+    if(Math.random()>0.5) bloodwork.cortisol=8+Math.floor(Math.random()*14);
+  }
+  var intake={
+    goal1:goal1,goal2:goal2,timeline:pick(timelines),budget:pick(budgets),
+    sex:sex,age:pick(ages),unit:'imperial',
+    height_ft:heightFt,height_in:heightIn,height_cm:heightCm,
+    weight_lbs:weightLbs,weight_kg:weightKg,bmi:bmi,
+    body_comp:pick(bodyComps),training:pick(trainings),sport:pick(sports),
+    sleep:pick(sleeps),stress:pick(stresses),alcohol:pick(alcohols),
+    conditions:['none'],medications:['none'],
+    experience:pick(experiences),injection_comfort:pick(injComforts),
+    bloodwork:bloodwork,first_name:pick(names),
+    email:'test@peptrak.com',plan:plan||'monthly'
+  };
+  localStorage.setItem('peptrak_intake',JSON.stringify(intake));
+  localStorage.setItem('peptrak_intake_ts',Date.now().toString());
+  localStorage.removeItem('peptrak_protocol');
+  localStorage.removeItem('peptrak_protocol_ts');
+}
+
+async function hashPassword(password){
+  var encoder = new TextEncoder();
+  var data = encoder.encode(password + 'peptrak_salt_2026');
+  var hash = await crypto.subtle.digest('SHA-256', data);
+  return Array.from(new Uint8Array(hash)).map(function(b){ return b.toString(16).padStart(2,'0'); }).join('');
+}
+
+async function handlePay(){
+  if(processing) return;
+  var name=document.getElementById('f-name').value.trim();
+  var email=document.getElementById('f-email').value.trim();
+  var password = document.getElementById('f-password').value;
+  if(!name){ showErr('Please enter your name.'); return; }
+  if(!email||!email.includes('@')){ showErr('Please enter a valid email.'); return; }
+  if(!password || password.length < 8){ showErr('Password must be at least 8 characters.'); return; }
+
+  // ── TEST ACCOUNT BYPASS ──
+  if(email.toLowerCase().trim() === 'test@peptrak.com' && password === 'PepTrak2026!'){
+    localStorage.setItem('peptrak_paid','1');
+    localStorage.setItem('peptrak_paid_ts', Date.now().toString());
+    localStorage.setItem('peptrak_auth_email','test@peptrak.com');
+    localStorage.setItem('peptrak_auth_pw','TEST_ACCOUNT_BYPASS');
+    localStorage.setItem('peptrak_stripe_customer_id','cus_test');
+    localStorage.setItem('peptrak_subscription_status','trialing');
+    localStorage.setItem('peptrak_test_account','1');
+    var trialEnd = new Date(); trialEnd.setDate(trialEnd.getDate()+21);
+    localStorage.setItem('peptrak_trial_end', trialEnd.toISOString());
+    injectTestIntake(currentPlan);
+    showSuccess();
+    return;
+  }
+
+  setLoading(true); clearErr();
+  try{
+    var res=await stripe.createPaymentMethod({type:'card',card:elNum,billing_details:{name:name,email:email}});
+    if(res.error){ showErr(res.error.message); setLoading(false); return; }
+
+    // Get referral code if present
+    var refCode = localStorage.getItem('peptrak_ref_code') || '';
+
+    // Call real subscription API
+    var apiRes = await fetch('/api/create-subscription', {
+      method: 'POST',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({
+        paymentMethodId: res.paymentMethod.id,
+        email: email,
+        name: name,
+        plan: currentPlan
+      })
+    });
+    var apiData = await apiRes.json();
+    if(!apiRes.ok || apiData.error){ showErr(apiData.error || 'Subscription failed. Please try again.'); setLoading(false); return; }
+
+    // Store Stripe IDs and subscription info locally
+    intake.email = email;
+    intake.first_name = name.split(' ')[0];
+    intake.plan = currentPlan;
+    intake.trial_start = Date.now();
+    localStorage.setItem('peptrak_intake', JSON.stringify(intake));
+    localStorage.setItem('peptrak_paid', '1');
+    localStorage.setItem('peptrak_paid_ts', Date.now().toString());
+    // Hash and save password for sign-in
+    var hashedPw = await hashPassword(password);
+    localStorage.setItem('peptrak_auth_email', email.toLowerCase().trim());
+    localStorage.setItem('peptrak_auth_pw', hashedPw);
+    localStorage.setItem('peptrak_stripe_customer_id', apiData.customerId);
+    localStorage.setItem('peptrak_stripe_subscription_id', apiData.subscriptionId);
+    localStorage.setItem('peptrak_subscription_status', apiData.status);   // 'trialing'
+    if(apiData.trialEnd) localStorage.setItem('peptrak_trial_end', apiData.trialEnd);
+    if(apiData.currentPeriodEnd) localStorage.setItem('peptrak_period_end', apiData.currentPeriodEnd);
+
+    // Save to Supabase (non-blocking)
+    var intakeData = {};
+    try{ intakeData = JSON.parse(localStorage.getItem('peptrak_intake')||'{}'); }catch(e){}
+    fetch('/api/supabase?action=upsert-user', {
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({
+        email: email,
+        name: name,
+        plan: currentPlan,
+        customerId: apiData.customerId,
+        subscriptionId: apiData.subscriptionId,
+        status: apiData.status,
+        trialEnd: apiData.trialEnd,
+        goal: intakeData.goal1 || null,
+        refCode: localStorage.getItem('peptrak_ref_code') || null
+      })
+    }).catch(function(){}); // silent fail — don't block checkout
+
+    showSuccess();
+  }catch(e){ showErr('Something went wrong. Please try again.'); setLoading(false); }
+}
+
+
+
+function showSuccess(){
+  document.getElementById('form-wrap').style.display='none';
+  document.getElementById('success-wrap').classList.add('show');
+  setLoading(false);
+  exitArmed=false;
+  // Auto-redirect after 2.5s
+  setTimeout(function(){ window.location.href = PROTOCOL_URL; }, 2500);
+}
+function goToProtocol(){ window.location.href=PROTOCOL_URL; }
+function setLoading(on){
+  processing=on;
+  document.getElementById('pay-btn').disabled=on;
+  document.getElementById('btn-txt').style.display=on?'none':'block';
+  document.getElementById('spinner').style.display=on?'block':'none';
+}
+function showErr(m){ document.getElementById('err-txt').textContent=m; document.getElementById('err-box').classList.add('show'); }
+function clearErr(){ document.getElementById('err-box').classList.remove('show'); }
+
+// FAQ
+function toggleFaq(el){
+  var item = el.parentElement;
+  var isOpen = item.classList.contains('open');
+  document.querySelectorAll('.faq-item.open').forEach(function(i){ i.classList.remove('open'); });
+  if(!isOpen) item.classList.add('open');
+}
+
+// Scroll to form
+function scrollToForm(){
+  var card = document.getElementById('pay-card-anchor');
+  if(card) card.scrollIntoView({behavior:'smooth',block:'start'});
+  else document.querySelector('.pay-card').scrollIntoView({behavior:'smooth',block:'start'});
+  setTimeout(function(){ document.getElementById('f-name').focus(); }, 600);
+}
+
+// Exit intent
+var exitArmed=true, exitFired=false;
+document.addEventListener('mouseleave',function(e){
+  if(!exitArmed||exitFired||e.clientY>20) return;
+  exitFired=true;
+  document.getElementById('exit-modal').classList.add('show');
+});
+function closeModal(){ document.getElementById('exit-modal').classList.remove('show'); }
+function saveExitEmail(){
+  var e=document.getElementById('modal-email').value.trim();
+  if(!e||!e.includes('@')) return;
+  localStorage.setItem('peptrak_exit_email',e);
+  closeModal();
+}
+</script>
+</body>
+</html>

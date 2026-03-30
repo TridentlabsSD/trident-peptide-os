@@ -1,0 +1,1975 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"/>
+<title>PepTrak — Build Your Protocol</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+html{-webkit-text-size-adjust:100%;}
+:root{
+  --blue:#0876FF;
+  --blue-dark:#0666E8;
+  --blue-pale:#EEF4FF;
+  --ink:#000000;
+  --ink-2:#1D1D1F;
+  --gray-1:#F5F5F7;
+  --gray-2:#E8E8ED;
+  --gray-3:#D2D2D7;
+  --gray-4:#86868B;
+  --gray-5:#515154;
+  --white:#FFFFFF;
+  --red:#FF3B30;
+  --green:#34C759;
+  --orange:#FF9500;
+}
+body{-webkit-tap-highlight-color:transparent;
+  font-family:-apple-system,BlinkMacSystemFont,'SF Pro Display','SF Pro Text','Helvetica Neue',sans-serif;
+  background:#FFFFFF;color:#000;
+  -webkit-font-smoothing:antialiased;
+  min-height:100svh;overflow-x:hidden;
+}
+
+/* ── HEADER ── */
+.header{
+  position:fixed;top:0;left:0;right:0;z-index:200;
+  height:56px;
+  background:rgba(255,255,255,0.95);
+  backdrop-filter:blur(20px);
+  border-bottom:1px solid var(--gray-2);
+  display:flex;align-items:center;
+  padding:0 20px;justify-content:space-between;
+}
+.header-logo{
+  font-size:16px;font-weight:700;color:#000;
+  text-decoration:none;display:flex;align-items:center;gap:7px;
+}
+.header-logo-mark{
+  width:26px;height:26px;border-radius:7px;
+  background:var(--blue);
+  display:flex;align-items:center;justify-content:center;
+  font-size:13px;font-weight:800;color:white;
+}
+.header-meta{display:flex;flex-direction:column;align-items:flex-end;gap:1px;}
+.header-step{font-size:12px;color:var(--gray-4);font-weight:500;}
+.header-time{font-size:11px;color:var(--gray-4);}
+.header-back{
+  font-size:14px;color:var(--blue);
+  background:none;border:none;cursor:pointer;
+  font-family:inherit;font-weight:500;
+  padding:6px 0;opacity:0;
+  transition:opacity 0.2s;
+  display:flex;align-items:center;gap:4px;
+  min-width:52px;
+}
+.header-back.visible{opacity:1;}
+
+/* ── PROGRESS ── */
+.progress-track{
+  position:fixed;top:56px;left:0;right:0;z-index:199;
+  height:3px;background:var(--gray-2);
+}
+.progress-fill{
+  height:100%;background:var(--blue);
+  transition:width 0.5s cubic-bezier(0.4,0,0.2,1);
+}
+
+/* ── STEPS WRAP ── */
+.steps-wrap{
+  position:relative;
+  min-height:100svh;
+  overflow:visible;
+}
+.step{
+  position:absolute;
+  top:80px;left:0;right:0;
+  width:100%;max-width:580px;
+  margin:0 auto;
+  padding:24px 24px 140px;
+  opacity:0;
+  transform:translateX(50px);
+  transition:opacity 0.35s cubic-bezier(0.4,0,0.2,1),transform 0.35s cubic-bezier(0.4,0,0.2,1);
+  pointer-events:none;
+  will-change:transform,opacity;
+  visibility:hidden;
+}
+.step.active{
+  opacity:1;transform:translateX(0);
+  pointer-events:all;
+  position:relative;
+  top:0;
+  padding-top:80px;
+  visibility:visible;
+}
+.step.exit-left{opacity:0;transform:translateX(-50px);pointer-events:none;visibility:hidden;}
+.step.exit-right{opacity:0;transform:translateX(50px);pointer-events:none;visibility:hidden;}
+
+/* ── STEP HEADER ── */
+.step-meta{
+  display:flex;align-items:center;justify-content:space-between;
+  margin-bottom:10px;
+}
+.step-eyebrow{
+  font-size:11px;font-weight:600;color:var(--gray-4);
+  letter-spacing:0.1em;text-transform:uppercase;
+}
+.why-btn{
+  display:inline-flex;align-items:center;gap:4px;
+  font-size:11px;font-weight:500;color:var(--blue);
+  background:var(--blue-pale);border:none;cursor:pointer;
+  padding:4px 10px;border-radius:20px;font-family:inherit;
+  transition:background 0.2s;
+}
+.why-btn:hover{background:#D6E8FF;}
+.step-title{
+  font-size:clamp(22px,5vw,30px);
+  font-weight:700;letter-spacing:-0.4px;
+  line-height:1.15;color:#000;margin-bottom:6px;
+}
+.step-sub{
+  font-size:14px;color:var(--gray-5);
+  line-height:1.6;margin-bottom:24px;
+}
+
+/* ── WHY TOOLTIP ── */
+.why-tooltip{
+  display:none;
+  background:var(--ink-2);color:#fff;
+  border-radius:14px;padding:14px 16px;
+  font-size:13px;line-height:1.6;
+  margin-bottom:16px;
+}
+.why-tooltip.open{display:block;}
+.why-tooltip strong{color:#82B4FF;}
+
+/* ── OPTIONS ── */
+.options{display:flex;flex-direction:column;gap:9px;}
+.option{
+  display:flex;align-items:center;gap:13px;
+  padding:14px 16px;
+  border:1.5px solid var(--gray-2);border-radius:13px;
+  cursor:pointer;transition:all 0.15s;background:#fff;
+  user-select:none;-webkit-tap-highlight-color:transparent;
+}
+.option:hover{border-color:var(--blue);background:var(--blue-pale);}
+.option.selected{border-color:var(--blue);background:var(--blue-pale);}
+.option-radio{
+  width:20px;height:20px;border-radius:50%;
+  border:2px solid var(--gray-3);flex-shrink:0;
+  display:flex;align-items:center;justify-content:center;
+  transition:all 0.15s;
+}
+.option.selected .option-radio{border-color:var(--blue);background:var(--blue);}
+.option.selected .option-radio::after{content:'';width:7px;height:7px;background:#fff;border-radius:50%;}
+.option-check{
+  width:20px;height:20px;border-radius:6px;
+  border:2px solid var(--gray-3);flex-shrink:0;
+  display:flex;align-items:center;justify-content:center;
+  transition:all 0.15s;
+}
+.option.selected .option-check{border-color:var(--blue);background:var(--blue);}
+.option.selected .option-check::after{
+  content:'';width:11px;height:7px;
+  border-left:2px solid #fff;border-bottom:2px solid #fff;
+  transform:rotate(-45deg) translateY(-1px);display:block;
+}
+.option-icon{font-size:18px;flex-shrink:0;width:24px;text-align:center;}
+.option-text{}
+.option-label{font-size:14px;font-weight:500;color:#000;letter-spacing:-0.1px;}
+.option-desc{font-size:12px;color:var(--gray-5);margin-top:2px;line-height:1.4;}
+
+/* ── GRID OPTIONS ── */
+.options-grid{display:grid;grid-template-columns:1fr 1fr;gap:9px;}
+.option-grid{
+  display:flex;flex-direction:column;align-items:flex-start;gap:6px;
+  padding:16px 14px;
+  border:1.5px solid var(--gray-2);border-radius:13px;
+  cursor:pointer;transition:all 0.15s;background:#fff;
+  user-select:none;min-height:88px;
+}
+.option-grid:hover{border-color:var(--blue);background:var(--blue-pale);}
+.option-grid.selected{border-color:var(--blue);background:var(--blue-pale);}
+.option-grid-icon{font-size:20px;}
+.option-grid-label{font-size:13px;font-weight:600;color:#000;line-height:1.3;}
+.option-grid-desc{font-size:11px;color:var(--gray-5);line-height:1.4;}
+
+/* ── INPUTS ── */
+.input-group{display:flex;flex-direction:column;gap:12px;}
+.input-row{display:flex;gap:10px;}
+.input-wrap{flex:1;display:flex;flex-direction:column;gap:5px;}
+.input-label{font-size:16px;font-weight:600;color:var(--gray-5);letter-spacing:0.06em;text-transform:uppercase;}
+.input-field{
+  width:100%;padding:13px 14px;
+  border:1.5px solid var(--gray-2);border-radius:11px;
+  font-size:16px;color:#000;font-family:inherit;
+  background:#fff;outline:none;
+  transition:border-color 0.2s;-webkit-appearance:none;
+}
+.input-field:focus{border-color:var(--blue);}
+.input-field::placeholder{color:var(--gray-3);}
+.input-field.has-val{border-color:var(--blue-dark);}
+
+/* ── UNIT TOGGLE ── */
+.unit-toggle{
+  display:inline-flex;background:var(--gray-1);
+  border-radius:8px;padding:3px;
+}
+.unit-btn{
+  font-size:12px;font-weight:600;padding:5px 12px;
+  border-radius:6px;border:none;cursor:pointer;
+  font-family:inherit;color:var(--gray-4);background:transparent;
+  transition:all 0.2s;
+}
+.unit-btn.active{background:#fff;color:#000;box-shadow:0 1px 3px rgba(0,0,0,0.1);}
+
+/* ── BMI DISPLAY ── */
+.bmi-display{
+  display:flex;align-items:center;gap:12px;
+  padding:13px 14px;background:var(--gray-1);
+  border-radius:11px;margin-top:2px;
+}
+.bmi-val{font-size:18px;font-weight:700;color:#000;letter-spacing:-0.5px;}
+.bmi-cat{font-size:12px;font-weight:600;padding:3px 8px;border-radius:6px;}
+.bmi-normal{background:#D1FAE5;color:#065F46;}
+.bmi-over{background:#FEF3C7;color:#92400E;}
+.bmi-obese{background:#FEE2E2;color:#991B1B;}
+.bmi-under{background:#DBEAFE;color:#1E40AF;}
+
+/* ── SCALE SLIDER ── */
+.scale-options{display:flex;flex-direction:column;gap:8px;}
+.scale-option{
+  display:flex;align-items:center;gap:12px;
+  padding:13px 16px;
+  border:1.5px solid var(--gray-2);border-radius:12px;
+  cursor:pointer;transition:all 0.15s;background:#fff;
+}
+.scale-option:hover{border-color:var(--blue);background:var(--blue-pale);}
+.scale-option.selected{border-color:var(--blue);background:var(--blue-pale);}
+.scale-option.selected .option-radio{border-color:var(--blue);background:var(--blue);}
+.scale-option.selected .option-radio::after{content:'';width:7px;height:7px;background:#fff;border-radius:50%;}
+.scale-icon{font-size:18px;width:28px;text-align:center;flex-shrink:0;}
+
+/* ── CONDITIONS ── */
+.conditions-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+.cond-chip{
+  display:flex;align-items:center;gap:9px;
+  padding:11px 13px;border:1.5px solid var(--gray-2);
+  border-radius:11px;cursor:pointer;transition:all 0.15s;
+  background:#fff;font-size:13px;font-weight:500;color:#000;
+}
+.cond-chip:hover{border-color:var(--blue);background:var(--blue-pale);}
+.cond-chip.selected{border-color:var(--blue);background:var(--blue-pale);}
+.cond-check{
+  width:17px;height:17px;border-radius:5px;
+  border:2px solid var(--gray-3);flex-shrink:0;
+  display:flex;align-items:center;justify-content:center;
+  transition:all 0.15s;
+}
+.cond-chip.selected .cond-check{border-color:var(--blue);background:var(--blue);}
+.cond-chip.selected .cond-check::after{
+  content:'';width:8px;height:5px;
+  border-left:2px solid #fff;border-bottom:2px solid #fff;
+  transform:rotate(-45deg) translateY(-1px);display:block;
+}
+.none-chip{grid-column:span 2;}
+.cancer-warn{
+  display:none;padding:12px 14px;
+  background:#FFF3CD;border:1px solid #FFC107;
+  border-radius:11px;margin-top:8px;
+  font-size:12px;color:#856404;line-height:1.5;
+}
+.cancer-warn.show{display:block;}
+
+/* ── BLOODWORK ── */
+.bloodwork-intro{
+  display:flex;align-items:flex-start;gap:12px;
+  padding:14px;background:var(--blue-pale);
+  border:1px solid rgba(8,118,255,0.15);
+  border-radius:12px;margin-bottom:16px;
+}
+.bloodwork-intro-icon{font-size:20px;flex-shrink:0;margin-top:1px;}
+.bloodwork-intro p{font-size:13px;color:var(--ink-2);line-height:1.55;}
+.bloodwork-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+.bloodwork-field{display:flex;flex-direction:column;gap:5px;}
+.bloodwork-label{font-size:11px;font-weight:600;color:var(--gray-5);letter-spacing:0.06em;text-transform:uppercase;}
+.bloodwork-unit{font-size:10px;color:var(--gray-4);margin-left:4px;font-weight:400;text-transform:none;letter-spacing:0;}
+.bloodwork-range{font-size:10px;color:var(--gray-4);margin-top:2px;}
+
+/* ── TELL US MORE ── */
+.tell-more{margin-top:20px;border-top:1px solid var(--gray-2);padding-top:18px;}
+.tell-more-lbl{
+  font-size:11px;font-weight:600;color:var(--gray-4);
+  letter-spacing:0.08em;text-transform:uppercase;
+  margin-bottom:7px;display:flex;align-items:center;gap:6px;
+}
+.opt-badge{
+  background:var(--blue-pale);color:var(--blue);
+  font-size:10px;font-weight:700;padding:2px 7px;
+  border-radius:20px;letter-spacing:0.04em;
+}
+.tell-more textarea{
+  width:100%;min-height:76px;
+  padding:11px 13px;
+  border:1.5px solid var(--gray-2);border-radius:11px;
+  font-size:16px;color:#000;font-family:inherit;
+  background:#fff;outline:none;resize:vertical;line-height:1.5;
+  transition:border-color 0.2s;
+}
+.tell-more textarea:focus{border-color:var(--blue);}
+.tell-more textarea::placeholder{color:var(--gray-3);}
+.tell-more-count{font-size:11px;color:var(--gray-4);text-align:right;margin-top:3px;}
+
+/* ── SUMMARY ── */
+.summary-hero{
+  text-align:center;padding:24px 0 20px;
+  border-bottom:1px solid var(--gray-2);
+  margin-bottom:20px;
+}
+.summary-hero-icon{font-size:40px;margin-bottom:8px;}
+.summary-hero h2{font-size:20px;font-weight:700;color:#000;letter-spacing:-0.3px;}
+.summary-hero p{font-size:13px;color:var(--gray-5);margin-top:4px;}
+.summary-sections{display:flex;flex-direction:column;gap:12px;}
+.summary-section{
+  background:var(--gray-1);border-radius:14px;padding:16px;
+}
+.summary-section-title{
+  font-size:11px;font-weight:700;color:var(--gray-4);
+  letter-spacing:0.1em;text-transform:uppercase;margin-bottom:12px;
+}
+.summary-row{
+  display:flex;justify-content:space-between;align-items:flex-start;
+  padding:8px 0;border-bottom:1px solid var(--gray-2);gap:12px;
+}
+.summary-row:last-child{border-bottom:none;padding-bottom:0;}
+.summary-key{font-size:13px;color:var(--gray-5);flex-shrink:0;}
+.summary-val{font-size:13px;font-weight:500;color:#000;text-align:right;}
+.summary-edit{
+  font-size:11px;color:var(--blue);
+  background:none;border:none;cursor:pointer;
+  font-family:inherit;font-weight:500;
+  margin-top:10px;display:block;width:100%;text-align:center;
+}
+.summary-notes{
+  font-size:12px;color:var(--gray-5);
+  background:#fff;border-radius:9px;
+  padding:10px 12px;margin-top:8px;
+  line-height:1.5;font-style:italic;
+  border:1px solid var(--gray-2);
+}
+
+/* ── ACCOUNT ── */
+.account-form{display:flex;flex-direction:column;gap:13px;}
+.password-wrap{position:relative;}
+.pw-toggle{
+  position:absolute;right:13px;top:50%;transform:translateY(-50%);
+  background:none;border:none;cursor:pointer;
+  color:var(--gray-4);font-size:13px;font-weight:500;font-family:inherit;
+}
+.terms-note{font-size:12px;color:var(--gray-4);line-height:1.6;text-align:center;}
+.terms-note a{color:var(--blue);text-decoration:none;}
+
+/* ── FOOTER ── */
+.footer{
+  position:fixed;bottom:0;left:0;right:0;z-index:200;
+  background:rgba(255,255,255,0.97);
+  backdrop-filter:blur(20px);
+  border-top:1px solid var(--gray-2);
+  padding:12px 20px calc(12px + env(safe-area-inset-bottom));
+}
+.footer-inner{max-width:580px;margin:0 auto;display:flex;flex-direction:column;gap:6px;}
+.btn-continue{
+  width:100%;padding:16px;
+  background:var(--blue);color:#fff;border:none;
+  border-radius:980px;font-size:16px;font-weight:600;
+  font-family:inherit;cursor:pointer;
+  transition:background 0.2s,opacity 0.2s;
+}
+.btn-continue:hover:not(:disabled){background:var(--blue-dark);}
+.btn-continue:disabled{opacity:0.3;cursor:not-allowed;}
+.step-hint{font-size:11px;color:var(--gray-4);text-align:center;}
+
+/* ── ANIMATIONS ── */
+@keyframes fadeUp{from{opacity:0;transform:translateY(10px);}to{opacity:1;transform:translateY(0);}}
+.step.active .step-meta{animation:fadeUp 0.35s 0.05s both;}
+.step.active .step-title{animation:fadeUp 0.35s 0.08s both;}
+.step.active .step-sub{animation:fadeUp 0.35s 0.11s both;}
+.step.active .options,.step.active .options-grid,
+.step.active .input-group,.step.active .scale-options,
+.step.active .conditions-grid,.step.active .bloodwork-grid,
+.step.active .summary-sections,.step.active .account-form{
+  animation:fadeUp 0.35s 0.14s both;
+}
+
+/* ── RESPONSIVE ── */
+@media(max-width:480px){
+  .options-grid{grid-template-columns:1fr;}
+  .conditions-grid{grid-template-columns:1fr;}
+  .none-chip{grid-column:span 1;}
+  .input-row{flex-direction:column;}
+  .bloodwork-grid{grid-template-columns:1fr;}
+}
+</style>
+<script>
+// Early definitions so onclick handlers work before main script loads
+function toggleWhy(n){
+  var el = document.getElementById('why-'+n);
+  if(!el) return;
+  el.classList.toggle('open');
+}
+function charCount(el, id){
+  var c = document.getElementById(id);
+  if(c) c.textContent = el.value.length + ' / 500';
+}
+</script>
+</head>
+<body>
+
+<!-- HEADER -->
+<header class="header">
+  <button class="header-back" id="back-btn" onclick="goBack()">
+    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
+    Back
+  </button>
+  <a href="/" class="header-logo">
+    <div class="header-logo-mark">P</div>
+    PepTrak
+  </a>
+  <div class="header-meta">
+    <div class="header-step" id="step-label">Step 1</div>
+    <div class="header-time" id="time-label">~12 min left</div>
+  </div>
+
+</header>
+
+<!-- PROGRESS -->
+<div class="progress-track">
+  <div class="progress-fill" id="progress-fill" style="width:5%"></div>
+</div>
+
+<!-- STEPS WRAP -->
+
+<!-- INTRO MODAL -->
+<div id="intro-modal" style="position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,0.6);backdrop-filter:blur(12px);display:flex;align-items:flex-end;justify-content:center;padding:0 0 0;">
+  <div style="background:#fff;border-radius:28px 28px 0 0;padding:32px 24px 40px;max-width:480px;width:100%;animation:slideUp 0.4s cubic-bezier(0.34,1.2,0.64,1);">
+    <div style="width:40px;height:4px;background:#E5E7EB;border-radius:4px;margin:0 auto 24px;"></div>
+    <div style="font-size:36px;text-align:center;margin-bottom:14px;">🧬</div>
+    <h2 style="font-size:22px;font-weight:800;letter-spacing:-0.5px;color:#07090D;text-align:center;margin-bottom:8px;line-height:1.2;">Get your personalized<br>peptide protocol</h2>
+    <p style="font-size:14px;color:#545B67;text-align:center;line-height:1.65;margin-bottom:24px;">Answer a few questions about your goals and biology. Our research team will build you a protocol based on your exact biometrics. Takes about <strong style="color:#07090D;">5 minutes.</strong></p>
+    <div style="display:flex;flex-direction:column;gap:10px;margin-bottom:24px;">
+      <div style="display:flex;align-items:center;gap:12px;padding:12px 14px;background:#F7F8FA;border-radius:12px;">
+        <div style="font-size:18px;flex-shrink:0;">🎯</div>
+        <div style="font-size:13px;color:#07090D;font-weight:500;">Compounds selected based on your goals, biometrics &amp; experience level</div>
+      </div>
+      <div style="display:flex;align-items:center;gap:12px;padding:12px 14px;background:#F7F8FA;border-radius:12px;">
+        <div style="font-size:18px;flex-shrink:0;">⚖️</div>
+        <div style="font-size:13px;color:#07090D;font-weight:500;">Doses calibrated to your exact body weight and tolerance</div>
+      </div>
+      <div style="display:flex;align-items:center;gap:12px;padding:12px 14px;background:#F7F8FA;border-radius:12px;">
+        <div style="font-size:18px;flex-shrink:0;">💬</div>
+        <div style="font-size:13px;color:#07090D;font-weight:500;">Full research rationale explaining why each compound was chosen for you</div>
+      </div>
+    </div>
+    <button onclick="startQuestionnaire()" style="width:100%;padding:16px;background:#0876FF;color:#fff;border:none;border-radius:980px;font-size:16px;font-weight:700;cursor:pointer;font-family:inherit;box-shadow:0 4px 20px rgba(8,118,255,0.3);margin-bottom:10px;">Let's build my protocol →</button>
+    <button onclick="document.getElementById('intro-modal').style.display='none';" style="width:100%;padding:13px;background:none;border:none;color:#8A919E;font-size:14px;font-weight:500;cursor:pointer;font-family:inherit;">Not now</button>
+  </div>
+</div>
+<style>
+@keyframes slideUp{from{transform:translateY(100%);}to{transform:translateY(0);}}
+</style>
+
+<div class="steps-wrap" id="steps-wrap">
+
+<!-- ═══════════════════════════════════
+     STEP 1 — PRIMARY GOAL
+═══════════════════════════════════ -->
+<div class="step active" id="step-1">
+  <div class="step-meta">
+    <div class="step-eyebrow">Your goals</div>
+    <button class="why-btn" onclick="toggleWhy(1)">
+      <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg>
+      Why we ask
+    </button>
+  </div>
+  <h1 class="step-title">What's your<br>primary goal?</h1>
+  <p class="step-sub">This is the single most important factor in your protocol. Choose the one that matters most right now.</p>
+  <div class="why-tooltip" id="why-1">
+    <strong>Why this matters:</strong> Each goal activates a different cluster of compounds. Fat loss protocols use GLP-1 analogs and metabolic peptides. Muscle protocols prioritize GH secretagogues and anabolics. Recovery protocols center on tissue-repair peptides like BPC-157. Your primary goal determines which compounds lead your stack.
+  </div>
+  <div class="options-grid" id="s1-opts">
+    <div class="option-grid" data-val="fat_loss" onclick="selectGrid(this,'s1')">
+      <div class="option-grid-icon">🔥</div>
+      <div class="option-grid-label">Fat Loss</div>
+      <div class="option-grid-desc">Reduce body fat, preserve muscle</div>
+    </div>
+    <div class="option-grid" data-val="muscle" onclick="selectGrid(this,'s1')">
+      <div class="option-grid-icon">💪</div>
+      <div class="option-grid-label">Muscle & Strength</div>
+      <div class="option-grid-desc">Build lean mass and power</div>
+    </div>
+    <div class="option-grid" data-val="recovery" onclick="selectGrid(this,'s1')">
+      <div class="option-grid-icon">⚡</div>
+      <div class="option-grid-label">Recovery</div>
+      <div class="option-grid-desc">Heal faster, reduce inflammation</div>
+    </div>
+    <div class="option-grid" data-val="brain" onclick="selectGrid(this,'s1')">
+      <div class="option-grid-icon">🧠</div>
+      <div class="option-grid-label">Brain & Focus</div>
+      <div class="option-grid-desc">Cognitive performance and clarity</div>
+    </div>
+    <div class="option-grid" data-val="sleep_gh" onclick="selectGrid(this,'s1')">
+      <div class="option-grid-icon">🌙</div>
+      <div class="option-grid-label">Sleep & GH</div>
+      <div class="option-grid-desc">Sleep quality, growth hormone</div>
+    </div>
+    <div class="option-grid" data-val="anti_aging" onclick="selectGrid(this,'s1')">
+      <div class="option-grid-icon">✨</div>
+      <div class="option-grid-label">Longevity</div>
+      <div class="option-grid-desc">Anti-aging, cellular repair</div>
+    </div>
+  </div>
+  <div class="tell-more">
+    <div class="tell-more-lbl">Add more context <span class="opt-badge">Optional</span></div>
+    <textarea id="notes-1" placeholder="e.g. I want to drop 20lbs before summer while keeping my muscle. I train 5x/week and have tried keto before..." maxlength="500" oninput="charCount(this,'cc-1')"></textarea>
+    <div class="tell-more-count" id="cc-1">0 / 500</div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════
+     STEP 2 — SECONDARY GOALS
+═══════════════════════════════════ -->
+<div class="step" id="step-2">
+  <div class="step-meta">
+    <div class="step-eyebrow">Your goals</div>
+    <button class="why-btn" onclick="toggleWhy(2)">
+      <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg>
+      Why we ask
+    </button>
+  </div>
+  <h1 class="step-title">Any secondary goals?</h1>
+  <p class="step-sub">Select all that apply. We'll prioritize your primary goal but weight these when selecting supporting compounds.</p>
+  <div class="why-tooltip" id="why-2">
+    <strong>Why this matters:</strong> Many compounds serve multiple goals. Knowing your secondary goals lets us pick compounds that pull double-duty — for example, CJC-1295 + Ipamorelin supports both fat loss and sleep. We won't compromise your primary goal, but we'll optimize for overlap where possible.
+  </div>
+  <div class="options-grid" id="s2-opts"></div>
+  <div class="tell-more">
+    <div class="tell-more-lbl">Add more context <span class="opt-badge">Optional</span></div>
+    <textarea id="notes-2" placeholder="e.g. Sleep has been terrible lately and I think it's affecting my recovery and body composition..." maxlength="500" oninput="charCount(this,'cc-2')"></textarea>
+    <div class="tell-more-count" id="cc-2">0 / 500</div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════
+     STEP 3 — TIMELINE
+═══════════════════════════════════ -->
+<div class="step" id="step-3">
+  <div class="step-meta">
+    <div class="step-eyebrow">Your goals</div>
+    <button class="why-btn" onclick="toggleWhy(3)">
+      <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg>
+      Why we ask
+    </button>
+  </div>
+  <h1 class="step-title">What's your timeline?</h1>
+  <p class="step-sub">How long are you planning to run your first protocol?</p>
+  <div class="why-tooltip" id="why-3">
+    <strong>Why this matters:</strong> Short timelines (under 8 weeks) require faster-acting compounds and more aggressive starting doses. Longer commitments open up slower-acting but more sustainable stacks. Some peptides (like BPC-157 for tissue repair) need at least 8–12 weeks to show full effect.
+  </div>
+  <div class="options" id="s3-opts">
+    <div class="option" data-val="30" onclick="selectOpt(this,'s3','timeline')">
+      <div class="option-radio"></div>
+      <div class="option-text">
+        <div class="option-label">30 days</div>
+        <div class="option-desc">Short run — fast-acting compounds prioritized</div>
+      </div>
+    </div>
+    <div class="option" data-val="60" onclick="selectOpt(this,'s3','timeline')">
+      <div class="option-radio"></div>
+      <div class="option-text">
+        <div class="option-label">60 days</div>
+        <div class="option-desc">Standard first cycle for most goals</div>
+      </div>
+    </div>
+    <div class="option" data-val="90" onclick="selectOpt(this,'s3','timeline')">
+      <div class="option-radio"></div>
+      <div class="option-text">
+        <div class="option-label">90 days</div>
+        <div class="option-desc">Full cycle — best results for most goals</div>
+      </div>
+    </div>
+    <div class="option" data-val="ongoing" onclick="selectOpt(this,'s3','timeline')">
+      <div class="option-radio"></div>
+      <div class="option-text">
+        <div class="option-label">Ongoing / Long-term</div>
+        <div class="option-desc">Lifestyle protocol, I plan to continue indefinitely</div>
+      </div>
+    </div>
+    <div class="option" data-val="unsure" onclick="selectOpt(this,'s3','timeline')">
+      <div class="option-radio"></div>
+      <div class="option-text">
+        <div class="option-label">Not sure yet</div>
+        <div class="option-desc">I'll decide based on results</div>
+      </div>
+    </div>
+  </div>
+  <div class="tell-more">
+    <div class="tell-more-lbl">Add more context <span class="opt-badge">Optional</span></div>
+    <textarea id="notes-3" placeholder="e.g. I have a vacation in 10 weeks and want to look my best. After that I might continue if I see results..." maxlength="500" oninput="charCount(this,'cc-3')"></textarea>
+    <div class="tell-more-count" id="cc-3">0 / 500</div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════
+     STEP 4 — BUDGET
+═══════════════════════════════════ -->
+<div class="step" id="step-4">
+  <div class="step-meta">
+    <div class="step-eyebrow">Your goals</div>
+    <button class="why-btn" onclick="toggleWhy(4)">
+      <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg>
+      Why we ask
+    </button>
+  </div>
+  <h1 class="step-title">Monthly budget<br>for compounds?</h1>
+  <p class="step-sub">We'll only prescribe what you can actually afford. No point recommending a $400/mo stack if that doesn't work for you.</p>
+  <div class="why-tooltip" id="why-4">
+    <strong>Why this matters:</strong> Peptide costs vary widely. GLP-1 analogs like Retatrutide run $150–$300/mo. A BPC-157 + TB-500 stack can be under $80/mo. We'll build the most effective protocol within your real budget — not an aspirational one you won't stick to.
+  </div>
+  <div class="options" id="s4-opts">
+    <div class="option" data-val="under_75" onclick="selectOpt(this,'s4','budget')">
+      <div class="option-radio"></div>
+      <div class="option-text">
+        <div class="option-label">Under $75/mo</div>
+        <div class="option-desc">Budget-conscious — we'll find the most efficient compounds</div>
+      </div>
+    </div>
+    <div class="option" data-val="75_150" onclick="selectOpt(this,'s4','budget')">
+      <div class="option-radio"></div>
+      <div class="option-text">
+        <div class="option-label">$75 – $150/mo</div>
+        <div class="option-desc">Mid-range — access to most compounds</div>
+      </div>
+    </div>
+    <div class="option" data-val="150_300" onclick="selectOpt(this,'s4','budget')">
+      <div class="option-radio"></div>
+      <div class="option-text">
+        <div class="option-label">$150 – $300/mo</div>
+        <div class="option-desc">Full access — premium compounds available</div>
+      </div>
+    </div>
+    <div class="option" data-val="300_plus" onclick="selectOpt(this,'s4','budget')">
+      <div class="option-radio"></div>
+      <div class="option-text">
+        <div class="option-label">$300+/mo</div>
+        <div class="option-desc">No budget constraint — best of everything</div>
+      </div>
+    </div>
+  </div>
+  <div class="tell-more">
+    <div class="tell-more-lbl">Add more context <span class="opt-badge">Optional</span></div>
+    <textarea id="notes-4" placeholder="e.g. I can go higher for the first month to build up supply, then spend less ongoing..." maxlength="500" oninput="charCount(this,'cc-4')"></textarea>
+    <div class="tell-more-count" id="cc-4">0 / 500</div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════
+     STEP 5 — SEX
+═══════════════════════════════════ -->
+<div class="step" id="step-5">
+  <div class="step-meta">
+    <div class="step-eyebrow">Your biology</div>
+    <button class="why-btn" onclick="toggleWhy(5)">
+      <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg>
+      Why we ask
+    </button>
+  </div>
+  <h1 class="step-title">Biological sex?</h1>
+  <p class="step-sub">Affects hormonal baseline, dosing ranges, and compound suitability.</p>
+  <div class="why-tooltip" id="why-5">
+    <strong>Why this matters:</strong> Biological sex directly affects baseline testosterone, estrogen, and GH levels — all of which interact with peptides differently. Female users generally require lower starting doses of GH secretagogues. Some fat loss compounds behave differently based on hormonal environment.
+  </div>
+  <div class="options" id="s5-opts">
+    <div class="option" data-val="male" onclick="selectOpt(this,'s5','sex')">
+      <div class="option-radio"></div>
+      <div class="option-label">Male</div>
+    </div>
+    <div class="option" data-val="female" onclick="selectOpt(this,'s5','sex')">
+      <div class="option-radio"></div>
+      <div class="option-label">Female</div>
+    </div>
+    <div class="option" data-val="other" onclick="selectOpt(this,'s5','sex')">
+      <div class="option-radio"></div>
+      <div class="option-text">
+        <div class="option-label">Prefer not to say</div>
+        <div class="option-desc">We'll use conservative unisex dosing ranges</div>
+      </div>
+    </div>
+  </div>
+  <div class="tell-more">
+    <div class="tell-more-lbl">Add more context <span class="opt-badge">Optional</span></div>
+    <textarea id="notes-5" placeholder="e.g. Any other context about your physiology, hormone status, or health history..." maxlength="500" oninput="charCount(this,'cc-5')"></textarea>
+    <div class="tell-more-count" id="cc-5">0 / 500</div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════
+     STEP 6 — AGE
+═══════════════════════════════════ -->
+<div class="step" id="step-6">
+  <div class="step-meta">
+    <div class="step-eyebrow">Your biology</div>
+    <button class="why-btn" onclick="toggleWhy(6)">
+      <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg>
+      Why we ask
+    </button>
+  </div>
+  <h1 class="step-title">Age bracket?</h1>
+  <p class="step-sub">GH axis responsiveness and baseline hormone levels change significantly with age.</p>
+  <div class="why-tooltip" id="why-6">
+    <strong>Why this matters:</strong> Natural GH production peaks in your 20s and declines ~15% per decade after that. A 50-year-old needs a different GH secretagogue strategy than a 25-year-old. Age also affects dosing sensitivity and recovery capacity.
+  </div>
+  <div class="options" id="s6-opts">
+    <div class="option" data-val="18-24" onclick="selectOpt(this,'s6','age')"><div class="option-radio"></div><div class="option-label">18 – 24</div></div>
+    <div class="option" data-val="25-34" onclick="selectOpt(this,'s6','age')"><div class="option-radio"></div><div class="option-label">25 – 34</div></div>
+    <div class="option" data-val="35-44" onclick="selectOpt(this,'s6','age')"><div class="option-radio"></div><div class="option-label">35 – 44</div></div>
+    <div class="option" data-val="45-54" onclick="selectOpt(this,'s6','age')"><div class="option-radio"></div><div class="option-label">45 – 54</div></div>
+    <div class="option" data-val="55+" onclick="selectOpt(this,'s6','age')"><div class="option-radio"></div><div class="option-label">55 and older</div></div>
+  </div>
+  <div class="tell-more">
+    <div class="tell-more-lbl">Add more context <span class="opt-badge">Optional</span></div>
+    <textarea id="notes-6" placeholder="e.g. I'm 29 and my testosterone came back on the lower end of normal in recent bloodwork..." maxlength="500" oninput="charCount(this,'cc-6')"></textarea>
+    <div class="tell-more-count" id="cc-6">0 / 500</div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════
+     STEP 7 — HEIGHT + WEIGHT
+═══════════════════════════════════ -->
+<div class="step" id="step-7">
+  <div class="step-meta">
+    <div class="step-eyebrow">Your biology</div>
+    <button class="why-btn" onclick="toggleWhy(7)">
+      <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg>
+      Why we ask
+    </button>
+  </div>
+  <h1 class="step-title">Height & weight</h1>
+  <p class="step-sub">Used to calculate doses precisely to your body size — not one-size-fits-all.</p>
+  <div class="why-tooltip" id="why-7">
+    <strong>Why this matters:</strong> Most peptide doses are weight-based (mcg/kg). A 200lb person needs a different dose than a 140lb person. BMI also helps us understand body composition context and calibrate fat loss vs. muscle-building compound ratios.
+  </div>
+  <div class="input-group">
+    <div class="unit-toggle">
+      <button class="unit-btn active" id="u-imp" onclick="setUnit('imperial')">lbs / ft</button>
+      <button class="unit-btn" id="u-met" onclick="setUnit('metric')">kg / cm</button>
+    </div>
+    <div id="imp-fields">
+      <div class="input-row">
+        <div class="input-wrap"><div class="input-label">Feet</div><input class="input-field" type="number" id="h-ft" placeholder="5" min="3" max="8" inputmode="decimal" oninput="calcBMI()"/></div>
+        <div class="input-wrap"><div class="input-label">Inches</div><input class="input-field" type="number" id="h-in" placeholder="10" min="0" max="11" inputmode="decimal" oninput="calcBMI()"/></div>
+        <div class="input-wrap"><div class="input-label">Weight (lbs)</div><input class="input-field" type="number" id="w-lbs" placeholder="175" min="80" max="500" inputmode="decimal" oninput="calcBMI()"/></div>
+      </div>
+    </div>
+    <div id="met-fields" style="display:none;">
+      <div class="input-row">
+        <div class="input-wrap"><div class="input-label">Height (cm)</div><input class="input-field" type="number" id="h-cm" placeholder="178" min="100" max="250" inputmode="decimal" oninput="calcBMI()"/></div>
+        <div class="input-wrap"><div class="input-label">Weight (kg)</div><input class="input-field" type="number" id="w-kg" placeholder="80" min="30" max="250" inputmode="decimal" oninput="calcBMI()"/></div>
+      </div>
+    </div>
+    <div class="bmi-display" id="bmi-box" style="display:none;">
+      <div><div style="font-size:11px;color:var(--gray-5);font-weight:500;">BMI</div><div class="bmi-val" id="bmi-num"></div></div>
+      <div class="bmi-cat" id="bmi-cat"></div>
+    </div>
+  </div>
+  <div class="tell-more">
+    <div class="tell-more-lbl">Add more context <span class="opt-badge">Optional</span></div>
+    <textarea id="notes-7" placeholder="e.g. I carry most weight around my midsection, fairly lean everywhere else. Currently about 18% body fat..." maxlength="500" oninput="charCount(this,'cc-7')"></textarea>
+    <div class="tell-more-count" id="cc-7">0 / 500</div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════
+     STEP 8 — BODY COMP
+═══════════════════════════════════ -->
+<div class="step" id="step-8">
+  <div class="step-meta">
+    <div class="step-eyebrow">Your biology</div>
+    <button class="why-btn" onclick="toggleWhy(8)">
+      <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg>
+      Why we ask
+    </button>
+  </div>
+  <h1 class="step-title">Body composition</h1>
+  <p class="step-sub">Your honest self-assessment — this calibrates fat loss vs. muscle compound ratios.</p>
+  <div class="why-tooltip" id="why-8">
+    <strong>Why this matters:</strong> Someone lean trying to gain muscle has a very different compound priority than someone overweight trying to cut. This also affects which GLP-1 analogs are appropriate and at what dose.
+  </div>
+  <div class="options" id="s8-opts">
+    <div class="option" data-val="lean" onclick="selectOpt(this,'s8','body_comp')"><div class="option-radio"></div><div class="option-text"><div class="option-label">Lean</div><div class="option-desc">Low body fat, visible muscle definition</div></div></div>
+    <div class="option" data-val="average" onclick="selectOpt(this,'s8','body_comp')"><div class="option-radio"></div><div class="option-text"><div class="option-label">Average</div><div class="option-desc">Moderate body fat, some muscle</div></div></div>
+    <div class="option" data-val="overweight" onclick="selectOpt(this,'s8','body_comp')"><div class="option-radio"></div><div class="option-text"><div class="option-label">Overweight</div><div class="option-desc">Above average body fat</div></div></div>
+    <div class="option" data-val="obese" onclick="selectOpt(this,'s8','body_comp')"><div class="option-radio"></div><div class="option-text"><div class="option-label">Obese</div><div class="option-desc">Significantly above average body fat</div></div></div>
+  </div>
+  <div class="tell-more">
+    <div class="tell-more-lbl">Add more context <span class="opt-badge">Optional</span></div>
+    <textarea id="notes-8" placeholder="e.g. I've been cutting for 8 weeks and I'm about 15% body fat currently. Trying to get to 10%..." maxlength="500" oninput="charCount(this,'cc-8')"></textarea>
+    <div class="tell-more-count" id="cc-8">0 / 500</div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════
+     STEP 9 — TRAINING
+═══════════════════════════════════ -->
+<div class="step" id="step-9">
+  <div class="step-meta">
+    <div class="step-eyebrow">Your lifestyle</div>
+    <button class="why-btn" onclick="toggleWhy(9)">
+      <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg>
+      Why we ask
+    </button>
+  </div>
+  <h1 class="step-title">Training frequency</h1>
+  <p class="step-sub">Affects recovery compound weighting and dosing intensity.</p>
+  <div class="why-tooltip" id="why-9">
+    <strong>Why this matters:</strong> High-frequency trainers have greater recovery demands and benefit more from BPC-157, TB-500, and growth hormone peptides. Sedentary users may not need heavy recovery compounds and will get more value from metabolic or cognitive peptides.
+  </div>
+  <div class="options" id="s9-opts">
+    <div class="option" data-val="sedentary" onclick="selectOpt(this,'s9','training')"><div class="option-radio"></div><div class="option-text"><div class="option-label">Sedentary</div><div class="option-desc">Little to no regular exercise</div></div></div>
+    <div class="option" data-val="light" onclick="selectOpt(this,'s9','training')"><div class="option-radio"></div><div class="option-text"><div class="option-label">1–2 days/week</div><div class="option-desc">Light activity</div></div></div>
+    <div class="option" data-val="moderate" onclick="selectOpt(this,'s9','training')"><div class="option-radio"></div><div class="option-text"><div class="option-label">3–4 days/week</div><div class="option-desc">Moderate training load</div></div></div>
+    <div class="option" data-val="active" onclick="selectOpt(this,'s9','training')"><div class="option-radio"></div><div class="option-text"><div class="option-label">5–6 days/week</div><div class="option-desc">High training volume</div></div></div>
+    <div class="option" data-val="athlete" onclick="selectOpt(this,'s9','training')"><div class="option-radio"></div><div class="option-text"><div class="option-label">Daily / Twice daily</div><div class="option-desc">Competitive athlete or high-performance</div></div></div>
+  </div>
+  <div class="tell-more">
+    <div class="tell-more-lbl">Add more context <span class="opt-badge">Optional</span></div>
+    <textarea id="notes-9" placeholder="e.g. I mostly do powerlifting 4x/week and 1 day of cardio. Currently dealing with mild joint pain from heavy squats..." maxlength="500" oninput="charCount(this,'cc-9')"></textarea>
+    <div class="tell-more-count" id="cc-9">0 / 500</div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════
+     STEP 10 — SPORT / ACTIVITY
+═══════════════════════════════════ -->
+<div class="step" id="step-10">
+  <div class="step-meta">
+    <div class="step-eyebrow">Your lifestyle</div>
+    <button class="why-btn" onclick="toggleWhy(10)">
+      <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg>
+      Why we ask
+    </button>
+  </div>
+  <h1 class="step-title">Primary sport<br>or activity?</h1>
+  <p class="step-sub">Different sports have very different recovery, performance, and injury profiles.</p>
+  <div class="why-tooltip" id="why-10">
+    <strong>Why this matters:</strong> A BJJ fighter needs different compounds than a marathon runner. Joint recovery peptides (BPC-157) are more critical for combat sports and powerlifting. Endurance athletes benefit more from mitochondrial and cardiac peptides. Desk workers may prioritize cognitive and metabolic compounds.
+  </div>
+  <div class="options" id="s10-opts">
+    <div class="option" data-val="strength" onclick="selectOpt(this,'s10','sport')"><div class="option-radio"></div><div class="option-text"><div class="option-label">Strength / Powerlifting</div><div class="option-desc">Barbell sports, Olympic lifting</div></div></div>
+    <div class="option" data-val="bodybuilding" onclick="selectOpt(this,'s10','sport')"><div class="option-radio"></div><div class="option-text"><div class="option-label">Bodybuilding / Physique</div><div class="option-desc">Aesthetic-focused training</div></div></div>
+    <div class="option" data-val="combat" onclick="selectOpt(this,'s10','sport')"><div class="option-radio"></div><div class="option-text"><div class="option-label">Combat Sports</div><div class="option-desc">MMA, BJJ, boxing, wrestling</div></div></div>
+    <div class="option" data-val="endurance" onclick="selectOpt(this,'s10','sport')"><div class="option-radio"></div><div class="option-text"><div class="option-label">Endurance</div><div class="option-desc">Running, cycling, triathlon, swimming</div></div></div>
+    <div class="option" data-val="crossfit" onclick="selectOpt(this,'s10','sport')"><div class="option-radio"></div><div class="option-text"><div class="option-label">CrossFit / HIIT</div><div class="option-desc">High-intensity mixed modality</div></div></div>
+    <div class="option" data-val="recreational" onclick="selectOpt(this,'s10','sport')"><div class="option-radio"></div><div class="option-text"><div class="option-label">Recreational fitness</div><div class="option-desc">General gym-goer, classes, casual sport</div></div></div>
+    <div class="option" data-val="sedentary_work" onclick="selectOpt(this,'s10','sport')"><div class="option-radio"></div><div class="option-text"><div class="option-label">Primarily sedentary</div><div class="option-desc">Desk work, not sport-focused</div></div></div>
+  </div>
+  <div class="tell-more">
+    <div class="tell-more-lbl">Add more context <span class="opt-badge">Optional</span></div>
+    <textarea id="notes-10" placeholder="e.g. I compete in powerlifting and have a meet in 12 weeks. I've been dealing with a nagging shoulder injury..." maxlength="500" oninput="charCount(this,'cc-10')"></textarea>
+    <div class="tell-more-count" id="cc-10">0 / 500</div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════
+     STEP 11 — SLEEP
+═══════════════════════════════════ -->
+<div class="step" id="step-11">
+  <div class="step-meta">
+    <div class="step-eyebrow">Your lifestyle</div>
+    <button class="why-btn" onclick="toggleWhy(11)">
+      <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg>
+      Why we ask
+    </button>
+  </div>
+  <h1 class="step-title">Sleep quality</h1>
+  <p class="step-sub">Sleep is when most peptide-driven recovery and GH release happens. Poor sleep changes everything.</p>
+  <div class="why-tooltip" id="why-11">
+    <strong>Why this matters:</strong> ~80% of natural GH is released during deep sleep. Poor sleep blunts the effect of GH secretagogues and impairs recovery compound absorption. Users with poor sleep often need sleep-targeting compounds added to their stack first before other goals can be optimized.
+  </div>
+  <div class="options" id="s11-opts">
+    <div class="option" data-val="excellent" onclick="selectOpt(this,'s11','sleep')"><div class="option-radio"></div><div class="option-text"><div class="option-label">Excellent</div><div class="option-desc">7–9 hrs, wake refreshed, no issues</div></div></div>
+    <div class="option" data-val="good" onclick="selectOpt(this,'s11','sleep')"><div class="option-radio"></div><div class="option-text"><div class="option-label">Good</div><div class="option-desc">Usually sleep well, occasional off nights</div></div></div>
+    <div class="option" data-val="fair" onclick="selectOpt(this,'s11','sleep')"><div class="option-radio"></div><div class="option-text"><div class="option-label">Fair</div><div class="option-desc">6–7 hrs, sometimes wake during night</div></div></div>
+    <div class="option" data-val="poor" onclick="selectOpt(this,'s11','sleep')"><div class="option-radio"></div><div class="option-text"><div class="option-label">Poor</div><div class="option-desc">Under 6 hrs or frequently disrupted</div></div></div>
+    <div class="option" data-val="insomnia" onclick="selectOpt(this,'s11','sleep')"><div class="option-radio"></div><div class="option-text"><div class="option-label">Chronic insomnia</div><div class="option-desc">Significant ongoing sleep disorder</div></div></div>
+  </div>
+  <div class="tell-more">
+    <div class="tell-more-lbl">Add more context <span class="opt-badge">Optional</span></div>
+    <textarea id="notes-11" placeholder="e.g. I fall asleep fine but wake up around 3am and can't get back to sleep. Been this way for about 6 months..." maxlength="500" oninput="charCount(this,'cc-11')"></textarea>
+    <div class="tell-more-count" id="cc-11">0 / 500</div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════
+     STEP 12 — STRESS
+═══════════════════════════════════ -->
+<div class="step" id="step-12">
+  <div class="step-meta">
+    <div class="step-eyebrow">Your lifestyle</div>
+    <button class="why-btn" onclick="toggleWhy(12)">
+      <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg>
+      Why we ask
+    </button>
+  </div>
+  <h1 class="step-title">Stress level</h1>
+  <p class="step-sub">Chronic stress elevates cortisol, which directly blunts GH secretion and fat loss.</p>
+  <div class="why-tooltip" id="why-12">
+    <strong>Why this matters:</strong> High cortisol is one of the biggest suppressors of GH release and fat loss. If you're chronically stressed, we'll prioritize cortisol-modulating compounds (like Selank, Semax) and adjust GH peptide timing recommendations. Ignoring this leads to disappointing results.
+  </div>
+  <div class="scale-options" id="s12-opts">
+    <div class="scale-option" data-val="low" onclick="selectScale(this,'s12','stress')">
+      <div class="option-radio"></div>
+      <div class="scale-icon">😌</div>
+      <div><div class="option-label">Low</div><div class="option-desc">Relaxed, minimal daily stressors</div></div>
+    </div>
+    <div class="scale-option" data-val="moderate" onclick="selectScale(this,'s12','stress')">
+      <div class="option-radio"></div>
+      <div class="scale-icon">😐</div>
+      <div><div class="option-label">Moderate</div><div class="option-desc">Normal work and life stress</div></div>
+    </div>
+    <div class="scale-option" data-val="high" onclick="selectScale(this,'s12','stress')">
+      <div class="option-radio"></div>
+      <div class="scale-icon">😓</div>
+      <div><div class="option-label">High</div><div class="option-desc">Regularly stressed, hard to switch off</div></div>
+    </div>
+    <div class="scale-option" data-val="very_high" onclick="selectScale(this,'s12','stress')">
+      <div class="option-radio"></div>
+      <div class="scale-icon">😰</div>
+      <div><div class="option-label">Very high / Chronic</div><div class="option-desc">Persistent, significantly impacting daily life</div></div>
+    </div>
+  </div>
+  <div class="tell-more">
+    <div class="tell-more-lbl">Add more context <span class="opt-badge">Optional</span></div>
+    <textarea id="notes-12" placeholder="e.g. Running my own business and working 60+ hour weeks. I feel wired but tired most of the time..." maxlength="500" oninput="charCount(this,'cc-12')"></textarea>
+    <div class="tell-more-count" id="cc-12">0 / 500</div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════
+     STEP 13 — ALCOHOL
+═══════════════════════════════════ -->
+<div class="step" id="step-13">
+  <div class="step-meta">
+    <div class="step-eyebrow">Your lifestyle</div>
+    <button class="why-btn" onclick="toggleWhy(13)">
+      <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg>
+      Why we ask
+    </button>
+  </div>
+  <h1 class="step-title">Alcohol consumption</h1>
+  <p class="step-sub">No judgment — this affects liver compound compatibility and GH release timing.</p>
+  <div class="why-tooltip" id="why-13">
+    <strong>Why this matters:</strong> Alcohol suppresses GH release for up to 24 hours after consumption. Heavy regular use affects liver function, which impacts how certain peptides are metabolized. We'll adjust dosing recommendations and flag any timing conflicts.
+  </div>
+  <div class="options" id="s13-opts">
+    <div class="option" data-val="none" onclick="selectOpt(this,'s13','alcohol')"><div class="option-radio"></div><div class="option-text"><div class="option-label">None</div><div class="option-desc">I don't drink</div></div></div>
+    <div class="option" data-val="occasional" onclick="selectOpt(this,'s13','alcohol')"><div class="option-radio"></div><div class="option-text"><div class="option-label">Occasional</div><div class="option-desc">1–2 drinks, a few times a month</div></div></div>
+    <div class="option" data-val="moderate" onclick="selectOpt(this,'s13','alcohol')"><div class="option-radio"></div><div class="option-text"><div class="option-label">Moderate</div><div class="option-desc">1–3 drinks, a few times a week</div></div></div>
+    <div class="option" data-val="heavy" onclick="selectOpt(this,'s13','alcohol')"><div class="option-radio"></div><div class="option-text"><div class="option-label">Heavy</div><div class="option-desc">Daily or near-daily drinking</div></div></div>
+  </div>
+  <div class="tell-more">
+    <div class="tell-more-lbl">Add more context <span class="opt-badge">Optional</span></div>
+    <textarea id="notes-13" placeholder="e.g. I drink socially on weekends, usually 3-4 drinks on Friday and Saturday nights..." maxlength="500" oninput="charCount(this,'cc-13')"></textarea>
+    <div class="tell-more-count" id="cc-13">0 / 500</div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════
+     STEP 14 — HEALTH CONDITIONS
+═══════════════════════════════════ -->
+<div class="step" id="step-14">
+  <div class="step-meta">
+    <div class="step-eyebrow">Your health</div>
+    <button class="why-btn" onclick="toggleWhy(14)">
+      <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg>
+      Why we ask
+    </button>
+  </div>
+  <h1 class="step-title">Health conditions</h1>
+  <p class="step-sub">Select all that apply. Certain conditions affect which compounds are appropriate.</p>
+  <div class="why-tooltip" id="why-14">
+    <strong>Why this matters:</strong> Cancer history means we exclude angiogenic compounds. Diabetes affects how GLP-1 analogs interact with blood sugar. Thyroid conditions interact with certain metabolic peptides. This isn't optional — getting this wrong can be unsafe.
+  </div>
+  <div class="conditions-grid" id="s14-conds">
+    <div class="cond-chip none-chip selected" data-val="none" onclick="toggleCond(this)"><div class="cond-check"></div>None / None that I know of</div>
+    <div class="cond-chip" data-val="cancer_history" onclick="toggleCond(this)"><div class="cond-check"></div>Cancer history</div>
+    <div class="cond-chip" data-val="diabetes" onclick="toggleCond(this)"><div class="cond-check"></div>Diabetes / Pre-diabetes</div>
+    <div class="cond-chip" data-val="thyroid" onclick="toggleCond(this)"><div class="cond-check"></div>Thyroid condition</div>
+    <div class="cond-chip" data-val="heart" onclick="toggleCond(this)"><div class="cond-check"></div>Heart condition</div>
+    <div class="cond-chip" data-val="autoimmune" onclick="toggleCond(this)"><div class="cond-check"></div>Autoimmune disorder</div>
+    <div class="cond-chip" data-val="kidney_liver" onclick="toggleCond(this)"><div class="cond-check"></div>Kidney / Liver condition</div>
+    <div class="cond-chip" data-val="mental_health" onclick="toggleCond(this)"><div class="cond-check"></div>Mental health condition</div>
+  </div>
+  <div class="cancer-warn" id="cancer-warn">⚠️ <strong>Important:</strong> Due to your cancer history, angiogenic compounds including high-dose BPC-157 will be excluded from your protocol. We'll flag safer alternatives and strongly recommend consulting your oncologist.</div>
+  <div class="tell-more">
+    <div class="tell-more-lbl">Add more context <span class="opt-badge">Optional</span></div>
+    <textarea id="notes-14" placeholder="e.g. I had a knee surgery 6 months ago. I also take metformin for blood sugar management..." maxlength="500" oninput="charCount(this,'cc-14')"></textarea>
+    <div class="tell-more-count" id="cc-14">0 / 500</div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════
+     STEP 15 — MEDICATIONS / SUPPLEMENTS
+═══════════════════════════════════ -->
+<div class="step" id="step-15">
+  <div class="step-meta">
+    <div class="step-eyebrow">Your health</div>
+    <button class="why-btn" onclick="toggleWhy(15)">
+      <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg>
+      Why we ask
+    </button>
+  </div>
+  <h1 class="step-title">Current medications<br>& supplements</h1>
+  <p class="step-sub">Select all that apply. Some peptides interact with common medications.</p>
+  <div class="why-tooltip" id="why-15">
+    <strong>Why this matters:</strong> TRT increases the effectiveness of GH secretagogues significantly. Metformin affects insulin signaling, which interacts with GLP-1 analogs. Thyroid medications interact with metabolic peptides. We need to know this to avoid conflicts and optimize dosing.
+  </div>
+  <div class="options" id="s15-opts">
+    <div class="option" data-val="none" onclick="toggleMulti(this,'s15','medications')">
+      <div class="option-check"></div>
+      <div class="option-text"><div class="option-label">None currently</div></div>
+    </div>
+    <div class="option" data-val="trt" onclick="toggleMulti(this,'s15','medications')">
+      <div class="option-check"></div>
+      <div class="option-text"><div class="option-label">TRT / Testosterone</div><div class="option-desc">Testosterone replacement therapy</div></div>
+    </div>
+    <div class="option" data-val="metformin" onclick="toggleMulti(this,'s15','medications')">
+      <div class="option-check"></div>
+      <div class="option-text"><div class="option-label">Metformin</div></div>
+    </div>
+    <div class="option" data-val="thyroid_meds" onclick="toggleMulti(this,'s15','medications')">
+      <div class="option-check"></div>
+      <div class="option-text"><div class="option-label">Thyroid medication</div><div class="option-desc">Synthroid, levothyroxine, etc.</div></div>
+    </div>
+    <div class="option" data-val="antidepressants" onclick="toggleMulti(this,'s15','medications')">
+      <div class="option-check"></div>
+      <div class="option-text"><div class="option-label">Antidepressants / SSRIs</div></div>
+    </div>
+    <div class="option" data-val="blood_pressure" onclick="toggleMulti(this,'s15','medications')">
+      <div class="option-check"></div>
+      <div class="option-text"><div class="option-label">Blood pressure medication</div></div>
+    </div>
+    <div class="option" data-val="creatine_protein" onclick="toggleMulti(this,'s15','medications')">
+      <div class="option-check"></div>
+      <div class="option-text"><div class="option-label">Creatine / Protein supplements</div></div>
+    </div>
+    <div class="option" data-val="other_supps" onclick="toggleMulti(this,'s15','medications')">
+      <div class="option-check"></div>
+      <div class="option-text"><div class="option-label">Other medications / supplements</div></div>
+    </div>
+  </div>
+  <div class="tell-more">
+    <div class="tell-more-lbl">Add more context <span class="opt-badge">Optional but important</span></div>
+    <textarea id="notes-15" placeholder="e.g. I'm on 200mg testosterone cypionate weekly. Also take fish oil, vitamin D, and magnesium glycinate before bed..." maxlength="500" oninput="charCount(this,'cc-15')"></textarea>
+    <div class="tell-more-count" id="cc-15">0 / 500</div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════
+     STEP 16 — PREVIOUS PEPTIDES
+═══════════════════════════════════ -->
+<div class="step" id="step-16">
+  <div class="step-meta">
+    <div class="step-eyebrow">Your experience</div>
+    <button class="why-btn" onclick="toggleWhy(16)">
+      <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg>
+      Why we ask
+    </button>
+  </div>
+  <h1 class="step-title">Peptide experience</h1>
+  <p class="step-sub">What have you used before? And critically — what didn't work?</p>
+  <div class="why-tooltip" id="why-16">
+    <strong>Why this matters:</strong> We won't prescribe something you've already tried that didn't work. We'll also adjust starting doses based on your tolerance. Knowing your history prevents us from recommending a beginner protocol to an experienced user or vice versa.
+  </div>
+  <div class="options" id="s16-opts">
+    <div class="option" data-val="none" onclick="selectOpt(this,'s16','experience')"><div class="option-radio"></div><div class="option-text"><div class="option-label">Complete beginner</div><div class="option-desc">Never used peptides before</div></div></div>
+    <div class="option" data-val="some" onclick="selectOpt(this,'s16','experience')"><div class="option-radio"></div><div class="option-text"><div class="option-label">Some experience</div><div class="option-desc">Used 1–2 peptides, still learning</div></div></div>
+    <div class="option" data-val="intermediate" onclick="selectOpt(this,'s16','experience')"><div class="option-radio"></div><div class="option-text"><div class="option-label">Intermediate</div><div class="option-desc">Multiple cycles, comfortable with protocols</div></div></div>
+    <div class="option" data-val="advanced" onclick="selectOpt(this,'s16','experience')"><div class="option-radio"></div><div class="option-text"><div class="option-label">Advanced</div><div class="option-desc">Extensive experience, self-directed research</div></div></div>
+  </div>
+  <div class="tell-more">
+    <div class="tell-more-lbl">What have you tried — and what happened? <span class="opt-badge">Optional but valuable</span></div>
+    <textarea id="notes-16" placeholder="e.g. I've used BPC-157 for a shoulder injury — it helped. Tried TB-500 once but noticed water retention. Never tried GH peptides..." maxlength="500" oninput="charCount(this,'cc-16')"></textarea>
+    <div class="tell-more-count" id="cc-16">0 / 500</div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════
+     STEP 17 — INJECTION COMFORT
+═══════════════════════════════════ -->
+<div class="step" id="step-17">
+  <div class="step-meta">
+    <div class="step-eyebrow">Your experience</div>
+    <button class="why-btn" onclick="toggleWhy(17)">
+      <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg>
+      Why we ask
+    </button>
+  </div>
+  <h1 class="step-title">Injection comfort</h1>
+  <p class="step-sub">Be honest — there are excellent intranasal options if needles aren't for you.</p>
+  <div class="why-tooltip" id="why-17">
+    <strong>Why this matters:</strong> Some peptides are only available as injectables. Others have effective intranasal forms. If you're not comfortable with injections, we'll build you an intranasal-first stack and include our full first-pin walkthrough if you ever want to transition.
+  </div>
+  <div class="scale-options" id="s17-opts">
+    <div class="scale-option" data-val="terrified" onclick="selectScale(this,'s17','injection_comfort')">
+      <div class="option-radio"></div><div class="scale-icon">😰</div>
+      <div><div class="option-label">Terrified</div><div class="option-desc">Intranasal options only please</div></div>
+    </div>
+    <div class="scale-option" data-val="nervous" onclick="selectScale(this,'s17','injection_comfort')">
+      <div class="option-radio"></div><div class="scale-icon">😬</div>
+      <div><div class="option-label">Nervous but willing</div><div class="option-desc">I'll try with thorough guidance</div></div>
+    </div>
+    <div class="scale-option" data-val="okay" onclick="selectScale(this,'s17','injection_comfort')">
+      <div class="option-radio"></div><div class="scale-icon">😐</div>
+      <div><div class="option-label">Comfortable enough</div><div class="option-desc">Done it before or willing to learn</div></div>
+    </div>
+    <div class="scale-option" data-val="comfortable" onclick="selectScale(this,'s17','injection_comfort')">
+      <div class="option-radio"></div><div class="scale-icon">💉</div>
+      <div><div class="option-label">Fully comfortable</div><div class="option-desc">Experienced, no issues SubQ or IM</div></div>
+    </div>
+  </div>
+  <div class="tell-more">
+    <div class="tell-more-lbl">Add more context <span class="opt-badge">Optional</span></div>
+    <textarea id="notes-17" placeholder="e.g. I've done SubQ injections before but I'm still a bit anxious. Prefer the abdomen over thigh..." maxlength="500" oninput="charCount(this,'cc-17')"></textarea>
+    <div class="tell-more-count" id="cc-17">0 / 500</div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════
+     STEP 18 — BLOODWORK
+═══════════════════════════════════ -->
+<div class="step" id="step-18">
+  <div class="step-meta">
+    <div class="step-eyebrow">Bloodwork <span style="font-size:10px;background:var(--blue-pale);color:var(--blue);padding:2px 7px;border-radius:10px;letter-spacing:0.04em;">Optional</span></div>
+    <button class="why-btn" onclick="toggleWhy(18)">
+      <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg>
+      Why we ask
+    </button>
+  </div>
+  <h1 class="step-title">Bloodwork results</h1>
+  <p class="step-sub">The most powerful input we can receive. Even partial data dramatically improves your protocol accuracy.</p>
+  <div class="why-tooltip" id="why-18">
+    <strong>Why this matters:</strong> This is what no other peptide platform does. Knowing your actual testosterone, IGF-1, and thyroid numbers lets us build a protocol calibrated to your real hormonal baseline — not an estimate. Low IGF-1 changes GH peptide selection entirely. Low testosterone changes anabolic compound priorities. Skip it if you don't have recent results — but if you do, enter what you can.
+  </div>
+  <div class="bloodwork-intro">
+    <div class="bloodwork-intro-icon">🧪</div>
+    <p>Enter what you have from recent bloodwork. <strong>All fields optional.</strong> Skip anything you don't know — we'll work with whatever you provide. Results from the last 6 months are most useful.</p>
+  </div>
+  <div class="bloodwork-grid">
+    <div class="bloodwork-field">
+      <div class="bloodwork-label">Testosterone <span class="bloodwork-unit">ng/dL</span></div>
+      <input class="input-field" type="number" id="bw-test" placeholder="e.g. 650" inputmode="decimal"/>
+      <div class="bloodwork-range">Normal: 300–1000 ng/dL</div>
+    </div>
+    <div class="bloodwork-field">
+      <div class="bloodwork-label">IGF-1 <span class="bloodwork-unit">ng/mL</span></div>
+      <input class="input-field" type="number" id="bw-igf1" placeholder="e.g. 180" inputmode="decimal"/>
+      <div class="bloodwork-range">Normal: 100–300 ng/mL</div>
+    </div>
+    <div class="bloodwork-field">
+      <div class="bloodwork-label">TSH <span class="bloodwork-unit">mIU/L</span></div>
+      <input class="input-field" type="number" id="bw-tsh" placeholder="e.g. 2.1" inputmode="decimal" step="0.1"/>
+      <div class="bloodwork-range">Normal: 0.4–4.0 mIU/L</div>
+    </div>
+    <div class="bloodwork-field">
+      <div class="bloodwork-label">Cortisol <span class="bloodwork-unit">mcg/dL</span></div>
+      <input class="input-field" type="number" id="bw-cortisol" placeholder="e.g. 15" inputmode="decimal"/>
+      <div class="bloodwork-range">AM normal: 6–23 mcg/dL</div>
+    </div>
+    <div class="bloodwork-field">
+      <div class="bloodwork-label">Fasting Glucose <span class="bloodwork-unit">mg/dL</span></div>
+      <input class="input-field" type="number" id="bw-glucose" placeholder="e.g. 92" inputmode="decimal"/>
+      <div class="bloodwork-range">Normal: 70–99 mg/dL</div>
+    </div>
+    <div class="bloodwork-field">
+      <div class="bloodwork-label">HbA1c <span class="bloodwork-unit">%</span></div>
+      <input class="input-field" type="number" id="bw-hba1c" placeholder="e.g. 5.4" inputmode="decimal" step="0.1"/>
+      <div class="bloodwork-range">Normal: &lt;5.7%</div>
+    </div>
+    <div class="bloodwork-field">
+      <div class="bloodwork-label">Free T3 <span class="bloodwork-unit">pg/mL</span></div>
+      <input class="input-field" type="number" id="bw-ft3" placeholder="e.g. 3.2" inputmode="decimal" step="0.1"/>
+      <div class="bloodwork-range">Normal: 2.3–4.2 pg/mL</div>
+    </div>
+    <div class="bloodwork-field">
+      <div class="bloodwork-label">LH <span class="bloodwork-unit">mIU/mL</span></div>
+      <input class="input-field" type="number" id="bw-lh" placeholder="e.g. 5.0" inputmode="decimal" step="0.1"/>
+      <div class="bloodwork-range">Normal (M): 1.7–8.6 mIU/mL</div>
+    </div>
+  </div>
+  <div class="tell-more" style="margin-top:16px;">
+    <div class="tell-more-lbl">Other markers or notes <span class="opt-badge">Optional</span></div>
+    <textarea id="notes-18" placeholder="e.g. My estradiol was 28 pg/mL. SHBG was high at 65 nmol/L. I got these results from my last annual physical in January..." maxlength="500" oninput="charCount(this,'cc-18')"></textarea>
+    <div class="tell-more-count" id="cc-18">0 / 500</div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════
+     STEP 19 — SUMMARY / REVIEW
+═══════════════════════════════════ -->
+<div class="step" id="step-19">
+  <div class="step-meta">
+    <div class="step-eyebrow">Almost there</div>
+  </div>
+
+  <h1 class="step-title" id="summary-title">Your protocol<br>is ready to generate.</h1>
+  <p class="step-sub" id="summary-sub" style="margin-bottom:24px;"></p>
+
+  <!-- Completion stat bar -->
+  <div style="display:flex;gap:8px;margin-bottom:20px;" id="summary-stats"></div>
+
+  <!-- Profile card -->
+  <div style="background:var(--gray-1);border-radius:18px;padding:20px 20px 8px;margin-bottom:14px;">
+    <div style="font-size:11px;font-weight:700;color:var(--gray-4);letter-spacing:0.1em;text-transform:uppercase;margin-bottom:14px;">YOUR INTAKE SUMMARY</div>
+    <div id="summary-profile-rows"></div>
+  </div>
+
+  <!-- Notes preview if any -->
+  <div id="summary-notes-preview"></div>
+
+  <!-- What's coming dark card -->
+  <div style="background:#000;border-radius:18px;padding:22px;margin-bottom:14px;position:relative;overflow:hidden;">
+    <div style="position:absolute;top:-60px;right:-60px;width:200px;height:200px;background:radial-gradient(circle,rgba(8,118,255,0.18),transparent 70%);pointer-events:none;"></div>
+    <div style="font-size:11px;font-weight:700;color:rgba(8,118,255,0.7);letter-spacing:0.1em;text-transform:uppercase;margin-bottom:14px;">What you're about to receive</div>
+    <div style="display:flex;flex-direction:column;gap:12px;">
+      <div style="display:flex;gap:12px;align-items:flex-start;">
+        <div style="width:34px;height:34px;border-radius:10px;background:rgba(8,118,255,0.15);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#0876FF" stroke-width="2" stroke-linecap="round"><path d="M9 3H5a2 2 0 00-2 2v4m6-6h10a2 2 0 012 2v4M9 3v18m0 0h10a2 2 0 002-2V9M9 21H5a2 2 0 01-2-2V9m0 0h18"/></svg>
+        </div>
+        <div>
+          <div style="font-size:14px;font-weight:600;color:#fff;margin-bottom:2px;">Your 3-compound stack</div>
+          <div style="font-size:12px;color:rgba(255,255,255,0.5);line-height:1.5;">Selected from 55+ compounds. Every choice explained with "why you specifically" reasoning grounded in your biometrics.</div>
+        </div>
+      </div>
+      <div style="height:1px;background:rgba(255,255,255,0.06);"></div>
+      <div style="display:flex;gap:12px;align-items:flex-start;">
+        <div style="width:34px;height:34px;border-radius:10px;background:rgba(8,118,255,0.15);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#0876FF" stroke-width="2" stroke-linecap="round"><path d="M14.7 6.3a1 1 0 000 1.4l1.6 1.6a1 1 0 001.4 0l3.77-3.77a6 6 0 01-7.94 7.94l-6.91 6.91a2.12 2.12 0 01-3-3l6.91-6.91a6 6 0 017.94-7.94l-3.76 3.76z"/></svg>
+        </div>
+        <div>
+          <div style="font-size:14px;font-weight:600;color:#fff;margin-bottom:2px;">Exact dosing for your body</div>
+          <div style="font-size:12px;color:rgba(255,255,255,0.5);line-height:1.5;">Doses calculated to your weight — not a generic range. Frequency, route, and timing included for every compound.</div>
+        </div>
+      </div>
+      <div style="height:1px;background:rgba(255,255,255,0.06);"></div>
+      <div style="display:flex;gap:12px;align-items:flex-start;">
+        <div style="width:34px;height:34px;border-radius:10px;background:rgba(8,118,255,0.15);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#0876FF" stroke-width="2" stroke-linecap="round"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
+        </div>
+        <div>
+          <div style="font-size:14px;font-weight:600;color:#fff;margin-bottom:2px;">Research advisor — on demand</div>
+          <div style="font-size:12px;color:rgba(255,255,255,0.5);line-height:1.5;">Knows your entire intake. Ask anything about your protocol and get answers backed by current research — not generic forum posts.</div>
+        </div>
+      </div>
+      <div style="height:1px;background:rgba(255,255,255,0.06);"></div>
+      <div style="display:flex;gap:12px;align-items:flex-start;">
+        <div style="width:34px;height:34px;border-radius:10px;background:rgba(8,118,255,0.15);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#0876FF" stroke-width="2" stroke-linecap="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+        </div>
+        <div>
+          <div style="font-size:14px;font-weight:600;color:#fff;margin-bottom:2px;">Full tracking suite</div>
+          <div style="font-size:12px;color:rgba(255,255,255,0.5);line-height:1.5;">Dose tracker, vial calculator, weekly check-ins, COA verifier, missed dose helper, first pin walkthrough — all on your home screen.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Disclaimer -->
+  <div style="font-size:11px;color:var(--gray-4);text-align:center;line-height:1.6;padding:0 8px 4px;">
+    For research use only. Not medical advice. Always consult a qualified healthcare professional.
+  </div>
+
+  <!-- Edit link -->
+  <button onclick="go(1,true)" style="width:100%;text-align:center;font-size:13px;color:var(--gray-4);background:none;border:none;cursor:pointer;font-family:inherit;padding:10px;margin-top:2px;">
+    ← Something wrong? Edit my answers
+  </button>
+</div>
+
+<!-- ═══════════════════════════════════
+     STEP 20 — ACCOUNT CREATION
+═══════════════════════════════════ -->
+<div class="step" id="step-20">
+  <div class="step-meta">
+    <div class="step-eyebrow">Last step</div>
+  </div>
+  <h1 class="step-title">Create your account</h1>
+  <p class="step-sub">Create your account to save your intake and access your protocol. Make sure you have access to this email — it will be your login.</p>
+  <div class="account-form">
+    <div class="input-wrap">
+      <div class="input-label">First name</div>
+      <input class="input-field" type="text" id="first-name" placeholder="Noah" autocomplete="given-name"/>
+    </div>
+    <div class="input-wrap">
+      <div class="input-label">Email address</div>
+      <input class="input-field" type="email" id="acct-email" placeholder="you@example.com" autocomplete="email"/>
+    </div>
+    <div class="input-wrap">
+      <div class="input-label">Password</div>
+      <div class="password-wrap">
+        <input class="input-field" type="password" id="acct-pw" placeholder="8+ characters" autocomplete="new-password" style="width:100%;padding-right:56px;"/>
+        <button class="pw-toggle" type="button" onclick="togglePw()">Show</button>
+      </div>
+    </div>
+    <div class="terms-note">
+      By continuing you agree to PepTrak's <a href="/terms">Terms of Service</a> and <a href="/privacy">Privacy Policy</a>.
+    </div>
+  </div>
+</div>
+
+</div><!-- end steps-wrap -->
+
+<!-- FOOTER -->
+<div class="footer">
+  <div class="footer-inner">
+    <button class="btn-continue" id="continue-btn" disabled onclick="goNext()">Continue</button>
+    <div class="step-hint" id="step-hint">Select an option to continue</div>
+  </div>
+</div>
+
+<script>
+// ═══════════════════════
+// STATE
+function startQuestionnaire(){
+  document.getElementById('intro-modal').style.display='none';
+}
+
+// ═══════════════════════
+var cur = 1;
+var total = 19;
+var A = {}; // answers object
+
+var TIME_PER_STEP = [0,60,45,45,40,30,30,60,40,40,40,40,40,40,50,50,50,40,90,60];
+
+// ═══════════════════════
+// NAVIGATION
+// ═══════════════════════
+function goNext(){
+  if(!canContinue()) return;
+  saveStep(cur);
+  saveNotes(cur);
+  // Step 19 is the summary — only submit when ALREADY on step 19
+  if(cur === total){
+    submitForm();
+    return;
+  }
+  // Step 18 → go to summary (step 19) and build it
+  go(cur + 1, false);
+  if(cur + 1 === 19){
+    setTimeout(buildSummary, 80);
+  }
+}
+
+function goBack(){
+  if(cur <= 1) return;
+  saveStep(cur);
+  saveNotes(cur);
+  go(cur - 1, true);
+}
+
+function go(target, isBack){
+  var from = document.getElementById('step-'+cur);
+  var to = document.getElementById('step-'+target);
+
+  // Exit current — make absolute first so it overlaps during transition
+  from.style.position = 'absolute';
+  from.style.top = '80px';
+  from.style.width = '100%';
+  from.classList.remove('active');
+  from.classList.add(isBack ? 'exit-right' : 'exit-left');
+
+  // Prepare next
+  to.style.transition = 'none';
+  to.style.transform = isBack ? 'translateX(-50px)' : 'translateX(50px)';
+  to.style.opacity = '0';
+  to.style.position = 'relative';
+  to.style.top = '0';
+  to.offsetHeight;
+  to.style.transition = '';
+  to.classList.add('active');
+  to.style.transform = '';
+  to.style.opacity = '';
+
+  setTimeout(function(){
+    from.classList.remove('exit-left','exit-right');
+    from.style.position = '';
+    from.style.top = '';
+    from.style.width = '';
+    restoreStep(target);
+  }, 380);
+
+  cur = target;
+  updateUI();
+  window.scrollTo(0,0);
+}
+
+// ═══════════════════════
+// UI UPDATE
+// ═══════════════════════
+function updateUI(){
+  var pct = Math.round((cur / total) * 100);
+  document.getElementById('progress-fill').style.width = pct + '%';
+  document.getElementById('step-label').textContent = 'Step ' + cur + ' of ' + total;
+
+  // Time remaining
+  var remaining = 0;
+  for(var i = cur; i <= total; i++) remaining += (TIME_PER_STEP[i]||40);
+  var mins = Math.ceil(remaining / 60);
+  document.getElementById('time-label').textContent = '~' + mins + ' min left';
+
+  // Back button
+  var bb = document.getElementById('back-btn');
+  bb.classList.toggle('visible', cur > 1);
+
+  // Continue button
+  updateContinue();
+}
+
+function updateContinue(){
+  var btn = document.getElementById('continue-btn');
+  var hint = document.getElementById('step-hint');
+  var ok = canContinue();
+  btn.disabled = !ok;
+
+  if(cur === 18){
+    btn.textContent = 'Continue';
+    hint.textContent = 'Bloodwork is optional — tap to continue';
+    btn.disabled = false;
+  } else if(cur === 19){
+    btn.textContent = 'Continue →';
+    hint.textContent = '';
+    btn.disabled = false;
+  } else if(cur === total){
+    btn.textContent = 'Continue →';
+    hint.textContent = 'Your card is collected on the next screen';
+    btn.disabled = !canContinue();
+  } else {
+    btn.textContent = 'Continue';
+    hint.textContent = ok ? '' : 'Select an option to continue';
+  }
+}
+
+// ═══════════════════════
+// CAN CONTINUE
+// ═══════════════════════
+function canContinue(){
+  switch(cur){
+    case 1:  return !!A.goal1;
+    case 2:  return Array.isArray(A.goal2) && A.goal2.length > 0;
+    case 3:  return !!A.timeline;
+    case 4:  return !!A.budget;
+    case 5:  return !!A.sex;
+    case 6:  return !!A.age;
+    case 7:  return hasBMI();
+    case 8:  return !!A.body_comp;
+    case 9:  return !!A.training;
+    case 10: return !!A.sport;
+    case 11: return !!A.sleep;
+    case 12: return !!A.stress;
+    case 13: return !!A.alcohol;
+    case 14: return A.conditions !== undefined;
+    case 15: return A.medications !== undefined;
+    case 16: return !!A.experience;
+    case 17: return !!A.injection_comfort;
+    case 18: return true; // optional
+    case 19: return true; // review
+    case 20: return hasAccount();
+    default: return false;
+  }
+}
+
+function hasBMI(){
+  var isMetric = document.getElementById('u-met') && document.getElementById('u-met').classList.contains('active');
+  if(isMetric){
+    var cm = parseFloat((document.getElementById('h-cm')||{}).value)||0;
+    var kg = parseFloat((document.getElementById('w-kg')||{}).value)||0;
+    return cm > 0 && kg > 0;
+  } else {
+    var ft = parseFloat((document.getElementById('h-ft')||{}).value)||0;
+    var lbs = parseFloat((document.getElementById('w-lbs')||{}).value)||0;
+    return ft > 0 && lbs > 0;
+  }
+}
+
+function hasAccount(){
+  var n = (document.getElementById('first-name')||{}).value||'';
+  var e = (document.getElementById('acct-email')||{}).value||'';
+  var p = (document.getElementById('acct-pw')||{}).value||'';
+  return n.trim().length > 0 && e.includes('@') && p.length >= 8;
+}
+
+// ═══════════════════════
+// SAVE STEPS
+// ═══════════════════════
+function saveStep(s){
+  saveNotes(s);
+  if(s === 7) saveBiometrics();
+  if(s === 14) saveConditions();
+  if(s === 15) saveMedications();
+  if(s === 18) saveBloodwork();
+
+}
+
+function saveNotes(s){
+  var el = document.getElementById('notes-'+s);
+  if(el && el.value.trim()) A['notes_'+s] = el.value.trim();
+}
+
+function saveBiometrics(){
+  A.unit = document.getElementById('u-met').classList.contains('active') ? 'metric' : 'imperial';
+  if(A.unit === 'imperial'){
+    A.height_ft = parseFloat(document.getElementById('h-ft').value)||0;
+    A.height_in = parseFloat(document.getElementById('h-in').value)||0;
+    A.weight_lbs = parseFloat(document.getElementById('w-lbs').value)||0;
+    var totalIn = A.height_ft*12 + A.height_in;
+    A.height_cm = Math.round(totalIn*2.54);
+    A.weight_kg = Math.round(A.weight_lbs*0.453592*10)/10;
+  } else {
+    A.height_cm = parseFloat(document.getElementById('h-cm').value)||0;
+    A.weight_kg = parseFloat(document.getElementById('w-kg').value)||0;
+  }
+  if(A.height_cm && A.weight_kg){
+    A.bmi = Math.round(A.weight_kg/Math.pow(A.height_cm/100,2)*10)/10;
+  }
+}
+
+function saveConditions(){
+  var vals = [];
+  document.querySelectorAll('#s14-conds .cond-chip.selected').forEach(function(c){ vals.push(c.dataset.val); });
+  A.conditions = vals;
+}
+
+function saveMedications(){
+  var vals = [];
+  document.querySelectorAll('#s15-opts .option.selected').forEach(function(o){ vals.push(o.dataset.val); });
+  A.medications = vals.length ? vals : ['none'];
+}
+
+function saveBloodwork(){
+  var fields = ['test','igf1','tsh','cortisol','glucose','hba1c','ft3','lh'];
+  A.bloodwork = {};
+  fields.forEach(function(f){
+    var el = document.getElementById('bw-'+f);
+    if(el && el.value) A.bloodwork[f] = parseFloat(el.value);
+  });
+}
+
+function saveAccount(){
+  A.first_name = (document.getElementById('first-name')||{}).value||'';
+  A.email = (document.getElementById('acct-email')||{}).value||'';
+  A.password = (document.getElementById('acct-pw')||{}).value||'';
+}
+
+// ═══════════════════════
+// SELECTORS
+// ═══════════════════════
+function selectOpt(el, group, key){
+  while(el && !el.classList.contains('option')) el = el.parentElement;
+  if(!el) return;
+  document.querySelectorAll('#'+group+'-opts .option').forEach(function(o){ o.classList.remove('selected'); });
+  el.classList.add('selected');
+  A[key] = el.dataset.val;
+  updateContinue();
+}
+
+function selectGrid(el, group){
+  if(group === 's2'){
+    // Multi-select
+    el.classList.toggle('selected');
+    var vals = [];
+    document.querySelectorAll('#s2-opts .option-grid.selected').forEach(function(o){ vals.push(o.dataset.val); });
+    A.goal2 = vals;
+  } else {
+    document.querySelectorAll('#'+group+'-opts .option-grid').forEach(function(o){ o.classList.remove('selected'); });
+    el.classList.add('selected');
+    if(group === 's1') A.goal1 = el.dataset.val;
+  }
+  // Filter s2 to hide primary goal
+  if(group === 's1'){
+    document.querySelectorAll('#s2-opts .option-grid').forEach(function(o){
+      o.style.display = (o.dataset.val === A.goal1) ? 'none' : '';
+    });
+    if(Array.isArray(A.goal2)) A.goal2 = A.goal2.filter(function(v){ return v !== A.goal1; });
+  }
+  updateContinue();
+}
+
+function selectScale(el, group, key){
+  // Walk up to find the actual scale-option if a child was clicked
+  while(el && !el.classList.contains('scale-option')) el = el.parentElement;
+  if(!el) return;
+  document.querySelectorAll('#'+group+'-opts .scale-option').forEach(function(o){ o.classList.remove('selected'); });
+  el.classList.add('selected');
+  A[key] = el.dataset.val;
+  updateContinue();
+}
+
+function toggleMulti(el, group, key){
+  var isNone = el.dataset.val === 'none';
+  if(isNone){
+    document.querySelectorAll('#'+group+'-opts .option').forEach(function(o){ o.classList.remove('selected'); });
+    el.classList.add('selected');
+  } else {
+    document.querySelector('#'+group+'-opts .option[data-val="none"]').classList.remove('selected');
+    el.classList.toggle('selected');
+    if(!document.querySelectorAll('#'+group+'-opts .option.selected').length){
+      document.querySelector('#'+group+'-opts .option[data-val="none"]').classList.add('selected');
+    }
+  }
+  saveMedications();
+  updateContinue();
+}
+
+function toggleCond(el){
+  var isNone = el.dataset.val === 'none';
+  if(isNone){
+    document.querySelectorAll('#s14-conds .cond-chip').forEach(function(c){ c.classList.remove('selected'); });
+    el.classList.add('selected');
+  } else {
+    document.querySelector('#s14-conds .cond-chip[data-val="none"]').classList.remove('selected');
+    el.classList.toggle('selected');
+    if(!document.querySelectorAll('#s14-conds .cond-chip.selected').length){
+      document.querySelector('#s14-conds .cond-chip[data-val="none"]').classList.add('selected');
+    }
+  }
+  var hasCancer = !!document.querySelector('#s14-conds .cond-chip[data-val="cancer_history"].selected');
+  document.getElementById('cancer-warn').classList.toggle('show', hasCancer);
+  saveConditions();
+  updateContinue();
+}
+
+// ═══════════════════════
+// BMI CALCULATOR
+// ═══════════════════════
+function calcBMI(){
+  var bmi = null;
+  if(!document.getElementById('u-met').classList.contains('active')){
+    var ft = parseFloat(document.getElementById('h-ft').value)||0;
+    var ins = parseFloat(document.getElementById('h-in').value)||0;
+    var lbs = parseFloat(document.getElementById('w-lbs').value)||0;
+    if(ft>0&&lbs>0){ var ti=ft*12+ins; bmi=(lbs/(ti*ti))*703; }
+  } else {
+    var cm = parseFloat(document.getElementById('h-cm').value)||0;
+    var kg = parseFloat(document.getElementById('w-kg').value)||0;
+    if(cm>0&&kg>0) bmi=kg/Math.pow(cm/100,2);
+  }
+  var box = document.getElementById('bmi-box');
+  if(bmi&&bmi>5&&bmi<80){
+    bmi=Math.round(bmi*10)/10;
+    document.getElementById('bmi-num').textContent=bmi;
+    var cat,cls;
+    if(bmi<18.5){cat='Underweight';cls='bmi-under';}
+    else if(bmi<25){cat='Healthy';cls='bmi-normal';}
+    else if(bmi<30){cat='Overweight';cls='bmi-over';}
+    else{cat='Obese';cls='bmi-obese';}
+    var ce=document.getElementById('bmi-cat');
+    ce.textContent=cat;ce.className='bmi-cat '+cls;
+    box.style.display='flex';
+  } else { box.style.display='none'; }
+  updateContinue();
+}
+
+function setUnit(u){
+  document.getElementById('u-imp').classList.toggle('active',u==='imperial');
+  document.getElementById('u-met').classList.toggle('active',u==='metric');
+  document.getElementById('imp-fields').style.display=u==='imperial'?'':'none';
+  document.getElementById('met-fields').style.display=u==='metric'?'':'none';
+  document.getElementById('bmi-box').style.display='none';
+  A.unit=u;
+  updateContinue();
+}
+
+// toggleWhy and charCount defined in <head> for early availability
+
+// ═══════════════════════
+// PASSWORD
+// ═══════════════════════
+function togglePw(){
+  var pw = document.getElementById('acct-pw');
+  var btn = pw.nextElementSibling;
+  pw.type = pw.type==='password' ? 'text' : 'password';
+  btn.textContent = pw.type==='password' ? 'Show' : 'Hide';
+}
+
+// ═══════════════════════
+// BUILD S2 OPTIONS
+// ═══════════════════════
+var ALL_GOALS = [
+  {val:'fat_loss',icon:'🔥',label:'Fat Loss'},
+  {val:'muscle',icon:'💪',label:'Muscle & Strength'},
+  {val:'recovery',icon:'⚡',label:'Recovery'},
+  {val:'brain',icon:'🧠',label:'Brain & Focus'},
+  {val:'sleep_gh',icon:'🌙',label:'Sleep & GH'},
+  {val:'anti_aging',icon:'✨',label:'Longevity'},
+];
+function buildS2(){
+  var wrap = document.getElementById('s2-opts');
+  wrap.innerHTML = '';
+  ALL_GOALS.forEach(function(g){
+    if(g.val === A.goal1) return;
+    var d = document.createElement('div');
+    d.className = 'option-grid';
+    d.dataset.val = g.val;
+    d.innerHTML = '<div class="option-grid-icon">'+g.icon+'</div><div class="option-grid-label">'+g.label+'</div>';
+    d.onclick = function(){ selectGrid(d,'s2'); };
+    // Restore selection
+    if(Array.isArray(A.goal2) && A.goal2.indexOf(g.val)>-1) d.classList.add('selected');
+    wrap.appendChild(d);
+  });
+}
+
+// ═══════════════════════
+// RESTORE STEP
+// ═══════════════════════
+function restoreStep(s){
+  // Restore notes
+  var notesEl = document.getElementById('notes-'+s);
+  if(notesEl && A['notes_'+s]){
+    notesEl.value = A['notes_'+s];
+    var cc = document.getElementById('cc-'+s);
+    if(cc) cc.textContent = notesEl.value.length + ' / 500';
+  }
+
+  function restoreOpts(group, val){
+    if(!val) return;
+    document.querySelectorAll('#'+group+'-opts .option').forEach(function(o){
+      o.classList.toggle('selected', o.dataset.val === val);
+    });
+  }
+  function restoreScale(group, val){
+    if(!val) return;
+    document.querySelectorAll('#'+group+'-opts .scale-option').forEach(function(o){
+      o.classList.toggle('selected', o.dataset.val === val);
+    });
+  }
+
+  switch(s){
+    case 1:
+      document.querySelectorAll('#s1-opts .option-grid').forEach(function(o){
+        o.classList.toggle('selected', o.dataset.val === A.goal1);
+      });
+      break;
+    case 2: buildS2(); break;
+    case 3: restoreOpts('s3', A.timeline); break;
+    case 4: restoreOpts('s4', A.budget); break;
+    case 5: restoreOpts('s5', A.sex); break;
+    case 6: restoreOpts('s6', A.age); break;
+    case 7:
+      if(A.unit==='metric') setUnit('metric');
+      if(A.height_ft) document.getElementById('h-ft').value = A.height_ft;
+      if(A.height_in) document.getElementById('h-in').value = A.height_in;
+      if(A.weight_lbs) document.getElementById('w-lbs').value = A.weight_lbs;
+      if(A.height_cm && A.unit==='metric') document.getElementById('h-cm').value = A.height_cm;
+      if(A.weight_kg && A.unit==='metric') document.getElementById('w-kg').value = A.weight_kg;
+      calcBMI();
+      break;
+    case 8: restoreOpts('s8', A.body_comp); break;
+    case 9: restoreOpts('s9', A.training); break;
+    case 10: restoreOpts('s10', A.sport); break;
+    case 11: restoreOpts('s11', A.sleep); break;
+    case 12: restoreScale('s12', A.stress); break;
+    case 13: restoreOpts('s13', A.alcohol); break;
+    case 14:
+      if(A.conditions){
+        document.querySelectorAll('#s14-conds .cond-chip').forEach(function(c){ c.classList.remove('selected'); });
+        A.conditions.forEach(function(v){
+          var el = document.querySelector('#s14-conds .cond-chip[data-val="'+v+'"]');
+          if(el) el.classList.add('selected');
+        });
+        document.getElementById('cancer-warn').classList.toggle('show', A.conditions.indexOf('cancer_history')>-1);
+      }
+      break;
+    case 15:
+      if(A.medications){
+        document.querySelectorAll('#s15-opts .option').forEach(function(o){
+          o.classList.toggle('selected', A.medications.indexOf(o.dataset.val)>-1);
+        });
+      }
+      break;
+    case 16: restoreOpts('s16', A.experience); break;
+    case 17: restoreScale('s17', A.injection_comfort); break;
+    case 18:
+      if(A.bloodwork){
+        Object.keys(A.bloodwork).forEach(function(k){
+          var el = document.getElementById('bw-'+k);
+          if(el) el.value = A.bloodwork[k];
+        });
+      }
+      break;
+    case 20:
+      if(A.first_name) document.getElementById('first-name').value = A.first_name;
+      if(A.email) document.getElementById('acct-email').value = A.email;
+      break;
+  }
+  updateContinue();
+}
+
+// ═══════════════════════
+// SUMMARY
+// ═══════════════════════
+var GOAL_LABELS = {'fat_loss':'Fat Loss','muscle':'Muscle & Strength','recovery':'Recovery','brain':'Brain & Focus','sleep_gh':'Sleep & GH','anti_aging':'Longevity'};
+var AGE_LABELS = {'18-24':'18–24','25-34':'25–34','35-44':'35–44','45-54':'45–54','55+':'55+'};
+var EXP_LABELS = {'none':'Complete beginner','some':'Some experience','intermediate':'Intermediate','advanced':'Advanced'};
+var INJ_LABELS = {'terrified':'Terrified — intranasal only','nervous':'Nervous but willing','okay':'Comfortable enough','comfortable':'Fully comfortable'};
+var SLEEP_LABELS = {'excellent':'Excellent','good':'Good','fair':'Fair','poor':'Poor','insomnia':'Chronic insomnia'};
+var STRESS_LABELS = {'low':'Low',moderate:'Moderate','high':'High','very_high':'Very high / Chronic'};
+var ALC_LABELS = {'none':'None','occasional':'Occasional',moderate:'Moderate','heavy':'Heavy'};
+var BUDGET_LABELS = {'under_75':'Under $75/mo','75_150':'$75–$150/mo','150_300':'$150–$300/mo','300_plus':'$300+/mo'};
+var TIMELINE_LABELS = {'30':'30 days','60':'60 days','90':'90 days','ongoing':'Ongoing','unsure':'Not sure yet'};
+
+function buildSummary(){
+  // Save all steps to ensure A is fully populated
+  for(var s=1;s<=18;s++){ saveStep(s); }
+
+  var GOAL_MAP = {'fat_loss':'Fat Loss','muscle':'Muscle & Strength','recovery':'Recovery','brain':'Brain & Focus','sleep_gh':'Sleep & GH','anti_aging':'Longevity'};
+  var SLEEP_MAP = {'excellent':'Excellent','good':'Good','fair':'Fair','poor':'Poor','insomnia':'Chronic Insomnia'};
+  var STRESS_MAP = {'low':'Low','moderate':'Moderate','high':'High','very_high':'Very High'};
+  var EXP_MAP = {'none':'Beginner','some':'Some Experience','intermediate':'Intermediate','advanced':'Advanced'};
+  var INJ_MAP = {'terrified':'Intranasal Only','nervous':'Nervous but Willing','okay':'Comfortable','comfortable':'Fully Comfortable'};
+  var BUDGET_MAP = {'under_75':'Under $75/mo','75_150':'$75–150/mo','150_300':'$150–300/mo','300_plus':'$300+/mo'};
+  var TIMELINE_MAP = {'30':'30 Days','60':'60 Days','90':'90 Days','ongoing':'Ongoing','unsure':'Undecided'};
+  var SPORT_MAP = {'strength':'Strength / Powerlifting','bodybuilding':'Bodybuilding','combat':'Combat Sports','endurance':'Endurance','crossfit':'CrossFit / HIIT','recreational':'Recreational Fitness','sedentary_work':'Primarily Sedentary'};
+  var ALCOHOL_MAP = {'none':'None','occasional':'Occasional','moderate':'Moderate','heavy':'Heavy'};
+  var TRAINING_MAP = {'sedentary':'Sedentary','light':'1–2 Days/Week','moderate':'3–4 Days/Week','active':'5–6 Days/Week','athlete':'Daily / Twice Daily'};
+  var BODYCOMP_MAP = {'lean':'Lean','average':'Average','overweight':'Overweight','obese':'Obese'};
+
+  var goal1Label = GOAL_MAP[A.goal1] || 'Your goal';
+  var g2 = Array.isArray(A.goal2)&&A.goal2.length ? A.goal2.map(function(v){return GOAL_MAP[v]||v;}).join(', ') : '';
+
+  // Headline
+  var titleEl = document.getElementById('summary-title');
+  var subEl = document.getElementById('summary-sub');
+  if(titleEl) titleEl.innerHTML = 'Your protocol<br>is ready to unlock.';
+  if(subEl) subEl.textContent = 'Focused on '+goal1Label+(g2?' and '+g2:'')+'. 3 compounds will be selected from 55+ and matched to your biometrics, goals, and health history.';
+
+  // Stat chips
+  var statsEl = document.getElementById('summary-stats');
+  if(statsEl){
+    var chips = [];
+    if(A.goal1) chips.push(goal1Label);
+    if(A.age) chips.push('Age '+A.age);
+    if(A.bmi) chips.push('BMI '+A.bmi);
+    if(A.bloodwork && Object.keys(A.bloodwork).length) chips.push('Bloodwork ✓');
+    statsEl.innerHTML = chips.map(function(c){
+      return '<div style="background:var(--blue-pale);color:var(--blue);font-size:16px;font-weight:600;padding:5px 11px;border-radius:20px;white-space:nowrap;">'+c+'</div>';
+    }).join('');
+  }
+
+  // Profile rows
+  var rows = [];
+  if(A.goal1) rows.push(['Primary goal', goal1Label]);
+  if(g2) rows.push(['Secondary goals', g2]);
+  if(A.timeline) rows.push(['Timeline', TIMELINE_MAP[A.timeline]||A.timeline]);
+  if(A.budget) rows.push(['Monthly budget', BUDGET_MAP[A.budget]||A.budget]);
+  if(A.sex) rows.push(['Sex', A.sex==='male'?'Male':A.sex==='female'?'Female':'Not Specified']);
+  if(A.age) rows.push(['Age Bracket', A.age]);
+  if(A.weight_lbs) rows.push(['Weight', A.weight_lbs+' lbs']);
+  else if(A.weight_kg) rows.push(['Weight', A.weight_kg+' kg']);
+  if(A.bmi) rows.push(['BMI', A.bmi]);
+  if(A.body_comp) rows.push(['Body Composition', BODYCOMP_MAP[A.body_comp]||A.body_comp]);
+  if(A.training) rows.push(['Training Frequency', TRAINING_MAP[A.training]||A.training]);
+  if(A.sport) rows.push(['Sport / Activity', SPORT_MAP[A.sport]||A.sport]);
+  if(A.sleep) rows.push(['Sleep Quality', SLEEP_MAP[A.sleep]||A.sleep]);
+  if(A.stress) rows.push(['Stress Level', STRESS_MAP[A.stress]||A.stress]);
+  if(A.alcohol) rows.push(['Alcohol', ALCOHOL_MAP[A.alcohol]||A.alcohol]);
+  if(A.experience) rows.push(['Peptide Experience', EXP_MAP[A.experience]||A.experience]);
+  if(A.injection_comfort) rows.push(['Injection Comfort', INJ_MAP[A.injection_comfort]||A.injection_comfort]);
+  var condFlags = Array.isArray(A.conditions) ? A.conditions.filter(function(v){return v!=='none';}) : [];
+  if(condFlags.length) rows.push(['Health flags', condFlags.map(function(v){return v.replace(/_/g,' ');}).join(', ')]);
+  var medFlags = Array.isArray(A.medications) ? A.medications.filter(function(v){return v!=='none';}) : [];
+  if(medFlags.length) rows.push(['Medications', medFlags.map(function(v){return v.replace(/_/g,' ');}).join(', ')]);
+  if(A.bloodwork && Object.keys(A.bloodwork).length){
+    var bwList = [];
+    if(A.bloodwork.test) bwList.push('T: '+A.bloodwork.test+'ng/dL');
+    if(A.bloodwork.igf1) bwList.push('IGF-1: '+A.bloodwork.igf1+'ng/mL');
+    if(A.bloodwork.tsh) bwList.push('TSH: '+A.bloodwork.tsh);
+    if(A.bloodwork.cortisol) bwList.push('Cortisol: '+A.bloodwork.cortisol);
+    if(bwList.length) rows.push(['Bloodwork', bwList.join(' · ')]);
+  }
+
+  var rowsEl = document.getElementById('summary-profile-rows');
+  if(rowsEl){
+    rowsEl.innerHTML = rows.map(function(r,i){
+      return '<div style="display:flex;justify-content:space-between;align-items:flex-start;padding:9px 0;gap:12px;'+(i<rows.length-1?'border-bottom:1px solid var(--gray-2);':'')+'">'
+        +'<div style="font-size:13px;color:var(--gray-5);flex-shrink:0;">'+r[0]+'</div>'
+        +'<div style="font-size:13px;font-weight:500;color:#000;text-align:right;">'+r[1]+'</div>'
+        +'</div>';
+    }).join('');
+  }
+
+  // Notes preview
+  var notesEl = document.getElementById('summary-notes-preview');
+  if(notesEl){
+    var noteItems = [];
+    for(var i=1;i<=18;i++){
+      if(A['notes_'+i]) noteItems.push(A['notes_'+i]);
+    }
+    if(noteItems.length){
+      notesEl.innerHTML = '<div style="background:#FFF8E6;border:1px solid #FFD76A;border-radius:14px;padding:14px 16px;margin-bottom:14px;">'
+        +'<div style="font-size:11px;font-weight:700;color:#B45309;letter-spacing:0.08em;text-transform:uppercase;margin-bottom:8px;">'+noteItems.length+' personal note'+(noteItems.length>1?'s':'')+' included</div>'
+        +'<div style="font-size:12px;color:#92400E;line-height:1.6;">Your free-text context has been captured and will be used by the research team when building your protocol.</div>'
+        +'</div>';
+    }
+  }
+}
+
+// ═══════════════════════
+// DEV MODE
+// ═══════════════════════
+(function(){
+  var isDev = window.location.search.indexOf('dev=1')>-1 || window.location.hostname==='127.0.0.1' || window.location.hostname==='localhost' || window.location.protocol==='file:';
+  if(!isDev) return;
+  var bar = document.createElement('div');
+  bar.style.cssText = 'position:fixed;bottom:90px;right:12px;z-index:9999;display:flex;flex-direction:column;gap:6px;';
+  bar.innerHTML = '<button onclick="devFill()" style="background:#1D1D1F;color:#fff;border:none;padding:8px 14px;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;box-shadow:0 2px 12px rgba(0,0,0,0.2);">⚡ Fill mock data</button>'
+    +'<button onclick="go(19,false);setTimeout(buildSummary,50);" style="background:#0876FF;color:#fff;border:none;padding:8px 14px;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;">→ Jump to step 19</button>';
+  document.body.appendChild(bar);
+})();
+
+
+
+// ═══════════════════════
+// SUBMIT
+// ═══════════════════════
+function submitForm(){
+  saveStep(cur);
+  localStorage.setItem('peptrak_intake', JSON.stringify(A));
+  localStorage.setItem('peptrak_intake_ts', Date.now().toString());
+  // Clear stale protocol — forces fresh generation on protocol page
+  localStorage.removeItem('peptrak_protocol');
+  localStorage.removeItem('peptrak_protocol_ts');
+  // Check if already paid — if so go straight to protocol
+  if(localStorage.getItem('peptrak_paid')){
+    window.location.href = '/protocol';
+  } else {
+    window.location.href = '/checkout';
+  }
+}
+
+// ═══════════════════════
+// INIT
+// ═══════════════════════
+A.conditions = ['none'];
+A.medications = ['none'];
+A.goal2 = [];
+buildS2();
+updateUI();
+
+(function(){
+  var params = new URLSearchParams(window.location.search);
+  var ref = params.get('ref');
+  if(ref && ref.length >= 3){
+    localStorage.setItem('peptrak_ref_code', ref.toUpperCase());
+  }
+})();
+
+</script>
+</body>
+</html>

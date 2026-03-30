@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"/>
+<title>Terms of Service — PepTrak</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+html{-webkit-text-size-adjust:100%;}
+:root{
+  --blue:#0876FF;
+  --blue-pale:#EEF4FF;
+  --ink:#07090D;
+  --ink-2:#1A1D23;
+  --gray-1:#F7F8FA;
+  --gray-2:#EAECF0;
+  --gray-4:#8A919E;
+  --gray-5:#545B67;
+  --white:#FFFFFF;
+  --green:#00C076;
+  --red:#FF3B30;
+  --gold:#F0A500;
+  --font:-apple-system,BlinkMacSystemFont,'SF Pro Display','SF Pro Text','Helvetica Neue',sans-serif;
+}
+body{overflow-x:hidden;-webkit-tap-highlight-color:transparent;
+  font-family:var(--font);
+  background:var(--white);
+  color:var(--ink);
+  -webkit-font-smoothing:antialiased;
+  min-height:100svh;
+}
+
+/* ── HEADER ── */
+.hdr{
+  position:sticky;top:0;z-index:100;
+  background:rgba(255,255,255,0.96);
+  backdrop-filter:blur(20px);
+  border-bottom:1px solid var(--gray-2);
+  height:56px;
+  display:flex;align-items:center;justify-content:space-between;
+  padding:0 20px;
+}
+.hdr-logo{display:flex;align-items:center;gap:7px;font-size:16px;font-weight:700;color:var(--ink);text-decoration:none;}
+.hdr-mark{width:26px;height:26px;border-radius:7px;background:var(--blue);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;color:#fff;}
+.hdr-back{font-size:14px;font-weight:500;color:var(--blue);text-decoration:none;display:flex;align-items:center;gap:4px;}
+
+/* ── HERO ── */
+.hero{
+  background:var(--ink-2);
+  padding:48px 24px 40px;
+  position:relative;overflow:hidden;
+}
+.hero::before{
+  content:'';position:absolute;top:-80px;right:-60px;
+  width:280px;height:280px;
+  background:radial-gradient(circle,rgba(240,165,0,0.12),transparent 65%);
+  pointer-events:none;
+}
+.hero-eyebrow{font-size:11px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:rgba(240,165,0,0.8);margin-bottom:10px;position:relative;z-index:1;}
+.hero-title{font-size:32px;font-weight:700;letter-spacing:-0.6px;color:#fff;line-height:1.15;position:relative;z-index:1;margin-bottom:12px;}
+.hero-meta{font-size:12px;color:rgba(255,255,255,0.35);position:relative;z-index:1;}
+
+.ruo-banner{
+  background:rgba(255,59,48,0.07);
+  border:1px solid rgba(255,59,48,0.2);
+  border-radius:12px;
+  padding:14px 16px;
+  margin:24px 24px 0;
+  display:flex;gap:12px;align-items:flex-start;
+}
+.ruo-icon{font-size:18px;flex-shrink:0;margin-top:1px;}
+.ruo-text{font-size:13px;color:var(--gray-5);line-height:1.6;}
+.ruo-text strong{color:var(--ink);font-weight:700;}
+
+/* ── CONTENT ── */
+.content{max-width:680px;margin:0 auto;padding:32px 24px 80px;}
+
+.section{margin-bottom:36px;}
+.section-num{font-size:11px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:var(--blue);margin-bottom:6px;}
+.section-title{font-size:20px;font-weight:700;letter-spacing:-0.3px;color:var(--ink);margin-bottom:14px;padding-bottom:12px;border-bottom:1px solid var(--gray-2);}
+.prose{font-size:15px;color:var(--gray-5);line-height:1.75;}
+.prose p{margin-bottom:12px;}
+.prose p:last-child{margin-bottom:0;}
+.prose strong{color:var(--ink);font-weight:600;}
+.prose a{color:var(--blue);text-decoration:none;}
+
+.bullet-list{margin:12px 0;padding:0;list-style:none;display:flex;flex-direction:column;gap:8px;}
+.bullet-list li{display:flex;gap:10px;font-size:15px;color:var(--gray-5);line-height:1.6;}
+.bullet-list li::before{content:'';width:6px;height:6px;border-radius:50%;background:var(--blue);flex-shrink:0;margin-top:8px;}
+
+.highlight-box{background:var(--gray-1);border-radius:12px;padding:16px 18px;margin:14px 0;}
+.highlight-box p{font-size:14px;color:var(--gray-5);line-height:1.7;margin:0;}
+.highlight-box p strong{color:var(--ink);}
+
+.warning-box{
+  background:rgba(255,59,48,0.05);
+  border:1.5px solid rgba(255,59,48,0.18);
+  border-radius:12px;padding:16px 18px;margin:16px 0;
+}
+.warning-box p{font-size:14px;color:var(--ink-2);line-height:1.7;margin:0;}
+
+.ruo-callout{
+  background:rgba(8,118,255,0.04);
+  border:1.5px solid rgba(8,118,255,0.15);
+  border-radius:12px;padding:16px 18px;margin:16px 0;
+}
+.ruo-callout p{font-size:14px;color:var(--ink-2);line-height:1.7;margin:0;}
+
+/* ── CONTACT CARD ── */
+.contact-card{
+  background:var(--ink-2);border-radius:16px;
+  padding:24px;margin-top:36px;
+  position:relative;overflow:hidden;
+}
+.contact-card::before{
+  content:'';position:absolute;top:-40px;right:-40px;
+  width:140px;height:140px;
+  background:radial-gradient(circle,rgba(240,165,0,0.12),transparent 65%);
+  pointer-events:none;
+}
+.contact-title{font-size:16px;font-weight:700;color:#fff;margin-bottom:6px;position:relative;z-index:1;}
+.contact-sub{font-size:13px;color:rgba(255,255,255,0.45);margin-bottom:16px;line-height:1.6;position:relative;z-index:1;}
+.contact-email{display:inline-flex;align-items:center;gap:8px;background:rgba(8,118,255,0.2);border:1px solid rgba(8,118,255,0.3);color:#fff;font-size:14px;font-weight:600;padding:11px 18px;border-radius:980px;text-decoration:none;position:relative;z-index:1;}
+
+.toc{background:var(--gray-1);border-radius:14px;padding:20px;margin-bottom:32px;}
+.toc-title{font-size:12px;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;color:var(--gray-4);margin-bottom:12px;}
+.toc-list{list-style:none;display:flex;flex-direction:column;gap:6px;}
+.toc-list li a{font-size:14px;color:var(--blue);text-decoration:none;font-weight:500;display:flex;align-items:center;gap:6px;}
+.toc-list li a:hover{text-decoration:underline;}
+.divider{height:1px;background:var(--gray-2);margin:36px 0;}
+</style>
+</head>
+<body>
+
+<header class="hdr">
+  <a href="/account" class="hdr-back">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="15 18 9 12 15 6"/></svg>
+    Back
+  </a>
+  <a href="/" class="hdr-logo">
+    <div class="hdr-mark">P</div>
+    PepTrak
+  </a>
+  <div style="width:52px;"></div>
+</header>
+
+<div class="hero">
+  <div class="hero-eyebrow">Legal</div>
+  <div class="hero-title">Terms of Service</div>
+  <div class="hero-meta">PepTrak LLC &nbsp;·&nbsp; Effective: March 21, 2026 &nbsp;·&nbsp; California</div>
+</div>
+
+<div class="ruo-banner">
+  <div class="ruo-icon">⚠️</div>
+  <div class="ruo-text"><strong>Research Use Only.</strong> By accessing PepTrak, you acknowledge that this platform and all compounds referenced within it are strictly for research and scientific reference purposes only. No information provided by PepTrak constitutes medical advice, and nothing on this platform is intended for human consumption.</div>
+</div>
+
+<div class="content">
+
+  <div class="toc">
+    <div class="toc-title">Contents</div>
+    <ol class="toc-list">
+      <li><a href="#s1">1. Acceptance of Terms</a></li>
+      <li><a href="#s2">2. Research Use Only — Critical Disclaimer</a></li>
+      <li><a href="#s3">3. Eligibility</a></li>
+      <li><a href="#s4">4. Account Registration</a></li>
+      <li><a href="#s5">5. Subscription & Billing</a></li>
+      <li><a href="#s6">6. Permitted Use</a></li>
+      <li><a href="#s7">7. Prohibited Conduct</a></li>
+      <li><a href="#s8">8. AI-Generated Research Content</a></li>
+      <li><a href="#s9">9. Intellectual Property</a></li>
+      <li><a href="#s10">10. Disclaimer of Warranties</a></li>
+      <li><a href="#s11">11. Limitation of Liability</a></li>
+      <li><a href="#s12">12. Indemnification</a></li>
+      <li><a href="#s13">13. Governing Law & Disputes</a></li>
+      <li><a href="#s14">14. Changes to Terms</a></li>
+      <li><a href="#s15">15. Contact</a></li>
+    </ol>
+  </div>
+
+  <div class="section" id="s1">
+    <div class="section-num">01</div>
+    <div class="section-title">Acceptance of Terms</div>
+    <div class="prose">
+      <p>These Terms of Service ("Terms") constitute a legally binding agreement between you and <strong>PepTrak LLC</strong> ("Company," "we," "us," or "our") governing your access to and use of the PepTrak application, website, and related services (collectively, the "Service").</p>
+      <p>By creating an account, starting a free trial, or otherwise accessing or using the Service, you agree to be bound by these Terms. If you do not agree, you must not access or use the Service.</p>
+    </div>
+  </div>
+
+  <div class="section" id="s2">
+    <div class="section-num">02</div>
+    <div class="section-title">Research Use Only — Critical Disclaimer</div>
+    <div class="warning-box">
+      <p><strong>THIS PLATFORM IS FOR RESEARCH USE ONLY. ALL COMPOUNDS, PROTOCOLS, AND INFORMATION REFERENCED WITHIN PEPTRAK ARE STRICTLY FOR LABORATORY AND SCIENTIFIC RESEARCH PURPOSES. NOTHING ON THIS PLATFORM IS INTENDED FOR HUMAN CONSUMPTION, CLINICAL USE, OR ANY OTHER HUMAN APPLICATION.</strong></p>
+    </div>
+    <div class="prose" style="margin-top:16px;">
+      <p>By using PepTrak, you expressly represent and warrant that:</p>
+    </div>
+    <ul class="bullet-list">
+      <li>You are accessing the Service solely for legitimate research and scientific reference purposes.</li>
+      <li>You will not use PepTrak to plan, guide, facilitate, or track the consumption of any compound by any human being, including yourself.</li>
+      <li>You understand that peptide compounds referenced within this application have not been approved by the U.S. Food and Drug Administration (FDA) for human use unless specifically noted with an FDA-approved indication.</li>
+      <li>You acknowledge that all research protocols generated by PepTrak are for scientific reference only and do not constitute medical advice, treatment recommendations, or healthcare guidance of any kind.</li>
+      <li>You are a qualified researcher, licensed professional, or individual operating within the bounds of applicable local, state, and federal laws regarding research compound acquisition and use.</li>
+    </ul>
+    <div class="prose" style="margin-top:14px;">
+      <p><strong>PepTrak LLC expressly disclaims all liability</strong> arising from any use of PepTrak or its content for any purpose other than legitimate research use. Any such use is strictly prohibited and constitutes a material breach of these Terms.</p>
+    </div>
+  </div>
+
+  <div class="section" id="s3">
+    <div class="section-num">03</div>
+    <div class="section-title">Eligibility</div>
+    <div class="prose">
+      <p>You must be at least <strong>18 years of age</strong> to use PepTrak. By using the Service, you represent and warrant that you are 18 or older and have the legal capacity to enter into these Terms.</p>
+      <p>The Service is intended for use within the United States. We make no representation that the Service is appropriate or available in other jurisdictions. If you access the Service from outside the United States, you do so at your own risk and are responsible for compliance with applicable local laws.</p>
+      <p>We reserve the right to refuse service, terminate accounts, or remove content at our sole discretion.</p>
+    </div>
+  </div>
+
+  <div class="section" id="s4">
+    <div class="section-num">04</div>
+    <div class="section-title">Account Registration</div>
+    <div class="prose">
+      <p>To access certain features of PepTrak, you must create an account by providing your name and email address. You agree to provide accurate, complete, and current information and to keep your account information updated.</p>
+      <p>You are responsible for maintaining the confidentiality of your account credentials and for all activities that occur under your account. You agree to notify us immediately at <a href="/cdn-cgi/l/email-protection#d7a4a2a7a7b8a5a397a7b2a7a3a5b6bcf9b4b8ba"><span class="__cf_email__" data-cfemail="e4979194948b9690a49481949096858fca878b89">[email&#160;protected]</span></a> if you become aware of any unauthorized use of your account.</p>
+      <p>You may not share your account credentials with others, create multiple accounts, or use another person's account without their authorization.</p>
+    </div>
+  </div>
+
+  <div class="section" id="s5">
+    <div class="section-num">05</div>
+    <div class="section-title">Subscription & Billing</div>
+    <div class="prose">
+      <p>PepTrak offers subscription-based access. The following terms apply to paid subscriptions:</p>
+    </div>
+    <ul class="bullet-list">
+      <li><strong>Free Trial:</strong> New subscribers receive a 21-day free trial. No charge is applied until the trial period ends. You may cancel at any time before the trial ends without being charged.</li>
+      <li><strong>Billing Cycles:</strong> Subscriptions are available on monthly ($24.99/month) or annual ($149/year, equivalent to $12/month) billing cycles. Your selected plan will renew automatically at the end of each billing period.</li>
+      <li><strong>Payment Processing:</strong> All payments are processed securely by Stripe, Inc. By providing payment information, you authorize us to charge your payment method for all applicable fees.</li>
+      <li><strong>Cancellation:</strong> You may cancel your subscription at any time by contacting us at <a href="/cdn-cgi/l/email-protection#bdcec8cdcdd2cfc9fdcdd8cdc9cfdcd693ded2d0"><span class="__cf_email__" data-cfemail="2655535656495452665643565254474d0845494b">[email&#160;protected]</span></a>. Cancellation takes effect at the end of your current billing period. No partial refunds are issued for unused time within a billing period.</li>
+      <li><strong>Refunds:</strong> All sales are final except as required by applicable law. We may issue refunds at our sole discretion on a case-by-case basis. Contact <a href="/cdn-cgi/l/email-protection#ccbfb9bcbca3beb88cbca9bcb8beada7e2afa3a1"><span class="__cf_email__" data-cfemail="e3909693938c9197a393869397918288cd808c8e">[email&#160;protected]</span></a> to request a refund.</li>
+      <li><strong>Price Changes:</strong> We reserve the right to change subscription pricing at any time. We will provide at least 30 days' advance notice of any price changes via email. Continued use after the effective date constitutes acceptance of the new price.</li>
+    </ul>
+  </div>
+
+  <div class="section" id="s6">
+    <div class="section-num">06</div>
+    <div class="section-title">Permitted Use</div>
+    <div class="prose">
+      <p>Subject to these Terms, PepTrak LLC grants you a limited, non-exclusive, non-transferable, revocable license to access and use PepTrak for your personal, non-commercial research reference purposes.</p>
+      <p>Permitted uses include:</p>
+    </div>
+    <ul class="bullet-list">
+      <li>Generating and reviewing AI-assisted research compound protocols for scientific reference.</li>
+      <li>Logging and tracking research compound administration data for personal research records.</li>
+      <li>Accessing the compound library for research education and scientific reference.</li>
+      <li>Using the Alex research advisor for research-oriented questions and compound guidance.</li>
+    </ul>
+  </div>
+
+  <div class="section" id="s7">
+    <div class="section-num">07</div>
+    <div class="section-title">Prohibited Conduct</div>
+    <div class="prose">
+      <p>You agree not to use PepTrak for any of the following:</p>
+    </div>
+    <ul class="bullet-list">
+      <li>Any purpose other than legitimate research and scientific reference.</li>
+      <li>Tracking, planning, or facilitating human consumption of any compound referenced within the Service.</li>
+      <li>Violating any applicable local, state, federal, or international law or regulation.</li>
+      <li>Reverse engineering, decompiling, disassembling, or otherwise attempting to derive the source code of the Service.</li>
+      <li>Scraping, crawling, or using automated tools to extract data from the Service.</li>
+      <li>Distributing, reselling, sublicensing, or otherwise commercializing access to the Service.</li>
+      <li>Uploading or transmitting malicious code, viruses, or any software designed to damage or interfere with the Service.</li>
+      <li>Attempting to gain unauthorized access to any portion of the Service or its related systems.</li>
+      <li>Impersonating any person or entity or misrepresenting your affiliation with any person or entity.</li>
+      <li>Using the Service to harass, abuse, or harm another person.</li>
+    </ul>
+    <div class="prose" style="margin-top:12px;">
+      <p>Violation of these prohibitions may result in immediate termination of your account and may subject you to legal liability.</p>
+    </div>
+  </div>
+
+  <div class="section" id="s8">
+    <div class="section-num">08</div>
+    <div class="section-title">AI-Generated Research Content</div>
+    <div class="prose">
+      <p>PepTrak uses artificial intelligence technology to generate research protocols and provide research advisor responses. By using these features, you acknowledge and agree to the following:</p>
+    </div>
+    <ul class="bullet-list">
+      <li>AI-generated protocols and responses are for <strong>research reference only</strong> and do not constitute medical advice, healthcare recommendations, or professional guidance of any kind.</li>
+      <li>AI-generated content may contain errors, omissions, or inaccuracies. You are solely responsible for independently verifying any information before acting on it in any research context.</li>
+      <li>The Alex research advisor is an AI system, not a licensed medical professional, pharmacist, or researcher. References to "our research team" within the application are a product representation of the AI system.</li>
+      <li>We do not guarantee the accuracy, completeness, or fitness for purpose of any AI-generated content.</li>
+      <li>You will not rely on AI-generated content as a substitute for professional medical, scientific, or legal advice.</li>
+    </ul>
+    <div class="ruo-callout">
+      <p><strong>Critical:</strong> If you have health concerns, are taking any medications, or have any medical conditions, consult a qualified healthcare provider before engaging with any research compounds — regardless of what any AI-generated content suggests. PepTrak is a research tracking tool, not a medical service.</p>
+    </div>
+  </div>
+
+  <div class="section" id="s9">
+    <div class="section-num">09</div>
+    <div class="section-title">Intellectual Property</div>
+    <div class="prose">
+      <p>The Service and all content, features, and functionality — including but not limited to software, text, graphics, logos, compound library data, protocol templates, and the Alex advisor persona — are owned by PepTrak LLC and are protected by applicable intellectual property laws.</p>
+      <p>These Terms do not grant you any right, title, or interest in the Service or any of its content, other than the limited license set forth in Section 6.</p>
+      <p>Your research tracking data (dose logs, notes, personal intake data) remains yours. You grant us a limited license to store and process this data solely to provide the Service to you.</p>
+    </div>
+  </div>
+
+  <div class="section" id="s10">
+    <div class="section-num">10</div>
+    <div class="section-title">Disclaimer of Warranties</div>
+    <div class="warning-box">
+      <p><strong>THE SERVICE IS PROVIDED "AS IS" AND "AS AVAILABLE" WITHOUT WARRANTIES OF ANY KIND, EITHER EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, NON-INFRINGEMENT, OR ACCURACY.</strong></p>
+    </div>
+    <div class="prose" style="margin-top:14px;">
+      <p>We do not warrant that the Service will be uninterrupted, error-free, secure, or free of viruses or other harmful components. We do not warrant that any information provided through the Service — including AI-generated research protocols — is accurate, complete, or suitable for any particular research purpose.</p>
+      <p>Your use of the Service is at your sole risk.</p>
+    </div>
+  </div>
+
+  <div class="section" id="s11">
+    <div class="section-num">11</div>
+    <div class="section-title">Limitation of Liability</div>
+    <div class="prose">
+      <p>To the maximum extent permitted by applicable law, <strong>PepTrak LLC, its officers, directors, employees, agents, and affiliates shall not be liable</strong> for any indirect, incidental, special, consequential, or punitive damages, including but not limited to:</p>
+    </div>
+    <ul class="bullet-list">
+      <li>Loss of profits, revenue, data, or goodwill.</li>
+      <li>Personal injury or property damage of any nature.</li>
+      <li>Any harm arising from the use or misuse of research compounds referenced within the Service.</li>
+      <li>Any harm arising from reliance on AI-generated research content.</li>
+      <li>Unauthorized access to or alteration of your data.</li>
+      <li>Any other matter relating to the Service.</li>
+    </ul>
+    <div class="prose" style="margin-top:12px;">
+      <p>In no event shall our total liability to you for all claims arising out of or relating to these Terms or the Service exceed the greater of (a) the total amount you paid to us in the 12 months preceding the claim or (b) $50.</p>
+      <p>Some jurisdictions do not allow the exclusion of certain warranties or limitation of liability, so some of the above limitations may not apply to you.</p>
+    </div>
+  </div>
+
+  <div class="section" id="s12">
+    <div class="section-num">12</div>
+    <div class="section-title">Indemnification</div>
+    <div class="prose">
+      <p>You agree to indemnify, defend, and hold harmless PepTrak LLC and its officers, directors, employees, agents, and affiliates from and against any claims, liabilities, damages, losses, costs, and expenses (including reasonable attorneys' fees) arising out of or relating to:</p>
+    </div>
+    <ul class="bullet-list">
+      <li>Your use of the Service in violation of these Terms.</li>
+      <li>Any use of research compounds for human consumption or any purpose other than legitimate research.</li>
+      <li>Your violation of any applicable law or third-party rights.</li>
+      <li>Your research data, intake information, or any content you submit through the Service.</li>
+    </ul>
+  </div>
+
+  <div class="section" id="s13">
+    <div class="section-num">13</div>
+    <div class="section-title">Governing Law & Disputes</div>
+    <div class="prose">
+      <p>These Terms shall be governed by and construed in accordance with the laws of the <strong>State of California</strong>, without regard to its conflict of law provisions.</p>
+      <p>Any dispute arising out of or relating to these Terms or the Service shall first be addressed through informal negotiation. You agree to contact us at <a href="/cdn-cgi/l/email-protection#94e7e1e4e4fbe6e0d4e4f1e4e0e6f5ffbaf7fbf9"><span class="__cf_email__" data-cfemail="22515752524d505662524752565043490c414d4f">[email&#160;protected]</span></a> and allow 30 days for us to resolve the dispute before initiating any formal proceedings.</p>
+      <p>If informal resolution fails, disputes shall be resolved by binding arbitration administered by the American Arbitration Association (AAA) under its Consumer Arbitration Rules, seated in San Diego, California. The arbitration shall be conducted in English. Each party shall bear its own costs unless the arbitrator determines otherwise.</p>
+      <p><strong>Class Action Waiver:</strong> You agree that any arbitration or legal proceeding shall be conducted on an individual basis and not as a class, collective, or representative action. You waive any right to participate in a class action lawsuit or class-wide arbitration.</p>
+    </div>
+  </div>
+
+  <div class="section" id="s14">
+    <div class="section-num">14</div>
+    <div class="section-title">Changes to Terms</div>
+    <div class="prose">
+      <p>We reserve the right to modify these Terms at any time. When we make material changes, we will update the "Effective" date at the top and notify you via email or in-app notice at least 14 days before the changes take effect.</p>
+      <p>Your continued use of the Service after the effective date of any changes constitutes your acceptance of the revised Terms. If you do not agree to the revised Terms, you must stop using the Service and may cancel your subscription.</p>
+    </div>
+  </div>
+
+  <div class="section" id="s15">
+    <div class="section-num">15</div>
+    <div class="section-title">Contact</div>
+    <div class="prose">
+      <p>For questions, concerns, or legal notices regarding these Terms, contact us:</p>
+    </div>
+    <div class="contact-card">
+      <div class="contact-title">Legal Inquiries</div>
+      <div class="contact-sub">PepTrak LLC &nbsp;·&nbsp; San Diego, California<br>We respond to all legal inquiries within 30 days.</div>
+      <a href="/cdn-cgi/l/email-protection#4c3f393c3c233e380c3c293c383e2d27622f2321" class="contact-email">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><pol

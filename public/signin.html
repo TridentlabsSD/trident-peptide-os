@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"/>
+<title>PepTrak — Sign In</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+html{-webkit-text-size-adjust:100%;}
+:root{
+  --blue:#0876FF;--blue-dark:#0557CC;--blue-pale:#EEF4FF;
+  --ink:#07090D;--ink-2:#1A1D23;
+  --gray-1:#F7F8FA;--gray-2:#EAECF0;--gray-3:#C8CDD6;
+  --gray-4:#8A919E;--gray-5:#545B67;--white:#FFFFFF;
+  --green:#00C076;--green-pale:#E6FAF3;--red:#FF3B30;
+  --font:-apple-system,BlinkMacSystemFont,'SF Pro Display','SF Pro Text','Helvetica Neue',sans-serif;
+}
+body{overflow-x:hidden;-webkit-tap-highlight-color:transparent;font-family:var(--font);background:var(--gray-1);color:var(--ink);-webkit-font-smoothing:antialiased;min-height:100svh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px 20px calc(24px + env(safe-area-inset-bottom));}
+.hdr{position:fixed;top:0;left:0;right:0;z-index:100;height:56px;background:rgba(247,248,250,0.96);backdrop-filter:blur(20px);border-bottom:1px solid var(--gray-2);display:flex;align-items:center;justify-content:space-between;padding:0 20px;}
+.hdr-logo{display:flex;align-items:center;gap:8px;font-size:16px;font-weight:700;color:var(--ink);text-decoration:none;}
+.hdr-mark{width:28px;height:28px;border-radius:8px;background:var(--blue);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800;color:#fff;}
+.hdr-back{font-size:13px;font-weight:600;color:var(--blue);text-decoration:none;display:flex;align-items:center;gap:5px;}
+.card{width:100%;max-width:400px;background:var(--white);border:1px solid var(--gray-2);border-radius:22px;padding:32px 28px;box-shadow:0 4px 24px rgba(0,0,0,0.06);margin-top:56px;}
+.card-logo{display:flex;align-items:center;justify-content:center;margin-bottom:24px;}
+.card-mark{width:48px;height:48px;border-radius:14px;background:var(--blue);display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:800;color:#fff;box-shadow:0 6px 20px rgba(8,118,255,0.3);}
+.card-title{font-size:22px;font-weight:700;letter-spacing:-0.5px;color:var(--ink);text-align:center;margin-bottom:6px;}
+.card-sub{font-size:14px;color:var(--gray-4);text-align:center;margin-bottom:28px;line-height:1.5;}
+.field{margin-bottom:14px;}
+.flbl{font-size:11px;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;color:var(--gray-4);margin-bottom:6px;display:block;}
+.finput{width:100%;padding:13px 14px;border:1.5px solid var(--gray-2);border-radius:12px;font-size:16px;color:var(--ink);font-family:var(--font);background:var(--white);outline:none;-webkit-appearance:none;transition:border-color 0.18s,box-shadow 0.18s;}
+.finput:focus{border-color:var(--blue);box-shadow:0 0 0 3px rgba(8,118,255,0.08);}
+.finput::placeholder{color:var(--gray-3);}
+.field-row-right{display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;}
+.forgot-link{font-size:12px;color:var(--blue);font-weight:600;cursor:pointer;text-decoration:none;}
+.err-box{display:none;font-size:13px;color:var(--red);background:#FFF1F0;border-radius:10px;padding:11px 14px;margin-bottom:14px;align-items:center;gap:8px;}
+.err-box.show{display:flex;}
+.btn-primary{width:100%;padding:15px;background:var(--blue);color:#fff;border:none;border-radius:980px;font-size:16px;font-weight:600;font-family:var(--font);cursor:pointer;box-shadow:0 4px 14px rgba(8,118,255,0.3);transition:opacity 0.15s,transform 0.15s;display:flex;align-items:center;justify-content:center;gap:8px;margin-top:8px;}
+.btn-primary:active{transform:scale(0.98);}
+.btn-primary:disabled{opacity:0.45;cursor:not-allowed;}
+.spinner{width:16px;height:16px;border:2px solid rgba(255,255,255,0.3);border-top-color:#fff;border-radius:50%;animation:spin 0.65s linear infinite;display:none;}
+@keyframes spin{to{transform:rotate(360deg);}}
+.divider{display:flex;align-items:center;gap:12px;margin:20px 0;}
+.div-line{flex:1;height:1px;background:var(--gray-2);}
+.div-txt{font-size:12px;color:var(--gray-3);}
+.new-account{text-align:center;margin-top:20px;font-size:13px;color:var(--gray-4);}
+.new-account a{color:var(--blue);font-weight:600;text-decoration:none;}
+.success-wrap{display:none;flex-direction:column;align-items:center;text-align:center;padding:8px 0;}
+.success-wrap.show{display:flex;}
+.success-ring{width:60px;height:60px;border-radius:50%;background:var(--green-pale);display:flex;align-items:center;justify-content:center;margin-bottom:14px;animation:pop 0.35s cubic-bezier(0.34,1.56,0.64,1);}
+@keyframes pop{from{transform:scale(0.5);opacity:0;}to{transform:scale(1);opacity:1;}}
+.success-title{font-size:20px;font-weight:700;color:var(--ink);margin-bottom:6px;}
+.success-sub{font-size:14px;color:var(--gray-5);line-height:1.6;margin-bottom:20px;}
+/* Forgot password screen */
+.forgot-screen{display:none;}
+.forgot-screen.show{display:block;}
+.main-screen{display:block;}
+.main-screen.hide{display:none;}
+.back-link{display:flex;align-items:center;gap:5px;font-size:13px;color:var(--blue);font-weight:600;cursor:pointer;margin-bottom:20px;background:none;border:none;font-family:var(--font);}
+</style>
+</head>
+<body>
+<header class="hdr">
+  <a href="/" class="hdr-logo"><div class="hdr-mark">P</div>PepTrak</a>
+  <a href="/" class="hdr-back">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="15 18 9 12 15 6"/></svg>Back
+  </a>
+</header>
+
+<div class="card">
+
+  <!-- MAIN SIGN IN -->
+  <div id="main-screen" class="main-screen">
+    <div id="form-wrap">
+      <div class="card-logo"><div class="card-mark">P</div></div>
+      <div class="card-title">Welcome back</div>
+      <div class="card-sub">Sign in to your PepTrak account</div>
+
+      <div class="err-box" id="err-box">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+        <span id="err-txt"></span>
+      </div>
+
+      <div class="field">
+        <label class="flbl" for="f-email">Email</label>
+        <input class="finput" id="f-email" type="email" placeholder="you@example.com" autocomplete="email" autocapitalize="none"/>
+      </div>
+      <div class="field">
+        <div class="field-row-right">
+          <label class="flbl" for="f-password" style="margin-bottom:0;">Password</label>
+          <span class="forgot-link" onclick="showForgot()">Forgot password?</span>
+        </div>
+        <input class="finput" id="f-password" type="password" placeholder="Your password" autocomplete="current-password"/>
+      </div>
+
+      <button class="btn-primary" id="signin-btn" onclick="handleSignIn()">
+        <span id="btn-txt">Sign In</span>
+        <div class="spinner" id="spinner"></div>
+      </button>
+
+      <div class="divider"><div class="div-line"></div><div class="div-txt">New to PepTrak?</div><div class="div-line"></div></div>
+      <div class="new-account"><a href="/onboarding">Build your free protocol →</a></div>
+    </div>
+
+    <!-- Success -->
+    <div class="success-wrap" id="success-wrap">
+      <div class="success-ring">
+        <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#00C076" stroke-width="2.5" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg>
+      </div>
+      <div class="success-title">You're in</div>
+      <div class="success-sub">Taking you to your dashboard...</div>
+    </div>
+  </div>
+
+  <!-- FORGOT PASSWORD -->
+  <div id="forgot-screen" class="forgot-screen">
+    <button class="back-link" onclick="showMain()">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="15 18 9 12 15 6"/></svg>Back to sign in
+    </button>
+    <div class="card-title" style="text-align:left;font-size:18px;margin-bottom:6px;">Reset password</div>
+    <div class="card-sub" style="text-align:left;margin-bottom:20px;">This only works on the same device you signed up on. If you're on a new device, sign in with your email — your account will be restored.</div>
+
+    <div class="err-box" id="forgot-err-box">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+      <span id="forgot-err-txt"></span>
+    </div>
+
+    <div class="field">
+      <label class="flbl">Email</label>
+      <input class="finput" id="f-reset-email" type="email" placeholder="you@example.com" autocapitalize="none"/>
+    </div>
+    <div class="field">
+      <label class="flbl">New Password</label>
+      <input class="finput" id="f-new-password" type="password" placeholder="Min. 8 characters"/>
+    </div>
+    <div class="field">
+      <label class="flbl">Confirm New Password</label>
+      <input class="finput" id="f-confirm-password" type="password" placeholder="Repeat password"/>
+    </div>
+
+    <button class="btn-primary" onclick="handleReset()">Reset Password</button>
+
+    <div id="reset-success" style="display:none;text-align:center;margin-top:16px;font-size:13px;color:var(--green);font-weight:600;">
+      ✓ Password updated. <a href="/signin" style="color:var(--blue);">Sign in now</a>
+    </div>
+  </div>
+
+</div>
+
+<script>
+async function hashPassword(password){
+  var encoder = new TextEncoder();
+  var data = encoder.encode(password + 'peptrak_salt_2026');
+  var hash = await crypto.subtle.digest('SHA-256', data);
+  return Array.from(new Uint8Array(hash)).map(function(b){ return b.toString(16).padStart(2,'0'); }).join('');
+}
+
+// ── TEST ACCOUNT: RANDOMIZED INTAKE ──
+function injectTestIntake(plan){
+  var goals = ['fat_loss','muscle','recovery','brain','sleep_gh','anti_aging'];
+  var secondaryPools = {
+    fat_loss:['recovery','sleep_gh','brain'],
+    muscle:['recovery','sleep_gh','fat_loss'],
+    recovery:['sleep_gh','muscle','brain'],
+    brain:['sleep_gh','recovery','fat_loss'],
+    sleep_gh:['recovery','muscle','brain'],
+    anti_aging:['recovery','brain','sleep_gh']
+  };
+  var timelines = ['30','60','90','ongoing'];
+  var budgets = ['75_150','150_300','300_plus'];
+  var sexes = ['male','female'];
+  var ages = ['18-24','25-34','35-44','45-54'];
+  var bodyComps = ['lean','average','overweight'];
+  var trainings = ['light','moderate','active','athlete'];
+  var sports = ['strength','bodybuilding','combat','endurance','crossfit','recreational'];
+  var sleeps = ['excellent','good','fair','poor'];
+  var stresses = ['low','moderate','high'];
+  var alcohols = ['none','occasional','moderate'];
+  var experiences = ['none','some','intermediate','advanced'];
+  var injComforts = ['nervous','okay','comfortable'];
+  var names = ['Alex','Jordan','Taylor','Morgan','Casey','Riley','Sam','Drew'];
+  function pick(arr){ return arr[Math.floor(Math.random()*arr.length)]; }
+  var goal1 = pick(goals);
+  var goal2 = [pick(secondaryPools[goal1])];
+  var sex = pick(sexes);
+  var weightLbs, heightFt, heightIn;
+  if(sex === 'male'){ weightLbs = 155 + Math.floor(Math.random()*85); heightFt = 5; heightIn = 7 + Math.floor(Math.random()*6); }
+  else { weightLbs = 115 + Math.floor(Math.random()*65); heightFt = 5; heightIn = 2 + Math.floor(Math.random()*7); }
+  var totalIn = heightFt*12 + heightIn;
+  var heightCm = Math.round(totalIn*2.54);
+  var weightKg = Math.round(weightLbs*0.453592*10)/10;
+  var bmi = Math.round(weightKg/Math.pow(heightCm/100,2)*10)/10;
+  var bloodwork = {};
+  if(Math.random() > 0.5){
+    if(sex==='male') bloodwork.test = 400 + Math.floor(Math.random()*500);
+    bloodwork.igf1 = 120 + Math.floor(Math.random()*180);
+    bloodwork.tsh = Math.round((0.8 + Math.random()*2.8)*10)/10;
+    if(Math.random()>0.5) bloodwork.cortisol = 8 + Math.floor(Math.random()*14);
+  }
+  var intake = {
+    goal1:goal1, goal2:goal2, timeline:pick(timelines), budget:pick(budgets),
+    sex:sex, age:pick(ages), unit:'imperial',
+    height_ft:heightFt, height_in:heightIn, height_cm:heightCm,
+    weight_lbs:weightLbs, weight_kg:weightKg, bmi:bmi,
+    body_comp:pick(bodyComps), training:pick(trainings), sport:pick(sports),
+    sleep:pick(sleeps), stress:pick(stresses), alcohol:pick(alcohols),
+    conditions:['none'], medications:['none'],
+    experience:pick(experiences), injection_comfort:pick(injComforts),
+    bloodwork:bloodwork, first_name:pick(names),
+    email:'test@peptrak.com', plan:plan||'monthly'
+  };
+  localStorage.setItem('peptrak_intake', JSON.stringify(intake));
+  localStorage.setItem('peptrak_intake_ts', Date.now().toString());
+  localStorage.removeItem('peptrak_protocol');
+  localStorage.removeItem('peptrak_protocol_ts');
+}
+
+// Pre-fill email if known
+(function(){
+  var intake = {};
+  try{ intake = JSON.parse(localStorage.getItem('peptrak_intake')||'{}'); }catch(e){}
+  var savedEmail = localStorage.getItem('peptrak_auth_email') || intake.email || '';
+  if(savedEmail) document.getElementById('f-email').value = savedEmail;
+})();
+
+async function handleSignIn(){
+  var email = document.getElementById('f-email').value.trim().toLowerCase();
+  var password = document.getElementById('f-password').value;
+
+  if(!email || !email.includes('@')){ showErr('Please enter your email.'); return; }
+  if(!password){ showErr('Please enter your password.'); return; }
+
+  setLoading(true); clearErr();
+
+  var storedEmail = localStorage.getItem('peptrak_auth_email') || '';
+  var storedHash = localStorage.getItem('peptrak_auth_pw') || '';
+
+  // Check credentials
+  var inputHash = await hashPassword(password);
+
+  // Test account bypass
+  if(email === 'test@peptrak.com' && password === 'PepTrak2026!'){
+    localStorage.setItem('peptrak_paid','1');
+    localStorage.setItem('peptrak_paid_ts', Date.now().toString());
+    localStorage.setItem('peptrak_test_account','1');
+    localStorage.setItem('peptrak_auth_email','test@peptrak.com');
+    localStorage.setItem('peptrak_subscription_status','trialing');
+    var trialEndTest = new Date(); trialEndTest.setDate(trialEndTest.getDate()+21);
+    localStorage.setItem('peptrak_trial_end', trialEndTest.toISOString());
+    injectTestIntake('monthly');
+    showSuccess();
+    setTimeout(function(){ window.location.href = '/protocol'; }, 1200);
+    return;
+  }
+
+  if(storedEmail && storedHash && email === storedEmail && inputHash === storedHash){
+    // Valid — sign in
+    showSuccess();
+    var hasProtocol = !!localStorage.getItem('peptrak_protocol');
+    setTimeout(function(){
+      window.location.href = hasProtocol ? '/tracker' : '/protocol';
+    }, 1200);
+  } else if(!storedEmail || !storedHash){
+    // No local credentials — try Supabase for cross-device login
+    try {
+      var sbRes = await fetch('/api/supabase?action=load-data?email=' + encodeURIComponent(email));
+      if(sbRes.ok){
+        var sbData = await sbRes.json();
+        if(sbData.stripeCustomerId || sbData.status){
+
+          // Verify password against stored hash (if one exists)
+          if(sbData.authPw){
+            var inputHash = await hashPassword(password);
+            if(inputHash !== sbData.authPw){
+              setLoading(false);
+              showErr('Incorrect password.');
+              return;
+            }
+          }
+          // If no stored hash yet: first cross-device login — accept and store going forward
+
+          // ── Restore subscription ──
+          localStorage.setItem('peptrak_paid', '1');
+          localStorage.setItem('peptrak_paid_ts', Date.now().toString());
+          if(sbData.stripeCustomerId) localStorage.setItem('peptrak_stripe_customer_id', sbData.stripeCustomerId);
+          if(sbData.stripeSubscriptionId) localStorage.setItem('peptrak_stripe_subscription_id', sbData.stripeSubscriptionId);
+          if(sbData.trialEnd) localStorage.setItem('peptrak_trial_end', sbData.trialEnd);
+          if(sbData.status) localStorage.setItem('peptrak_subscription_status', sbData.status);
+
+          // ── Restore credentials ──
+          localStorage.setItem('peptrak_auth_email', email);
+          var newHash = sbData.authPw || await hashPassword(password);
+          localStorage.setItem('peptrak_auth_pw', newHash);
+
+          // ── Restore all app data ──
+          if(sbData.intake) localStorage.setItem('peptrak_intake', JSON.stringify(sbData.intake));
+          if(sbData.protocol) localStorage.setItem('peptrak_protocol', JSON.stringify(sbData.protocol));
+          if(sbData.tracker) localStorage.setItem('peptrak_tracker', JSON.stringify(sbData.tracker));
+          if(sbData.advisorContext) localStorage.setItem('peptrak_advisor_context', sbData.advisorContext);
+          if(sbData.alexMemory) localStorage.setItem('peptrak_alex_memory', JSON.stringify(sbData.alexMemory));
+          if(sbData.cycleHistory) localStorage.setItem('peptrak_cycle_history', JSON.stringify(sbData.cycleHistory));
+          if(sbData.weeklyRecaps) localStorage.setItem('peptrak_weekly_recaps', JSON.stringify(sbData.weeklyRecaps));
+          if(sbData.protocolStart) localStorage.setItem('peptrak_protocol_start', String(sbData.protocolStart));
+          if(sbData.bodyMetrics) localStorage.setItem('peptrak_body_metrics', JSON.stringify(sbData.bodyMetrics));
+          if(sbData.responseProfile) localStorage.setItem('peptrak_response_profile_v1', JSON.stringify(sbData.responseProfile));
+          if(sbData.affCode) localStorage.setItem('peptrak_aff_code', sbData.affCode);
+          if(sbData.name){
+            var prof = {}; try{ prof = JSON.parse(localStorage.getItem('peptrak_profile')||'{}'); }catch(e){}
+            prof.name = sbData.name; localStorage.setItem('peptrak_profile', JSON.stringify(prof));
+          }
+
+          showSuccess();
+          // Route: if we have a protocol go straight to tracker, otherwise questionnaire
+          var dest = sbData.protocol ? '/tracker' : '/questionnaire';
+          setTimeout(function(){ window.location.href = dest; }, 1200);
+          return;
+        }
+      }
+    } catch(e){ console.error('Cross-device restore failed:', e); }
+    setLoading(false);
+    showErr('No account found. Check your email or complete onboarding — your subscription will restore automatically.');
+  } else {
+    setLoading(false);
+    showErr('Incorrect email or password.');
+  }
+}
+
+async function handleReset(){
+  var email = document.getElementById('f-reset-email').value.trim().toLowerCase();
+  var newPw = document.getElementById('f-new-password').value;
+  var confirmPw = document.getElementById('f-confirm-password').value;
+  var errBox = document.getElementById('forgot-err-box');
+  var errTxt = document.getElementById('forgot-err-txt');
+
+  if(!email){ errBox.classList.add('show'); errTxt.textContent = 'Enter your email.'; return; }
+  if(newPw.length < 8){ errBox.classList.add('show'); errTxt.textContent = 'Password must be at least 8 characters.'; return; }
+  if(newPw !== confirmPw){ errBox.classList.add('show'); errTxt.textContent = 'Passwords do not match.'; return; }
+
+  var storedEmail = localStorage.getItem('peptrak_auth_email') || '';
+  if(email !== storedEmail){
+    errBox.classList.add('show');
+    errTxt.textContent = 'That email does not match the account on this device.';
+    return;
+  }
+
+  var newHash = await hashPassword(newPw);
+  localStorage.setItem('peptrak_auth_pw', newHash);
+  document.getElementById('reset-success').style.display = 'block';
+  errBox.classList.remove('show');
+}
+
+function showForgot(){
+  document.getElementById('main-screen').classList.add('hide');
+  document.getElementById('forgot-screen').classList.add('show');
+}
+function showMain(){
+  document.getElementById('main-screen').classList.remove('hide');
+  document.getElementById('forgot-screen').classList.remove('show');
+}
+function showSuccess(){
+  setLoading(false);
+  document.getElementById('form-wrap').style.display = 'none';
+  document.getElementById('success-wrap').classList.add('show');
+}
+function setLoading(on){
+  document.getElementById('signin-btn').disabled = on;
+  document.getElementById('btn-txt').style.display = on ? 'none' : 'block';
+  document.getElementById('spinner').style.display = on ? 'block' : 'none';
+}
+function showErr(msg){ document.getElementById('err-txt').textContent = msg; document.getElementById('err-box').classList.add('show'); }
+function clearErr(){ document.getElementById('err-box').classList.remove('show'); }
+document.addEventListener('keydown', function(e){
+  if(e.key === 'Enter'){
+    var forgotVisible = document.getElementById('forgot-screen').classList.contains('show');
+    if(forgotVisible) handleReset();
+    else handleSignIn();
+  }
+});
+</script>
+</body>
+</html>

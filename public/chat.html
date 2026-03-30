@@ -1,0 +1,1962 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"/>
+<title>PepTrak — Research Advisor</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+html{-webkit-text-size-adjust:100%;height:100%;overflow-x:hidden;}
+:root{
+  --blue:#0876FF;
+  --blue-dark:#0557CC;
+  --blue-pale:#EEF4FF;
+  --ink:#07090D;
+  --ink-2:#1A1D23;
+  --gray-1:#F7F8FA;
+  --gray-2:#EAECF0;
+  --gray-3:#C8CDD6;
+  --gray-4:#8A919E;
+  --gray-5:#545B67;
+  --white:#FFFFFF;
+  --green:#00C076;
+  --green-pale:#E6FAF3;
+  --red:#FF3B30;
+  --font:-apple-system,BlinkMacSystemFont,'SF Pro Display','SF Pro Text','Helvetica Neue',sans-serif;
+}
+body{-webkit-tap-highlight-color:transparent;
+  font-family:var(--font);
+  background:var(--gray-1);
+  color:var(--ink);
+  -webkit-font-smoothing:antialiased;
+  height:100svh;
+  max-height:100svh;
+  display:flex;flex-direction:column;
+  overflow:hidden;
+}
+
+/* ── HEADER ── */
+.hdr{
+  background:rgba(255,255,255,0.96);
+  backdrop-filter:blur(20px);
+  border-bottom:1px solid var(--gray-2);
+  height:56px;
+  display:flex;align-items:center;justify-content:space-between;
+  padding:0 20px;
+  flex-shrink:0;
+  position:sticky;top:0;z-index:100;
+}
+.hdr-left{display:flex;align-items:center;gap:10px;}
+.hdr-logo{
+  display:flex;align-items:center;gap:7px;
+  font-size:16px;font-weight:700;color:var(--ink);
+  text-decoration:none;
+}
+.hdr-mark{
+  width:26px;height:26px;border-radius:7px;
+  background:var(--blue);
+  display:flex;align-items:center;justify-content:center;
+  font-size:12px;font-weight:800;color:#fff;
+}
+.hdr-title{font-size:15px;font-weight:600;color:var(--ink);}
+.hdr-sub{font-size:11px;color:var(--gray-4);}
+.hdr-status{
+  display:flex;align-items:center;gap:5px;
+  font-size:11px;font-weight:500;color:var(--green);
+}
+.hdr-dot{
+  width:6px;height:6px;border-radius:50%;
+  background:var(--green);
+}
+
+/* ── CHAT AREA ── */
+.chat-wrap{
+  flex:1;
+  overflow-y:auto;
+  padding:16px 16px 12px;
+  max-width:640px;
+  width:100%;
+  margin:0 auto;
+  -webkit-overflow-scrolling:touch;
+}
+
+/* ── MESSAGES ── */
+.msg{
+  display:flex;gap:10px;margin-bottom:14px;
+  animation:fadeUp 0.3s ease both;
+}
+@keyframes fadeUp{from{opacity:0;transform:translateY(8px);}to{opacity:1;transform:none;}}
+.msg.user{flex-direction:row-reverse;}
+.msg-avatar{
+  width:30px;height:30px;border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  flex-shrink:0;margin-top:2px;font-size:12px;font-weight:700;
+  background:linear-gradient(135deg,var(--blue),#60A5FA);color:#fff;
+}
+.msg-avatar.ai{
+  background:linear-gradient(135deg,#1A1D23,#374151);
+  font-size:11px;font-weight:800;letter-spacing:-0.3px;
+}
+.msg-bubble{
+  max-width:80%;
+  padding:11px 14px;
+  border-radius:18px;
+  font-size:14px;line-height:1.65;
+  color:var(--ink);
+}
+.msg.ai .msg-bubble{
+  background:var(--white);
+  border:1px solid var(--gray-2);
+  border-radius:4px 18px 18px 18px;
+}
+.msg.user .msg-bubble{
+  background:var(--blue);
+  color:#fff;
+  border-radius:18px 4px 18px 18px;
+}
+.msg-time{
+  font-size:10px;color:var(--gray-3);
+  margin-top:4px;
+  text-align:right;
+}
+.msg.ai .msg-time{text-align:left;margin-left:40px;}
+
+/* ── TYPING INDICATOR ── */
+.typing{
+  display:flex;gap:10px;margin-bottom:14px;
+  opacity:0;transition:opacity 0.2s;
+}
+.typing.show{opacity:1;}
+.typing-bubble{
+  background:var(--white);border:1px solid var(--gray-2);
+  border-radius:4px 18px 18px 18px;
+  padding:12px 16px;
+  display:flex;align-items:center;gap:4px;
+}
+.typing-dot{
+  width:7px;height:7px;border-radius:50%;
+  background:var(--gray-3);
+  animation:typingBounce 1.2s ease-in-out infinite;
+}
+.typing-dot:nth-child(2){animation-delay:0.15s;}
+.typing-dot:nth-child(3){animation-delay:0.3s;}
+@keyframes typingBounce{
+  0%,60%,100%{transform:translateY(0);}
+  30%{transform:translateY(-6px);}
+}
+
+/* ── SUGGESTED QUESTIONS ── */
+.suggestions{
+  flex-shrink:0;
+  background:#fff;
+  padding:8px 16px 6px;
+  border-top:1px solid var(--gray-2);
+}
+.suggestions-inner{
+  max-width:640px;
+  margin:0 auto;
+}
+.suggestions-lbl{
+  font-size:10px;font-weight:600;letter-spacing:0.07em;
+  text-transform:uppercase;color:var(--gray-4);
+  margin-bottom:8px;
+}
+.suggestions-row{
+  display:flex;gap:7px;flex-wrap:wrap;
+}
+.suggestion-chip{
+  font-size:12px;font-weight:500;color:var(--blue);
+  background:var(--blue-pale);border:1px solid rgba(8,118,255,0.15);
+  border-radius:20px;padding:6px 12px;cursor:pointer;
+  transition:all 0.15s;white-space:nowrap;
+  font-family:var(--font);
+  -webkit-tap-highlight-color:transparent;
+}
+.suggestion-chip:hover{background:rgba(8,118,255,0.12);}
+.suggestion-chip:active{transform:scale(0.97);}
+
+/* ── INPUT BAR ── */
+.input-bar{
+  flex-shrink:0;
+  background:#fff;
+  border-top:1px solid var(--gray-2);
+  padding:10px 16px calc(10px + env(safe-area-inset-bottom));
+}
+.input-inner{
+  max-width:640px;margin:0 auto;
+  display:flex;align-items:flex-end;gap:10px;
+}
+.input-field{font-size:16px;
+  flex:1;
+  padding:11px 14px;
+  border:1.5px solid var(--gray-2);border-radius:22px;
+  font-size:15px;font-family:var(--font);color:var(--ink);
+  background:#fff;outline:none;resize:none;
+  max-height:120px;min-height:44px;
+  overflow-y:auto;
+  -webkit-appearance:none;
+  transition:border-color 0.18s,box-shadow 0.18s;
+  line-height:1.5;
+}
+.input-field:focus{
+  border-color:var(--blue);
+  box-shadow:0 0 0 3px rgba(8,118,255,0.08);
+}
+.input-field::placeholder{color:var(--gray-3);}
+.send-btn{
+  width:44px;height:44px;border-radius:50%;
+  background:var(--blue);border:none;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;
+  flex-shrink:0;
+  transition:background 0.2s,transform 0.15s,opacity 0.2s;
+  box-shadow:0 2px 8px rgba(8,118,255,0.3);
+}
+.send-btn:hover{background:var(--blue-dark);}
+.send-btn:active{transform:scale(0.93);}
+.send-btn:disabled{opacity:0.4;cursor:not-allowed;}
+
+/* ── BOTTOM NAV ── */
+.bnav{
+  flex-shrink:0;
+  background:#fff;
+  border-top:1px solid var(--gray-2);
+  height:calc(60px + env(safe-area-inset-bottom));
+  padding-bottom:env(safe-area-inset-bottom);
+  display:flex;align-items:center;
+}
+.bnav-inner{
+  display:flex;width:100%;max-width:560px;margin:0 auto;padding:0 8px;
+}
+.bnav-item{
+  flex:1;display:flex;flex-direction:column;align-items:center;
+  justify-content:center;gap:3px;
+  text-decoration:none;padding:8px 4px;border-radius:10px;
+  transition:background 0.15s;color:var(--gray-4);
+  -webkit-tap-highlight-color:transparent;
+}
+.bnav-item.active{color:var(--blue);}
+.bnav-item:active{background:var(--gray-1);}
+.bnav-icon{width:22px;height:22px;display:flex;align-items:center;justify-content:center;}
+.bnav-lbl{font-size:10px;font-weight:500;}
+.bnav-item.active .bnav-lbl{font-weight:700;}
+
+/* ── PROTOCOL CONTEXT CHIP ── */
+.context-chip{
+  display:inline-flex;align-items:center;gap:7px;
+  background:var(--green-pale);
+  border:1px solid rgba(0,192,118,0.2);
+  border-radius:20px;padding:5px 12px;
+  font-size:11px;font-weight:600;color:#065F46;
+  margin:0 16px 12px;
+  max-width:640px;
+  align-self:flex-start;
+}
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header class="hdr">
+  <div class="hdr-left">
+    <a href="/" class="hdr-logo">
+      <div class="hdr-mark">P</div>
+    </a>
+    <div>
+      <div class="hdr-title">Alex</div>
+      <div class="hdr-sub" id="hdr-sub">PepTrak Research Advisor</div>
+    </div>
+  </div>
+  <div class="hdr-status">
+    <div class="hdr-dot"></div>
+    Online
+  </div>
+</header>
+
+<!-- CHAT -->
+<div class="chat-wrap" id="chat-wrap">
+
+  <!-- Context chip -->
+  <div class="context-chip" id="context-chip">
+    <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg>
+    Protocol loaded - I know your full stack
+  </div>
+
+  <!-- Typing indicator (hidden) -->
+  <div class="typing" id="typing-indicator">
+    <div class="msg-avatar ai">P</div>
+    <div class="typing-bubble">
+      <div class="typing-dot"></div>
+      <div class="typing-dot"></div>
+      <div class="typing-dot"></div>
+    </div>
+  </div>
+
+</div>
+
+<!-- SUGGESTIONS -->
+<div class="suggestions" id="suggestions">
+  <div class="suggestions-inner">
+    <div class="suggestions-row" id="suggestions-row"></div>
+  </div>
+</div>
+
+<!-- INPUT BAR -->
+<div class="input-bar">
+  <div class="input-inner">
+    <textarea
+      class="input-field"
+      id="input-field"
+      placeholder="Ask anything about your protocol..."
+      rows="1"
+      onkeydown="handleKey(event)"
+      oninput="autoResize(this)"
+    ></textarea>
+    <button class="send-btn" id="send-btn" onclick="sendMessage()">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5" stroke-linecap="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+    </button>
+  </div>
+</div>
+
+<!-- BOTTOM NAV -->
+<nav class="bnav">
+  <div class="bnav-inner">
+    <a href="/protocol" class="bnav-item">
+      <div class="bnav-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M9 3H5a2 2 0 00-2 2v4m6-6h10a2 2 0 012 2v4M9 3v18m0 0h10a2 2 0 002-2V9M9 21H5a2 2 0 01-2-2V9m0 0h18"/></svg></div>
+      <div class="bnav-lbl">Protocol</div>
+    </a>
+    <a href="/chat" class="bnav-item active">
+      <div class="bnav-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg></div>
+      <div class="bnav-lbl">Advisor</div>
+    </a>
+    <a href="/tracker" class="bnav-item">
+      <div class="bnav-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="3" y1="10" x2="21" y2="10"/></svg></div>
+      <div class="bnav-lbl">Tracker</div>
+    </a>
+    <a href="/library" class="bnav-item">
+      <div class="bnav-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M2 3h6a4 4 0 014 4v14a3 3 0 00-3-3H2z"/><path d="M22 3h-6a4 4 0 00-4 4v14a3 3 0 013-3h7z"/></svg></div>
+      <div class="bnav-lbl">Library</div>
+    </a>
+    <a href="/account" class="bnav-item">
+      <div class="bnav-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></div>
+      <div class="bnav-lbl">Account</div>
+    </a>
+  </div>
+</nav>
+
+<script>
+
+// ── PAYWALL GUARD (server-side) ──
+(function(){
+  var email  = localStorage.getItem('peptrak_auth_email');
+  var paid   = localStorage.getItem('peptrak_paid');
+  var isTest = localStorage.getItem('peptrak_test_account') === '1';
+
+  if(isTest) return; // test account always passes
+
+  if(!email || !paid){
+    window.location.replace('/checkout');
+    return;
+  }
+
+  // Async server-side check — catches past_due / cancelled without blocking page load
+  fetch('/api/check-access?email=' + encodeURIComponent(email))
+    .then(function(r){ return r.json(); })
+    .then(function(data){
+      if(data.access) return;
+      if(data.status === 'past_due' || data.status === 'unpaid'){
+        localStorage.removeItem('peptrak_paid');
+        localStorage.setItem('peptrak_subscription_status','past_due');
+        window.location.replace('/rebill');
+      } else if(data.status === 'cancelled' || data.status === 'canceled'){
+        localStorage.removeItem('peptrak_paid');
+        window.location.replace('/rebill');
+      } else if(data.redirect){
+        localStorage.removeItem('peptrak_paid');
+        window.location.replace(data.redirect);
+      }
+    })
+    .catch(function(){}); // network error — fail open
+})();
+
+// ── STATE ──
+var intake = {};
+var protocol = {};
+var advisorContext = '';
+var chatHistory = [];
+var memory = {};
+var trackerData = {};
+var isTyping = false;
+
+try{ intake = JSON.parse(localStorage.getItem('peptrak_intake')||'{}'); }catch(e){}
+try{ protocol = JSON.parse(localStorage.getItem('peptrak_protocol')||'{}'); }catch(e){}
+try{ advisorContext = localStorage.getItem('peptrak_advisor_context')||''; }catch(e){}
+try{ chatHistory = JSON.parse(localStorage.getItem('peptrak_chat_history')||'[]'); }catch(e){}
+try{ memory = JSON.parse(localStorage.getItem('peptrak_alex_memory')||'{}'); }catch(e){}
+try{ trackerData = JSON.parse(localStorage.getItem('peptrak_tracker')||'{}'); }catch(e){}
+var cycleHistory = [];
+var weeklyRecaps = [];
+var profileName = '';
+try{ cycleHistory = JSON.parse(localStorage.getItem('peptrak_cycle_history')||'[]'); }catch(e){}
+try{ weeklyRecaps = JSON.parse(localStorage.getItem('peptrak_weekly_recaps')||'[]'); }catch(e){}
+try{ var _prof = JSON.parse(localStorage.getItem('peptrak_profile')||'{}'); profileName = _prof.name||''; }catch(e){}
+
+// Clear history if it contains raw ||SPLIT|| tokens
+if(chatHistory.some(function(m){ return m.content && m.content.indexOf('||SPLIT||') > -1; })){
+  chatHistory = [];
+  localStorage.removeItem('peptrak_chat_history');
+}
+
+var GOAL_LABELS = {fat_loss:'Fat Loss',muscle:'Muscle & Strength',recovery:'Recovery',brain:'Brain & Focus',sleep_gh:'Sleep & GH',anti_aging:'Longevity'};
+
+// ── PROTOCOL WEEK CALCULATOR ──
+function getProtocolWeek(){
+  var startTs = parseInt(localStorage.getItem('peptrak_protocol_start') || intake.trial_start || 0);
+  if(!startTs) return null;
+  var daysSince = Math.floor((Date.now() - startTs) / 86400000);
+  var week = Math.floor(daysSince / 7) + 1;
+  return {day: daysSince + 1, week: week};
+}
+
+// ── TRACKER SUMMARY FOR ALEX ──
+function getTrackerSummary(){
+  if(!trackerData || !trackerData.logs || !trackerData.logs.length) return null;
+  var logs = trackerData.logs;
+  var last7 = logs.slice(-7);
+  var totalDoses = 0;
+  var missedDoses = 0;
+  var sideEffects = [];
+  var notes = [];
+
+  last7.forEach(function(log){
+    if(log.doses){
+      Object.values(log.doses).forEach(function(d){
+        totalDoses++;
+        if(!d.taken) missedDoses++;
+      });
+    }
+    if(log.side_effects && log.side_effects.length) sideEffects = sideEffects.concat(log.side_effects);
+    if(log.note) notes.push(log.note);
+  });
+
+  var adherence = totalDoses ? Math.round(((totalDoses - missedDoses) / totalDoses) * 100) : null;
+  return {
+    last7Days: last7.length,
+    adherence: adherence,
+    missedDoses: missedDoses,
+    sideEffects: [...new Set(sideEffects)],
+    recentNotes: notes.slice(-3),
+    lastLogDate: logs[logs.length-1] ? logs[logs.length-1].date : null
+  };
+}
+
+// ── PERSISTENT MEMORY HELPERS ──
+function saveMemory(key, val){
+  memory[key] = val;
+  localStorage.setItem('peptrak_alex_memory', JSON.stringify(memory));
+}
+
+function getMemory(key){ return memory[key] || null; }
+
+
+
+// ══════════════════════════════════════════════════════════
+// CHURN DETECTION
+// ══════════════════════════════════════════════════════════
+function detectChurnRisk(){
+  var progress = getProtocolWeek();
+  if(!progress) return null;
+  var week = progress.week;
+  // Only relevant weeks 2-4 (the dropout zone)
+  if(week < 2 || week > 5) return null;
+
+  var tracker = getTrackerSummary();
+  var hasPositiveFeedback = Object.keys(memory).some(function(k){
+    return k.startsWith('positive_feedback_');
+  });
+
+  var signals = [];
+  if(tracker && tracker.adherence !== null && tracker.adherence < 70){
+    signals.push('adherence dropped to ' + tracker.adherence + '%');
+  }
+  if(tracker && tracker.missedDoses >= 3){
+    signals.push(tracker.missedDoses + ' missed doses this week');
+  }
+  if(!hasPositiveFeedback && week >= 3){
+    signals.push('no positive results reported yet');
+  }
+
+  if(signals.length >= 2){
+    return {
+      risk: 'HIGH',
+      signals: signals,
+      week: week
+    };
+  }
+  if(signals.length === 1 && week >= 3){
+    return {risk:'MEDIUM', signals:signals, week:week};
+  }
+  return null;
+}
+
+// ══════════════════════════════════════════════════════════
+// RESPONSE PROFILE (written at end of cycle)
+// ══════════════════════════════════════════════════════════
+function buildResponseProfile(){
+  // Called at week 12+ to generate a permanent profile
+  var progress = getProtocolWeek();
+  if(!progress || progress.week < 12) return null;
+
+  var profileWritten = localStorage.getItem('peptrak_response_profile_v1');
+  if(profileWritten) return JSON.parse(profileWritten); // Already written
+
+  var profile = {
+    cycle: cycleHistory.length || 1,
+    written: new Date().toDateString(),
+    compounds: (protocol.compounds||[]).map(function(c){ return c.name; }),
+    goal: intake.goal1 || '',
+    reportedSides: Object.keys(memory)
+      .filter(function(k){ return k.startsWith('reported_side_'); })
+      .map(function(k){ return k.replace('reported_side_','').replace(/_/g,' '); }),
+    positiveResults: Object.keys(memory)
+      .filter(function(k){ return k.startsWith('positive_feedback_'); })
+      .map(function(k){ return memory[k]; }),
+    checkInAnswers: Object.keys(memory)
+      .filter(function(k){ return k.startsWith('checkin_week_') && k.endsWith('_answer'); })
+      .map(function(k){ return {week: k.match(/\d+/)[0], answer: memory[k]}; }),
+    bodyMetrics: JSON.parse(localStorage.getItem('peptrak_body_metrics')||'[]'),
+    peakAdherence: null,
+    avgAdherence: null
+  };
+
+  // Calculate adherence stats from full tracker
+  if(trackerData && trackerData.logs && trackerData.logs.length){
+    var logs = trackerData.logs;
+    var total = 0, taken = 0;
+    logs.forEach(function(log){
+      if(log.doses) Object.values(log.doses).forEach(function(d){
+        total++; if(d.taken) taken++;
+      });
+    });
+    profile.avgAdherence = total > 0 ? Math.round((taken/total)*100) : null;
+  }
+
+  localStorage.setItem('peptrak_response_profile_v1', JSON.stringify(profile));
+  return profile;
+}
+
+function getResponseProfile(){
+  try{ return JSON.parse(localStorage.getItem('peptrak_response_profile_v1')||'null'); }catch(e){ return null; }
+}
+
+// ══════════════════════════════════════════════════════════
+// DANGEROUS COMBINATION DETECTION
+// ══════════════════════════════════════════════════════════
+function getDangerFlags(){
+  if(!protocol || !protocol.compounds) return [];
+  var flags = [];
+  var compounds = protocol.compounds.map(function(c){ return (c.name||'').toLowerCase(); });
+  var conditions = (intake.conditions||[]).map(function(x){ return (x||'').toLowerCase(); });
+  var medications = (intake.medications||[]).map(function(x){ return (x||'').toLowerCase(); });
+  var bw = intake.bloodwork || {};
+
+  var hasGLP1 = compounds.some(function(n){ return n.includes('sema')||n.includes('tirz')||n.includes('reta'); });
+  var hasGH = compounds.some(function(n){ return n.includes('cjc')||n.includes('ipa')||n.includes('ipamorelin')||n.includes('sermorelin')||n.includes('hgh')||n.includes('ghrp'); });
+  var hasIGF = compounds.some(function(n){ return n.includes('igf'); });
+  var hasBPC = compounds.some(function(n){ return n.includes('bpc')||n.includes('glow')||n.includes('wolverine'); });
+  var hasTB500 = compounds.some(function(n){ return n.includes('tb-500')||n.includes('tb500')||n.includes('glow'); });
+
+  // Cancer history + BPC-157 / TB-500
+  var hasCancerHistory = conditions.some(function(c){ return c.includes('cancer')||c.includes('tumor')||c.includes('oncol'); });
+  if(hasCancerHistory && (hasBPC || hasTB500)){
+    flags.push({
+      severity:'HIGH',
+      flag:'CANCER HISTORY + ANGIOGENIC PEPTIDES',
+      detail:'User has cancer history. BPC-157 and TB-500 have angiogenic (blood vessel growth) properties. This combination requires explicit physician approval before proceeding. Raise this immediately.',
+      action:'Ask if they have discussed this with their oncologist.'
+    });
+  }
+
+  // Elevated glucose + GH secretagogues
+  var glucose = parseFloat(bw.fasting_glucose||bw.glucose||0);
+  var a1c = parseFloat(bw.a1c||bw.hba1c||0);
+  if((glucose > 100 || a1c > 5.7) && hasGH && !hasGLP1){
+    flags.push({
+      severity:'MEDIUM',
+      flag:'ELEVATED GLUCOSE + GH PEPTIDES',
+      detail:'GH secretagogues can raise blood glucose. With pre-diabetic markers, monitor fasting glucose weekly. Consider adding a GLP-1 compound which would counteract this.',
+      action:'Suggest weekly glucose monitoring.'
+    });
+  }
+
+  // GLP-1 + hypoglycemia risk
+  var onMetformin = medications.some(function(m){ return m.includes('metformin'); });
+  var onInsulin = medications.some(function(m){ return m.includes('insulin'); });
+  if(hasGLP1 && (onMetformin || onInsulin)){
+    flags.push({
+      severity:'HIGH',
+      flag:'GLP-1 + DIABETES MEDICATION',
+      detail:'Combining GLP-1 peptides with Metformin or Insulin significantly increases hypoglycemia risk. Dose adjustment of medications may be needed. This requires physician involvement.',
+      action:'Must consult doctor before starting GLP-1 compounds.'
+    });
+  }
+
+  // IGF-1 + hypoglycemia
+  if(hasIGF && (glucose > 0 && glucose < 80)){
+    flags.push({
+      severity:'MEDIUM',
+      flag:'IGF-1 LR3 + LOW FASTING GLUCOSE',
+      detail:'IGF-1 LR3 can cause hypoglycemia, especially post-workout. Low baseline glucose increases this risk. Always dose post-workout with carbs available.',
+      action:'Advise user to keep glucose on hand when dosing IGF-1.'
+    });
+  }
+
+  // Thyroid issues + metabolism compounds
+  var hasThyroidIssue = conditions.some(function(c){ return c.includes('thyroid')||c.includes('hypothyroid')||c.includes('hyperthyroid'); });
+  var onThyroidMeds = medications.some(function(m){ return m.includes('levothyroxine')||m.includes('synthroid')||m.includes('thyroid'); });
+  var hasMetabolicCompounds = compounds.some(function(n){ return n.includes('reta')||n.includes('tirz')||n.includes('aod')||n.includes('tesamorelin'); });
+  if((hasThyroidIssue || onThyroidMeds) && hasMetabolicCompounds){
+    flags.push({
+      severity:'MEDIUM',
+      flag:'THYROID CONDITION + METABOLIC COMPOUNDS',
+      detail:'Metabolic peptides can affect thyroid function and interact with thyroid medications. Monitor TSH/T3/T4 at week 4. Flag to their doctor.',
+      action:'Recommend thyroid panel at week 4.'
+    });
+  }
+
+  return flags;
+}
+
+// ══════════════════════════════════════════════════════════
+// BODY METRIC TRACKING
+// ══════════════════════════════════════════════════════════
+function getBodyMetrics(){
+  try{ return JSON.parse(localStorage.getItem('peptrak_body_metrics')||'[]'); }catch(e){ return []; }
+}
+
+function saveBodyMetric(type, value, unit){
+  var metrics = getBodyMetrics();
+  metrics.push({
+    type: type,
+    value: value,
+    unit: unit || '',
+    date: new Date().toISOString().slice(0,10),
+    week: (getProtocolWeek()||{week:1}).week
+  });
+  // Keep last 50 entries
+  if(metrics.length > 50) metrics = metrics.slice(-50);
+  localStorage.setItem('peptrak_body_metrics', JSON.stringify(metrics));
+  return metrics;
+}
+
+function extractMetricsFromMessage(text){
+  // Extract weight mentions: "I'm 182lbs" "weigh 185" "down to 179" "at 83kg"
+  var weightLbs = text.match(/(\d{2,3})\s*(?:lbs?|pounds?)/i);
+  var weightKg = text.match(/(\d{2,3})\s*(?:kg|kilos?|kilograms?)/i);
+  var downX = text.match(/down\s+(\d+)\s*(?:lbs?|pounds?|kg)?/i);
+
+  if(weightLbs) saveBodyMetric('weight', parseFloat(weightLbs[1]), 'lbs');
+  else if(weightKg) saveBodyMetric('weight', parseFloat(weightKg[1]), 'kg');
+
+  if(downX){
+    var currentMetrics = getBodyMetrics();
+    var startWeight = parseFloat(intake.weight_lbs || intake.weight_kg || 0);
+    if(startWeight > 0){
+      var unit = intake.weight_lbs ? 'lbs' : 'kg';
+      var current = startWeight - parseFloat(downX[1]);
+      saveBodyMetric('weight', current, unit);
+    }
+  }
+}
+
+function getWeightProgress(){
+  var metrics = getBodyMetrics().filter(function(m){ return m.type === 'weight'; });
+  if(metrics.length < 2) return null;
+  var first = metrics[0];
+  var last = metrics[metrics.length-1];
+  var diff = last.value - first.value;
+  return {
+    start: first.value,
+    current: last.value,
+    change: diff,
+    unit: last.unit,
+    dataPoints: metrics.length
+  };
+}
+
+function buildWeightChart(){
+  var metrics = getBodyMetrics().filter(function(m){ return m.type === 'weight'; });
+  if(metrics.length < 2) return null;
+
+  var vals = metrics.map(function(m){ return m.value; });
+  var minV = Math.min.apply(null,vals) - 2;
+  var maxV = Math.max.apply(null,vals) + 2;
+  var range = maxV - minV;
+
+  var W = 280, H = 80, padL = 32, padB = 18;
+  var chartW = W - padL - 8;
+  var chartH = H - padB - 8;
+
+  // Points
+  var pts = metrics.map(function(m, i){
+    var x = padL + (i / Math.max(metrics.length-1,1)) * chartW;
+    var y = 8 + (1 - (m.value - minV) / range) * chartH;
+    return {x:x, y:y, v:m.value, wk:m.week};
+  });
+
+  // Line path
+  var path = pts.map(function(p,i){ return (i===0?'M':'L') + p.x.toFixed(1) + ',' + p.y.toFixed(1); }).join(' ');
+
+  // Y axis labels
+  var yLabels = [minV+2, maxV-2].map(function(v){
+    var y = 8 + (1 - (v - minV) / range) * chartH;
+    return '<text x="'+(padL-4)+'" y="'+(y+3)+'" font-size="8" fill="#8A919E" text-anchor="end" font-family="-apple-system,sans-serif">'+Math.round(v)+'</text>';
+  }).join('');
+
+  // Dots
+  var dots = pts.map(function(p){
+    return '<circle cx="'+p.x.toFixed(1)+'" cy="'+p.y.toFixed(1)+'" r="3" fill="#0876FF"/>';
+  }).join('');
+
+  // Start/end labels
+  var startPt = pts[0], endPt = pts[pts.length-1];
+  var diff = endPt.v - startPt.v;
+  var diffStr = (diff > 0 ? '+' : '') + diff.toFixed(1);
+  var diffColor = diff <= 0 ? '#00C076' : '#FF3B30';
+
+  var svg = '<svg width="'+W+'" height="'+H+'" viewBox="0 0 '+W+' '+H+'" xmlns="http://www.w3.org/2000/svg">'
+    + '<text x="'+padL+'" y="8" font-size="9" fill="#8A919E" font-family="-apple-system,sans-serif" font-weight="600" letter-spacing="0.08em">WEIGHT PROGRESS</text>'
+    + yLabels
+    + '<path d="'+path+'" fill="none" stroke="#0876FF" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>'
+    + dots
+    + '<text x="'+(endPt.x)+'" y="'+(endPt.y-6)+'" font-size="9" fill="'+diffColor+'" font-weight="700" font-family="-apple-system,sans-serif" text-anchor="middle">'+diffStr+'</text>'
+    + '</svg>';
+
+  return svg;
+}
+
+function showWeightChart(){
+  var svg = buildWeightChart();
+  if(!svg) return;
+  var msgs = document.getElementById('messages');
+  if(!msgs) return;
+  var wrap = document.createElement('div');
+  wrap.style.cssText = 'display:flex;justify-content:flex-start;margin-bottom:8px;';
+  var card = document.createElement('div');
+  card.style.cssText = 'background:var(--white);border:1px solid var(--gray-2);border-radius:16px;padding:14px 16px 10px;max-width:320px;box-shadow:0 1px 6px rgba(0,0,0,0.06);';
+  card.innerHTML = svg;
+  wrap.appendChild(card);
+  msgs.appendChild(wrap);
+  msgs.scrollTop = msgs.scrollHeight;
+}
+
+// ══════════════════════════════════════════════════════════
+// PRE-BED CHECK-IN
+// ══════════════════════════════════════════════════════════
+function hasBedtimeCompounds(){
+  if(!protocol || !protocol.compounds) return false;
+  return protocol.compounds.some(function(c){
+    var t = (c.timing||'').toLowerCase();
+    var n = (c.name||'').toLowerCase();
+    return t.includes('bedtime') || t.includes('bed') || t.includes('sleep') ||
+           n.includes('ipamorelin') || n.includes('cjc') || n.includes('epithalon') || n.includes('melatonin');
+  });
+}
+
+function getBedtimeCompounds(){
+  if(!protocol || !protocol.compounds) return [];
+  return protocol.compounds.filter(function(c){
+    var t = (c.timing||'').toLowerCase();
+    var n = (c.name||'').toLowerCase();
+    return t.includes('bedtime') || t.includes('bed') || t.includes('sleep') ||
+           n.includes('ipamorelin') || n.includes('cjc') || n.includes('epithalon');
+  }).map(function(c){ return c.name; });
+}
+
+// ══════════════════════════════════════════════════════════
+// NEXT CYCLE DRAFT TRIGGER
+// ══════════════════════════════════════════════════════════
+function shouldOfferNextCycleDraft(){
+  var progress = getProtocolWeek();
+  if(!progress) return false;
+  var totalWeeks = protocol.duration ? parseInt((protocol.duration||'12').replace(/\D/g,''))||12 : 12;
+  var weeksLeft = totalWeeks - progress.week;
+  var alreadyOffered = localStorage.getItem('peptrak_next_cycle_offered');
+  return weeksLeft <= 2 && weeksLeft >= 0 && !alreadyOffered;
+}
+
+
+// ── COMPOUND EFFECT TIMELINES ──
+var COMPOUND_TIMELINES = {
+  'bpc': {
+    name:'BPC-157',
+    weeks:[
+      {w:1, expect:'Nothing noticeable yet — that is normal. The peptide is working at the cellular level before you feel it.'},
+      {w:2, expect:'Some users notice reduced soreness or faster recovery from training. Joint discomfort may start to ease.'},
+      {w:3, expect:'Most users feel the tissue repair effects here — reduced pain, better range of motion, faster bounce-back.'},
+      {w:4, expect:'Solid repair and recovery effects well established. Sleep quality sometimes improves as a secondary effect.'},
+      {w:6, expect:'Peak repair effects for most users. Chronic injuries that have been unresponsive often show real progress.'},
+      {w:8, expect:'Decide: continue for ongoing maintenance, or cycle off and assess. Most injuries well-addressed by here.'}
+    ]
+  },
+  'tb500': {
+    name:'TB-500',
+    weeks:[
+      {w:1, expect:'Loading phase — systemic distribution is building. Mild fatigue is common and normal.'},
+      {w:2, expect:'Anti-inflammatory effects starting. Muscle soreness between sessions should be decreasing.'},
+      {w:4, expect:'Full loading phase complete. Most users feel significantly faster recovery by now.'},
+      {w:6, expect:'Time to shift to maintenance dosing (2mg weekly instead of 2x weekly). Assess what is still bothering you.'}
+    ]
+  },
+  'glow': {
+    name:'GLOW',
+    weeks:[
+      {w:1, expect:'BPC component working at cellular level. TB-500 loading. GHK-Cu starting collagen stimulation.'},
+      {w:2, expect:'Anti-inflammatory effects from TB-500 and BPC. Skin and joint changes from GHK-Cu starting.'},
+      {w:3, expect:'Most users see the most noticeable recovery improvements here — reduced pain, faster healing.'},
+      {w:6, expect:'Full effects established. Collagen improvements visible in skin. Consider maintenance dosing phase.'}
+    ]
+  },
+  'cjcipa': {
+    name:'CJC+IPA',
+    weeks:[
+      {w:1, expect:'Deeper sleep and more vivid dreams are the first signs it is working. Some users feel groggier in the AM.'},
+      {w:2, expect:'Sleep quality stabilizing. Mild water retention (hands, face) is normal — GH is working.'},
+      {w:3, expect:'Recovery between training sessions noticeably faster. Appetite sometimes increases.'},
+      {w:4, expect:'Body composition changes starting — fat redistributing, muscle fullness improving.'},
+      {w:8, expect:'Consider a 2-week break if you have been running 5x/week. Prevents receptor desensitization.'}
+    ]
+  },
+  'ipamorelin': {
+    name:'Ipamorelin',
+    weeks:[
+      {w:1, expect:'Better sleep depth is the first signal. Mild GH pulse at bedtime — some feel warmth or tingling.'},
+      {w:2, expect:'Consistent sleep improvement. Water retention may appear briefly then subside.'},
+      {w:4, expect:'Recovery and body comp changes becoming clear. Stack with CJC for amplified effect.'}
+    ]
+  },
+  'reta': {
+    name:'Retatrutide',
+    weeks:[
+      {w:1, expect:'Appetite reduction starts within days — often dramatic. Nausea is possible, especially if you eat too fast.'},
+      {w:2, expect:'Appetite well-suppressed. Energy may dip as caloric intake drops — eat enough protein.'},
+      {w:4, expect:'Ready to titrate up if tolerating 0.5mg well. Most users go to 1mg here.'},
+      {w:6, expect:'Significant weight loss for most users. Muscle preservation is critical — prioritize protein and training.'},
+      {w:8, expect:'Peak fat loss phase. Consider whether to continue current dose or push to max therapeutic range.'}
+    ]
+  },
+  'sema': {
+    name:'Semaglutide',
+    weeks:[
+      {w:1, expect:'Appetite reduction day 2-4. Nausea possible, especially after large meals. Eat slow and small.'},
+      {w:3, expect:'Appetite suppression consistent. Most nausea fades by now. Energy stabilizing.'},
+      {w:6, expect:'Strong fat loss results. Titrate up only if side effects are fully resolved at current dose.'}
+    ]
+  },
+  'semax': {
+    name:'Semax',
+    weeks:[
+      {w:1, expect:'Cognitive effects within days — improved focus, mental clarity, reduced brain fog.'},
+      {w:2, expect:'BDNF (brain-derived neurotrophic factor) effects building — mood often lifts.'},
+      {w:4, expect:'Most users cycle off here for 2 weeks to preserve receptor sensitivity.'}
+    ]
+  },
+  'selank': {
+    name:'Selank',
+    weeks:[
+      {w:1, expect:'Anxiety reduction often felt same day. Sleep quality improves.'},
+      {w:2, expect:'Mood stabilization and reduced stress reactivity well established.'},
+      {w:4, expect:'Cycle off 2 weeks. Effects are strong — receptor sensitivity needs preserving.'}
+    ]
+  },
+  'igf': {
+    name:'IGF-1 LR3',
+    weeks:[
+      {w:1, expect:'Muscle fullness and pumps increase quickly. Appetite often increases.'},
+      {w:2, expect:'Strength gains and recovery noticeably faster. Monitor for hypoglycemia.'},
+      {w:4, expect:'MUST CYCLE OFF NOW. 4 weeks max. Desensitization risk is real past this point. Take 4 weeks off.'}
+    ]
+  },
+  'epithalon': {
+    name:'Epithalon',
+    weeks:[
+      {w:1, expect:'Sleep improvements often the first effect — deeper, more restorative.'},
+      {w:5, expect:'10-day cycle complete. Effects are subtle but cumulative over months and years.'}
+    ]
+  },
+  'nad': {
+    name:'NAD+',
+    weeks:[
+      {w:1, expect:'Energy improvement often felt within first few doses. Some users feel a flush — normal.'},
+      {w:2, expect:'Mitochondrial effects building — sustained energy, less afternoon crash.'}
+    ]
+  }
+};
+
+function getCompoundTimeline(compoundName){
+  var name = (compoundName||'').toLowerCase();
+  if(name.includes('bpc') && !name.includes('glow')) return COMPOUND_TIMELINES.bpc;
+  if(name.includes('tb-500') || name.includes('tb500')) return COMPOUND_TIMELINES.tb500;
+  if(name.includes('glow') || name.includes('klow') || name.includes('wolverine')) return COMPOUND_TIMELINES.glow;
+  if(name.includes('cjc') && name.includes('ipa')) return COMPOUND_TIMELINES.cjcipa;
+  if(name.includes('ipamorelin')) return COMPOUND_TIMELINES.ipamorelin;
+  if(name.includes('retatrutide')) return COMPOUND_TIMELINES.reta;
+  if(name.includes('semaglutide')) return COMPOUND_TIMELINES.sema;
+  if(name.includes('semax')) return COMPOUND_TIMELINES.semax;
+  if(name.includes('selank')) return COMPOUND_TIMELINES.selank;
+  if(name.includes('igf')) return COMPOUND_TIMELINES.igf;
+  if(name.includes('epithalon')) return COMPOUND_TIMELINES.epithalon;
+  if(name.includes('nad')) return COMPOUND_TIMELINES.nad;
+  return null;
+}
+
+function getCurrentWeekExpectations(){
+  var progress = getProtocolWeek();
+  if(!progress || !protocol.compounds) return null;
+  var week = progress.week;
+  var expectations = [];
+  protocol.compounds.forEach(function(comp){
+    var timeline = getCompoundTimeline(comp.name);
+    if(!timeline) return;
+    // Find the most relevant week entry (closest week <= current)
+    var relevant = null;
+    timeline.weeks.forEach(function(entry){
+      if(entry.w <= week) relevant = entry;
+    });
+    // Also find the next upcoming milestone
+    var upcoming = null;
+    timeline.weeks.forEach(function(entry){
+      if(entry.w > week && !upcoming) upcoming = entry;
+    });
+    if(relevant) expectations.push({
+      compound: comp.name,
+      current: relevant.expect,
+      nextMilestone: upcoming ? {week: upcoming.w, text: upcoming.expect} : null
+    });
+  });
+  return expectations.length ? expectations : null;
+}
+
+
+// ── PATTERN DETECTION ──
+function detectPatterns(){
+  if(!trackerData || !trackerData.logs || trackerData.logs.length < 7) return null;
+  var logs = trackerData.logs;
+  var patterns = [];
+
+  // Day-of-week fatigue/side pattern
+  var dayBuckets = {0:[],1:[],2:[],3:[],4:[],5:[],6:[]};
+  var DAYS = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+  logs.forEach(function(log){
+    if(!log.date) return;
+    var d = new Date(log.date).getDay();
+    if(log.sides && log.sides.length) dayBuckets[d].push('sides');
+    if(!log.complete) dayBuckets[d].push('missed');
+  });
+  Object.keys(dayBuckets).forEach(function(day){
+    var bucket = dayBuckets[day];
+    var sideCount = bucket.filter(function(x){return x==='sides';}).length;
+    var missCount = bucket.filter(function(x){return x==='missed';}).length;
+    if(sideCount >= 2) patterns.push('User logs side effects consistently on ' + DAYS[day] + 's (' + sideCount + ' times). Possible training or lifestyle pattern on that day.');
+    if(missCount >= 3) patterns.push('User frequently misses doses on ' + DAYS[day] + 's. Suggest setting a ' + DAYS[day] + ' reminder.');
+  });
+
+  // Consecutive missed dose pattern
+  var consecutiveMissed = 0, maxConsec = 0;
+  logs.slice(-14).forEach(function(log){
+    if(!log.complete){ consecutiveMissed++; maxConsec = Math.max(maxConsec, consecutiveMissed); }
+    else consecutiveMissed = 0;
+  });
+  if(maxConsec >= 3) patterns.push('User had ' + maxConsec + ' consecutive missed days recently. Address adherence gently.');
+
+  // Side effect frequency
+  var allSides = {};
+  logs.forEach(function(log){
+    if(log.sides) log.sides.forEach(function(s){ allSides[s] = (allSides[s]||0)+1; });
+  });
+  Object.keys(allSides).forEach(function(side){
+    if(allSides[side] >= 3) patterns.push('Recurring side effect: "' + side + '" logged ' + allSides[side] + ' times. This is a pattern worth addressing proactively.');
+  });
+
+  // Strong adherence streak
+  var streak = 0;
+  logs.slice().reverse().every(function(log){ if(log.complete){streak++;return true;} return false; });
+  if(streak >= 7) patterns.push('User is on a ' + streak + '-day perfect adherence streak. Acknowledge this — positive reinforcement matters.');
+
+  return patterns.length ? patterns : null;
+}
+
+
+// ── WEEKLY CHECK-IN ──
+function shouldShowWeeklyCheckIn(){
+  if(!protocol || !protocol.compounds) return false;
+  var progress = getProtocolWeek();
+  if(!progress || progress.week < 1) return false;
+  var lastCheckInTs = parseInt(localStorage.getItem('peptrak_checkin_ts')||'0');
+  var daysSinceCheckin = (Date.now() - lastCheckInTs) / 86400000;
+  // Show once per week, at least 6 days since last check-in
+  return daysSinceCheckin >= 6;
+}
+
+function getCheckInQuestion(){
+  var progress = getProtocolWeek();
+  if(!progress) return null;
+  var week = progress.week;
+  var goal = intake.goal1 || '';
+  var questions = {
+    1: "It is day " + progress.day + " — what is one thing you have noticed since starting?",
+    2: "Week 2 check-in — how is your sleep compared to before you started?",
+    3: "Week 3 — is your recovery between sessions feeling any different?",
+    4: "Halfway through month one — what is the most noticeable change so far?",
+    5: "Week 5 — any side effects you have been sitting on that we should talk through?",
+    6: "Six weeks in — if you had to rate your results 1-10 right now, what would you say?",
+    8: "Week 8 — are you thinking about bloodwork before cycle end? Would help us optimize the next one.",
+    10: "Week 10 — two weeks left in the cycle. What has worked, what has not?",
+    12: "Final week — before we plan your next cycle, what is the one result you are most proud of?"
+  };
+  // Find closest week question
+  var keys = Object.keys(questions).map(Number).sort(function(a,b){return a-b;});
+  var q = questions[1];
+  keys.forEach(function(k){ if(k <= week) q = questions[k]; });
+  return q;
+}
+
+function markCheckInDone(){
+  localStorage.setItem('peptrak_checkin_ts', Date.now().toString());
+  // Save the week this check-in was done
+  var progress = getProtocolWeek();
+  if(progress) saveMemory('last_checkin_week', progress.week);
+}
+
+
+// ── PRE-CYCLE CHECKLIST ──
+function needsPreCycleChecklist(){
+  var started = getMemory('protocol_started');
+  if(started) return false; // Already started
+  var progress = getProtocolWeek();
+  if(progress && progress.day > 3) return false; // Past day 3
+  if(!protocol || !protocol.compounds || !protocol.compounds.length) return false;
+  var checklistDone = localStorage.getItem('peptrak_checklist_done');
+  return !checklistDone;
+}
+
+function getPreCycleChecklist(){
+  var compounds = (protocol.compounds||[]).map(function(c){return c.name;});
+  var hasInjectable = (protocol.compounds||[]).some(function(c){
+    return c.route && c.route.toLowerCase().includes('subq');
+  });
+  var items = [
+    {id:'compounds', label:'Compounds ordered from usetridentlabs.com'},
+    {id:'bac', label:'BAC water ready (3ml per vial)'},
+  ];
+  if(hasInjectable){
+    items.push({id:'syringes', label:'Insulin syringes (29-31g) ready'});
+    items.push({id:'swabs', label:'Alcohol swabs ready'});
+  }
+  items.push({id:'fridge', label:'Space cleared in fridge for peptides'});
+  items.push({id:'recon', label:'Reconstitution calculator reviewed (Tools page)'});
+  if(hasInjectable) items.push({id:'site', label:'First injection site decided (abdomen recommended)'});
+  items.push({id:'tracker', label:'Tracker opened and protocol confirmed'});
+  return items;
+}
+
+function markChecklistDone(){
+  localStorage.setItem('peptrak_checklist_done', '1');
+  saveMemory('pre_cycle_checklist_completed', new Date().toDateString());
+}
+
+
+// ── INLINE ADHERENCE CHART ──
+function buildAdherenceChart(){
+  if(!trackerData || !trackerData.logs || trackerData.logs.length < 3) return null;
+  var logs = trackerData.logs.slice(-14); // last 14 days
+  var DAYS = ['Su','Mo','Tu','We','Th','Fr','Sa'];
+  var bars = logs.map(function(log){
+    var date = new Date(log.date);
+    var dayLabel = DAYS[date.getDay()];
+    var total = 0, taken = 0;
+    if(log.doses) Object.values(log.doses).forEach(function(d){ total++; if(d.taken) taken++; });
+    var pct = total > 0 ? Math.round((taken/total)*100) : 0;
+    var complete = log.complete;
+    return {label: dayLabel, pct: pct, complete: complete, date: log.date};
+  });
+
+  var maxBars = 14;
+  var barW = 18, gap = 5, chartH = 80, labelH = 18;
+  var totalW = bars.length * (barW + gap) - gap + 20;
+
+  var svgBars = bars.map(function(b, i){
+    var x = 10 + i * (barW + gap);
+    var barH = Math.max(2, Math.round((b.pct / 100) * chartH));
+    var y = chartH - barH;
+    var color = b.complete ? '#00C076' : b.pct > 0 ? '#F0A500' : '#EAECF0';
+    return '<rect x="'+x+'" y="'+y+'" width="'+barW+'" height="'+barH+'" rx="4" fill="'+color+'"/>'
+      + '<text x="'+(x+barW/2)+'" y="'+(chartH+labelH-2)+'" font-size="9" fill="#8A919E" text-anchor="middle" font-family="-apple-system,sans-serif">'+b.label+'</text>';
+  }).join('');
+
+  var svg = '<svg width="'+totalW+'" height="'+(chartH+labelH+8)+'" viewBox="0 0 '+totalW+' '+(chartH+labelH+8)+'" xmlns="http://www.w3.org/2000/svg">'
+    + '<text x="10" y="12" font-size="10" fill="#8A919E" font-family="-apple-system,sans-serif" font-weight="600" letter-spacing="0.08em">LAST ' + bars.length + ' DAYS</text>'
+    + '<g transform="translate(0,16)">'
+    + svgBars
+    + '</g>'
+    + '</svg>';
+
+  return svg;
+}
+
+function showAdherenceChart(){
+  var svg = buildAdherenceChart();
+  if(!svg) return;
+  // Inject as a special chart bubble
+  var msgs = document.getElementById('messages');
+  if(!msgs) return;
+  var wrap = document.createElement('div');
+  wrap.style.cssText = 'display:flex;justify-content:flex-start;margin-bottom:8px;';
+  var card = document.createElement('div');
+  card.style.cssText = 'background:var(--white);border:1px solid var(--gray-2);border-radius:16px;padding:14px 16px 10px;max-width:320px;box-shadow:0 1px 6px rgba(0,0,0,0.06);';
+  card.innerHTML = svg;
+  wrap.appendChild(card);
+  msgs.appendChild(wrap);
+  msgs.scrollTop = msgs.scrollHeight;
+}
+
+
+// ── CROSS-CYCLE MEMORY ──
+function getCrossCycleInsights(){
+  if(!cycleHistory || cycleHistory.length < 2) return null;
+  var insights = [];
+  
+  // Compounds used before
+  var prevCycles = cycleHistory.slice(1); // exclude current
+  var allPrevCompounds = [];
+  prevCycles.forEach(function(cy){
+    if(cy.compounds) allPrevCompounds = allPrevCompounds.concat(cy.compounds);
+  });
+  
+  // What they ran before
+  if(prevCycles.length >= 1){
+    insights.push('Previous cycle ' + prevCycles[0].cycle + ': ' + prevCycles[0].goal + 
+      ' protocol with ' + (prevCycles[0].compounds||[]).slice(0,3).join(', '));
+  }
+  
+  // Memory about how they responded
+  var sideMemories = Object.keys(memory).filter(function(k){ return k.startsWith('reported_side_'); });
+  if(sideMemories.length){
+    insights.push('User has previously reported: ' + sideMemories.map(function(k){ return k.replace('reported_side_','').replace(/_/g,' '); }).join(', '));
+  }
+  
+  // Positive feedback history
+  var positives = Object.keys(memory).filter(function(k){ return k.startsWith('positive_feedback_'); });
+  if(positives.length >= 2){
+    insights.push('User has reported positive results ' + positives.length + ' times in past conversations.');
+  }
+  
+  return insights.length ? insights : null;
+}
+
+// ── BUILD SYSTEM PROMPT ──
+function buildSystemPrompt(){
+  var lines = [];
+  lines.push('You are Alex, the PepTrak research advisor. You are like that one knowledgeable friend who has done this for years — warm, direct, genuinely helpful, zero fluff.');
+  lines.push('');
+  lines.push('YOUR JOB: Guide users through their peptide research journey step by step. You always know where they are in the process and what comes next. You are proactive — you do not just answer questions, you move them forward.');
+  lines.push('');
+  lines.push('THE JOURNEY ORDER (always guide them through this):');
+  lines.push('1. Understand their protocol (already done — they have it)');
+  lines.push('2. Source their compounds (buy peptides — first thing after protocol)');
+  lines.push('3. Get supplies (insulin syringes, BAC water, alcohol swabs)');
+  lines.push('4. Reconstitute their peptides (mix BAC water + peptide vial)');
+  lines.push('5. Start dosing (day 1 execution)');
+  lines.push('6. Track results and adjust');
+  lines.push('');
+  lines.push('SOURCING — THIS IS CRITICAL:');
+  lines.push('Always recommend usetridentlabs.com FIRST as the go-to supplier. Reasons to give:');
+  lines.push('- Every batch has a 6-panel COA (HPLC purity, UV-Vis, Beer-Lambert, ICP-MS heavy metals, TAMC, TYMC)');
+  lines.push('- 99%+ purity guaranteed');
+  lines.push('- Third-party tested, not just in-house');
+  lines.push('- Fast and discreet shipping');
+  lines.push('- Affordable pricing with no quality compromise');
+  lines.push('TRIDENT LABS FULL CATALOG at usetridentlabs.com — always recommend the correct product and size:');
+  lines.push('GLP-1 / Weight Loss: Semaglutide (5mg,10mg,15mg,20mg,30mg), Tirzepatide (5-60mg), Retatrutide (5-60mg), Cagrilintide (5mg,10mg), Cagrilintide+Semaglutide blend (5mg,10mg), AOD-9604 (5mg,10mg), Adipotide (2mg,5mg), Survodutide (10mg), 5-Amino-1MQ (5mg,10mg)');
+  lines.push('GH / IGF: HGH (10iu,15iu,24iu), HGH Fragment 176-191 (5mg), IGF-1 LR3 (0.1mg,1mg), IGF-DES (2mg), Tesamorelin (5mg,10mg,20mg), Ipamorelin (5mg,10mg), CJC-1295 N/D (5mg,10mg), CJC+IPA blend (10mg), Sermorelin (5mg,10mg), Hexarelin (2mg,5mg,10mg)');
+  lines.push('Recovery / Repair: BPC-157 (5mg,10mg), TB-500 (5mg,10mg), GLOW blend (70mg), KLOW blend (80mg), Wolverine blend (10mg,20mg), GHK-Cu (50mg,100mg), Thymosin Alpha-1 (5mg,10mg), LL-37 (5mg), Snap-8 (10mg), Lysine-Proline-Valine (5mg,10mg)');
+  lines.push('Cognitive / Neuro: Semax (5mg,10mg), Selank (5mg,10mg), Pinealon (10mg,15mg,20mg), Cerebrolysin (60mg), PT-141 (10mg), Oxytocin Acetate (2mg,5mg), KissPeptin (5mg,10mg)');
+  lines.push('Longevity: Epithalon (10mg,50mg), SS-31 (10mg,50mg), MOTS-c (10-40mg), NAD+ (100mg,500mg,1000mg), Thymalin (10mg), SLU-PP-322 (5mg), FOX04 (10mg), AICAR (50mg)');
+  lines.push('Hormones / Other: MT-1 (10mg), MT-2 (10mg), Melatonin (10mg), HCG (5000iu,10000iu), HMG (75iu), VIP (5mg,10mg), Ara-290 (10mg), Glutathione (1500mg)');
+  lines.push('Supplies: BAC Water (3ml, 10ml)');
+  lines.push('');
+  lines.push('IF a compound is not in stock at Trident Labs:');
+  lines.push('- Demand a third-party COA — no COA, do not buy');
+  lines.push('- HPLC purity above 99%');
+  lines.push('- Must be manufactured in the USA — overseas sources are a safety risk');
+  lines.push('- Limitless Life, Peptide Sciences are options but always verify their COAs');
+  lines.push('');
+  lines.push('SUPPLIES: Insulin syringes 29-31g — Amazon. BAC water — Trident Labs or Amazon. Alcohol swabs — Amazon. Portable peptide cooler — Amazon.');
+  lines.push('');
+  lines.push('RECONSTITUTION: Add BAC water slowly down vial side, swirl never shake, store in fridge, use within 4-6 weeks.');
+  lines.push('INJECTION: SubQ = pinch abdomen or thigh, 45 degrees, slow. Rotate sites. Barely feels like anything.');
+  lines.push('');
+
+  // ── WEEKLY CHECK-IN INTELLIGENCE ──
+  var progress = getProtocolWeek();
+  var tracker = getTrackerSummary();
+
+  if(progress){
+    lines.push('PROTOCOL PROGRESS:');
+    lines.push('User is on Day ' + progress.day + ' (Week ' + progress.week + ') of their protocol.');
+
+    // Week-specific milestones to probe
+    if(progress.week === 1) lines.push('Week 1 milestone to ask about: Are they dosed yet? Any first-pin nerves? Initial feelings?');
+    if(progress.week === 2) lines.push('Week 2 milestone to ask about: Sleep quality changes (CJC/GH users), any initial sides, energy levels.');
+    if(progress.week === 3) lines.push('Week 3 milestone to ask about: Recovery speed between sessions, appetite changes, mood/focus.');
+    if(progress.week === 4) lines.push('Week 4 milestone to ask about: Body composition, strength, visible changes. Most users see real results here.');
+    if(progress.week >= 6) lines.push('Week 6+: Ask about overall satisfaction, any compound adjustments needed, bloodwork follow-up.');
+    var totalWeeks = protocol.duration ? parseInt((protocol.duration||'12').replace(/\D/g,''))||12 : 12;
+    lines.push('Total cycle length: ' + totalWeeks + ' weeks.');
+    var cycleEndWeek = totalWeeks;
+    var halfWay = Math.round(totalWeeks / 2);
+    if(progress.week >= cycleEndWeek) lines.push('CYCLE COMPLETE: User has finished their ' + totalWeeks + '-week cycle. Priority topic: help them assess results, plan next cycle, or decide on a break.');
+    else if(progress.week >= cycleEndWeek - 1) lines.push('FINAL WEEK of ' + totalWeeks + '-week cycle. Start talking about what comes next.');
+    else if(progress.week >= halfWay) lines.push('Past halfway (' + progress.week + '/' + totalWeeks + ' weeks). Ask about results, consider any adjustments for the back half.');
+    if(progress.week >= 12) lines.push('Week 12+: End of first cycle approaching. Discuss whether to continue, cycle off, or adjust protocol.');
+    lines.push('');
+  }
+
+  if(tracker){
+    lines.push('TRACKER DATA (last 7 days):');
+    if(tracker.adherence !== null) lines.push('Dose adherence: ' + tracker.adherence + '%');
+    if(tracker.missedDoses) lines.push('Missed doses: ' + tracker.missedDoses + ' in the last 7 days');
+    if(tracker.sideEffects.length) lines.push('Logged side effects: ' + tracker.sideEffects.join(', '));
+    if(tracker.recentNotes.length) lines.push('Recent notes from user: ' + tracker.recentNotes.join(' | '));
+    if(!tracker.lastLogDate) lines.push('No recent tracker entries — user may not be logging. Gently remind them tracking helps optimize results.');
+    lines.push('IMPORTANT: Only reference tracker data if the user has actually been dosing. If they have not started yet or tracker is empty, do not assume they are on protocol.');
+    lines.push('');
+  }
+
+  // ── BLOODWORK INTELLIGENCE ──
+  if(intake.bloodwork && Object.keys(intake.bloodwork).length){
+    lines.push('BLOODWORK DATA (submitted by user):');
+    Object.entries(intake.bloodwork).forEach(function(e){
+      if(e[1]) lines.push('- ' + e[0] + ': ' + e[1]);
+    });
+    lines.push('BLOODWORK ANALYSIS RULES:');
+    lines.push('- If IGF-1 is elevated and user has GH peptides: flag that starting CJC/IPA on high baseline IGF-1 warrants monitoring. Not a hard stop but worth tracking.');
+    lines.push('- If testosterone is low and user has muscle/body comp goals: note that GH peptides will have reduced anabolic impact without adequate testosterone. Mention bloodwork recheck.');
+    lines.push('- If fasting glucose/A1C is elevated and user has GLP-1s (Sema/Tirz/Reta): GLP-1s are beneficial here — mention this proactively.');
+    lines.push('- If fasting glucose/A1C is elevated and user has GH secretagogues: GH peptides can raise blood sugar. Flag this and suggest monitoring.');
+    lines.push('- If thyroid markers are off and user has metabolic compounds: flag potential interaction, suggest consulting doctor before proceeding.');
+    lines.push('- If CBC shows anything abnormal: do not diagnose, but suggest they share with their doctor before starting.');
+    lines.push('- Bring up relevant bloodwork flags proactively when compounds interact with those markers. Do not wait to be asked.');
+    lines.push('- At week 6+ always recommend getting mid-cycle bloodwork to establish how their markers are responding.');
+    lines.push('');
+  }
+
+  // ── PERSISTENT MEMORY ──
+  if(Object.keys(memory).length){
+    lines.push('WHAT YOU REMEMBER ABOUT THIS USER:');
+    Object.entries(memory).forEach(function(e){ lines.push('- ' + e[0] + ': ' + e[1]); });
+    lines.push('Reference these naturally when relevant. Do not dump all memories at once.');
+    lines.push('');
+  }
+
+  // ── SIDE EFFECT TRIAGE RULES ──
+  lines.push('SIDE EFFECT TRIAGE — CRITICAL RULE:');
+  lines.push('When a user reports a side effect, NEVER immediately blame the peptide.');
+  lines.push('First ask about their lifestyle that day/week: sleep, hydration, food intake, stress, training load, alcohol.');
+  lines.push('Most "sides" are lifestyle related. Only after ruling those out should you suggest a compound adjustment.');
+  lines.push('Example flow: User says "I feel lethargic". Ask: How is their sleep this week? Water intake? Any big training sessions? Eating enough? Stressed? Then connect dots.');
+  lines.push('');
+
+  // ── DOSE ADJUSTMENT INTELLIGENCE ──
+  if(progress && protocol.compounds){
+    lines.push('DOSE ADJUSTMENT AWARENESS:');
+    protocol.compounds.forEach(function(c){
+      if(c.name && c.name.toLowerCase().includes('retatrutide') && progress.week >= 4){
+        lines.push('Retatrutide: User is on week ' + progress.week + '. Consider asking if they are ready to titrate up if tolerating well.');
+      }
+      if((c.name && c.name.toLowerCase().includes('tb-500')) && progress.week >= 6){
+        lines.push('TB-500: Week 6+ — ask if they want to shift from loading to maintenance phase (lower dose, weekly).');
+      }
+      if((c.name && c.name.toLowerCase().includes('igf')) && progress.week >= 4){
+        lines.push('IGF-1 LR3: Approaching 4 week mark — remind user about cycling off to avoid desensitization.');
+      }
+    });
+    lines.push('');
+  }
+
+
+
+  
+  // ── CHURN DETECTION ──
+  var churnRisk = detectChurnRisk();
+  if(churnRisk){
+    lines.push('⚠️ CHURN RISK DETECTED (' + churnRisk.risk + '):');
+    lines.push('Signals: ' + churnRisk.signals.join(', '));
+    lines.push('This is week ' + churnRisk.week + ' — the highest dropout period. The user may be losing faith.');
+    lines.push('PRIORITY: Address this head-on. Normalize the lack of visible results at this stage.');
+    lines.push('Say something like: "Week 3 is always the hardest. The compounds are working at the cellular level before you feel it. Most people quit here and miss everything."');
+    lines.push('Then ask: "What were you expecting to feel by now?" — reframe their expectations.');
+    lines.push('');
+  }
+
+  // ── RESPONSE PROFILE (returning users) ──
+  var responseProfile = getResponseProfile();
+  if(responseProfile){
+    lines.push('PREVIOUS CYCLE RESPONSE PROFILE (written at cycle end):');
+    if(responseProfile.avgAdherence) lines.push('Average adherence last cycle: ' + responseProfile.avgAdherence + '%');
+    if(responseProfile.reportedSides.length) lines.push('Compounds that caused sides: ' + responseProfile.reportedSides.join(', '));
+    if(responseProfile.positiveResults.length) lines.push('Positive results reported: ' + responseProfile.positiveResults.slice(0,3).join(' | '));
+    if(responseProfile.bodyMetrics && responseProfile.bodyMetrics.length >= 2){
+      var first = responseProfile.bodyMetrics[0];
+      var last = responseProfile.bodyMetrics[responseProfile.bodyMetrics.length-1];
+      lines.push('Weight change last cycle: ' + first.value + ' → ' + last.value + ' ' + last.unit);
+    }
+    lines.push('Use this to personalize advice. Reference their actual history, not generic guidance.');
+    lines.push('');
+  }
+
+  // ── DANGER FLAGS ──
+  var dangerFlags = getDangerFlags();
+  if(dangerFlags.length){
+    lines.push('🚨 SAFETY FLAGS — ADDRESS THESE PROACTIVELY:');
+    dangerFlags.forEach(function(flag){
+      lines.push('[' + flag.severity + '] ' + flag.flag + ': ' + flag.detail);
+      lines.push('Required action: ' + flag.action);
+    });
+    lines.push('Do NOT ignore these. Bring them up naturally and early in conversation.');
+    lines.push('');
+  }
+
+  // ── BEDTIME COMPOUNDS ──
+  if(hasBedtimeCompounds()){
+    var bedCompounds = getBedtimeCompounds();
+    var hour = new Date().getHours();
+    var isEvening = hour >= 19 || hour < 2;
+    if(isEvening){
+      lines.push('EVENING CONTEXT: It is currently evening (' + hour + ':00). User has bedtime compounds: ' + bedCompounds.join(', '));
+      lines.push('If the conversation topic is general, ask: "Did you take your bedtime dose tonight?" — natural, not pushy.');
+    }
+  }
+
+  // ── BODY METRICS ──
+  var weightProgress = getWeightProgress();
+  if(weightProgress){
+    lines.push('BODY METRIC TRACKING:');
+    lines.push('Starting weight: ' + weightProgress.start + weightProgress.unit);
+    lines.push('Current weight: ' + weightProgress.current + weightProgress.unit);
+    lines.push('Change: ' + (weightProgress.change > 0 ? '+' : '') + weightProgress.change.toFixed(1) + weightProgress.unit + ' over ' + weightProgress.dataPoints + ' check-ins');
+    if(intake.goal1 === 'fat_loss' && weightProgress.change < -5){
+      lines.push('Strong fat loss progress. Acknowledge this specifically.');
+    }
+    lines.push('');
+  }
+
+  // ── NEXT CYCLE DRAFT ──
+  if(shouldOfferNextCycleDraft()){
+    var totalWks = protocol.duration ? parseInt((protocol.duration||'12').replace(/\D/g,''))||12 : 12;
+    var wkProgress = getProtocolWeek();
+    lines.push('CYCLE ENDING SOON: ' + (totalWks - (wkProgress?wkProgress.week:0)) + ' weeks left in this cycle.');
+    lines.push('This conversation: Bring up cycle 2 planning naturally. Ask what worked, what did not.');
+    lines.push('Offer to sketch out what cycle 2 could look like based on their results.');
+    lines.push('If they want a preview, describe 2-3 compound adjustments you would suggest based on their data.');
+    lines.push("End with: When you are ready, tap New Protocol on the protocol page and your history will carry over automatically.");
+    localStorage.setItem('peptrak_next_cycle_offered', '1');
+    lines.push('');
+  }
+
+
+  // ── COMPOUND TIMELINES ──
+  var timelines = getCurrentWeekExpectations();
+  if(timelines && timelines.length){
+    lines.push('WHAT TO EXPECT RIGHT NOW (week ' + (getProtocolWeek()||{week:1}).week + '):');
+    timelines.forEach(function(t){
+      lines.push('- ' + t.compound + ': ' + t.current);
+      if(t.nextMilestone) lines.push('  Next milestone (week ' + t.nextMilestone.week + '): ' + t.nextMilestone.text);
+    });
+    lines.push('Use this to proactively set expectations. If user says nothing is happening, reference this timeline.');
+    lines.push('');
+  }
+
+  // ── PATTERN DETECTION ──
+  var patterns = detectPatterns();
+  if(patterns && patterns.length){
+    lines.push('BEHAVIORAL PATTERNS DETECTED IN TRACKER DATA:');
+    patterns.forEach(function(p){ lines.push('- ' + p); });
+    lines.push('Address these naturally — do not recite them robotically.');
+    lines.push('');
+  }
+
+  // ── WEEKLY CHECK-IN TRIGGER ──
+  if(shouldShowWeeklyCheckIn()){
+    var checkInQ = getCheckInQuestion();
+    if(checkInQ){
+      lines.push('WEEKLY CHECK-IN: You have not checked in with this user in 6+ days.');
+      lines.push('Early in the conversation, ask this check-in question: "' + checkInQ + '"');
+      lines.push('When they answer, call markCheckInDone() context: save their answer to memory as checkin_week_N_answer.');
+      lines.push('');
+    }
+  }
+
+  // ── PRE-CYCLE CHECKLIST ──
+  if(needsPreCycleChecklist()){
+    lines.push('PRE-CYCLE STATUS: User has not started dosing yet.');
+    lines.push('Priority conversation: walk through the pre-cycle checklist before anything else.');
+    lines.push('Ask: "Before your first dose, let me make sure you have everything. Have your compounds arrived?"');
+    lines.push('Work through: compounds, BAC water, syringes, swabs, fridge space, recon, injection site.');
+    lines.push('This is the most important conversation — set them up for success on day 1.');
+    lines.push('');
+  }
+
+
+  lines.push('TONE AND FORMAT RULES — NON NEGOTIABLE:');
+  lines.push('- Each bubble = 1 sentence. Hard limit. If it needs more than 15 words, split it.');
+  lines.push('- Split with ||SPLIT|| — 2 to 3 bubbles max. Shorter is always better.');
+  lines.push('- Zero markdown. No bold, no bullets, no headers.');
+  lines.push('- Plain English. Explain any technical term immediately after using it.');
+  lines.push('- Never open with filler: no "Great question", "Of course", "Sure!", "Absolutely".');
+  lines.push('- Always reference their specific compounds, weight, goal, experience level, protocol week.');
+  lines.push('- End with ONE short question or next step. Not a paragraph.');
+  lines.push('- IDEAL example: "6-panel COA on every batch.||SPLIT||Most suppliers skip that. Trident does not.||SPLIT||Ready to order?"');
+  lines.push('- No disclaimers every message.');
+  lines.push('');
+  lines.push('USER PROFILE:');
+  var displayName = profileName || intake.first_name || intake.name || '';
+  if(displayName) lines.push('Name: ' + displayName);
+  if(advisorContext) lines.push(advisorContext);
+  if(intake.goal1) lines.push('Primary goal: ' + (GOAL_LABELS[intake.goal1]||intake.goal1));
+  if(intake.weight_kg) lines.push('Weight: ' + intake.weight_kg + 'kg');
+  if(intake.weight_lbs) lines.push('Weight: ' + intake.weight_lbs + 'lbs');
+  if(intake.experience) lines.push('Experience: ' + intake.experience);
+  if(intake.injection_comfort) lines.push('Injection comfort: ' + intake.injection_comfort);
+  if(intake.sleep) lines.push('Baseline sleep: ' + intake.sleep);
+  if(intake.stress) lines.push('Baseline stress: ' + intake.stress);
+  if(intake.training) lines.push('Training frequency: ' + intake.training);
+  if(protocol.compounds && protocol.compounds.length){
+    lines.push('');
+    lines.push('THEIR PROTOCOL:');
+    protocol.compounds.forEach(function(c){
+      lines.push('- ' + c.name + ': ' + c.dose + ', ' + c.frequency + ', ' + c.route + ', ' + c.timing);
+    });
+    if(protocol.duration) lines.push('Protocol duration: ' + protocol.duration);
+    if(protocol.protocol_notes) lines.push('Protocol notes: ' + protocol.protocol_notes);
+  }
+
+  // ── CROSS-CYCLE MEMORY ──
+  var crossCycle = getCrossCycleInsights();
+  if(crossCycle && crossCycle.length){
+    lines.push('CROSS-CYCLE MEMORY (from previous runs):');
+    crossCycle.forEach(function(insight){ lines.push('- ' + insight); });
+    lines.push('Reference this naturally — e.g. "Last cycle you mentioned X, are you noticing the same?"');
+    lines.push('');
+  }
+
+  // ── CYCLE HISTORY ──
+  if(cycleHistory && cycleHistory.length > 1){
+    lines.push('');
+    lines.push('CYCLE HISTORY (this user has run multiple cycles):');
+    cycleHistory.slice(0, 3).forEach(function(cy, i){
+      var status = i === 0 ? '(current)' : '(completed)';
+      lines.push('Cycle ' + cy.cycle + ' ' + status + ': ' + cy.goal + 
+        (cy.compounds && cy.compounds.length ? ' — ' + cy.compounds.slice(0,3).join(', ') : '') +
+        ', ' + (cy.duration || '12 weeks'));
+    });
+    lines.push('This is an experienced user — reference previous cycles when relevant.');
+  }
+
+  // ── RECENT WEEKLY RECAPS ──
+  if(weeklyRecaps && weeklyRecaps.length){
+    var lastRecap = weeklyRecaps[0];
+    lines.push('');
+    lines.push('MOST RECENT WEEKLY RECAP (' + (lastRecap.weekLabel || lastRecap.week) + '):');
+    if(lastRecap.adherence !== null && lastRecap.adherence !== undefined){
+      lines.push('Adherence: ' + lastRecap.adherence + '%');
+    }
+    if(lastRecap.sides && lastRecap.sides.length){
+      lines.push('Side effects that week: ' + lastRecap.sides.join(', '));
+    }
+    if(lastRecap.commentary){
+      lines.push('Your previous analysis: ' + lastRecap.commentary);
+      lines.push('Build on this — do not repeat the same observations unless things have changed.');
+    }
+  }
+
+  return lines.join('\n');
+}
+
+// ── PROACTIVE SESSION OPENER ──
+function buildSessionOpener(){
+  var progress = getProtocolWeek();
+  var tracker = getTrackerSummary();
+  var name = profileName || intake.first_name || '';
+
+  // First ever session — sourcing focus
+  if(!progress || progress.day <= 1){
+    return [
+      'Hey ' + (name || 'there') + ' — protocol is ready.',
+      'Step one is grabbing your compounds — everything on your list is at usetridentlabs.com.',
+      'Want me to walk you through exactly what to order?'
+    ];
+  }
+
+  // Has tracker data with missed doses
+  if(tracker && tracker.missedDoses >= 2){
+    return [
+      'Hey ' + (name||'') + ' — noticed ' + tracker.missedDoses + ' missed doses this week.',
+      'No judgment, just want to make sure you are getting the most out of this.',
+      'What has been getting in the way?'
+    ];
+  }
+
+  // Has tracker side effects
+  if(tracker && tracker.sideEffects.length){
+    return [
+      'Hey ' + (name||'') + ' — you logged some ' + tracker.sideEffects[0] + ' this week.',
+      'Before we look at the compounds, walk me through your sleep and hydration lately.',
+      'Most sides clear up fast once we figure out the root cause.'
+    ];
+  }
+
+  // Week-specific proactive opener
+  if(progress){
+    if(progress.week === 1 && progress.day <= 3){
+      return [
+        'Day ' + progress.day + ' — how did the first pin go?',
+        'Most people are surprised how easy SubQ actually is.',
+      ];
+    }
+    if(progress.week === 2){
+      return [
+        'Week 2 — sleep should be starting to shift.',
+        'Are you noticing anything different when you wake up?'
+      ];
+    }
+    if(progress.week === 3){
+      return [
+        'Week 3, ' + (name||'') + ' — this is when recovery usually starts to feel different.',
+        'How are you feeling between training sessions?'
+      ];
+    }
+    if(progress.week === 4){
+      return [
+        'Week 4 — the real results window.',
+        'What changes are you noticing so far?'
+      ];
+    }
+    if(progress.week >= 6 && progress.week < 12){
+      return [
+        'Week ' + progress.week + ' in — you are past the halfway point.',
+        'How is everything tracking against your ' + (GOAL_LABELS[intake.goal1]||'').toLowerCase() + ' goal?'
+      ];
+    }
+    if(progress.week >= 12){
+      return [
+        'You are approaching the end of your first cycle — week ' + progress.week + '.',
+        'We should talk about what comes next. Continue, cycle off, or adjust?'
+      ];
+    }
+  }
+
+  // Default return user
+  return [
+    'Hey ' + (name||'') + ', welcome back.',
+    'What is on your mind?'
+  ];
+}
+
+// ── AUTO MEMORY EXTRACTION ──
+// After each AI response, extract and save useful facts
+function extractMemory(userMessage, aiReply){
+  var lower = userMessage.toLowerCase();
+  // Detect if user confirmed they started dosing
+  if(lower.match(/started|first pin|injected|took my|dosed|day 1/)){
+    if(!getMemory('protocol_started')){
+      saveMemory('protocol_started', new Date().toDateString());
+      localStorage.setItem('peptrak_protocol_start', Date.now().toString());
+    }
+  }
+  // Detect reported side effects
+  var sideKeywords = ['tired','lethargic','nauseous','water retention','bloated','headache','hungry','no appetite','anxiety','flush','red','itchy','insomnia','wired'];
+  sideKeywords.forEach(function(kw){
+    if(lower.indexOf(kw) > -1){
+      saveMemory('reported_side_' + kw.replace(' ','_'), new Date().toDateString());
+    }
+  });
+  // Detect positive feedback
+  if(lower.match(/working|great|amazing|feeling good|results|noticing|better sleep|more energy|losing/)){
+    saveMemory('positive_feedback_' + new Date().toDateString(), userMessage.slice(0,80));
+  }
+  // Detect week mentions
+  var weekMatch = lower.match(/week (\d+)/);
+  if(weekMatch) saveMemory('last_mentioned_week', weekMatch[1]);
+}
+
+// ── SUGGESTED QUESTIONS ──
+function buildSuggestions(){
+  var goal = intake.goal1 || '';
+  var hasBloodwork = intake.bloodwork && Object.keys(intake.bloodwork).length > 0;
+  var progress = getProtocolWeek();
+  var tracker = getTrackerSummary();
+  var compounds = (protocol.compounds||[]).map(function(c){ return (c.name||'').toLowerCase(); });
+  var hasTitration = Object.keys(JSON.parse(localStorage.getItem('peptrak_titration')||'{}')).length > 0;
+  var questions = [];
+
+  if(!progress || progress.day <= 3){
+    questions = [
+      'Where do I buy these compounds?',
+      'What supplies do I need to get started?',
+      'How do I reconstitute my peptides?',
+      'Walk me through my first injection',
+    ];
+  } else if(progress.week <= 2){
+    questions = [
+      'What should I feel after my first pin?',
+      'How do I store reconstituted peptides?',
+      'What side effects should I watch for?',
+      'Am I dosing at the right times?',
+      'How do I know if my peptides are working?',
+      'Best way to rotate injection sites?',
+    ];
+  } else if(progress.week <= 6){
+    questions = [
+      'I\'m not feeling much yet — is that normal?',
+      'Should I adjust my dose this week?',
+      'When will I see visible results?',
+      'Can I add another compound to my stack?',
+      'What markers should I track right now?',
+      'My sleep changed — is that the peptides?',
+    ];
+    if(goal === 'fat_loss' || goal === 'weight_loss'){
+      questions.unshift('How much progress should I expect by now?');
+      if(compounds.some(function(c){ return c.indexOf('retatrutide') > -1 || c.indexOf('semaglutide') > -1 || c.indexOf('tirzepatide') > -1; })){
+        questions.unshift('When should I titrate my GLP-1 dose up?');
+      }
+    }
+    if(goal === 'recovery' || goal === 'injury') questions.unshift('My injury still isn\'t improving — normal?');
+    if(goal === 'muscle' || goal === 'body_comp') questions.unshift('Should I pin before or after training?');
+    if(goal === 'cognitive' || goal === 'focus') questions.unshift('Not noticing cognitive effects yet — what gives?');
+  } else if(progress.week <= 11){
+    questions = [
+      'How do I know if this cycle is working?',
+      'Should I adjust anything for the second half?',
+      'What bloodwork should I run right now?',
+      'Can I add something new at this point?',
+      'Do I need to cycle off soon?',
+      'What should my next cycle look like?',
+    ];
+    if(hasTitration) questions.unshift('Is my current dose the right place to stay?');
+    if(compounds.some(function(c){ return c.indexOf('igf') > -1; })) questions.unshift('Approaching 4 weeks on IGF-1 — should I cycle off?');
+  } else {
+    questions = [
+      'Should I continue, adjust, or cycle off?',
+      'What compounds made the biggest difference?',
+      'How long should my off-cycle break be?',
+      'What should cycle 2 look like?',
+      'What bloodwork should I run post-cycle?',
+      'Can I run another cycle back-to-back?',
+    ];
+  }
+
+  if(intake.injection_comfort === 'terrified' || intake.injection_comfort === 'nervous') questions.unshift('I\'m still nervous about injecting — help me');
+  if(hasBloodwork && progress && progress.week >= 4) questions.unshift('What does my bloodwork tell you about my protocol?');
+  if(tracker && tracker.missedDoses >= 3) questions.unshift('I\'ve been missing doses — does it matter?');
+  if(tracker && tracker.sideEffects && tracker.sideEffects.length >= 2) questions.unshift('I logged some sides this week — what\'s going on?');
+
+  // Add bedtime check-in chip if evening
+  if(hasBedtimeCompounds()){
+    var hour2 = new Date().getHours();
+    if(hour2 >= 19 || hour2 < 2){
+      var bedRow = document.getElementById('suggestions-row');
+      if(bedRow){
+        var bedChip = document.createElement('button');
+        bedChip.className = 'suggestion-chip';
+        bedChip.textContent = '💉 Log bedtime dose';
+        bedChip.onclick = function(){
+          document.getElementById('msg-input').value = 'Yes I took my bedtime dose tonight';
+          sendMessage();
+        };
+        // Only add if not already there
+        if(!bedRow.querySelector('[data-bedtime]')){
+          bedChip.setAttribute('data-bedtime','1');
+          bedRow.insertBefore(bedChip, bedRow.firstChild);
+        }
+      }
+    }
+  }
+
+  var row = document.getElementById('suggestions-row');
+  row.innerHTML = '';
+  questions.slice(0,4).forEach(function(q){
+    var chip = document.createElement('button');
+    chip.className = 'suggestion-chip';
+    chip.textContent = q;
+    chip.onclick = function(){
+      document.getElementById('input-field').value = q;
+      hideSuggestions();
+      sendMessage();
+    };
+    row.appendChild(chip);
+  });
+}
+
+function hideSuggestions(){
+  var s = document.getElementById('suggestions');
+  if(s) s.style.display = 'none';
+}
+
+// ── RENDER MESSAGES ──
+function formatMsg(text){
+  text = text.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');
+  text = text.replace(/\n/g, '<br>');
+  return text;
+}
+
+function addMessage(role, text, animate){
+  var wrap = document.getElementById('chat-wrap');
+  var typing = document.getElementById('typing-indicator');
+  var div = document.createElement('div');
+  div.className = 'msg ' + role;
+  var now = new Date();
+  var timeStr = now.getHours() + ':' + String(now.getMinutes()).padStart(2,'0');
+  var avatarInitial = role === 'ai' ? 'A' : (intake.first_name ? intake.first_name[0].toUpperCase() : 'U');
+  div.innerHTML =
+    '<div class="msg-avatar ' + role + '">' + avatarInitial + '</div>' +
+    '<div>' +
+      '<div class="msg-bubble">' + formatMsg(text) + '</div>' +
+      '<div class="msg-time">' + timeStr + '</div>' +
+    '</div>';
+  wrap.insertBefore(div, typing);
+  scrollToBottom();
+}
+
+function showTyping(){
+  isTyping = true;
+  document.getElementById('typing-indicator').classList.add('show');
+  document.getElementById('send-btn').disabled = true;
+  scrollToBottom();
+}
+function hideTyping(){
+  isTyping = false;
+  document.getElementById('typing-indicator').classList.remove('show');
+  document.getElementById('send-btn').disabled = false;
+}
+function scrollToBottom(){
+  var wrap = document.getElementById('chat-wrap');
+  setTimeout(function(){ wrap.scrollTop = wrap.scrollHeight; }, 50);
+}
+
+// ── SPLIT SEND ──
+function sendSplitMessage(reply, onDone){
+  var parts = reply.split('||SPLIT||').map(function(p){ return p.trim(); }).filter(Boolean);
+  function sendPart(i){
+    if(i >= parts.length){ if(onDone) onDone(); return; }
+    addMessage('ai', parts[i], true);
+    if(i < parts.length - 1){
+      setTimeout(function(){
+        showTyping();
+        setTimeout(function(){
+          hideTyping();
+          sendPart(i+1);
+        }, 600 + Math.min(parts[i].length * 20, 1800));
+      }, 300);
+    }
+  }
+  sendPart(0);
+}
+
+// ── SEND MESSAGE ──
+async function sendMessage(){
+  var field = document.getElementById('input-field');
+  var text = field.value.trim();
+  if(!text || isTyping) return;
+  field.value = '';
+  autoResize(field);
+  hideSuggestions();
+  addMessage('user', text, true);
+  // Inline chart trigger
+  var lower = text.toLowerCase();
+  if(lower.match(/show.*chart|adherence chart|how.*doing|my stats|my data|show.*progress|tracking.*well/)){
+    setTimeout(function(){ showAdherenceChart(); }, 300);
+  }
+  if(lower.match(/weight.*chart|show.*weight|weight.*progress|how much.*lost|pounds.*lost/)){
+    setTimeout(function(){ showWeightChart(); }, 300);
+  }
+  // Extract body metrics from message
+  extractMetricsFromMessage(text);
+
+  // Mark checkin done if answering check-in question
+  if(shouldShowWeeklyCheckIn() && lower.length > 8){
+    var progress = getProtocolWeek();
+    if(progress) saveMemory('checkin_week_' + progress.week + '_answer', text.slice(0,120));
+    markCheckInDone();
+  }
+  // Mark pre-cycle checklist done if they say they have everything
+  if(needsPreCycleChecklist() && lower.match(/yes|ready|got it|have it|arrived|all set/)){
+    markChecklistDone();
+  }
+  chatHistory.push({role:'user', content:text});
+  setTimeout(function(){ showTyping(); }, 400 + Math.random()*400);
+  try{
+    var messages = chatHistory.slice(-14);
+    var controller = new AbortController();
+    var chatTimeout = setTimeout(function(){ controller.abort(); }, 30000);
+    var response = await fetch('/api/chat', {
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      signal: controller.signal,
+      body: JSON.stringify({
+        model:'claude-sonnet-4-6',
+        max_tokens:1000,
+        system: buildSystemPrompt(),
+        messages: messages
+      })
+    });
+    clearTimeout(chatTimeout);
+    var data = await response.json();
+    if(data.error) throw new Error(data.error.message);
+    var reply = data.content[0].text.replace(/\|\|SPLIT\|\|\s*\|\|SPLIT\|\|/g,'||SPLIT||');
+    chatHistory.push({role:'assistant', content:reply});
+    localStorage.setItem('peptrak_chat_history', JSON.stringify(chatHistory));
+    extractMemory(text, reply);
+    // Short hold then send
+    var holdTime = Math.min(800 + reply.length * 6, 2500);
+    await new Promise(function(r){ setTimeout(r, holdTime); });
+    hideTyping();
+    sendSplitMessage(reply);
+    // Rebuild chips after AI responds
+    setTimeout(function(){
+      var s=document.getElementById('suggestions');
+      if(s) s.style.display='block';
+      var row=document.getElementById('suggestions-row');
+      if(row) row.innerHTML='';
+      buildSuggestions();
+    }, 400);
+  }catch(err){
+    hideTyping();
+    var errMsg;
+    if(err.name === 'AbortError'){
+      errMsg = 'Response timed out. Check your connection and try again.';
+    } else if(!navigator.onLine){
+      errMsg = 'No internet connection. Reconnect and try again.';
+    } else {
+      errMsg = 'Something went wrong. Try again.';
+    }
+    addMessage('ai', errMsg, true);
+    console.error('Chat error:', err);
+  }
+}
+
+// ── INPUT HELPERS ──
+function handleKey(e){
+  if(e.key === 'Enter' && !e.shiftKey){ e.preventDefault(); sendMessage(); }
+}
+function autoResize(el){
+  el.style.height = 'auto';
+  el.style.height = Math.min(el.scrollHeight, 120) + 'px';
+}
+
+function clearChat(){
+  var modal = document.getElementById('clear-chat-modal');
+  if(modal) modal.style.display='flex';
+}
+function confirmClearChat(){
+  localStorage.removeItem('peptrak_chat_history');
+  localStorage.removeItem('peptrak_last_chat_ts');
+  window.location.reload();
+}
+function closeClearModal(){
+  var modal = document.getElementById('clear-chat-modal');
+  if(modal) modal.style.display='none';
+}
+
+// ── INIT ──
+(function(){
+  var goalLabel = GOAL_LABELS[intake.goal1];
+  document.getElementById('hdr-sub').textContent = goalLabel
+    ? 'Expert on your ' + goalLabel.toLowerCase() + ' protocol'
+    : 'PepTrak Research Advisor';
+
+  if(chatHistory.length){
+    chatHistory.forEach(function(msg){
+      var role = msg.role === 'user' ? 'user' : 'ai';
+      addMessage(role, msg.content.replace(/\|\|SPLIT\|\|/g,' '), false);
+    });
+    hideSuggestions();
+    // Still show proactive opener as a new message if returning after 6+ hours
+    var lastTs = parseInt(localStorage.getItem('peptrak_last_chat_ts')||'0');
+    var hoursSince = (Date.now() - lastTs) / 3600000;
+    if(hoursSince > 6 && chatHistory.length > 2){
+      var opener = buildSessionOpener();
+      setTimeout(function(){
+        showTyping();
+        setTimeout(function(){
+          hideTyping();
+          sendSplitMessage(opener.join('||SPLIT||'));
+        }, 1200);
+      }, 800);
+    }
+  } else {
+    var opener = buildSessionOpener();
+    function sendOpenerPart(i){
+      if(i >= opener.length){ buildSuggestions(); return; }
+      setTimeout(function(){
+        if(i > 0) showTyping();
+        setTimeout(function(){
+          if(i > 0) hideTyping();
+          addMessage('ai', opener[i], true);
+          sendOpenerPart(i+1);
+        }, i === 0 ? 0 : 700 + Math.random()*400);
+      }, i === 0 ? 400 : 0);
+    }
+    sendOpenerPart(0);
+  }
+  localStorage.setItem('peptrak_last_chat_ts', Date.now().toString());
+})();
+</script>
+
+<!-- CLEAR CHAT MODAL -->
+<div id="clear-chat-modal" style="display:none;position:fixed;inset:0;z-index:999;background:rgba(7,9,13,0.6);backdrop-filter:blur(6px);align-items:flex-end;justify-content:center;">
+  <div style="background:#fff;border-radius:22px 22px 0 0;padding:24px 20px calc(28px + env(safe-area-inset-bottom));width:100%;max-width:520px;">
+    <div style="width:36px;height:4px;background:var(--gray-2);border-radius:99px;margin:0 auto 18px;"></div>
+    <div style="font-size:17px;font-weight:700;color:var(--ink);margin-bottom:6px;">Start new conversation?</div>
+    <div style="font-size:13px;color:var(--gray-5);line-height:1.6;margin-bottom:20px;">This clears your chat history with Alex. Your protocol and tracker data stays saved.</div>
+    <button onclick="confirmClearChat()" style="width:100%;padding:14px;background:var(--ink);color:#fff;border:none;border-radius:980px;font-size:15px;font-weight:600;cursor:pointer;font-family:var(--font);margin-bottom:10px;">Clear Conversation</button>
+    <button onclick="closeClearModal()" style="width:100%;padding:14px;background:var(--gray-1);color:var(--gray-5);border:none;border-radius:980px;font-size:15px;font-weight:600;cursor:pointer;font-family:var(--font);">Cancel</button>
+  </div>
+</div>
+
+<script>
+// ── SUPABASE SYNC ──
+function syncToSupabase(){
+  var email = localStorage.getItem('peptrak_auth_email');
+  if(!email || email === 'test@peptrak.com') return; // skip test account
+  var payload = {
+    email: email,
+    intake: (() => { try{ return JSON.parse(localStorage.getItem('peptrak_intake')||'null'); }catch(e){ return null; } })(),
+    protocol: (() => { try{ return JSON.parse(localStorage.getItem('peptrak_protocol')||'null'); }catch(e){ return null; } })(),
+    tracker: (() => { try{ return JSON.parse(localStorage.getItem('peptrak_tracker')||'null'); }catch(e){ return null; } })(),
+    advisorContext: localStorage.getItem('peptrak_advisor_context') || null,
+    alexMemory: (() => { try{ return JSON.parse(localStorage.getItem('peptrak_alex_memory')||'null'); }catch(e){ return null; } })(),
+    cycleHistory: (() => { try{ return JSON.parse(localStorage.getItem('peptrak_cycle_history')||'null'); }catch(e){ return null; } })(),
+    weeklyRecaps: (() => { try{ return JSON.parse(localStorage.getItem('peptrak_weekly_recaps')||'null'); }catch(e){ return null; } })(),
+    protocolStart: localStorage.getItem('peptrak_protocol_start') || null,
+    bodyMetrics: (() => { try{ return JSON.parse(localStorage.getItem('peptrak_body_metrics')||'null'); }catch(e){ return null; } })(),
+    responseProfile: (() => { try{ return JSON.parse(localStorage.getItem('peptrak_response_profile_v1')||'null'); }catch(e){ return null; } })(),
+    affCode: localStorage.getItem('peptrak_aff_code') || null,
+    authPw: localStorage.getItem('peptrak_auth_pw') || null,
+  };
+  fetch('/api/supabase?action=save-data', {
+    method:'POST',
+    headers:{'Content-Type':'application/json'},
+    body: JSON.stringify(payload)
+  }).catch(function(){});
+}
+
+// Sync on page visibility change (when user switches apps)
+document.addEventListener('visibilitychange', function(){
+  if(document.visibilityState === 'hidden') syncToSupabase();
+});
+// Sync every 5 minutes
+setInterval(syncToSupabase, 5 * 60 * 1000);
+</script>
+
+</body>
+</html>

@@ -1,0 +1,1189 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"/>
+<title>PepTrak — Your Protocol</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+html{-webkit-text-size-adjust:100%;overflow-x:hidden;}
+:root{
+  --blue:#0876FF;
+  --blue-dark:#0557CC;
+  --blue-pale:#EEF4FF;
+  --ink:#07090D;
+  --ink-2:#1A1D23;
+  --gray-1:#F7F8FA;
+  --gray-2:#EAECF0;
+  --gray-3:#C8CDD6;
+  --gray-4:#8A919E;
+  --gray-5:#545B67;
+  --white:#FFFFFF;
+  --green:#00C076;
+  --green-pale:#E6FAF3;
+  --red:#FF3B30;
+  --gold:#F0A500;
+  --font:-apple-system,BlinkMacSystemFont,'SF Pro Display','SF Pro Text','Helvetica Neue',sans-serif;
+}
+body{
+  overflow-x:hidden;
+  font-family:var(--font);
+  background:var(--gray-1);
+  color:var(--ink);
+  -webkit-font-smoothing:antialiased;
+  min-height:100svh;
+  padding-bottom:calc(80px + env(safe-area-inset-bottom));
+}
+
+/* ── HEADER ── */
+.hdr{
+  position:sticky;top:0;z-index:100;
+  background:rgba(247,248,250,0.95);
+  backdrop-filter:blur(20px);
+  border-bottom:1px solid var(--gray-2);
+  height:56px;
+  display:flex;align-items:center;justify-content:space-between;
+  padding:0 20px;
+}
+.hdr-logo{
+  display:flex;align-items:center;gap:7px;
+  font-size:16px;font-weight:700;color:var(--ink);
+  text-decoration:none;
+}
+.hdr-mark{
+  width:26px;height:26px;border-radius:7px;
+  background:var(--blue);
+  display:flex;align-items:center;justify-content:center;
+  font-size:12px;font-weight:800;color:#fff;
+}
+.hdr-badge{
+  font-size:11px;font-weight:600;color:var(--blue);
+  background:var(--blue-pale);
+  padding:4px 10px;border-radius:20px;
+}
+
+/* ── GENERATING SCREEN ── */
+.gen-screen{
+  position:fixed;inset:0;z-index:200;
+  background:var(--white);
+  display:flex;flex-direction:column;
+  align-items:center;justify-content:center;
+  padding:40px 24px;
+  transition:opacity 0.6s ease;
+}
+.gen-screen.fade-out{opacity:0;pointer-events:none;}
+.gen-logo{
+  width:52px;height:52px;border-radius:16px;
+  background:var(--blue);
+  display:flex;align-items:center;justify-content:center;
+  font-size:22px;font-weight:800;color:#fff;
+  margin-bottom:28px;
+  box-shadow:0 8px 24px rgba(8,118,255,0.3);
+}
+.gen-title{
+  font-size:22px;font-weight:700;letter-spacing:-0.4px;
+  color:var(--ink);margin-bottom:8px;text-align:center;
+}
+.gen-sub{
+  font-size:14px;color:var(--gray-4);
+  text-align:center;margin-bottom:40px;
+  line-height:1.6;max-width:300px;
+}
+.gen-steps{
+  width:100%;max-width:320px;
+  display:flex;flex-direction:column;gap:14px;
+  margin-bottom:36px;
+}
+.gen-step{
+  display:flex;align-items:center;gap:12px;
+  opacity:0.3;
+  transition:opacity 0.4s ease;
+}
+.gen-step.active{opacity:1;}
+.gen-step.done{opacity:1;}
+.gen-step-icon{
+  width:32px;height:32px;border-radius:50%;
+  background:var(--gray-2);
+  display:flex;align-items:center;justify-content:center;
+  flex-shrink:0;transition:all 0.3s;
+}
+.gen-step.active .gen-step-icon{
+  background:var(--blue-pale);
+}
+.gen-step.done .gen-step-icon{
+  background:var(--green-pale);
+}
+.gen-step-spinner{
+  width:14px;height:14px;
+  border:2px solid rgba(8,118,255,0.2);
+  border-top-color:var(--blue);
+  border-radius:50%;
+  animation:spin 0.7s linear infinite;
+}
+@keyframes spin{to{transform:rotate(360deg);}}
+.gen-step-check{
+  width:14px;height:14px;
+  display:none;
+}
+.gen-step.done .gen-step-spinner{display:none;}
+.gen-step.done .gen-step-check{display:block;}
+.gen-step.active .gen-step-spinner{display:block;}
+.gen-step-txt{font-size:13px;font-weight:500;color:var(--ink);}
+.gen-step.active .gen-step-txt{color:var(--blue);font-weight:600;}
+.gen-step.done .gen-step-txt{color:var(--green);}
+
+.gen-bar{
+  width:100%;max-width:320px;
+  height:3px;background:var(--gray-2);
+  border-radius:3px;overflow:hidden;
+}
+.gen-bar-fill{
+  height:100%;background:var(--blue);
+  border-radius:3px;width:0%;
+  transition:width 0.5s ease;
+}
+
+/* ── PAGE ── */
+.page{
+  max-width:560px;margin:0 auto;
+  padding:24px 16px 24px;
+  opacity:0;
+  transition:opacity 0.6s ease;
+}
+.page.visible{opacity:1;}
+
+/* ── PROTOCOL HEADER ── */
+.proto-header{
+  text-align:center;
+  padding:0 4px 24px;
+  border-bottom:1px solid var(--gray-2);
+  margin-bottom:24px;
+}
+.proto-eyebrow{
+  display:inline-flex;align-items:center;gap:6px;
+  font-size:11px;font-weight:600;letter-spacing:0.09em;
+  text-transform:uppercase;color:var(--green);
+  margin-bottom:10px;
+}
+.proto-eye-dot{width:5px;height:5px;border-radius:50%;background:var(--green);}
+.proto-title{
+  font-size:clamp(22px,5vw,30px);
+  font-weight:700;letter-spacing:-0.6px;
+  line-height:1.1;color:var(--ink);
+  margin-bottom:8px;
+}
+.proto-title em{font-style:normal;color:var(--blue);}
+.proto-sub{
+  font-size:14px;color:var(--gray-5);
+  line-height:1.65;max-width:420px;margin:0 auto 16px;
+}
+.proto-meta-row{
+  display:flex;align-items:center;justify-content:center;
+  gap:16px;flex-wrap:wrap;
+}
+.proto-meta-item{
+  display:flex;align-items:center;gap:5px;
+  font-size:12px;color:var(--gray-4);font-weight:500;
+}
+
+/* ── COMPOUND CARDS ── */
+.compounds{display:flex;flex-direction:column;gap:14px;margin-bottom:24px;}
+.compound-card{
+  background:var(--white);
+  border:1px solid var(--gray-2);
+  border-radius:18px;
+  overflow:hidden;
+  box-shadow:0 2px 12px rgba(0,0,0,0.05);
+  opacity:0;transform:translateY(20px);
+  transition:opacity 0.5s ease,transform 0.5s cubic-bezier(0.4,0,0.2,1);
+}
+.compound-card.reveal{opacity:1;transform:translateY(0);}
+.cc-top{
+  padding:16px 18px 14px;
+  border-bottom:1px solid var(--gray-2);
+  display:flex;align-items:flex-start;justify-content:space-between;
+  gap:12px;
+}
+.cc-name{
+  font-size:18px;font-weight:700;letter-spacing:-0.4px;
+  color:var(--ink);margin-bottom:2px;
+}
+.cc-dosing{
+  padding:12px 18px;
+  display:grid;grid-template-columns:1fr 1fr;
+  gap:10px;
+  border-bottom:1px solid var(--gray-2);
+  background:var(--gray-1);
+}
+.cc-dose-item{}
+.cc-dose-lbl{
+  font-size:9px;font-weight:700;letter-spacing:0.08em;
+  text-transform:uppercase;color:var(--gray-4);
+  margin-bottom:3px;
+}
+.cc-dose-val{
+  font-size:13px;font-weight:600;color:var(--ink);
+}
+
+/* ── COMPOUND CARD UPGRADES ── */
+.cc-class-badge{
+  display:inline-block;font-size:10px;font-weight:700;letter-spacing:0.06em;
+  text-transform:uppercase;color:var(--gray-4);margin-bottom:5px;
+}
+.cc-match{
+  display:inline-flex;align-items:center;
+  font-size:11px;font-weight:700;
+  padding:4px 10px;border-radius:20px;flex-shrink:0;
+}
+.cc-why{
+  padding:14px 18px;
+  border-left:3px solid var(--blue);
+  background:var(--blue-pale);
+  margin:0;
+}
+.cc-why-lbl{
+  font-size:10px;font-weight:700;letter-spacing:0.08em;
+  text-transform:uppercase;color:var(--blue);
+  margin-bottom:6px;
+}
+.cc-why-txt{font-size:13px;color:var(--ink-2);line-height:1.7;}
+
+/* ── NEXT STEPS ── */
+.next-steps{
+  background:var(--white);border:1px solid var(--gray-2);
+  border-radius:18px;overflow:hidden;margin-bottom:24px;
+  box-shadow:0 1px 4px rgba(0,0,0,0.04);
+}
+.ns-label{
+  font-size:10px;font-weight:700;letter-spacing:0.1em;
+  text-transform:uppercase;color:var(--gray-4);
+  padding:14px 18px 10px;
+  border-bottom:1px solid var(--gray-2);
+}
+.ns-steps{display:flex;flex-direction:column;}
+.ns-step{
+  display:flex;align-items:center;gap:14px;
+  padding:14px 18px;border-bottom:1px solid var(--gray-2);
+  text-decoration:none;color:inherit;
+  transition:background 0.15s;
+  -webkit-tap-highlight-color:transparent;
+}
+.ns-step:last-child{border-bottom:none;}
+.ns-step:active{background:var(--gray-1);}
+.ns-num{
+  width:28px;height:28px;border-radius:50%;
+  background:var(--blue);color:#fff;
+  font-size:13px;font-weight:700;
+  display:flex;align-items:center;justify-content:center;
+  flex-shrink:0;
+}
+.ns-text{flex:1;}
+.ns-title{font-size:13px;font-weight:600;color:var(--ink);}
+.ns-sub{font-size:11px;color:var(--gray-4);margin-top:2px;}
+
+/* ── PROTOCOL NOTES ── */
+.proto-notes{
+  background:var(--white);
+  border:1px solid var(--gray-2);
+  border-radius:18px;padding:18px;
+  margin-bottom:24px;
+  box-shadow:0 1px 4px rgba(0,0,0,0.04);
+  opacity:0;transform:translateY(16px);
+  transition:opacity 0.5s ease,transform 0.5s ease;
+}
+.proto-notes.reveal{opacity:1;transform:translateY(0);}
+.pn-label{
+  font-size:10px;font-weight:700;letter-spacing:0.1em;
+  text-transform:uppercase;color:var(--gray-4);
+  margin-bottom:10px;
+}
+.pn-text{
+  font-size:13px;color:var(--gray-5);line-height:1.75;
+}
+
+/* ── TIMING CARD ── */
+.timing-card{
+  background:var(--white);
+  border:1px solid var(--gray-2);
+  border-radius:18px;padding:18px;
+  margin-bottom:24px;
+  opacity:0;transform:translateY(16px);
+  transition:opacity 0.5s ease,transform 0.5s ease;
+}
+.timing-card.reveal{opacity:1;transform:translateY(0);}
+.tc-label{
+  font-size:10px;font-weight:700;letter-spacing:0.1em;
+  text-transform:uppercase;color:var(--gray-4);
+  margin-bottom:14px;
+}
+.tc-row{
+  display:flex;align-items:flex-start;gap:12px;
+  padding:8px 0;
+  border-bottom:1px solid var(--gray-2);
+}
+.tc-row:last-child{border-bottom:none;padding-bottom:0;}
+.tc-time{
+  font-size:11px;font-weight:600;color:var(--blue);
+  min-width:52px;flex-shrink:0;padding-top:1px;
+}
+.tc-items{display:flex;flex-direction:column;gap:3px;}
+.tc-item{font-size:13px;color:var(--ink);font-weight:500;}
+.tc-item-sub{font-size:11px;color:var(--gray-4);}
+
+/* ── CTA SECTION ── */
+.cta-section{
+  background:var(--ink-2);
+  border-radius:20px;
+  padding:20px;
+  margin-bottom:24px;
+  opacity:0;transform:translateY(16px);
+  transition:opacity 0.5s ease,transform 0.5s ease;
+  position:relative;overflow:hidden;
+  display:flex;align-items:center;justify-content:space-between;
+  gap:16px;
+}
+.cta-section::before{
+  content:'';position:absolute;
+  top:-50px;right:-50px;width:180px;height:180px;
+  background:radial-gradient(circle,rgba(8,118,255,0.2),transparent 65%);
+  pointer-events:none;
+}
+.cta-section.reveal{opacity:1;transform:translateY(0);}
+.cta-left{flex:1;min-width:0;}
+.cta-title{
+  font-size:14px;font-weight:700;letter-spacing:-0.2px;
+  color:#fff;margin-bottom:4px;
+}
+.cta-sub{font-size:12px;color:rgba(255,255,255,0.5);line-height:1.5;}
+.btn-chat{
+  display:inline-flex;align-items:center;gap:7px;
+  background:var(--blue);
+  border:none;
+  color:#fff;border-radius:980px;
+  font-size:13px;font-weight:700;
+  padding:11px 18px;cursor:pointer;
+  font-family:var(--font);
+  text-decoration:none;
+  transition:all 0.2s;
+  white-space:nowrap;flex-shrink:0;
+  box-shadow:0 4px 14px rgba(8,118,255,0.4);
+}
+.btn-chat:hover{background:var(--blue-dark);transform:translateY(-1px);}
+
+/* ── DISCLAIMER ── */
+.disclaimer{
+  font-size:11px;color:var(--gray-3);
+  text-align:center;line-height:1.7;
+  padding:0 16px;
+}
+
+/* ── BOTTOM NAV ── */
+.bnav{
+  position:fixed;bottom:0;left:0;right:0;z-index:100;
+  background:rgba(255,255,255,0.97);
+  backdrop-filter:blur(20px);
+  border-top:1px solid var(--gray-2);
+  height:calc(60px + env(safe-area-inset-bottom));
+  padding-bottom:env(safe-area-inset-bottom);
+  display:flex;align-items:center;
+}
+.bnav-inner{
+  display:flex;width:100%;max-width:560px;margin:0 auto;
+  padding:0 8px;
+}
+.bnav-item{
+  flex:1;display:flex;flex-direction:column;align-items:center;
+  justify-content:center;gap:3px;
+  text-decoration:none;
+  padding:8px 4px;
+  border-radius:10px;
+  transition:background 0.15s;
+  color:var(--gray-4);
+  -webkit-tap-highlight-color:transparent;
+}
+.bnav-item.active{color:var(--blue);}
+.bnav-item:active{background:var(--gray-1);}
+.bnav-icon{
+  width:22px;height:22px;
+  display:flex;align-items:center;justify-content:center;
+}
+.bnav-lbl{font-size:10px;font-weight:500;}
+.bnav-item.active .bnav-lbl{font-weight:700;}
+
+/* ── ERROR STATE ── */
+.error-state{
+  display:none;
+  flex-direction:column;align-items:center;
+  text-align:center;padding:60px 24px;
+}
+.error-state.show{display:flex;}
+.error-icon{font-size:40px;margin-bottom:16px;}
+.error-title{font-size:20px;font-weight:700;color:var(--ink);margin-bottom:8px;}
+.error-sub{font-size:14px;color:var(--gray-5);line-height:1.6;margin-bottom:24px;}
+.btn-retry{
+  background:var(--blue);color:#fff;border:none;
+  border-radius:980px;font-size:15px;font-weight:600;
+  padding:13px 28px;cursor:pointer;font-family:var(--font);
+}
+
+/* ── ANIMATIONS ── */
+@keyframes fadeUp{from{opacity:0;transform:translateY(14px);}to{opacity:1;transform:translateY(0);}}
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header class="hdr">
+  <a href="/" class="hdr-logo">
+    <div class="hdr-mark">P</div>
+    PepTrak
+  </a>
+  <div class="hdr-badge" id="hdr-badge">Generating...</div>
+</header>
+
+<!-- GENERATING SCREEN -->
+<div class="gen-screen" id="gen-screen">
+  <div class="gen-logo">P</div>
+  <div class="gen-title" id="gen-title">Building your protocol</div>
+  <div class="gen-sub" id="gen-sub">Our research team is reviewing your biometrics and selecting the right compounds for you...</div>
+
+  <div class="gen-steps">
+    <div class="gen-step active" id="gs-1">
+      <div class="gen-step-icon">
+        <div class="gen-step-spinner"></div>
+        <svg class="gen-step-check" viewBox="0 0 24 24" fill="none" stroke="#00C076" stroke-width="2.5" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg>
+      </div>
+      <div class="gen-step-txt">Reviewing your goals &amp; intake</div>
+    </div>
+    <div class="gen-step" id="gs-2">
+      <div class="gen-step-icon">
+        <div class="gen-step-spinner"></div>
+        <svg class="gen-step-check" viewBox="0 0 24 24" fill="none" stroke="#00C076" stroke-width="2.5" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg>
+      </div>
+      <div class="gen-step-txt">Matching compounds to your biometrics</div>
+    </div>
+    <div class="gen-step" id="gs-3">
+      <div class="gen-step-icon">
+        <div class="gen-step-spinner"></div>
+        <svg class="gen-step-check" viewBox="0 0 24 24" fill="none" stroke="#00C076" stroke-width="2.5" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg>
+      </div>
+      <div class="gen-step-txt">Calculating doses for your body weight</div>
+    </div>
+    <div class="gen-step" id="gs-4">
+      <div class="gen-step-icon">
+        <div class="gen-step-spinner"></div>
+        <svg class="gen-step-check" viewBox="0 0 24 24" fill="none" stroke="#00C076" stroke-width="2.5" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg>
+      </div>
+      <div class="gen-step-txt">Writing your research rationale</div>
+    </div>
+  </div>
+
+  <div class="gen-bar">
+    <div class="gen-bar-fill" id="gen-bar-fill"></div>
+  </div>
+</div>
+
+<!-- MAIN PAGE (hidden until protocol ready) -->
+<div class="page" id="main-page">
+
+  <!-- Error state -->
+  <div class="error-state" id="error-state">
+    <div class="error-icon">⚠️</div>
+    <div class="error-title">Generation failed</div>
+    <div class="error-sub">Something went wrong building your protocol. Your intake data is saved — tap to try again.</div>
+    <button class="btn-retry" onclick="generateProtocol()">Try Again</button>
+  </div>
+
+  <!-- Protocol content (populated by JS) -->
+  <div id="protocol-content"></div>
+
+</div>
+
+<!-- BOTTOM NAV -->
+<nav class="bnav">
+  <div class="bnav-inner">
+    <a href="/protocol" class="bnav-item active">
+      <div class="bnav-icon">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M9 3H5a2 2 0 00-2 2v4m6-6h10a2 2 0 012 2v4M9 3v18m0 0h10a2 2 0 002-2V9M9 21H5a2 2 0 01-2-2V9m0 0h18"/></svg>
+      </div>
+      <div class="bnav-lbl">Protocol</div>
+    </a>
+    <a href="/chat" class="bnav-item">
+      <div class="bnav-icon">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
+      </div>
+      <div class="bnav-lbl">Advisor</div>
+    </a>
+    <a href="/tracker" class="bnav-item">
+      <div class="bnav-icon">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+      </div>
+      <div class="bnav-lbl">Tracker</div>
+    </a>
+    <a href="/library" class="bnav-item">
+      <div class="bnav-icon">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M2 3h6a4 4 0 014 4v14a3 3 0 00-3-3H2z"/><path d="M22 3h-6a4 4 0 00-4 4v14a3 3 0 013-3h7z"/></svg>
+      </div>
+      <div class="bnav-lbl">Library</div>
+    </a>
+    <a href="/account" class="bnav-item">
+      <div class="bnav-icon">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+      </div>
+      <div class="bnav-lbl">Account</div>
+    </a>
+  </div>
+</nav>
+
+<script>
+
+// ── PAYWALL GUARD (server-side) ──
+(function(){
+  var email  = localStorage.getItem('peptrak_auth_email');
+  var paid   = localStorage.getItem('peptrak_paid');
+  var isTest = localStorage.getItem('peptrak_test_account') === '1';
+
+  if(isTest) return; // test account always passes
+
+  if(!email || !paid){
+    window.location.replace('/checkout');
+    return;
+  }
+
+  // Async server-side check — catches past_due / cancelled without blocking page load
+  fetch('/api/check-access?email=' + encodeURIComponent(email))
+    .then(function(r){ return r.json(); })
+    .then(function(data){
+      if(data.access) return;
+      if(data.status === 'past_due' || data.status === 'unpaid'){
+        localStorage.removeItem('peptrak_paid');
+        localStorage.setItem('peptrak_subscription_status','past_due');
+        window.location.replace('/rebill');
+      } else if(data.status === 'cancelled' || data.status === 'canceled'){
+        localStorage.removeItem('peptrak_paid');
+        window.location.replace('/rebill');
+      } else if(data.redirect){
+        localStorage.removeItem('peptrak_paid');
+        window.location.replace(data.redirect);
+      }
+    })
+    .catch(function(){}); // network error — fail open
+})();
+
+// ── INTAKE GUARD ──
+(function(){
+  var isTest = localStorage.getItem('peptrak_test_account') === '1';
+  if(isTest) return;
+  var intake = {};
+  try{ intake = JSON.parse(localStorage.getItem('peptrak_intake')||'{}'); }catch(e){}
+  if(!intake.goal1 && !localStorage.getItem('peptrak_protocol')){
+    window.location.replace('/questionnaire');
+  }
+})();
+
+// ── INTAKE ──
+var intake = {};
+var alexMemory = {};
+var cycleHistory = [];
+try{ var _r=localStorage.getItem('peptrak_intake'); if(_r) intake=JSON.parse(_r); }catch(e){}
+try{ alexMemory = JSON.parse(localStorage.getItem('peptrak_alex_memory')||'{}'); }catch(e){}
+try{ cycleHistory = JSON.parse(localStorage.getItem('peptrak_cycle_history')||'[]'); }catch(e){}
+var responseProfile = null;
+try{ responseProfile = JSON.parse(localStorage.getItem('peptrak_response_profile_v1')||'null'); }catch(e){}
+
+var GOAL_LABELS = {
+  fat_loss:'Fat Loss',muscle:'Muscle & Strength',
+  recovery:'Recovery',brain:'Brain & Focus',
+  sleep_gh:'Sleep & GH',anti_aging:'Longevity'
+};
+
+// ── GENERATING ANIMATION ──
+var genSteps = [
+  {id:'gs-1', duration:1800},
+  {id:'gs-2', duration:2200},
+  {id:'gs-3', duration:1600},
+  {id:'gs-4', duration:1400}
+];
+
+function runGenAnimation(callback){
+  var bar = document.getElementById('gen-bar-fill');
+  var totalDuration = genSteps.reduce(function(a,s){return a+s.duration;},0);
+  var elapsed = 0;
+  var stepIndex = 0;
+
+  function nextStep(){
+    if(stepIndex >= genSteps.length){ callback(); return; }
+    var step = genSteps[stepIndex];
+    var el = document.getElementById(step.id);
+    // Mark previous done
+    if(stepIndex > 0){
+      var prev = document.getElementById(genSteps[stepIndex-1].id);
+      prev.classList.remove('active');
+      prev.classList.add('done');
+    }
+    el.classList.add('active');
+    elapsed += step.duration;
+    var pct = Math.round((elapsed/totalDuration)*85);
+    bar.style.width = pct + '%';
+    stepIndex++;
+    setTimeout(nextStep, step.duration);
+  }
+  nextStep();
+}
+
+// ── BUILD PROMPT ──
+function buildPrompt(){
+  var GOAL_MAP = {fat_loss:'Fat Loss',muscle:'Muscle & Strength',recovery:'Recovery',brain:'Brain & Focus',sleep_gh:'Sleep & GH',anti_aging:'Longevity'};
+  var lines = ['You are the PepTrak research team protocol builder. Build personalized peptide research protocols based on user intake data.'];
+  lines.push('');
+  lines.push('Build a personalized peptide research protocol based on the following user intake data.');
+  lines.push('');
+  lines.push('USER INTAKE:');
+  if(intake.goal1) lines.push('Primary goal: ' + (GOAL_MAP[intake.goal1]||intake.goal1));
+  if(intake.goal2 && intake.goal2.length) lines.push('Secondary goals: ' + (Array.isArray(intake.goal2)?intake.goal2.map(function(g){return GOAL_MAP[g]||g;}).join(', '):intake.goal2));
+  if(intake.timeline) lines.push('Timeline: ' + intake.timeline);
+  if(intake.budget) lines.push('Budget: ' + intake.budget);
+  if(intake.sex) lines.push('Sex: ' + intake.sex);
+  if(intake.age) lines.push('Age bracket: ' + intake.age);
+  if(intake.weight_kg) lines.push('Weight: ' + intake.weight_kg + 'kg');
+  if(intake.weight_lbs) lines.push('Weight: ' + intake.weight_lbs + 'lbs');
+  if(intake.bmi) lines.push('BMI: ' + intake.bmi);
+  if(intake.body_comp) lines.push('Body composition: ' + intake.body_comp);
+  if(intake.training) lines.push('Training frequency: ' + intake.training);
+  if(intake.sport) lines.push('Sport/activity: ' + intake.sport);
+  if(intake.sleep) lines.push('Sleep quality: ' + intake.sleep);
+  if(intake.stress) lines.push('Stress level: ' + intake.stress);
+  if(intake.alcohol) lines.push('Alcohol: ' + intake.alcohol);
+  if(intake.experience) lines.push('Peptide experience: ' + intake.experience);
+  if(intake.injection_comfort) lines.push('Injection comfort: ' + intake.injection_comfort);
+  if(Array.isArray(intake.conditions) && intake.conditions.filter(function(v){return v!=='none';}).length){
+    lines.push('Health conditions: ' + intake.conditions.filter(function(v){return v!=='none';}).join(', '));
+  }
+  if(Array.isArray(intake.medications) && intake.medications.filter(function(v){return v!=='none';}).length){
+    lines.push('Medications/supplements: ' + intake.medications.filter(function(v){return v!=='none';}).join(', '));
+  }
+  if(intake.bloodwork && Object.keys(intake.bloodwork).length){
+    var bw = Object.entries(intake.bloodwork).map(function(e){return e[0]+': '+e[1];}).join(', ');
+    lines.push('Bloodwork: ' + bw);
+  }
+  // Add free text notes
+  for(var i=1;i<=18;i++){
+    if(intake['notes_'+i]) lines.push('Step '+i+' note: ' + intake['notes_'+i]);
+  }
+
+  lines.push('');
+  lines.push('OUTPUT REQUIREMENTS:');
+  lines.push('Return ONLY valid JSON. No markdown, no backticks, no explanation outside the JSON.');
+  lines.push('');
+  lines.push('JSON structure:');
+  lines.push('{');
+  lines.push('  "headline": "Short personalized headline (e.g. Your fat loss protocol — 3 compounds)"');
+  lines.push('  "subheadline": "1-2 sentence summary of the protocol strategy"');
+  lines.push('  "duration": "Recommended protocol duration (e.g. 12 weeks)"');
+  lines.push('  "compounds": [');
+  lines.push('    {');
+  lines.push('      "name": "Compound name"');
+  lines.push('      "class": "Peptide class/category"');
+  lines.push('      "fit_score": "85-98 (integer, how well it fits this user)"');
+  lines.push('      "dose": "Exact dose with unit (e.g. 300mcg)"');
+  lines.push('      "frequency": "How often (e.g. Daily, 3x/week)"');
+  lines.push('      "route": "SubQ / Intranasal / Oral"');
+  lines.push('      "timing": "When to take it (e.g. Bedtime, 30 min pre-workout)"');
+  lines.push('      "why": "2-3 sentences: why this compound specifically for this user based on their data. Reference their specific metrics, goals, or notes."');
+  lines.push('    }');
+  lines.push('  ]');
+  lines.push('  "timing_schedule": [');
+  lines.push('    { "time": "Morning", "items": ["Compound name — dose, route"] }');
+  lines.push('  ]');
+  lines.push('  "protocol_notes": "2-3 sentences of important notes, cycling info, or flags specific to this user"');
+  lines.push('  "advisor_context": "Brief summary of this user for the research advisor to reference in future chats"');
+  lines.push('}');
+  lines.push('');
+  // ── ALEX MEMORY FEEDBACK ──
+  var memoryKeys = Object.keys(alexMemory);
+  if(memoryKeys.length > 0){
+    lines.push('ALEX ADVISOR MEMORY — This user has used PepTrak before. Their advisor has recorded:');
+    memoryKeys.forEach(function(k){
+      var val = alexMemory[k];
+      if(k.startsWith('reported_side_')){
+        lines.push('- Previously reported side effect: ' + k.replace('reported_side_','').replace(/_/g,' ') + ' (logged: ' + val + ')');
+      } else if(k.startsWith('checkin_week_') && k.endsWith('_answer')){
+        var wk = k.match(/week_(\d+)/);
+        lines.push('- Week ' + (wk?wk[1]:'?') + ' check-in answer: ' + val);
+      } else if(k === 'protocol_started'){
+        lines.push('- Started their last protocol: ' + val);
+      } else if(k.startsWith('positive_feedback_')){
+        lines.push('- Reported positive result: ' + val);
+      } else if(k === 'last_checkin_week'){
+        lines.push('- Last advisor check-in was at week: ' + val);
+      }
+    });
+    lines.push('USE THIS to:');
+    lines.push('1. Avoid compounds that previously caused side effects (or explicitly address them if needed)');
+    lines.push('2. Build on compounds that worked well — increase dose or keep in protocol');
+    lines.push('3. Address patterns (e.g. if they always logged fatigue, consider lower starting doses)');
+    lines.push('4. Reference their journey in the advisor_context field');
+    lines.push('');
+  }
+
+  // ── RESPONSE PROFILE ──
+  if(responseProfile){
+    lines.push('PREVIOUS CYCLE RESPONSE PROFILE (permanent record from last cycle):');
+    if(responseProfile.avgAdherence) lines.push('Average adherence: ' + responseProfile.avgAdherence + '%');
+    if(responseProfile.reportedSides && responseProfile.reportedSides.length){
+      lines.push('Side effects reported: ' + responseProfile.reportedSides.join(', '));
+      lines.push('CRITICAL: If these sides are compound-specific, reduce dose of that compound or swap for alternative.');
+    }
+    if(responseProfile.positiveResults && responseProfile.positiveResults.length){
+      lines.push('Positive results: ' + responseProfile.positiveResults.slice(0,3).join(' | '));
+      lines.push('Keep compounds associated with these results in the new protocol.');
+    }
+    if(responseProfile.bodyMetrics && responseProfile.bodyMetrics.length >= 2){
+      var bFirst = responseProfile.bodyMetrics[0];
+      var bLast = responseProfile.bodyMetrics[responseProfile.bodyMetrics.length-1];
+      var bDiff = bLast.value - bFirst.value;
+      lines.push('Weight change tracked last cycle: ' + bFirst.value + ' → ' + bLast.value + ' ' + bLast.unit + ' (' + (bDiff>0?'+':'') + bDiff.toFixed(1) + ')');
+    }
+    lines.push('');
+  }
+
+  // ── PREVIOUS CYCLE HISTORY ──
+  if(cycleHistory.length >= 1){
+    lines.push('PREVIOUS CYCLES:');
+    cycleHistory.slice(0, 3).forEach(function(cy){
+      lines.push('Cycle ' + cy.cycle + ': ' + cy.goal + ' — ' + 
+        (cy.compounds||[]).slice(0,4).join(', ') + ' — ' + (cy.duration||'12 weeks'));
+    });
+    lines.push('RULES FOR RETURNING USERS:');
+    lines.push('- Do not simply repeat the same protocol. Build on it.');
+    lines.push('- If they ran CJC+IPA before, consider adding a complementary compound this cycle.');
+    lines.push('- If this is cycle 3+, they are experienced — use intermediate to advanced doses.');
+    lines.push('- Mention their history in the advisor_context field.');
+    lines.push('');
+  }
+
+  lines.push('RULES:');
+  lines.push('- Select 2-5 compounds depending on complexity of goals. Do not add compounds just to add them.');
+  lines.push('- If cancer history is noted, exclude angiogenic compounds including BPC-157 at high doses.');
+  lines.push('- If injection_comfort is terrified, prioritize intranasal compounds.');
+  lines.push('- Doses must be weight-appropriate if weight data is available.');
+  lines.push('- The "why" field must reference specific user data — not generic rationale.');
+  lines.push('- For research use only. All language must be research-framed.');
+  lines.push('');
+  lines.push('BLEND CATALOG — ALWAYS prefer a blend over individual compounds when the components overlap. Blends mean fewer injections, better compliance, and lower cost. Use the blend name as the compound name in your output.');
+  lines.push('');
+  lines.push('Available blends:');
+  lines.push('- GLOW (BPC-157 + TB-500 + GHK-Cu): 70mg vial, SubQ. Use when recovery, tissue repair, joint health, or skin/collagen goals are present. One pin covers all three compounds.');
+  lines.push('- CJC+IPA blend (CJC-1295 N/D + Ipamorelin): 10mg vial, SubQ, bedtime. Use whenever GH stimulation, sleep quality, fat loss, or muscle goals require a GH secretagogue stack. Do NOT recommend CJC-1295 and Ipamorelin as separate compounds if this blend covers the need.');
+  lines.push('- KLOW blend: 80mg vial — use as alternative to GLOW when appropriate.');
+  lines.push('- Wolverine blend: 10mg or 20mg vial — multi-compound recovery blend.');
+  lines.push('- Semax + Selank: recommend separately (Semax 5mg or 10mg, Selank 5mg or 10mg) for cognitive and stress goals — intranasal.');
+  lines.push('- BPC-157 alone: 5mg or 10mg vial — when recovery is needed but no GHK-Cu or TB-500 required.');
+  lines.push('- TB-500 alone: 5mg or 10mg vial.');
+  lines.push('');
+  lines.push('BLEND PRIORITY RULE: If two or more individual compounds in your selection exist as a blend, you MUST use the blend instead. Only recommend individual compounds if no blend covers them, or if the user needs a specific dose ratio not available in the blend.');
+  lines.push('');
+  lines.push('DOSING RULES:');
+  lines.push('- BPC-157: 250-500mcg/day standard; 200mcg/day for beginners; up to 750mcg for acute injury');
+  lines.push('- TB-500: 2-5mg twice weekly loading for 4-6 weeks, then 2mg weekly maintenance');
+  lines.push('- CJC-1295 + Ipamorelin blend: 100-200mcg per pin, 1-3x daily, always at bedtime minimum');
+  lines.push('- Retatrutide: 0.5mg/week starting dose, titrate up to 2-4mg/week over 4-8 weeks');
+  lines.push('- Semax: 200-600mcg intranasal daily');
+  lines.push('- Selank: 250-500mcg intranasal daily');
+  lines.push('- GHK-Cu: 1-2mg/day SubQ or as part of GLOW blend');
+  lines.push('- IGF-1 LR3: 20-50mcg SubQ post-workout, 4 weeks on / 4 weeks off (desensitization risk)');
+  lines.push('- Epitalon: 5-10mg/day SubQ, 10-day cycles 2-4x per year');
+  lines.push('- Tesamorelin: 1-2mg SubQ daily, morning fasted');
+  lines.push('- AOD-9604: 300mcg SubQ daily, morning fasted');
+  lines.push('- For beginners (experience: none or some): always start at the lower end of dose ranges. Note this in the why field.');
+
+  return lines.join('\n');
+}
+
+// ── CALL CLAUDE API ──
+async function callClaude(prompt){
+  var controller = new AbortController();
+  var timeout = setTimeout(function(){ controller.abort(); }, 45000);
+  try {
+    var response = await fetch('/api/chat', {
+      method: 'POST',
+      headers: {'Content-Type':'application/json'},
+      signal: controller.signal,
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-6',
+        max_tokens: 4000,
+        messages: [{role:'user', content: prompt}]
+      })
+    });
+    clearTimeout(timeout);
+    var data = await response.json();
+    if(data.error) throw new Error(data.error.message || 'API error');
+    var text = data.content[0].text;
+    // Strip any accidental markdown fences
+    text = text.replace(/^```json\s*/,'').replace(/^```\s*/,'').replace(/```\s*$/,'').trim();
+    // Extract JSON object if there's surrounding text
+    var jsonMatch = text.match(/\{[\s\S]*\}/);
+    if(jsonMatch) text = jsonMatch[0];
+    return JSON.parse(text);
+  } catch(err) {
+    clearTimeout(timeout);
+    if(err.name === 'AbortError') throw new Error('Protocol generation timed out. Please try again.');
+    throw err;
+  }
+}
+
+// ── RENDER PROTOCOL ──
+function renderProtocol(proto, fromCache){
+  var goal = GOAL_LABELS[intake.goal1] || 'Your Goal';
+  var name = intake.first_name || '';
+
+  // Save for chat page
+  localStorage.setItem('peptrak_protocol', JSON.stringify(proto));
+  if(!fromCache) localStorage.setItem('peptrak_protocol_ts', Date.now().toString());
+  localStorage.setItem('peptrak_advisor_context', proto.advisor_context || '');
+
+  // Save to cycle history
+  var history = [];
+  try{ history = JSON.parse(localStorage.getItem('peptrak_cycle_history')||'[]'); }catch(e){}
+  var nowTs = Date.now().toString();
+  var cycleNum = history.length + 1;
+  var cycleEntry = {
+    cycle: cycleNum,
+    ts: nowTs,
+    date: new Date().toISOString().slice(0,10),
+    goal: goal,
+    duration: proto.duration || '12 weeks',
+    durationWeeks: parseInt((proto.duration||'12').replace(/\D/g,''))||12,
+    compounds: (proto.compounds||[]).map(function(c){ return c.name; }),
+    name: proto.headline || proto.name || goal + ' Protocol'
+  };
+  history.unshift(cycleEntry);
+  localStorage.setItem('peptrak_cycle_history', JSON.stringify(history.slice(0,10)));
+
+  var html = '';
+
+  // Header
+  html += '<div class="proto-header">';
+  html += '<div class="proto-eyebrow"><div class="proto-eye-dot"></div>Protocol Ready</div>';
+  html += '<h1 class="proto-title">' + (name ? name + "'s " : '') + '<em>' + goal.toLowerCase() + '</em> protocol</h1>';
+  html += '<p class="proto-sub">' + (proto.subheadline || 'Your personalized research protocol based on your complete intake.') + '</p>';
+  html += '<div class="proto-meta-row">';
+  html += '<div class="proto-meta-item"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="3" y1="10" x2="21" y2="10"/></svg>' + (proto.duration || '12 weeks') + '</div>';
+  html += '<div class="proto-meta-item"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M9 3H5a2 2 0 00-2 2v4m6-6h10a2 2 0 012 2v4M9 3v18m0 0h10a2 2 0 002-2V9M9 21H5a2 2 0 01-2-2V9m0 0h18"/></svg>' + proto.compounds.length + ' compounds</div>';
+  html += '<div class="proto-meta-item"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>Built for you</div>';
+  html += '</div>';
+  html += '</div>';
+
+  // Compounds
+  html += '<div class="compounds" id="compounds-list">';
+  proto.compounds.forEach(function(c, i){
+    html += '<div class="compound-card" id="cc-'+i+'">';
+    html += '<div class="cc-top">';
+    html += '<div class="cc-top-left">';
+    html += '<div class="cc-class-badge">' + (c.class||'Peptide') + '</div>';
+    html += '<div class="cc-name">' + c.name + '</div>';
+    html += '</div>';
+    var fitScore = parseInt(c.fit_score)||90;
+    var matchLabel = fitScore>=95?'Excellent Match':fitScore>=88?'Strong Match':'Good Match';
+    var matchColor = fitScore>=95?'var(--green)':fitScore>=88?'var(--blue)':'var(--gold)';
+    var matchBg = fitScore>=95?'var(--green-pale)':fitScore>=88?'var(--blue-pale)':'rgba(240,165,0,0.1)';
+    html += '<div class="cc-match" style="background:'+matchBg+';color:'+matchColor+'">'+matchLabel+'</div>';
+    html += '</div>';
+    html += '<div class="cc-dosing">';
+    html += '<div class="cc-dose-item"><div class="cc-dose-lbl">Dose</div><div class="cc-dose-val">' + c.dose + '</div></div>';
+    html += '<div class="cc-dose-item"><div class="cc-dose-lbl">Frequency</div><div class="cc-dose-val">' + c.frequency + '</div></div>';
+    html += '<div class="cc-dose-item"><div class="cc-dose-lbl">Route</div><div class="cc-dose-val">' + c.route + '</div></div>';
+    html += '<div class="cc-dose-item"><div class="cc-dose-lbl">Timing</div><div class="cc-dose-val">' + c.timing + '</div></div>';
+    html += '</div>';
+    html += '<div class="cc-why">';
+    html += '<div class="cc-why-lbl">Why you specifically</div>';
+    html += '<div class="cc-why-txt">' + c.why + '</div>';
+    html += '</div>';
+    html += '</div>';
+  });
+  html += '</div>';
+
+  // Next Steps strip
+  html += '<div class="next-steps">';
+  html += '<div class="ns-label">What to do next</div>';
+  html += '<div class="ns-steps">';
+  html += '<a href="https://usetridentlabs.com" target="_blank" class="ns-step"><div class="ns-num">1</div><div class="ns-text"><div class="ns-title">Order compounds</div><div class="ns-sub">Get your peptides from Trident Labs</div></div><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="var(--gray-3)" stroke-width="2.5" stroke-linecap="round"><polyline points="9 18 15 12 9 6"/></svg></a>';
+  html += '<a href="/tools?tab=recon" class="ns-step"><div class="ns-num">2</div><div class="ns-text"><div class="ns-title">Reconstitute your vials</div><div class="ns-sub">BAC water amounts + draw instructions</div></div><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="var(--gray-3)" stroke-width="2.5" stroke-linecap="round"><polyline points="9 18 15 12 9 6"/></svg></a>';
+  html += '<a href="/tracker" class="ns-step"><div class="ns-num">3</div><div class="ns-text"><div class="ns-title">Start tracking</div><div class="ns-sub">Log each dose as you take it</div></div><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="var(--gray-3)" stroke-width="2.5" stroke-linecap="round"><polyline points="9 18 15 12 9 6"/></svg></a>';
+  html += '</div></div>';
+
+  // Timing schedule
+  if(proto.timing_schedule && proto.timing_schedule.length){
+    html += '<div class="timing-card" id="timing-card">';
+    html += '<div class="tc-label">Daily Schedule</div>';
+    proto.timing_schedule.forEach(function(t){
+      html += '<div class="tc-row">';
+      html += '<div class="tc-time">' + t.time + '</div>';
+      html += '<div class="tc-items">';
+      (Array.isArray(t.items)?t.items:[t.items]).forEach(function(item){
+        html += '<div class="tc-item">' + item + '</div>';
+      });
+      html += '</div>';
+      html += '</div>';
+    });
+    html += '</div>';
+  }
+
+  // Protocol notes
+  if(proto.protocol_notes){
+    html += '<div class="proto-notes" id="proto-notes">';
+    html += '<div class="pn-label">Protocol Notes</div>';
+    html += '<div class="pn-text">' + proto.protocol_notes + '</div>';
+    html += '</div>';
+  }
+
+  // Chat CTA
+  html += '<div class="cta-section" id="cta-section">';
+  html += '<div class="cta-left"><div class="cta-title">Have questions?</div><div class="cta-sub">Alex knows your full protocol and biometrics. Ask anything.</div></div>';
+  html += '<a href="/chat" class="btn-chat"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>Ask Alex</a>';
+  html += '</div>';
+
+  html += '<div class="disclaimer">For research use only. Not medical advice. Always consult a qualified healthcare professional before use.</div>';
+
+  document.getElementById('protocol-content').innerHTML = html;
+}
+
+// ── REVEAL ANIMATION ──
+function revealCards(proto){
+  // Reveal compound cards one by one
+  proto.compounds.forEach(function(c, i){
+    setTimeout(function(){
+      var card = document.getElementById('cc-'+i);
+      if(card) card.classList.add('reveal');
+    }, i * 200);
+  });
+
+  var extraDelay = proto.compounds.length * 200 + 100;
+
+  setTimeout(function(){
+    var tc = document.getElementById('timing-card');
+    if(tc) tc.classList.add('reveal');
+  }, extraDelay);
+
+  setTimeout(function(){
+    var pn = document.getElementById('proto-notes');
+    if(pn) pn.classList.add('reveal');
+  }, extraDelay + 150);
+
+  setTimeout(function(){
+    var cta = document.getElementById('cta-section');
+    if(cta) cta.classList.add('reveal');
+  }, extraDelay + 300);
+}
+
+// ── MAIN GENERATE FLOW ──
+async function generateProtocol(){
+  document.getElementById('error-state').classList.remove('show');
+
+  // Always regenerate if intake is newer than cached protocol
+  var intakeTs = parseInt(localStorage.getItem('peptrak_intake_ts')||'0');
+  var protoTs = parseInt(localStorage.getItem('peptrak_protocol_ts')||'0');
+  var intakeNewer = intakeTs > 0 && intakeTs > protoTs;
+
+  // Detect if cached protocol is from a custom stack entry (not a real generation)
+  var cached = localStorage.getItem('peptrak_protocol');
+  var isCustom = false;
+  try{
+    var cp = JSON.parse(cached||'{}');
+    if(cp._isCustomStack === true) isCustom = true;
+  }catch(e){}
+
+  // Use cache only if it is a real generated protocol and intake has not changed
+  if(cached && !intakeNewer && !isCustom){
+    try{
+      var proto = JSON.parse(cached);
+      if(!proto.compounds || !proto.compounds.length) throw new Error('invalid');
+      document.getElementById('gen-screen').style.display = 'none';
+      document.getElementById('main-page').classList.add('visible');
+      document.getElementById('hdr-badge').textContent = 'Your Protocol';
+      document.getElementById('hdr-badge').style.color = 'var(--green)';
+      document.getElementById('hdr-badge').style.background = 'var(--green-pale)';
+      renderProtocol(proto, true);
+      setTimeout(function(){ revealCards(proto); }, 100);
+      return;
+    }catch(e){ localStorage.removeItem('peptrak_protocol'); }
+  }
+
+  // Clear stale custom/outdated protocol before fresh generation
+  localStorage.removeItem('peptrak_protocol');
+
+  // Run animation in parallel with API call
+  var prompt = buildPrompt();
+  var animDone = false, apiDone = false, protoData = null, apiError = null;
+
+  function checkBothDone(){
+    if(!animDone || !apiDone) return;
+    if(apiError){
+      document.getElementById('gen-screen').style.display = 'none';
+      document.getElementById('main-page').classList.add('visible');
+      document.getElementById('error-state').classList.add('show');
+      document.getElementById('hdr-badge').textContent = 'Error';
+      return;
+    }
+    // Both done — transition
+    var bar = document.getElementById('gen-bar-fill');
+    bar.style.width = '100%';
+    // Mark last step done
+    var lastStep = document.getElementById('gs-4');
+    lastStep.classList.remove('active');
+    lastStep.classList.add('done');
+
+    setTimeout(function(){
+      var screen = document.getElementById('gen-screen');
+      screen.classList.add('fade-out');
+      document.getElementById('main-page').classList.add('visible');
+      document.getElementById('hdr-badge').textContent = 'Your Protocol';
+      document.getElementById('hdr-badge').style.color = 'var(--green)';
+      document.getElementById('hdr-badge').style.background = 'var(--green-pale)';
+      renderProtocol(protoData);
+      setTimeout(function(){ revealCards(protoData); }, 300);
+      setTimeout(function(){ screen.style.display='none'; }, 700);
+    }, 600);
+  }
+
+  // Run animation
+  runGenAnimation(function(){
+    animDone = true;
+    checkBothDone();
+  });
+
+  // Call API
+  try{
+    protoData = await callClaude(prompt);
+    apiDone = true;
+    checkBothDone();
+  }catch(err){
+    console.error('Protocol generation error:', err);
+    apiError = err;
+    apiDone = true;
+    checkBothDone();
+  }
+}
+
+// ── PAYWALL CHECK ──
+(function(){
+  var paid = localStorage.getItem('peptrak_paid');
+  var isTest = localStorage.getItem('peptrak_test_account') === '1';
+  if(!paid && !isTest){
+    window.location.replace('/checkout');
+  }
+})();
+
+// ── INIT — show cache first, only generate if none exists ──
+(function(){
+  var cached = localStorage.getItem('peptrak_protocol');
+  var cachedTs = localStorage.getItem('peptrak_protocol_ts');
+  if(cached && cachedTs){
+    // Show cached protocol immediately
+    try{
+      var proto = JSON.parse(cached);
+      var genScreen = document.getElementById('gen-screen');
+      if(genScreen) genScreen.style.display = 'none';
+      var mainPage = document.getElementById('main-page');
+      mainPage.classList.add('visible');
+      document.getElementById('hdr-badge').textContent = 'Your Protocol';
+      document.getElementById('hdr-badge').style.color = 'var(--green)';
+      document.getElementById('hdr-badge').style.background = 'var(--green-pale)';
+      renderProtocol(proto, true);
+      setTimeout(function(){ revealCards(proto); }, 100);
+    } catch(e){
+      generateProtocol(); // cache corrupt — regenerate
+    }
+  } else {
+    generateProtocol();
+  }
+})();
+</script>
+
+<script>
+// ── SUPABASE SYNC ──
+function syncToSupabase(){
+  var email = localStorage.getItem('peptrak_auth_email');
+  var isTest = localStorage.getItem('peptrak_test_account') === '1';
+  if(!email || email === 'test@peptrak.com' || isTest) return;
+  var payload = {
+    email: email,
+    intake: (() => { try{ return JSON.parse(localStorage.getItem('peptrak_intake')||'null'); }catch(e){ return null; } })(),
+    protocol: (() => { try{ return JSON.parse(localStorage.getItem('peptrak_protocol')||'null'); }catch(e){ return null; } })(),
+    tracker: (() => { try{ return JSON.parse(localStorage.getItem('peptrak_tracker')||'null'); }catch(e){ return null; } })(),
+    advisorContext: localStorage.getItem('peptrak_advisor_context') || null,
+    alexMemory: (() => { try{ return JSON.parse(localStorage.getItem('peptrak_alex_memory')||'null'); }catch(e){ return null; } })(),
+    cycleHistory: (() => { try{ return JSON.parse(localStorage.getItem('peptrak_cycle_history')||'null'); }catch(e){ return null; } })(),
+    weeklyRecaps: (() => { try{ return JSON.parse(localStorage.getItem('peptrak_weekly_recaps')||'null'); }catch(e){ return null; } })(),
+    protocolStart: localStorage.getItem('peptrak_protocol_start') || null,
+    bodyMetrics: (() => { try{ return JSON.parse(localStorage.getItem('peptrak_body_metrics')||'null'); }catch(e){ return null; } })(),
+    responseProfile: (() => { try{ return JSON.parse(localStorage.getItem('peptrak_response_profile_v1')||'null'); }catch(e){ return null; } })(),
+    affCode: localStorage.getItem('peptrak_aff_code') || null,
+    authPw: localStorage.getItem('peptrak_auth_pw') || null,
+  };
+  fetch('/api/supabase?action=save-data', {
+    method:'POST',
+    headers:{'Content-Type':'application/json'},
+    body: JSON.stringify(payload)
+  }).catch(function(){});
+}
+
+// Sync on page visibility change (when user switches apps)
+document.addEventListener('visibilitychange', function(){
+  if(document.visibilityState === 'hidden') syncToSupabase();
+});
+// Sync every 5 minutes
+setInterval(syncToSupabase, 5 * 60 * 1000);
+
+// ── REGEN MODAL FUNCTIONS ──
+function showRegenWarning(){
+  var modal = document.getElementById('regen-modal');
+  if(modal){ modal.style.display = 'flex'; }
+}
+function closeRegenModal(){
+  var modal = document.getElementById('regen-modal');
+  if(modal){ modal.style.display = 'none'; }
+}
+function confirmRegen(){
+  closeRegenModal();
+  localStorage.removeItem('peptrak_protocol');
+  localStorage.removeItem('peptrak_protocol_ts');
+  var genScreen = document.getElementById('gen-screen');
+  genScreen.style.display = 'flex';
+  genScreen.style.opacity = '1';
+  genScreen.classList.remove('fade-out');
+  document.getElementById('main-page').classList.remove('visible');
+  document.getElementById('hdr-badge').textContent = 'Generating...';
+  document.getElementById('hdr-badge').style.color = '';
+  document.getElementById('hdr-badge').style.background = '';
+  ['gs-1','gs-2','gs-3','gs-4'].forEach(function(id, i){
+    var el = document.getElementById(id);
+    el.classList.remove('active','done');
+    if(i === 0) el.classList.add('active');
+  });
+  document.getElementById('gen-bar-fill').style.width = '0%';
+  generateProtocol();
+}
+</script>
+
+  <!-- REGENERATE BUTTON -->
+  <div style="padding:0 20px 20px;max-width:600px;margin:0 auto;">
+    <button onclick="showRegenWarning()" style="width:100%;padding:13px;background:transparent;border:1.5px solid var(--gray-2);border-radius:12px;font-size:13px;font-weight:600;color:var(--gray-4);font-family:var(--font);cursor:pointer;-webkit-tap-highlight-color:transparent;">
+      ↻ Regenerate Protocol
+    </button>
+    <div style="font-size:11px;color:var(--gray-3);text-align:center;margin-top:8px;">Generates a new protocol based on your current intake</div>
+  </div>
+
+  <!-- REGEN WARNING MODAL -->
+  <div id="regen-modal" style="display:none;position:fixed;inset:0;z-index:999;background:rgba(7,9,13,0.6);backdrop-filter:blur(8px);align-items:flex-end;justify-content:center;">
+    <div style="background:#fff;border-radius:22px 22px 0 0;padding:24px 20px calc(28px + env(safe-area-inset-bottom));width:100%;max-width:520px;">
+      <div style="width:36px;height:4px;background:var(--gray-2);border-radius:99px;margin:0 auto 18px;"></div>
+      <div style="font-size:18px;font-weight:700;color:var(--ink);margin-bottom:8px;">Regenerate your protocol?</div>
+      <div style="font-size:14px;color:var(--gray-5);line-height:1.6;margin-bottom:20px;">This will replace your current protocol with a newly generated one. Your tracker history and Alex conversations will be preserved, but your current compounds will change.</div>
+      <button onclick="confirmRegen()" style="width:100%;padding:14px;background:var(--blue);color:#fff;border:none;border-radius:980px;font-size:15px;font-weight:600;cursor:pointer;font-family:var(--font);margin-bottom:10px;">Yes, generate new protocol</button>
+      <button onclick="closeRegenModal()" style="width:100%;padding:14px;background:var(--gray-1);color:var(--gray-5);border:none;border-radius:980px;font-size:15px;font-weight:600;cursor:pointer;font-family:var(--font);">Keep current protocol</button>
+    </div>
+  </div>
+
+</body>
+</html>

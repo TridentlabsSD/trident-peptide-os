@@ -1,0 +1,782 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"/>
+<title>PepTrak — My Stack</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+html{-webkit-text-size-adjust:100%;overflow-x:hidden;}
+:root{
+  --blue:#0876FF;--blue-dark:#0557CC;--blue-pale:#EEF4FF;
+  --ink:#07090D;--ink-2:#1A1D23;
+  --gray-1:#F7F8FA;--gray-2:#EAECF0;--gray-3:#C8CDD6;
+  --gray-4:#8A919E;--gray-5:#545B67;--white:#FFFFFF;
+  --green:#00C076;--green-pale:#E6FAF3;--green-dark:#00A065;
+  --red:#FF3B30;--gold:#F0A500;
+  --font:-apple-system,BlinkMacSystemFont,'SF Pro Display','SF Pro Text','Helvetica Neue',sans-serif;
+}
+body{font-family:var(--font);background:var(--gray-1);color:var(--ink);-webkit-font-smoothing:antialiased;min-height:100svh;overflow-x:hidden;padding-bottom:130px;}
+.hdr{position:sticky;top:0;z-index:100;background:rgba(247,248,250,0.96);backdrop-filter:blur(20px);border-bottom:1px solid var(--gray-2);height:56px;display:flex;align-items:center;justify-content:space-between;padding:0 20px;}
+.hdr-back{display:flex;align-items:center;gap:6px;font-size:14px;font-weight:600;color:var(--blue);text-decoration:none;}
+.hdr-title{font-size:15px;font-weight:700;color:var(--ink);position:absolute;left:50%;transform:translateX(-50%);}
+.page{max-width:520px;margin:0 auto;padding:20px 16px 24px;}
+.section-label{font-size:10px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:var(--gray-4);margin-bottom:10px;padding:0 2px;}
+
+/* SOURCE OPTIONS */
+.source-opts{display:flex;flex-direction:column;gap:8px;margin-bottom:20px;}
+.source-opt{display:flex;align-items:center;gap:14px;padding:14px 16px;border-radius:16px;border:1.5px solid var(--gray-2);cursor:pointer;transition:all 0.18s;-webkit-tap-highlight-color:transparent;background:var(--white);position:relative;overflow:hidden;}
+.source-opt:hover{border-color:var(--blue);background:var(--blue-pale);transform:translateY(-1px);box-shadow:0 4px 14px rgba(8,118,255,0.1);}
+.source-opt:active{transform:scale(0.98);}
+.source-opt.sel{border-color:var(--blue);background:var(--blue-pale);box-shadow:0 0 0 3px rgba(8,118,255,0.1);}
+.source-opt.disabled{opacity:0.55;cursor:default;pointer-events:none;}
+.source-icon{width:40px;height:40px;border-radius:12px;background:var(--gray-1);display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;transition:background 0.18s;}
+.source-opt.sel .source-icon{background:rgba(8,118,255,0.12);}
+.source-label{font-size:14px;font-weight:700;color:var(--ink);}
+.source-opt.sel .source-label{color:var(--blue);}
+.source-desc{font-size:12px;color:var(--gray-4);margin-top:2px;line-height:1.4;}
+.source-soon{position:absolute;top:10px;right:12px;font-size:10px;font-weight:700;letter-spacing:0.05em;background:var(--gray-2);color:var(--gray-4);padding:3px 9px;border-radius:20px;}
+.source-check{position:absolute;top:50%;right:14px;transform:translateY(-50%);width:20px;height:20px;border-radius:50%;background:var(--blue);display:none;align-items:center;justify-content:center;}
+.source-opt.sel .source-check{display:flex;}
+
+/* PROTOCOL SECTION */
+.proto-section{display:none;}
+.proto-section.show{display:block;}
+.ps-row{display:flex;align-items:center;gap:12px;padding:12px 14px;background:var(--white);border:1px solid var(--gray-2);border-radius:14px;margin-bottom:8px;transition:opacity 0.2s;}
+.ps-row.off{opacity:0.35;}
+.ps-info{flex:1;}
+.ps-name{font-size:13px;font-weight:600;color:var(--ink);}
+.ps-meta{font-size:11px;color:var(--gray-4);margin-top:2px;}
+.ps-btn{font-size:11px;font-weight:700;padding:5px 12px;border-radius:20px;border:none;cursor:pointer;font-family:var(--font);white-space:nowrap;transition:all 0.15s;}
+.ps-btn.on{background:#FEE2E2;color:var(--red);}
+.ps-btn.off{background:var(--green-pale);color:var(--green-dark);}
+
+/* CUSTOM SECTION */
+.custom-section{display:none;}
+.custom-section.show{display:block;}
+
+/* TEMPLATES */
+.templates{display:flex;flex-direction:column;gap:8px;margin-bottom:20px;}
+.tpl-card{background:var(--white);border:1px solid var(--gray-2);border-radius:14px;padding:14px 16px;cursor:pointer;transition:all 0.18s;-webkit-tap-highlight-color:transparent;}
+.tpl-card:hover{border-color:var(--blue);background:var(--blue-pale);transform:translateY(-1px);}
+.tpl-card:active{transform:scale(0.98);}
+.tpl-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:4px;}
+.tpl-name{font-size:13px;font-weight:700;color:var(--ink);}
+.tpl-count{font-size:11px;color:var(--gray-4);}
+.tpl-compounds{font-size:11px;color:var(--gray-5);}
+
+/* COMPOUND ENTRIES */
+.compound-entries{display:flex;flex-direction:column;gap:10px;margin-bottom:14px;}
+.c-entry{background:var(--white);border:1px solid var(--gray-2);border-radius:18px;overflow:hidden;}
+.c-hdr{display:flex;align-items:center;justify-content:space-between;padding:14px 16px;cursor:pointer;-webkit-tap-highlight-color:transparent;user-select:none;}
+.c-hdr-left{display:flex;align-items:center;gap:10px;flex:1;min-width:0;}
+.c-num{width:26px;height:26px;border-radius:50%;background:var(--blue-pale);color:var(--blue);font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.c-hdr-text{min-width:0;}
+.c-name-disp{font-size:14px;font-weight:600;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.c-name-disp.empty{color:var(--gray-4);font-weight:400;}
+.c-summary{font-size:11px;color:var(--gray-4);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.c-hdr-right{display:flex;align-items:center;gap:6px;flex-shrink:0;}
+.c-chevron{color:var(--gray-4);transition:transform 0.2s;line-height:0;}
+.c-remove{width:28px;height:28px;border-radius:50%;background:none;border:none;cursor:pointer;color:var(--gray-3);font-size:18px;display:flex;align-items:center;justify-content:center;font-family:var(--font);transition:all 0.15s;line-height:1;}
+.c-remove:hover{background:#FEE2E2;color:var(--red);}
+.c-body{padding:0 16px 16px;display:flex;flex-direction:column;gap:12px;}
+
+/* CYCLE WARNING */
+.cycle-warn{background:#FEF3C7;border:1px solid #F59E0B;border-radius:10px;padding:10px 12px;font-size:12px;color:#92400E;line-height:1.55;display:none;}
+.cycle-warn.show{display:block;}
+
+/* START DATE CARD */
+.start-card{background:var(--white);border:1px solid var(--gray-2);border-radius:16px;padding:16px;margin-bottom:16px;}
+.start-card-title{font-size:13px;font-weight:700;color:var(--ink);margin-bottom:3px;}
+.start-card-sub{font-size:11px;color:var(--gray-4);margin-bottom:12px;line-height:1.5;}
+.chips-row{display:flex;gap:7px;flex-wrap:wrap;margin-bottom:8px;}
+.chip{font-size:12px;font-weight:500;padding:7px 13px;border-radius:20px;border:1.5px solid var(--gray-2);background:var(--white);color:var(--gray-5);cursor:pointer;font-family:var(--font);transition:all 0.15s;}
+.chip.sel{background:var(--blue);color:#fff;border-color:var(--blue);}
+.days-helper{font-size:12px;color:var(--gray-4);margin-top:6px;min-height:18px;}
+.days-helper strong{color:var(--blue);}
+
+/* FORM */
+.field-group{display:flex;flex-direction:column;gap:5px;}
+.field-label{font-size:11px;font-weight:700;letter-spacing:0.07em;text-transform:uppercase;color:var(--gray-4);}
+.req{color:var(--red);}
+.field-input{padding:11px 13px;border:1.5px solid var(--gray-2);border-radius:12px;font-size:16px;color:var(--ink);font-family:var(--font);background:#fff;outline:none;-webkit-appearance:none;transition:border-color 0.18s,box-shadow 0.18s;width:100%;}
+.field-input:focus{border-color:var(--blue);box-shadow:0 0 0 3px rgba(8,118,255,0.08);}
+.field-input::placeholder{color:var(--gray-3);}
+.field-input.err{border-color:var(--red);box-shadow:0 0 0 3px rgba(255,59,48,0.08);}
+select.field-input{cursor:pointer;}
+.field-err{font-size:11px;color:var(--red);font-weight:500;margin-top:3px;display:none;}
+.field-err.show{display:block;}
+.f2{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+
+/* AUTOCOMPLETE */
+.ac-wrap{position:relative;}
+.ac-list{position:absolute;top:calc(100% + 4px);left:0;right:0;z-index:50;background:#fff;border:1.5px solid var(--blue);border-radius:12px;box-shadow:0 8px 24px rgba(0,0,0,0.12);max-height:200px;overflow-y:auto;display:none;}
+.ac-list.show{display:block;}
+.ac-item{padding:10px 14px;font-size:13px;font-weight:500;color:var(--ink);cursor:pointer;transition:background 0.1s;border-bottom:1px solid var(--gray-2);}
+.ac-item:last-child{border-bottom:none;}
+.ac-item:hover{background:var(--blue-pale);color:var(--blue);}
+.ac-hi{color:var(--blue);font-weight:700;}
+
+/* ADD BTN */
+.add-btn{width:100%;padding:14px;background:var(--white);border:1.5px dashed var(--gray-3);border-radius:16px;color:var(--gray-4);font-size:14px;font-weight:500;font-family:var(--font);cursor:pointer;transition:all 0.18s;display:flex;align-items:center;justify-content:center;gap:8px;margin-bottom:16px;}
+.add-btn:hover{border-color:var(--blue);color:var(--blue);background:var(--blue-pale);}
+
+/* NO PEPTIDES */
+.nodose-section{display:none;}
+
+/* CURRENT STACK */
+.curr-stack{background:var(--white);border:1px solid var(--gray-2);border-radius:16px;overflow:hidden;margin-bottom:20px;}
+.curr-hdr{padding:14px 16px;border-bottom:1px solid var(--gray-2);display:flex;align-items:center;justify-content:space-between;}
+.curr-title{font-size:13px;font-weight:700;color:var(--ink);}
+.curr-clear{font-size:12px;font-weight:600;color:var(--red);background:none;border:none;cursor:pointer;font-family:var(--font);}
+.curr-row{padding:12px 16px;border-bottom:1px solid var(--gray-2);display:flex;align-items:flex-start;justify-content:space-between;gap:10px;}
+.curr-row:last-child{border-bottom:none;}
+.curr-name{font-size:13px;font-weight:600;color:var(--ink);}
+.curr-meta{font-size:11px;color:var(--gray-4);margin-top:2px;}
+.curr-badge{font-size:10px;font-weight:700;padding:3px 9px;border-radius:20px;white-space:nowrap;flex-shrink:0;}
+.curr-badge.protocol{background:var(--blue-pale);color:var(--blue);}
+.curr-badge.custom{background:var(--green-pale);color:var(--green-dark);}
+
+/* STICKY SAVE */
+.sticky-save{position:fixed;bottom:calc(60px + env(safe-area-inset-bottom));left:0;right:0;z-index:99;padding:12px 16px;background:rgba(247,248,250,0.97);backdrop-filter:blur(20px);border-top:1px solid var(--gray-2);}
+.sticky-inner{max-width:520px;margin:0 auto;}
+.save-btn{width:100%;padding:15px;background:var(--blue);color:#fff;border:none;border-radius:980px;font-size:16px;font-weight:600;font-family:var(--font);cursor:pointer;box-shadow:0 4px 16px rgba(8,118,255,0.28);transition:all 0.2s;}
+.save-btn:active{transform:scale(0.98);}
+.save-btn.ok{background:var(--green);box-shadow:0 4px 16px rgba(0,192,118,0.28);}
+
+/* TOAST */
+.toast{position:fixed;bottom:calc(140px + env(safe-area-inset-bottom));left:50%;transform:translateX(-50%);background:var(--ink-2);color:#fff;font-size:13px;font-weight:600;padding:11px 20px;border-radius:20px;z-index:400;white-space:nowrap;pointer-events:none;display:none;box-shadow:0 8px 24px rgba(0,0,0,0.2);}
+.toast.show{display:block;animation:tpop 0.3s cubic-bezier(0.34,1.56,0.64,1);}
+@keyframes tpop{from{opacity:0;transform:translateX(-50%) translateY(10px);}to{opacity:1;transform:translateX(-50%) translateY(0);}}
+
+/* BNAV */
+.bnav{position:fixed;bottom:0;left:0;right:0;z-index:100;background:rgba(255,255,255,0.97);backdrop-filter:blur(20px);border-top:1px solid var(--gray-2);height:calc(60px + env(safe-area-inset-bottom));padding-bottom:env(safe-area-inset-bottom);display:flex;align-items:center;}
+.bnav-inner{display:flex;width:100%;max-width:560px;margin:0 auto;padding:0 8px;}
+.bnav-item{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;text-decoration:none;padding:8px 4px;border-radius:10px;transition:background 0.15s;color:var(--gray-4);-webkit-tap-highlight-color:transparent;}
+.bnav-item.active{color:var(--blue);}
+.bnav-lbl{font-size:10px;font-weight:500;}
+.bnav-item.active .bnav-lbl{font-weight:700;}
+</style>
+</head>
+<body>
+
+<div class="toast" id="toast"></div>
+
+<header class="hdr">
+  <a href="/tracker" class="hdr-back">
+    <svg width="8" height="13" viewBox="0 0 8 13" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><polyline points="7 1 1 6.5 7 12"/></svg>
+    Tracker
+  </a>
+  <div class="hdr-title">My Stack</div>
+  <div style="width:60px;"></div>
+</header>
+
+<div class="page">
+
+  <!-- CURRENT STACK -->
+  <div id="curr-wrap"></div>
+
+  <!-- SOURCE -->
+  <div class="section-label">What are you tracking?</div>
+  <div class="source-opts">
+
+    <div class="source-opt" id="opt-protocol" onclick="pickSource('protocol')">
+      <div class="source-icon">🧬</div>
+      <div>
+        <div class="source-label">My PepTrak Protocol</div>
+        <div class="source-desc">Track the protocol we built for you</div>
+      </div>
+      <div class="source-check"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg></div>
+    </div>
+
+    <div class="source-opt" id="opt-custom" onclick="pickSource('custom')">
+      <div class="source-icon">✏️</div>
+      <div>
+        <div class="source-label">My Own Stack</div>
+        <div class="source-desc">Already running peptides — enter them manually</div>
+      </div>
+      <div class="source-check"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg></div>
+    </div>
+
+    <div class="source-opt" id="opt-nodose" onclick="pickSource('nodose')">
+      <div class="source-icon">🛒</div>
+      <div>
+        <div class="source-label">I don't have peptides yet</div>
+        <div class="source-desc">See your compound list and order from Trident Labs</div>
+      </div>
+      <div class="source-check"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg></div>
+    </div>
+
+    <div class="source-opt disabled">
+      <div class="source-icon">⚡</div>
+      <div>
+        <div class="source-label">Auto-sync from Trident Labs</div>
+        <div class="source-desc">Your order history populates your stack automatically</div>
+      </div>
+      <div class="source-soon">Coming soon</div>
+    </div>
+
+  </div>
+
+  <!-- PROTOCOL -->
+  <div class="proto-section" id="proto-section">
+    <div class="section-label">Your compounds</div>
+    <div id="ps-list" style="margin-bottom:16px;"></div>
+
+    <!-- No protocol CTA -->
+    <div id="ps-no-proto" style="display:none;background:var(--white);border:1px solid var(--gray-2);border-radius:18px;padding:24px 20px;text-align:center;margin-bottom:16px;">
+      <div style="font-size:36px;margin-bottom:12px;">🧬</div>
+      <div style="font-size:16px;font-weight:700;color:var(--ink);letter-spacing:-0.3px;margin-bottom:8px;">No protocol yet</div>
+      <div style="font-size:13px;color:var(--gray-5);line-height:1.65;margin-bottom:20px;">Answer 5 minutes of questions and we'll build you a personalized peptide protocol based on your goals, biometrics, and experience.</div>
+      <a href="/onboarding" style="display:block;padding:15px;background:var(--blue);color:#fff;border-radius:980px;font-size:15px;font-weight:700;text-decoration:none;box-shadow:0 4px 16px rgba(8,118,255,0.28);margin-bottom:10px;">Build My Protocol →</a>
+      <div style="font-size:11px;color:var(--gray-4);">Free · Takes about 5 minutes · Personalized to you</div>
+    </div>
+
+    <div class="start-card" id="ps-start-card">
+      <div class="start-card-title">When did you start?</div>
+      <div class="start-card-sub">Used to calculate your protocol week and vial remaining</div>
+      <div class="chips-row" id="ps-chips"></div>
+      <input type="date" class="field-input" id="ps-date" style="display:none;margin-top:2px;" oninput="onProtoDate(this.value)"/>
+      <div class="days-helper" id="ps-helper"></div>
+    </div>
+    </div>
+  </div>
+
+  <!-- NODOSE -->
+  <div class="nodose-section" id="nodose-section">
+    <div style="background:var(--white);border:1px solid var(--gray-2);border-radius:18px;padding:24px 20px;text-align:center;">
+      <div style="font-size:38px;margin-bottom:12px;">📦</div>
+      <div style="font-size:17px;font-weight:700;color:var(--ink);letter-spacing:-0.3px;margin-bottom:8px;">Your protocol is ready to order</div>
+      <div id="nodose-txt" style="font-size:13px;color:var(--gray-5);line-height:1.65;margin-bottom:20px;">Head to Trident Labs to order your compounds. Everything is in stock, US-made, and 99%+ purity.</div>
+      <a href="https://usetridentlabs.com" target="_blank" style="display:block;padding:15px;background:var(--blue);color:#fff;border-radius:980px;font-size:15px;font-weight:700;text-decoration:none;box-shadow:0 4px 16px rgba(8,118,255,0.28);margin-bottom:10px;">Order at usetridentlabs.com →</a>
+      <div style="font-size:11px;color:var(--gray-4);">Come back once your order arrives to start tracking</div>
+    </div>
+  </div>
+
+  <!-- CUSTOM -->
+  <div class="custom-section" id="custom-section">
+    <div class="section-label">Quick start — or build your own below</div>
+    <div class="templates" id="tpl-list"></div>
+    <div class="section-label">Your compounds</div>
+    <div class="compound-entries" id="entries"></div>
+    <button class="add-btn" onclick="addEntry()">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+      Add compound
+    </button>
+  </div>
+
+</div>
+
+<!-- STICKY SAVE -->
+<div class="sticky-save">
+  <div class="sticky-inner">
+    <button class="save-btn" id="save-btn" onclick="saveStack()">Save Stack &amp; Start Tracking</button>
+  </div>
+</div>
+
+<!-- BNAV -->
+<nav class="bnav">
+  <div class="bnav-inner">
+    <a href="/protocol" class="bnav-item"><div style="width:22px;height:22px;display:flex;align-items:center;justify-content:center;"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M9 3H5a2 2 0 00-2 2v4m6-6h10a2 2 0 012 2v4M9 3v18m0 0h10a2 2 0 002-2V9M9 21H5a2 2 0 01-2-2V9m0 0h18"/></svg></div><div class="bnav-lbl">Protocol</div></a>
+    <a href="/chat" class="bnav-item"><div style="width:22px;height:22px;display:flex;align-items:center;justify-content:center;"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg></div><div class="bnav-lbl">Advisor</div></a>
+    <a href="/tracker" class="bnav-item active"><div style="width:22px;height:22px;display:flex;align-items:center;justify-content:center;"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></div><div class="bnav-lbl">Tracker</div></a>
+    <a href="/library" class="bnav-item"><div style="width:22px;height:22px;display:flex;align-items:center;justify-content:center;"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M2 3h6a4 4 0 014 4v14a3 3 0 00-3-3H2z"/><path d="M22 3h-6a4 4 0 00-4 4v14a3 3 0 013-3h7z"/></svg></div><div class="bnav-lbl">Library</div></a>
+    <a href="/account" class="bnav-item"><div style="width:22px;height:22px;display:flex;align-items:center;justify-content:center;"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></div><div class="bnav-lbl">Account</div></a>
+  </div>
+</nav>
+
+<script>
+
+// ── PAYWALL GUARD (server-side) ──
+(function(){
+  var email  = localStorage.getItem('peptrak_auth_email');
+  var paid   = localStorage.getItem('peptrak_paid');
+  var isTest = localStorage.getItem('peptrak_test_account') === '1';
+
+  if(isTest) return; // test account always passes
+
+  if(!email || !paid){
+    window.location.replace('/checkout');
+    return;
+  }
+
+  // Async server-side check — catches past_due / cancelled without blocking page load
+  fetch('/api/check-access?email=' + encodeURIComponent(email))
+    .then(function(r){ return r.json(); })
+    .then(function(data){
+      if(data.access) return;
+      if(data.status === 'past_due' || data.status === 'unpaid'){
+        localStorage.removeItem('peptrak_paid');
+        localStorage.setItem('peptrak_subscription_status','past_due');
+        window.location.replace('/rebill');
+      } else if(data.status === 'cancelled' || data.status === 'canceled'){
+        localStorage.removeItem('peptrak_paid');
+        window.location.replace('/rebill');
+      } else if(data.redirect){
+        localStorage.removeItem('peptrak_paid');
+        window.location.replace(data.redirect);
+      }
+    })
+    .catch(function(){}); // network error — fail open
+})();
+
+var protocol={}, customStack={source:null,compounds:[],globalStartDate:null,activeIdxs:[]}, activeIdxs=[], entryCount=0;
+try{protocol=JSON.parse(localStorage.getItem('peptrak_protocol')||'{}');}catch(e){}
+try{var _s=localStorage.getItem('peptrak_custom_stack');if(_s){customStack=JSON.parse(_s);activeIdxs=customStack.activeIdxs||[];}}catch(e){}
+
+var COMPOUNDS=['BPC-157','TB-500','GLOW (BPC-157 + TB-500 + GHK-Cu)','KLOW','Wolverine','CJC-1295 (no DAC)','Ipamorelin','CJC+IPA Blend','Sermorelin','Hexarelin','DSIP','Semaglutide','Tirzepatide','Retatrutide','Cagrilintide','AOD-9604','Adipotide','Survodutide','5-Amino-1MQ','HGH','HGH Fragment 176-191','IGF-1 LR3','IGF-DES','Tesamorelin','Semax','Selank','Pinealon','Cerebrolysin','PT-141','Oxytocin Acetate','KissPeptin','Epithalon','SS-31','MOTS-c','NAD+','Thymalin','SLU-PP-322','FOX04','AICAR','GHK-Cu','Thymosin Alpha-1','LL-37','Snap-8','Lysine-Proline-Valine','MT-1','MT-2 (Melanotan II)','Melatonin','HCG','HMG','VIP','Ara-290','Glutathione'];
+var ROUTES=['SubQ','Intranasal','Oral','IM'];
+var FREQS=['Daily','Twice daily','Every other day','3x/week','2x/week','Weekly','5 days on / 2 off'];
+var TIMINGS=['Morning (fasted)','Morning','Pre-workout','Post-workout','Afternoon','Evening','Bedtime','With meals'];
+
+var CYCLE_LIMITS={
+  'igf-1 lr3':{weeks:4,msg:'IGF-1 LR3 max cycle is 4 weeks — receptor desensitization is real and irreversible with chronic use. Time to cycle off.'},
+  'semax':{weeks:2,msg:'Semax is most effective in 2-week on / 2-week off cycles. Consider a tolerance break.'},
+  'epithalon':{days:12,msg:'Epithalon is a 10-day cycle compound. If you\'ve run longer, stop until your next cycle in 3 months.'},
+  'retatrutide':{weeks:24,msg:'Long cycle — ensure you are still titrating appropriately and monitoring GI tolerance and cardiovascular markers.'},
+  'semaglutide':{weeks:52,msg:'Extended Semaglutide use — monitor for muscle loss, ensure adequate protein intake, and consider a diet break.'}
+};
+
+var TEMPLATES=[
+  {name:'Fat Loss Starter',icon:'🔥',compounds:[{name:'Retatrutide',dose:'0.5',unit:'mg',route:'SubQ',frequency:'Weekly',timing:'Morning (fasted)',vialSize:5,vialUnit:'mg'},{name:'AOD-9604',dose:'300',unit:'mcg',route:'SubQ',frequency:'Daily',timing:'Morning (fasted)',vialSize:5,vialUnit:'mg'},{name:'CJC+IPA Blend',dose:'200',unit:'mcg',route:'SubQ',frequency:'Daily',timing:'Bedtime',vialSize:10,vialUnit:'mg'}]},
+  {name:'Recovery Stack',icon:'💪',compounds:[{name:'GLOW (BPC-157 + TB-500 + GHK-Cu)',dose:'500',unit:'mcg',route:'SubQ',frequency:'Daily',timing:'Morning',vialSize:70,vialUnit:'mg'},{name:'CJC+IPA Blend',dose:'200',unit:'mcg',route:'SubQ',frequency:'Daily',timing:'Bedtime',vialSize:10,vialUnit:'mg'}]},
+  {name:'GH + Sleep',icon:'🌙',compounds:[{name:'CJC+IPA Blend',dose:'200',unit:'mcg',route:'SubQ',frequency:'Daily',timing:'Bedtime',vialSize:10,vialUnit:'mg'},{name:'DSIP',dose:'200',unit:'mcg',route:'SubQ',frequency:'Daily',timing:'Bedtime',vialSize:5,vialUnit:'mg'},{name:'Epithalon',dose:'5',unit:'mg',route:'SubQ',frequency:'Daily',timing:'Bedtime',vialSize:10,vialUnit:'mg'}]},
+  {name:'Cognitive Focus',icon:'🧠',compounds:[{name:'Semax',dose:'300',unit:'mcg',route:'Intranasal',frequency:'Daily',timing:'Morning',vialSize:5,vialUnit:'mg'},{name:'Selank',dose:'250',unit:'mcg',route:'Intranasal',frequency:'Daily',timing:'Morning',vialSize:5,vialUnit:'mg'},{name:'NAD+',dose:'200',unit:'mg',route:'SubQ',frequency:'3x/week',timing:'Morning',vialSize:100,vialUnit:'mg'}]}
+];
+
+function toast(msg){var t=document.getElementById('toast');t.textContent=msg;t.classList.remove('show');void t.offsetWidth;t.classList.add('show');setTimeout(function(){t.classList.remove('show');},2600);}
+
+function daysHtml(ds){
+  if(!ds) return '';
+  var d=new Date(ds+'T12:00:00');
+  var ago=Math.floor((Date.now()-d.getTime())/86400000);
+  if(ago<0) return '<span style="color:var(--red)">Date is in the future</span>';
+  return 'Day <strong>'+(ago+1)+'</strong> &middot; Week <strong>'+(Math.floor(ago/7)+1)+'</strong> of your cycle';
+}
+
+// SOURCE
+function pickSource(src){
+  customStack.source=src;
+  ['protocol','custom','nodose'].forEach(function(s){
+    var el=document.getElementById('opt-'+s);
+    if(el) el.classList.toggle('sel',s===src);
+  });
+  document.getElementById('proto-section').classList.toggle('show',src==='protocol');
+  document.getElementById('custom-section').classList.toggle('show',src==='custom');
+  document.getElementById('nodose-section').style.display=src==='nodose'?'block':'none';
+  if(src==='protocol') buildProtoSection();
+  if(src==='custom') buildCustomSection();
+  if(src==='nodose') buildNodose();
+}
+
+// PROTOCOL
+function buildProtoSection(){
+  var list=document.getElementById('ps-list');
+  list.innerHTML='';
+  if(!protocol.compounds||!protocol.compounds.length){
+    list.innerHTML='';
+    // Hide start card
+    var sc=document.getElementById('ps-start-card');if(sc)sc.style.display='none';
+    // Show no-protocol CTA
+    var noProto=document.getElementById('ps-no-proto');if(noProto)noProto.style.display='block';
+    // Update save button
+    var saveBtn=document.getElementById('save-btn');
+    if(saveBtn){saveBtn.textContent='Generate My Protocol First';saveBtn.style.background='var(--ink)';saveBtn.onclick=function(){window.location.href='/onboarding';};}
+    return;
+  }
+  // Has protocol — hide no-proto, show start card
+  var noProto=document.getElementById('ps-no-proto');if(noProto)noProto.style.display='none';
+  var sc2=document.getElementById('ps-start-card');if(sc2)sc2.style.display='block';
+  var saveBtn2=document.getElementById('save-btn');
+  if(saveBtn2){saveBtn2.textContent='Save Stack & Start Tracking';saveBtn2.style.background='';saveBtn2.onclick=saveStack;}
+  if(!activeIdxs.length) activeIdxs=protocol.compounds.map(function(_,i){return i;});
+  protocol.compounds.forEach(function(c,i){
+    var on=activeIdxs.indexOf(i)>-1;
+    var row=document.createElement('div');
+    row.className='ps-row'+(on?'':' off');
+    row.id='ps-row-'+i;
+    var info=document.createElement('div');
+    info.className='ps-info';
+    info.innerHTML='<div class="ps-name">'+c.name+'</div><div class="ps-meta">'+c.dose+' &middot; '+c.frequency+' &middot; '+c.timing+'</div>';
+    var btn=document.createElement('button');
+    btn.className='ps-btn '+(on?'on':'off');
+    btn.textContent=on?'- Remove':'+ Add';
+    btn.onclick=(function(idx,r,b){return function(){toggleProto(idx,r,b);};})(i,row,btn);
+    row.appendChild(info);row.appendChild(btn);list.appendChild(row);
+  });
+  // Add extra btn
+  var extra=document.createElement('button');
+  extra.style.cssText='margin-top:4px;width:100%;padding:10px;background:none;border:1.5px dashed var(--gray-3);border-radius:12px;color:var(--gray-4);font-size:13px;font-weight:500;cursor:pointer;font-family:inherit;transition:all 0.2s;';
+  extra.textContent='+ Add a compound not in your protocol';
+  extra.onmouseover=function(){this.style.borderColor='var(--blue)';this.style.color='var(--blue)';};
+  extra.onmouseout=function(){this.style.borderColor='var(--gray-3)';this.style.color='var(--gray-4)';};
+  extra.onclick=function(){pickSource('custom');if(protocol.compounds){protocol.compounds.forEach(function(c,i){if(activeIdxs.indexOf(i)>-1)addEntry(null,{name:c.name,dose:parseFloat(c.dose)+'',unit:c.dose.replace(/[0-9.]/g,'').trim()||'mcg',route:c.route||'SubQ',frequency:c.frequency,timing:c.timing,vialSize:'',vialUnit:'mg'});});}toast('Switched to custom — add your extra compound');};
+  list.appendChild(extra);
+  // Chips
+  var chips=document.getElementById('ps-chips');
+  chips.innerHTML='';
+  [['Starting today','today'],['3 days ago','3'],['1 week','7'],['2 weeks','14'],['1 month','30']].forEach(function(o){
+    var btn=document.createElement('button');
+    btn.className='chip';btn.textContent=o[0];
+    btn.onclick=function(){
+      chips.querySelectorAll('.chip').forEach(function(b){b.classList.remove('sel');});
+      btn.classList.add('sel');
+      var d=new Date();if(o[1]!=='today')d.setDate(d.getDate()-parseInt(o[1]));
+      var ds=d.toISOString().split('T')[0];
+      document.getElementById('ps-date').style.display='none';
+      document.getElementById('ps-date').value=ds;onProtoDate(ds);
+    };
+    chips.appendChild(btn);
+  });
+  // Add custom date chip
+  var customChip=document.createElement('button');
+  customChip.className='chip';customChip.textContent='Custom date';
+  customChip.onclick=function(){
+    chips.querySelectorAll('.chip').forEach(function(b){b.classList.remove('sel');});
+    customChip.classList.add('sel');
+    document.getElementById('ps-date').style.display='block';
+    document.getElementById('ps-date').focus();
+  };
+  chips.appendChild(customChip);
+
+  if(customStack.globalStartDate){
+    document.getElementById('ps-date').value=customStack.globalStartDate;
+    document.getElementById('ps-helper').innerHTML=daysHtml(customStack.globalStartDate);
+  }
+}
+
+function toggleProto(idx,rowEl,btn){
+  var pos=activeIdxs.indexOf(idx);
+  var on;
+  if(pos>-1){activeIdxs.splice(pos,1);on=false;}else{activeIdxs.push(idx);activeIdxs.sort(function(a,b){return a-b;});on=true;}
+  rowEl.classList.toggle('off',!on);
+  btn.className='ps-btn '+(on?'on':'off');
+  btn.textContent=on?'- Remove':'+ Add';
+}
+
+function onProtoDate(val){
+  customStack.globalStartDate=val;
+  var d=new Date(val+'T12:00:00');
+  localStorage.setItem('peptrak_protocol_start',d.getTime().toString());
+  document.getElementById('ps-helper').innerHTML=daysHtml(val);
+}
+
+// NODOSE
+function buildNodose(){
+  var el=document.getElementById('nodose-txt');
+  if(protocol.compounds&&protocol.compounds.length){
+    el.textContent='Your protocol includes '+protocol.compounds.map(function(c){return c.name;}).join(', ')+'. Head to Trident Labs to order — 99%+ purity, COA on every batch, fast shipping.';
+  }
+}
+
+// CUSTOM
+function buildCustomSection(){
+  var tList=document.getElementById('tpl-list');
+  if(!tList.children.length){
+    TEMPLATES.forEach(function(t){
+      var card=document.createElement('div');card.className='tpl-card';
+      card.innerHTML='<div class="tpl-top"><div class="tpl-name">'+t.icon+' '+t.name+'</div><div class="tpl-count">'+t.compounds.length+' compounds</div></div><div class="tpl-compounds">'+t.compounds.map(function(c){return c.name;}).join(', ')+'</div>';
+      card.onclick=(function(tmpl){return function(){applyTpl(tmpl);};})(t);
+      tList.appendChild(card);
+    });
+  }
+  document.getElementById('entries').innerHTML='';entryCount=0;
+
+  // Check for prefill from library "Add to Stack"
+  var prefill = [];
+  try{ prefill = JSON.parse(localStorage.getItem('peptrak_stack_prefill')||'[]'); }catch(e){}
+  if(prefill.length){
+    localStorage.removeItem('peptrak_stack_prefill');
+    prefill.forEach(function(c){ addEntry(null,{name:c.name,dose:c.dose+'',unit:c.unit||'mcg',route:c.route||'SubQ',frequency:c.frequency||'Daily',timing:c.timing||'Morning',vialSize:'',vialUnit:'mg'}); });
+    toast('Compounds added from library \u2014 fill in dose & vial size');
+    return;
+  }
+
+  if(customStack.source==='custom'&&customStack.compounds&&customStack.compounds.length){
+    customStack.compounds.forEach(function(c){addEntry(null,{name:c.name,dose:parseFloat(c.dose)+'',unit:c.dose.replace(/[0-9.]/g,'').trim()||'mcg',route:c.route,frequency:c.frequency,timing:c.timing,startDate:c.startDate,vialSize:c.vialSize+'',vialUnit:c.vialUnit||'mg',notes:c.notes||''});});
+  } else { addEntry(); }
+}
+
+function applyTpl(t){
+  document.getElementById('entries').innerHTML='';entryCount=0;
+  t.compounds.forEach(function(c){addEntry(null,c);});
+  toast(t.icon+' '+t.name+' loaded');
+}
+
+// ENTRY
+function addEntry(ri, sv){
+  var idx=entryCount++;
+  var wrap=document.getElementById('entries');
+  var el=document.createElement('div');
+  el.className='c-entry';el.id='e'+idx;el.dataset.idx=idx;
+
+  // Header
+  var hdr=document.createElement('div');hdr.className='c-hdr';hdr.onclick=function(){toggleBody(idx);};
+  var hl=document.createElement('div');hl.className='c-hdr-left';
+  var num=document.createElement('div');num.className='c-num';num.id='cnum'+idx;num.textContent=idx+1;
+  var ht=document.createElement('div');ht.className='c-hdr-text';
+  var nd=document.createElement('div');nd.className='c-name-disp'+(sv?'':' empty');nd.id='cnd'+idx;nd.textContent=sv?sv.name:'Compound '+(idx+1);
+  var sm=document.createElement('div');sm.className='c-summary';sm.id='csm'+idx;sm.textContent=sv?mkSummary(sv):'';
+  ht.appendChild(nd);ht.appendChild(sm);hl.appendChild(num);hl.appendChild(ht);
+  var hr2=document.createElement('div');hr2.className='c-hdr-right';
+  var chev=document.createElement('div');chev.className='c-chevron';chev.id='cchev'+idx;chev.innerHTML='<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="6 9 12 15 18 9"/></svg>';
+  var rmv=document.createElement('button');rmv.className='c-remove';rmv.textContent='×';rmv.onclick=function(e){e.stopPropagation();removeEntry(idx);};
+  hr2.appendChild(chev);hr2.appendChild(rmv);
+  hdr.appendChild(hl);hdr.appendChild(hr2);el.appendChild(hdr);
+
+  // Body
+  var body=document.createElement('div');body.className='c-body';body.id='cb'+idx;
+  if(sv) body.style.display='none';
+
+  var u=sv?sv.unit||'mcg':'mcg';
+  var vu=sv?sv.vialUnit||'mg':'mg';
+
+  body.innerHTML=
+    // Name
+    '<div class="field-group"><div class="field-label">Compound <span class="req">*</span></div><div class="field-err" id="en'+idx+'">Required</div><div class="ac-wrap"><input class="field-input" id="ci'+idx+'" placeholder="e.g. BPC-157" autocomplete="off" value="'+(sv?sv.name:'')+'"/><div class="ac-list" id="al'+idx+'"></div></div></div>'+
+    // Dose + unit
+    '<div class="f2"><div class="field-group"><div class="field-label">Dose <span class="req">*</span></div><div class="field-err" id="ed'+idx+'">Required</div><input class="field-input" id="cd'+idx+'" type="number" min="0" placeholder="e.g. 250" value="'+(sv&&sv.dose?sv.dose:'')+'"/></div>'+
+    '<div class="field-group"><div class="field-label">Unit</div><select class="field-input" id="cu'+idx+'"><option value="mcg"'+(u==='mcg'?' selected':'')+'>mcg</option><option value="mg"'+(u==='mg'?' selected':'')+'>mg</option><option value="iu"'+(u==='iu'?' selected':'')+'>IU</option></select></div></div>'+
+    // Route + Freq
+    '<div class="f2"><div class="field-group"><div class="field-label">Route</div><select class="field-input" id="cr'+idx+'">'+ROUTES.map(function(r){return '<option'+(sv&&sv.route===r?' selected':'')+'>'+r+'</option>';}).join('')+'</select></div>'+
+    '<div class="field-group"><div class="field-label">Frequency</div><select class="field-input" id="cf'+idx+'">'+FREQS.map(function(f){return '<option'+(sv&&sv.frequency===f?' selected':'')+'>'+f+'</option>';}).join('')+'</select></div></div>'+
+    // Timing
+    '<div class="field-group"><div class="field-label">Timing</div><select class="field-input" id="ct'+idx+'">'+TIMINGS.map(function(t){return '<option'+(sv&&sv.timing===t?' selected':'')+'>'+t+'</option>';}).join('')+'</select></div>'+
+    // Start date
+    '<div class="field-group"><div class="field-label">How long have you been taking this? <span class="req">*</span></div><div class="field-err" id="es'+idx+'">Select when you started</div><div class="chips-row" id="sc'+idx+'"></div><input type="date" class="field-input" id="cs'+idx+'" value="'+(sv&&sv.startDate?sv.startDate:'')+'"/><div class="days-helper" id="dh'+idx+'">'+(sv&&sv.startDate?daysHtml(sv.startDate):'')+'</div></div>'+
+    // Cycle warning
+    '<div class="cycle-warn" id="cw'+idx+'"></div>'+
+    // Vial
+    '<div class="f2"><div class="field-group"><div class="field-label">Vial size <span class="req">*</span></div><div class="field-err" id="ev'+idx+'">Required</div><input class="field-input" id="cv'+idx+'" type="number" min="0" placeholder="e.g. 5" value="'+(sv&&sv.vialSize?sv.vialSize:'')+'"/></div>'+
+    '<div class="field-group"><div class="field-label">Vial unit</div><select class="field-input" id="cvu'+idx+'"><option value="mg"'+(vu==='mg'?' selected':'')+'>mg</option><option value="mcg"'+(vu==='mcg'?' selected':'')+'>mcg</option><option value="iu"'+(vu==='iu'?' selected':'')+'>IU</option></select></div></div>'+
+    // Notes
+    '<div class="field-group"><div class="field-label">Notes (optional)</div><input class="field-input" id="cn'+idx+'" placeholder="Loading phase, injury notes..." value="'+(sv&&sv.notes?sv.notes:'')+'"/></div>';
+
+  el.appendChild(body);wrap.appendChild(el);
+
+  // Wire autocomplete
+  var ci=document.getElementById('ci'+idx);
+  ci.addEventListener('input',(function(i){return function(){acFilter(i,this.value);};})(idx));
+  ci.addEventListener('blur',(function(i){return function(){acHide(i);};})(idx));
+  ci.addEventListener('focus',(function(i){return function(){acFilter(i,this.value);};})(idx));
+  ci.addEventListener('change',(function(i){return function(){refreshSummary(i);cycleCheck(i);};})(idx));
+
+  // Wire start date chips
+  buildStartChips(idx, sv&&sv.startDate?sv.startDate:null);
+  document.getElementById('cs'+idx).addEventListener('change',(function(i){return function(){onStartChange(i,this.value);};})(idx));
+
+  // Wire summary refresh
+  ['cd','cu','cr','cf','ct'].forEach(function(prefix){
+    var el2=document.getElementById(prefix+idx);
+    if(el2) el2.addEventListener('change',(function(i){return function(){refreshSummary(i);};})(idx));
+  });
+
+  if(sv&&sv.startDate) setTimeout(function(){cycleCheck(idx);},50);
+}
+
+function mkSummary(c){
+  var parts=[];
+  var dose=c.dose+(c.unit||'');
+  if(dose.replace(/[a-z]/gi,'').trim()) parts.push(dose);
+  if(c.frequency) parts.push(c.frequency);
+  if(c.route) parts.push(c.route);
+  if(c.timing) parts.push(c.timing);
+  return parts.join(' · ');
+}
+
+function refreshSummary(idx){
+  var name=(document.getElementById('ci'+idx)||{}).value||'';
+  var dose=(document.getElementById('cd'+idx)||{}).value||'';
+  var unit=(document.getElementById('cu'+idx)||{value:'mcg'}).value;
+  var freq=(document.getElementById('cf'+idx)||{value:'Daily'}).value;
+  var route=(document.getElementById('cr'+idx)||{value:'SubQ'}).value;
+  var timing=(document.getElementById('ct'+idx)||{value:'Morning'}).value;
+  var nd=document.getElementById('cnd'+idx);
+  var sm=document.getElementById('csm'+idx);
+  if(nd&&name){nd.textContent=name;nd.classList.remove('empty');}
+  if(sm) sm.textContent=[dose?dose+unit:'',freq,route,timing].filter(Boolean).join(' · ');
+}
+
+function buildStartChips(idx, sel){
+  var wrap=document.getElementById('sc'+idx);
+  if(!wrap) return;
+  [{l:'Today',d:0},{l:'3 days ago',d:3},{l:'1 week',d:7},{l:'2 weeks',d:14},{l:'1 month',d:30},{l:'2 months',d:60}].forEach(function(o){
+    var d=new Date();d.setDate(d.getDate()-o.d);
+    var ds=d.toISOString().split('T')[0];
+    var btn=document.createElement('button');
+    btn.className='chip'+(sel===ds?' sel':'');
+    btn.textContent=o.l;
+    btn.onclick=(function(dateStr,b,i){return function(){
+      document.getElementById('sc'+i).querySelectorAll('.chip').forEach(function(x){x.classList.remove('sel');});
+      b.classList.add('sel');
+      document.getElementById('cs'+i).value=dateStr;
+      onStartChange(i,dateStr);
+    };})(ds,btn,idx);
+    wrap.appendChild(btn);
+  });
+}
+
+function onStartChange(idx,val){
+  document.getElementById('dh'+idx).innerHTML=daysHtml(val);
+  var f=document.getElementById('cs'+idx);if(f)f.classList.remove('err');
+  var e=document.getElementById('es'+idx);if(e)e.classList.remove('show');
+  cycleCheck(idx);
+}
+
+function cycleCheck(idx){
+  var warn=document.getElementById('cw'+idx);if(!warn)return;
+  var name=((document.getElementById('ci'+idx)||{}).value||'').toLowerCase();
+  var startDate=(document.getElementById('cs'+idx)||{}).value||'';
+  if(!name||!startDate){warn.classList.remove('show');return;}
+  var daysOn=Math.floor((Date.now()-new Date(startDate+'T12:00:00').getTime())/86400000);
+  var weeksOn=daysOn/7;
+  var lim=null;
+  Object.keys(CYCLE_LIMITS).forEach(function(k){if(name.indexOf(k)>-1)lim=CYCLE_LIMITS[k];});
+  if(!lim){warn.classList.remove('show');return;}
+  var exceeded=(lim.weeks&&weeksOn>=lim.weeks)||(lim.days&&daysOn>=lim.days);
+  if(exceeded){warn.textContent='⚠️ '+lim.msg;warn.classList.add('show');}
+  else warn.classList.remove('show');
+}
+
+function toggleBody(idx){
+  var b=document.getElementById('cb'+idx);var ch=document.getElementById('cchev'+idx);
+  if(!b)return;
+  var open=b.style.display!=='none';
+  b.style.display=open?'none':'flex';
+  if(ch)ch.style.transform=open?'':'rotate(180deg)';
+}
+
+function removeEntry(idx){
+  var el=document.getElementById('e'+idx);if(el)el.remove();
+  document.querySelectorAll('.c-entry').forEach(function(e,i){var n=e.querySelector('.c-num');if(n)n.textContent=i+1;});
+}
+
+// AUTOCOMPLETE
+function acFilter(idx,val){
+  var list=document.getElementById('al'+idx);
+  if(!list||!val||val.length<1){if(list)list.classList.remove('show');return;}
+  var q=val.toLowerCase();
+  var matches=COMPOUNDS.filter(function(c){return c.toLowerCase().indexOf(q)>-1;}).slice(0,8);
+  if(!matches.length){list.classList.remove('show');return;}
+  list.innerHTML=matches.map(function(m){
+    var re=new RegExp('('+val.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')+')','gi');
+    return '<div class="ac-item" data-n="'+m+'">'+m.replace(re,'<span class="ac-hi">$1</span>')+'</div>';
+  }).join('');
+  list.querySelectorAll('.ac-item').forEach(function(item){
+    item.addEventListener('mousedown',(function(n,i){return function(){
+      var inp=document.getElementById('ci'+i);if(inp){inp.value=n;refreshSummary(i);cycleCheck(i);}
+      document.getElementById('al'+i).classList.remove('show');
+    };})(item.dataset.n,idx));
+  });
+  list.classList.add('show');
+}
+
+function acHide(idx){
+  setTimeout(function(){
+    var l=document.getElementById('al'+idx);if(l)l.classList.remove('show');
+    refreshSummary(idx);
+  },200);
+}
+
+// VALIDATION
+function setErr(fid,eid,msg,show){
+  var f=document.getElementById(fid);var e=document.getElementById(eid);
+  if(f)f.classList.toggle('err',show);
+  if(e){e.textContent=msg||'Required';e.classList.toggle('show',show);}
+  if(f&&show)[f].forEach(function(el){['input','change'].forEach(function(ev){el.addEventListener(ev,function(){el.classList.remove('err');if(e)e.classList.remove('show');},{once:true});});});
+}
+
+function collectEntries(){
+  var entries=document.querySelectorAll('.c-entry');
+  var compounds=[];var hasErr=false;var firstErr=null;
+  entries.forEach(function(entry){
+    var idx=parseInt(entry.dataset.idx);if(isNaN(idx))return;
+    var name=(document.getElementById('ci'+idx)||{}).value||'';
+    var dose=(document.getElementById('cd'+idx)||{}).value||'';
+    var startDate=(document.getElementById('cs'+idx)||{}).value||'';
+    var vialSize=(document.getElementById('cv'+idx)||{}).value||'';
+    var ok=true;
+    if(!name.trim()){setErr('ci'+idx,'en'+idx,'Compound name required',true);ok=false;}else setErr('ci'+idx,'en'+idx,'',false);
+    if(!dose||parseFloat(dose)<=0){setErr('cd'+idx,'ed'+idx,'Dose required',true);ok=false;}else setErr('cd'+idx,'ed'+idx,'',false);
+    if(!startDate){setErr('cs'+idx,'es'+idx,'Select when you started',true);ok=false;}else setErr('cs'+idx,'es'+idx,'',false);
+    if(!vialSize||parseFloat(vialSize)<=0){setErr('cv'+idx,'ev'+idx,'Vial size required',true);ok=false;}else setErr('cv'+idx,'ev'+idx,'',false);
+    if(!ok){hasErr=true;if(!firstErr){firstErr=entry;var b=document.getElementById('cb'+idx);if(b)b.style.display='flex';}return;}
+    var unit=(document.getElementById('cu'+idx)||{value:'mcg'}).value;
+    var route=(document.getElementById('cr'+idx)||{value:'SubQ'}).value;
+    var freq=(document.getElementById('cf'+idx)||{value:'Daily'}).value;
+    var timing=(document.getElementById('ct'+idx)||{value:'Morning'}).value;
+    var vu=(document.getElementById('cvu'+idx)||{value:'mg'}).value;
+    var notes=(document.getElementById('cn'+idx)||{}).value||'';
+    compounds.push({name:name.trim(),dose:dose+unit,route:route,frequency:freq,timing:timing,startDate:startDate,vialSize:parseFloat(vialSize),vialUnit:vu,notes:notes,class:'Custom',fit_score:null,why:notes||'User-entered'});
+  });
+  if(hasErr){toast('Fill in all required fields');if(firstErr)firstErr.scrollIntoView({behavior:'smooth',block:'center'});return null;}
+  return compounds;
+}
+
+// SAVE
+function saveStack(){
+  var src=customStack.source;
+  if(!src){toast('Choose a tracking option above');return;}
+  if(src==='nodose'){toast('Order your peptides first, then come back');return;}
+  if(src==='protocol'){
+    if(!protocol.compounds||!protocol.compounds.length){toast('No protocol found — generate yours first');return;}
+    if(!customStack.globalStartDate){toast('Select when you started');return;}
+    var active=protocol.compounds.filter(function(_,i){return activeIdxs.indexOf(i)>-1;});
+    if(!active.length){toast('Add at least one compound');return;}
+    customStack.compounds=active;customStack.activeIdxs=activeIdxs;
+    // Set protocol start timestamp from chosen date
+    localStorage.setItem('peptrak_protocol_start', new Date(customStack.globalStartDate+'T12:00:00').getTime().toString());
+    var merged=Object.assign({},protocol,{compounds:active});
+    localStorage.setItem('peptrak_protocol',JSON.stringify(merged));
+    localStorage.setItem('peptrak_advisor_context','User is tracking protocol compounds: '+active.map(function(c){return c.name+' '+c.dose;}).join(', '));
+  } else {
+    var compounds=collectEntries();
+    if(!compounds)return;
+    if(!compounds.length){toast('Add at least one compound');return;}
+    customStack.compounds=compounds;
+    var earliest=compounds.reduce(function(m,c){return c.startDate&&c.startDate<m?c.startDate:m;},compounds[0].startDate||'');
+    if(earliest){customStack.globalStartDate=earliest;localStorage.setItem('peptrak_protocol_start',new Date(earliest+'T12:00:00').getTime().toString());}
+    var po={_isCustomStack:true,compounds:compounds,headline:'Custom stack — '+compounds.length+' compound'+(compounds.length>1?'s':''),duration:'12 weeks',protocol_notes:'User-entered custom stack.',advisor_context:'User is running a custom stack: '+compounds.map(function(c){return c.name+' '+c.dose;}).join(', ')};
+    localStorage.setItem('peptrak_protocol',JSON.stringify(po));
+    localStorage.setItem('peptrak_advisor_context',po.advisor_context);
+  }
+  localStorage.setItem('peptrak_custom_stack',JSON.stringify(customStack));
+  var btn=document.getElementById('save-btn');btn.textContent='✓ Stack saved!';btn.classList.add('ok');
+  setTimeout(function(){window.location.href='/tracker';},900);
+}
+
+// CURRENT STACK
+function renderCurrStack(){
+  var wrap=document.getElementById('curr-wrap');
+  var src=customStack.source;
+  var compounds=src==='protocol'?(protocol.compounds||[]):(customStack.compounds||[]);
+  if(!compounds.length||!src){wrap.innerHTML='';return;}
+  var html='<div class="curr-stack"><div class="curr-hdr"><div class="curr-title">Active stack — '+compounds.length+' compound'+(compounds.length>1?'s':'')+'</div><button class="curr-clear" onclick="clearStack()">Clear</button></div>';
+  compounds.forEach(function(c){
+    var dLine='';
+    if(c.startDate){var ago=Math.floor((Date.now()-new Date(c.startDate+'T12:00:00').getTime())/86400000);dLine=' &middot; '+ago+'d in &middot; Wk '+(Math.floor(ago/7)+1);}
+    html+='<div class="curr-row"><div><div class="curr-name">'+c.name+'</div><div class="curr-meta">'+c.dose+' &middot; '+c.frequency+dLine+'</div></div><div class="curr-badge '+(src==='custom'?'custom':'protocol')+'">'+(src==='custom'?'Custom':'Protocol')+'</div></div>';
+  });
+  html+='</div>';
+  wrap.innerHTML=html;
+}
+
+function clearStack(){
+  customStack={source:null,compounds:[],globalStartDate:null,activeIdxs:[]};activeIdxs=[];
+  localStorage.removeItem('peptrak_custom_stack'); // Note: protocol_start preserved intentionally
+  renderCurrStack();
+  ['protocol','custom','nodose'].forEach(function(s){var el=document.getElementById('opt-'+s);if(el)el.classList.remove('sel');});
+  document.getElementById('proto-section').classList.remove('show');
+  document.getElementById('custom-section').classList.remove('show');
+  document.getElementById('nodose-section').style.display='none';
+  document.getElementById('entries').innerHTML='';entryCount=0;
+}
+
+// INIT
+(function(){
+  renderCurrStack();
+  if(customStack.source) pickSource(customStack.source);
+})();
+</script>
+</body>
+</html>

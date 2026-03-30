@@ -1,0 +1,1018 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>PepTrak Admin</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+:root{
+  --blue:#0876FF;--blue-dim:rgba(8,118,255,0.15);--blue-t:#60A5FA;
+  --green:#34D399;--green-dim:rgba(52,211,153,0.12);
+  --amber:#FBBF24;--amber-dim:rgba(251,191,36,0.12);
+  --red:#F87171;--red-dim:rgba(248,113,113,0.12);
+  --purple:#A78BFA;--purple-dim:rgba(167,139,250,0.12);
+  --bg:#0C0E13;--surf:#1A1D26;--surf2:#1E2130;
+  --bdr:rgba(255,255,255,0.06);--bdr2:rgba(255,255,255,0.1);
+  --t:#fff;--t2:rgba(255,255,255,0.6);--t3:rgba(255,255,255,0.35);--t4:rgba(255,255,255,0.18);
+  --font:-apple-system,BlinkMacSystemFont,'SF Pro Display',sans-serif;
+}
+body{font-family:var(--font);background:var(--bg);color:var(--t);-webkit-font-smoothing:antialiased;min-height:100vh;}
+
+/* ── LOGIN ── */
+.login-wrap{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px;}
+.login-card{background:var(--surf);border:1px solid var(--bdr2);border-radius:20px;padding:40px 36px;width:100%;max-width:360px;text-align:center;}
+.login-logo{width:48px;height:48px;border-radius:14px;background:var(--blue);display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:800;color:#fff;margin:0 auto 20px;}
+.login-title{font-size:20px;font-weight:700;margin-bottom:6px;}
+.login-sub{font-size:13px;color:var(--t3);margin-bottom:28px;}
+.login-input{width:100%;background:rgba(255,255,255,0.06);border:1px solid var(--bdr2);border-radius:10px;padding:13px 14px;font-size:16px;font-family:var(--font);color:var(--t);outline:none;margin-bottom:10px;}
+.login-input:focus{border-color:rgba(8,118,255,0.6);}
+.login-input::placeholder{color:var(--t4);}
+.login-btn{width:100%;padding:13px;background:var(--blue);color:#fff;border:none;border-radius:10px;font-size:14px;font-weight:700;font-family:var(--font);cursor:pointer;}
+.login-err{font-size:12px;color:var(--red);margin-top:10px;display:none;}
+
+/* ── LAYOUT ── */
+.app{display:none;min-height:100vh;}
+.layout{display:flex;min-height:100vh;}
+.sidebar{width:216px;flex-shrink:0;background:var(--bg);border-right:1px solid var(--bdr);display:flex;flex-direction:column;position:fixed;top:0;left:0;bottom:0;z-index:50;}
+.sb-logo{display:flex;align-items:center;gap:10px;padding:18px 16px;border-bottom:1px solid var(--bdr);}
+.sb-mark{width:30px;height:30px;border-radius:9px;background:var(--blue);display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:800;color:#fff;flex-shrink:0;}
+.sb-name{font-size:14px;font-weight:700;}
+.sb-badge{font-size:9px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:rgba(248,113,113,0.8);margin-top:1px;}
+.sb-nav{padding:14px 10px;flex:1;display:flex;flex-direction:column;gap:2px;}
+.sb-section{font-size:9px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:var(--t4);padding:10px 10px 4px;}
+.sb-item{display:flex;align-items:center;gap:9px;padding:9px 10px;border-radius:10px;font-size:13px;font-weight:500;color:var(--t3);cursor:pointer;border:none;background:none;width:100%;text-align:left;font-family:var(--font);transition:all 0.15s;}
+.sb-item:hover{background:rgba(255,255,255,0.05);color:var(--t2);}
+.sb-item.on{background:var(--blue-dim);color:var(--blue-t);}
+.sb-alert{width:6px;height:6px;border-radius:50%;background:var(--red);margin-left:auto;flex-shrink:0;}
+.sb-bottom{padding:12px 10px;border-top:1px solid var(--bdr);}
+.sb-user{display:flex;align-items:center;gap:8px;padding:8px 10px;}
+.sb-avatar{width:28px;height:28px;border-radius:50%;background:#1E40AF;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:#93C5FD;flex-shrink:0;}
+.sb-signout{font-size:12px;color:var(--t4);background:none;border:none;cursor:pointer;font-family:var(--font);margin-left:auto;padding:4px 8px;border-radius:6px;}
+.sb-signout:hover{color:var(--t2);background:rgba(255,255,255,0.06);}
+
+/* ── MAIN ── */
+.main{flex:1;margin-left:216px;display:flex;flex-direction:column;}
+.topbar{height:52px;border-bottom:1px solid var(--bdr);display:flex;align-items:center;justify-content:space-between;padding:0 24px;background:var(--bg);position:sticky;top:0;z-index:40;}
+.topbar-title{font-size:15px;font-weight:700;}
+.topbar-right{display:flex;align-items:center;gap:12px;}
+.live-pill{display:flex;align-items:center;gap:5px;font-size:11px;color:var(--t3);}
+.live-dot{width:6px;height:6px;border-radius:50%;background:var(--green);box-shadow:0 0 5px rgba(52,211,153,0.5);}
+.refresh-btn{display:flex;align-items:center;gap:6px;padding:7px 13px;border-radius:8px;border:1px solid var(--bdr2);background:rgba(255,255,255,0.05);font-size:12px;font-weight:600;color:var(--t2);cursor:pointer;font-family:var(--font);}
+.refresh-btn:hover{background:rgba(255,255,255,0.09);color:var(--t);}
+
+/* ── CONTENT ── */
+.content{padding:22px 24px;background:#0F1117;flex:1;}
+
+/* ── ALERT ── */
+.alert{background:rgba(251,191,36,0.08);border:1px solid rgba(251,191,36,0.2);border-radius:10px;padding:10px 14px;display:flex;align-items:center;gap:10px;margin-bottom:18px;}
+.alert-dot{width:6px;height:6px;border-radius:50%;background:var(--amber);flex-shrink:0;}
+.alert-txt{font-size:12px;color:var(--amber);font-weight:500;}
+
+/* ── STAT GRID ── */
+.stats-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:18px;}
+.stat{background:var(--surf);border:1px solid var(--bdr);border-radius:14px;padding:15px 16px;transition:border-color 0.15s;}
+.stat:hover{border-color:var(--bdr2);}
+.stat-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;}
+.stat-label{font-size:11px;font-weight:600;color:var(--t3);}
+.stat-icon{width:28px;height:28px;border-radius:8px;display:flex;align-items:center;justify-content:center;}
+.stat-num{font-size:26px;font-weight:700;letter-spacing:-0.8px;}
+.stat-sub{font-size:10px;color:var(--t4);margin-top:4px;}
+.stat-trend{display:flex;align-items:center;gap:3px;margin-top:4px;font-size:11px;}
+.up{color:var(--green);}
+.warn{color:var(--amber);}
+.muted{color:var(--t4);}
+
+/* ── CHART ROW ── */
+.chart-row{display:grid;grid-template-columns:2fr 1fr;gap:14px;margin-bottom:18px;}
+.card{background:var(--surf);border:1px solid var(--bdr);border-radius:14px;padding:18px 20px;}
+.card-title{font-size:13px;font-weight:700;margin-bottom:2px;}
+.card-sub{font-size:11px;color:var(--t3);margin-bottom:16px;}
+.chart-wrap{height:140px;position:relative;}
+
+/* ── FUNNEL ── */
+.funnel-list{display:flex;flex-direction:column;gap:10px;}
+.funnel-row{display:flex;align-items:center;gap:10px;}
+.funnel-label{font-size:12px;color:var(--t2);width:130px;flex-shrink:0;}
+.funnel-bar-wrap{flex:1;height:6px;background:rgba(255,255,255,0.07);border-radius:6px;overflow:hidden;}
+.funnel-bar{height:100%;border-radius:6px;transition:width 0.6s ease;}
+.funnel-num{font-size:12px;font-weight:700;color:var(--t);width:36px;text-align:right;flex-shrink:0;}
+.funnel-pct{font-size:10px;color:var(--t4);width:36px;text-align:right;flex-shrink:0;}
+
+/* ── TWO-COL ROW ── */
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:18px;}
+
+/* ── TABLE CARD ── */
+.table-card{background:var(--surf);border:1px solid var(--bdr);border-radius:14px;overflow:hidden;margin-bottom:16px;}
+.table-hdr{display:flex;align-items:center;justify-content:space-between;padding:14px 18px;border-bottom:1px solid var(--bdr);}
+.table-title{font-size:13px;font-weight:700;}
+.table-sub{font-size:11px;color:var(--t3);}
+.tc-controls{display:flex;gap:8px;}
+.tc-search{background:rgba(255,255,255,0.06);border:1px solid var(--bdr2);border-radius:8px;padding:7px 12px;font-size:12px;color:var(--t);outline:none;font-family:var(--font);width:190px;}
+.tc-search::placeholder{color:var(--t4);}
+.tc-search:focus{border-color:rgba(8,118,255,0.5);}
+.tc-sel{background:rgba(255,255,255,0.06);border:1px solid var(--bdr2);border-radius:8px;padding:7px 10px;font-size:12px;color:var(--t2);outline:none;font-family:var(--font);}
+table{width:100%;border-collapse:collapse;}
+th{font-size:10px;font-weight:700;letter-spacing:0.07em;text-transform:uppercase;color:var(--t4);padding:9px 16px;text-align:left;background:rgba(255,255,255,0.02);border-bottom:1px solid var(--bdr);}
+td{font-size:12px;color:var(--t2);padding:11px 16px;border-bottom:1px solid var(--bdr);vertical-align:middle;}
+tr:last-child td{border-bottom:none;}
+tr:hover td{background:rgba(255,255,255,0.02);}
+.email-cell{font-weight:600;color:var(--blue-t);cursor:pointer;max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.email-cell:hover{text-decoration:underline;}
+
+/* ── BADGES ── */
+.badge{font-size:10px;font-weight:700;padding:3px 8px;border-radius:20px;display:inline-block;}
+.b-active{background:var(--green-dim);color:var(--green);}
+.b-trialing{background:var(--blue-dim);color:var(--blue-t);}
+.b-past_due,.b-unpaid{background:var(--amber-dim);color:var(--amber);}
+.b-cancelled,.b-canceled{background:rgba(255,255,255,0.07);color:var(--t3);}
+.b-manual{background:var(--purple-dim);color:var(--purple);}
+.b-atRisk{background:var(--red-dim);color:var(--red);}
+.plan-a{font-size:10px;font-weight:700;padding:2px 7px;border-radius:20px;background:var(--amber-dim);color:var(--amber);}
+.plan-m{font-size:10px;font-weight:700;padding:2px 7px;border-radius:20px;background:rgba(255,255,255,0.07);color:var(--t3);}
+
+/* ── BUTTONS ── */
+.view-btn{font-size:11px;font-weight:600;padding:5px 12px;border-radius:8px;border:1px solid var(--bdr2);background:rgba(255,255,255,0.06);color:var(--t2);cursor:pointer;font-family:var(--font);transition:all 0.15s;}
+.view-btn:hover{background:var(--blue-dim);border-color:rgba(8,118,255,0.4);color:var(--blue-t);}
+.act{padding:7px 14px;border-radius:8px;border:none;cursor:pointer;font-size:12px;font-weight:700;font-family:var(--font);transition:all 0.15s;}
+.act-g{background:var(--green-dim);color:var(--green);}
+.act-g:hover{background:var(--green);color:#032917;}
+.act-r{background:var(--red-dim);color:var(--red);}
+.act-r:hover{background:var(--red);color:#fff;}
+.act-b{background:var(--blue-dim);color:var(--blue-t);}
+.act-b:hover{background:var(--blue);color:#fff;}
+.act-d{background:rgba(255,255,255,0.07);color:var(--t2);}
+.act-d:hover{background:rgba(255,255,255,0.12);color:var(--t);}
+
+/* ── PAGINATION ── */
+.pagination{display:flex;align-items:center;justify-content:space-between;padding:12px 18px;border-top:1px solid var(--bdr);}
+.page-btn{padding:6px 14px;border-radius:8px;border:1px solid var(--bdr2);background:rgba(255,255,255,0.05);font-size:12px;font-weight:600;cursor:pointer;font-family:var(--font);color:var(--t2);}
+.page-btn:disabled{opacity:0.35;cursor:default;}
+.page-btn:not(:disabled):hover{background:rgba(255,255,255,0.09);color:var(--t);}
+.page-info{font-size:12px;color:var(--t3);}
+
+/* ── MODAL ── */
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(7,9,13,0.8);backdrop-filter:blur(4px);z-index:200;align-items:center;justify-content:center;padding:24px;}
+.modal-overlay.open{display:flex;}
+.modal{background:var(--surf2);border:1px solid var(--bdr2);border-radius:18px;width:100%;max-width:520px;max-height:88vh;overflow-y:auto;}
+.modal-hdr{padding:18px 20px;border-bottom:1px solid var(--bdr);display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;background:var(--surf2);z-index:1;}
+.modal-title{font-size:14px;font-weight:700;max-width:380px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.modal-x{width:24px;height:24px;border-radius:50%;background:rgba(255,255,255,0.08);border:none;color:var(--t3);cursor:pointer;font-size:13px;font-family:var(--font);}
+.modal-body{padding:18px 20px;}
+.ms-lbl{font-size:9px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:var(--t4);margin:14px 0 8px;}
+.ms-lbl:first-child{margin-top:0;}
+.mrow{display:flex;align-items:center;justify-content:space-between;padding:8px 11px;background:rgba(255,255,255,0.04);border-radius:8px;margin-bottom:4px;}
+.mrl{font-size:12px;color:var(--t3);}
+.mrv{font-size:12px;font-weight:600;color:var(--t);}
+.mrv a{color:var(--blue-t);font-size:11px;text-decoration:none;}
+.mrv a:hover{text-decoration:underline;}
+.modal-actions{margin-top:12px;}
+.status-row{display:flex;gap:8px;margin-bottom:10px;}
+.status-sel{flex:1;background:rgba(255,255,255,0.06);border:1px solid var(--bdr2);border-radius:8px;padding:9px;font-size:13px;font-family:var(--font);color:var(--t);outline:none;}
+.set-btn{padding:9px 14px;background:var(--blue-dim);border:1px solid rgba(8,118,255,0.4);border-radius:8px;font-size:12px;font-weight:700;color:var(--blue-t);cursor:pointer;font-family:var(--font);}
+.act-row{display:flex;gap:8px;flex-wrap:wrap;}
+.act-btn-full{flex:1;min-width:130px;padding:10px;border-radius:10px;border:none;cursor:pointer;font-size:12px;font-weight:700;font-family:var(--font);}
+
+/* ── COMPOUND BAR ── */
+.comp-row{display:flex;align-items:center;gap:10px;margin-bottom:8px;}
+.comp-name{font-size:12px;color:var(--t2);width:160px;flex-shrink:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.comp-bar-wrap{flex:1;height:5px;background:rgba(255,255,255,0.07);border-radius:5px;overflow:hidden;}
+.comp-bar{height:100%;border-radius:5px;background:var(--blue-t);}
+.comp-count{font-size:11px;font-weight:700;color:var(--t);width:24px;text-align:right;flex-shrink:0;}
+
+/* ── GOAL PILLS ── */
+.goal-grid{display:flex;flex-wrap:wrap;gap:6px;}
+.goal-pill{display:flex;align-items:center;gap:6px;padding:5px 12px;border-radius:20px;background:rgba(255,255,255,0.05);border:1px solid var(--bdr);}
+.goal-pill-name{font-size:12px;color:var(--t2);}
+.goal-pill-count{font-size:11px;font-weight:700;color:var(--t);}
+
+/* ── AT RISK CARD ── */
+.risk-item{display:flex;align-items:center;justify-content:space-between;padding:10px 12px;background:rgba(255,255,255,0.03);border-radius:10px;margin-bottom:6px;border:1px solid var(--bdr);}
+.risk-email{font-size:12px;font-weight:600;color:var(--blue-t);max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.risk-detail{font-size:11px;color:var(--t3);margin-top:2px;}
+.risk-badge-wrap{flex-shrink:0;}
+
+/* ── MISC ── */
+.loading{text-align:center;padding:32px;color:var(--t4);}
+.spinner{display:inline-block;width:18px;height:18px;border:2px solid rgba(255,255,255,0.1);border-top-color:var(--blue-t);border-radius:50%;animation:spin 0.7s linear infinite;}
+@keyframes spin{to{transform:rotate(360deg);}}
+.empty{text-align:center;padding:40px 24px;color:var(--t4);font-size:13px;}
+.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:var(--surf2);border:1px solid var(--bdr2);color:var(--t);font-size:13px;font-weight:600;padding:12px 20px;border-radius:12px;z-index:500;display:none;white-space:nowrap;}
+.divider{height:1px;background:var(--bdr);margin:12px 0;}
+.kv{display:flex;justify-content:space-between;margin-bottom:7px;}
+.kv:last-child{margin-bottom:0;}
+.kv-l{font-size:11px;color:var(--t3);}
+.kv-v{font-size:11px;font-weight:700;}
+
+@media(max-width:1100px){.stats-grid{grid-template-columns:repeat(3,1fr);}.chart-row{grid-template-columns:1fr;}}
+@media(max-width:900px){.sidebar{width:60px;}.sb-name,.sb-badge,.sb-item>span,.sb-signout,.sb-section{display:none;}.sb-logo{justify-content:center;padding:14px 0;}.sb-item{justify-content:center;padding:12px 0;}.sb-alert{display:none;}.main{margin-left:60px;}.stats-grid{grid-template-columns:1fr 1fr;}.two-col,.chart-row{grid-template-columns:1fr;}}
+@media(max-width:600px){.stats-grid{grid-template-columns:1fr 1fr;}th:nth-child(n+4),td:nth-child(n+4){display:none;}}
+</style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div class="login-wrap" id="login-wrap">
+  <div class="login-card">
+    <div class="login-logo">P</div>
+    <div class="login-title">PepTrak Admin</div>
+    <div class="login-sub">Enter your admin secret to continue</div>
+    <input class="login-input" type="password" id="secret-input" placeholder="Admin secret" onkeydown="if(event.key==='Enter')doLogin()"/>
+    <button class="login-btn" onclick="doLogin()">Sign in</button>
+    <div class="login-err" id="login-err">Incorrect secret. Try again.</div>
+  </div>
+</div>
+
+<!-- APP -->
+<div class="app" id="app">
+<div class="layout">
+
+<!-- SIDEBAR -->
+<div class="sidebar">
+  <div class="sb-logo">
+    <div class="sb-mark">P</div>
+    <div><div class="sb-name">PepTrak</div><div class="sb-badge">Admin</div></div>
+  </div>
+  <div class="sb-nav">
+    <div class="sb-section">Business</div>
+    <button class="sb-item on" onclick="sw('overview',this)">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+      <span>Overview</span>
+    </button>
+    <button class="sb-item" onclick="sw('revenue',this)">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg>
+      <span>Revenue</span>
+    </button>
+    <div class="sb-section">Users</div>
+    <button class="sb-item" onclick="sw('users',this)" id="sb-users">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg>
+      <span>All Users</span>
+    </button>
+    <button class="sb-item" onclick="sw('atrisk',this)" id="sb-atrisk">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+      <span>At Risk</span>
+      <div class="sb-alert" id="risk-dot" style="display:none;"></div>
+    </button>
+    <button class="sb-item" onclick="sw('stripe',this)">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>
+      <span>Stripe Live</span>
+    </button>
+    <div class="sb-section">Analytics</div>
+    <button class="sb-item" onclick="sw('analytics',this)">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+      <span>Usage</span>
+    </button>
+    <button class="sb-item" onclick="sw('affiliates',this)">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><path d="M8.56 2.75c4.37 6.03 6.02 9.42 8.03 17.72m2.54-15.38c-3.72 4.35-8.94 5.66-16.88 5.85m19.5 1.9c-3.5-.93-6.63-.82-8.94 0-2.58.92-5.01 2.86-7.44 6.32"/></svg>
+      <span>Affiliates</span>
+    </button>
+  </div>
+  <div class="sb-bottom">
+    <div class="sb-user">
+      <div class="sb-avatar">N</div>
+      <button class="sb-signout" onclick="signOut()">Sign out</button>
+    </div>
+  </div>
+</div>
+
+<!-- MAIN -->
+<div class="main">
+  <div class="topbar">
+    <div class="topbar-title" id="topbar-title">Overview</div>
+    <div class="topbar-right">
+      <div class="live-pill"><div class="live-dot"></div><span id="refresh-time">Loading...</span></div>
+      <button class="refresh-btn" onclick="refreshTab()">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 11-2.12-9.36L23 10"/></svg>
+        Refresh
+      </button>
+    </div>
+  </div>
+
+  <div class="content">
+
+    <!-- ── OVERVIEW ── -->
+    <div id="tab-overview">
+      <div class="alert" id="ov-alert" style="display:none;">
+        <div class="alert-dot"></div>
+        <div class="alert-txt" id="ov-alert-txt"></div>
+      </div>
+      <div class="stats-grid" id="ov-stats"><div class="loading"><div class="spinner"></div></div></div>
+      <div class="chart-row">
+        <div class="card">
+          <div class="card-title">New signups — last 30 days</div>
+          <div class="card-sub" id="ov-signup-sub">Loading...</div>
+          <div class="chart-wrap"><canvas id="signup-chart"></canvas></div>
+        </div>
+        <div class="card">
+          <div class="card-title">Activation funnel</div>
+          <div class="card-sub">Signed up → protocol generated</div>
+          <div class="funnel-list" id="ov-funnel"><div class="loading"><div class="spinner"></div></div></div>
+        </div>
+      </div>
+      <div class="two-col">
+        <div class="card">
+          <div class="card-title">Status breakdown</div>
+          <div class="card-sub">Current user distribution</div>
+          <div id="ov-status"></div>
+        </div>
+        <div class="card">
+          <div class="card-title">Primary goals</div>
+          <div class="card-sub">What users are optimizing for</div>
+          <div class="goal-grid" id="ov-goals"></div>
+        </div>
+      </div>
+      <div class="table-card">
+        <div class="table-hdr">
+          <div class="table-title">Recent signups</div>
+          <div class="table-sub" id="ov-recent-count"></div>
+        </div>
+        <div id="ov-recent"></div>
+      </div>
+    </div>
+
+    <!-- ── REVENUE ── -->
+    <div id="tab-revenue" style="display:none;">
+      <div class="stats-grid" id="rev-stats"><div class="loading"><div class="spinner"></div></div></div>
+      <div class="chart-row">
+        <div class="card">
+          <div class="card-title">Revenue trend</div>
+          <div class="card-sub">Estimated MRR based on active subscriptions</div>
+          <div class="chart-wrap"><canvas id="rev-chart"></canvas></div>
+        </div>
+        <div class="card">
+          <div class="card-title">Plan breakdown</div>
+          <div class="card-sub">Annual vs monthly split</div>
+          <div style="position:relative;height:120px;margin-bottom:16px;"><canvas id="plan-chart"></canvas></div>
+          <div id="plan-legend"></div>
+        </div>
+      </div>
+      <div class="two-col">
+        <div class="card">
+          <div class="card-title">Key metrics</div>
+          <div class="card-sub">Business health indicators</div>
+          <div id="rev-kpis"></div>
+        </div>
+        <div class="card">
+          <div class="card-title">Affiliate commissions</div>
+          <div class="card-sub">Pending vs paid</div>
+          <div id="rev-comms"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── ALL USERS ── -->
+    <div id="tab-users" style="display:none;">
+      <div class="table-card">
+        <div class="table-hdr">
+          <div class="table-title">All users</div>
+          <div class="tc-controls">
+            <input class="tc-search" type="text" id="user-search" placeholder="Search email..." oninput="debounce()"/>
+            <select class="tc-sel" id="status-filter" onchange="loadUsers()">
+              <option value="">All statuses</option>
+              <option value="trialing">Trialing</option>
+              <option value="active">Active</option>
+              <option value="past_due">Past due</option>
+              <option value="cancelled">Cancelled</option>
+            </select>
+          </div>
+        </div>
+        <div id="users-table"><div class="loading"><div class="spinner"></div></div></div>
+        <div class="pagination" id="users-pag" style="display:none;">
+          <button class="page-btn" id="prev-btn" onclick="changePage(-1)" disabled>← Prev</button>
+          <span class="page-info" id="page-info"></span>
+          <button class="page-btn" id="next-btn" onclick="changePage(1)" disabled>Next →</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── AT RISK ── -->
+    <div id="tab-atrisk" style="display:none;">
+      <div class="two-col">
+        <div class="table-card">
+          <div class="table-hdr">
+            <div><div class="table-title" style="color:var(--amber);">⚠ Trials ending in 3 days</div><div class="table-sub">Need conversion attention now</div></div>
+          </div>
+          <div id="risk-3d" style="padding:12px;"></div>
+        </div>
+        <div class="table-card">
+          <div class="table-hdr">
+            <div><div class="table-title" style="color:var(--amber);">Trials ending in 7 days</div><div class="table-sub">Upcoming conversions</div></div>
+          </div>
+          <div id="risk-7d" style="padding:12px;"></div>
+        </div>
+      </div>
+      <div class="two-col">
+        <div class="table-card">
+          <div class="table-hdr">
+            <div><div class="table-title" style="color:var(--red);">Past due</div><div class="table-sub">Payment failing — needs action</div></div>
+          </div>
+          <div id="risk-pastdue" style="padding:12px;"></div>
+        </div>
+        <div class="table-card">
+          <div class="table-hdr">
+            <div><div class="table-title">Never activated</div><div class="table-sub">Signed up but no protocol generated</div></div>
+          </div>
+          <div id="risk-unactivated" style="padding:12px;"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── STRIPE LIVE ── -->
+    <div id="tab-stripe" style="display:none;">
+      <div class="table-card">
+        <div class="table-hdr">
+          <div class="table-title">Live Stripe subscriptions</div>
+          <div class="table-sub">Direct from Stripe API — real-time accurate</div>
+        </div>
+        <div id="stripe-table"><div class="loading"><div class="spinner"></div></div></div>
+      </div>
+    </div>
+
+    <!-- ── USAGE ANALYTICS ── -->
+    <div id="tab-analytics" style="display:none;">
+      <div class="two-col">
+        <div class="card">
+          <div class="card-title">Top compounds</div>
+          <div class="card-sub">Most prescribed across all protocols</div>
+          <div id="an-compounds"><div class="loading"><div class="spinner"></div></div></div>
+        </div>
+        <div class="card">
+          <div class="card-title">Primary goals</div>
+          <div class="card-sub">What users are here for</div>
+          <div class="goal-grid" id="an-goals"></div>
+        </div>
+      </div>
+      <div class="two-col">
+        <div class="card">
+          <div class="card-title">Activation funnel</div>
+          <div class="card-sub">Step-by-step user journey</div>
+          <div class="funnel-list" id="an-funnel"></div>
+        </div>
+        <div class="card">
+          <div class="card-title">Protocol stats</div>
+          <div class="card-sub">Across all generated protocols</div>
+          <div id="an-proto-stats"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── AFFILIATES ── -->
+    <div id="tab-affiliates" style="display:none;">
+      <div class="stats-grid" style="grid-template-columns:repeat(3,1fr);" id="aff-stats">
+        <div class="loading"><div class="spinner"></div></div>
+      </div>
+      <div class="table-card">
+        <div class="table-hdr"><div class="table-title">Affiliate leaderboard</div><div class="table-sub">Sorted by total signups</div></div>
+        <div id="aff-table"><div class="loading"><div class="spinner"></div></div></div>
+      </div>
+      <div class="table-card" style="margin-top:0;">
+        <div class="table-hdr"><div class="table-title">Recent commissions</div></div>
+        <div id="aff-comms"><div class="loading"><div class="spinner"></div></div></div>
+      </div>
+    </div>
+
+  </div><!-- /content -->
+</div><!-- /main -->
+</div><!-- /layout -->
+</div><!-- /app -->
+
+<!-- USER DETAIL MODAL -->
+<div class="modal-overlay" id="user-modal" onclick="if(event.target===this)closeModal()">
+  <div class="modal">
+    <div class="modal-hdr">
+      <div class="modal-title" id="modal-email">—</div>
+      <button class="modal-x" onclick="closeModal()">✕</button>
+    </div>
+    <div class="modal-body" id="modal-body"><div class="loading"><div class="spinner"></div></div></div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+var SECRET='', currentTab='overview', currentPage=0, PAGE=25, searchT=null;
+var cachedStats=null, signupChart=null, revChart=null, planChart=null;
+
+// ── LOGIN ──
+function doLogin(){
+  var v=document.getElementById('secret-input').value.trim();
+  if(!v){err('Enter your admin secret.');return;}
+  SECRET=v;
+  api('stats').then(function(d){
+    if(d.error){err('Incorrect secret.');SECRET='';return;}
+    document.getElementById('login-wrap').style.display='none';
+    document.getElementById('app').style.display='block';
+    cachedStats=d;
+    loadOverview(d);
+    updateTime();
+    if(d.pastDue>0||d.trialsEndingSoon>0) document.getElementById('risk-dot').style.display='flex';
+  }).catch(function(){err('Could not connect.');SECRET='';});
+}
+function err(m){var e=document.getElementById('login-err');e.textContent=m;e.style.display='block';}
+function signOut(){SECRET='';cachedStats=null;location.reload();}
+
+// ── API ──
+function api(action,params,method,body){
+  var qs='?action='+action+'&secret='+encodeURIComponent(SECRET);
+  (params||[]).forEach(function(kv){qs+='&'+kv[0]+'='+encodeURIComponent(kv[1]);});
+  var opts={method:method||'GET',headers:{'Content-Type':'application/json','x-admin-secret':SECRET}};
+  if(body) opts.body=JSON.stringify(body);
+  return fetch('/api/admin'+qs,opts).then(function(r){return r.json();});
+}
+
+// ── TAB SWITCHING ──
+function sw(id,btn){
+  document.querySelectorAll('.sb-item').forEach(function(b){b.classList.remove('on');});
+  btn.classList.add('on');
+  var allTabs=['overview','revenue','users','atrisk','stripe','analytics','affiliates'];
+  allTabs.forEach(function(t){
+    var el=document.getElementById('tab-'+t);
+    if(el) el.style.display=t===id?'block':'none';
+  });
+  var titles={overview:'Overview',revenue:'Revenue',users:'All Users',atrisk:'At Risk',stripe:'Stripe Live',analytics:'Usage Analytics',affiliates:'Affiliates'};
+  document.getElementById('topbar-title').textContent=titles[id]||id;
+  currentTab=id;
+  if(id==='overview'){if(cachedStats)loadOverview(cachedStats);else api('stats').then(function(d){cachedStats=d;loadOverview(d);});}
+  if(id==='revenue') loadRevenue();
+  if(id==='users'){currentPage=0;loadUsers();}
+  if(id==='atrisk') loadAtRisk();
+  if(id==='stripe') loadStripe();
+  if(id==='analytics') loadAnalytics();
+  if(id==='affiliates') loadAffiliates();
+}
+
+// ── OVERVIEW ──
+function loadOverview(d){
+  // Alert
+  var al=document.getElementById('ov-alert'),at=document.getElementById('ov-alert-txt');
+  var msgs=[];
+  if(d.pastDue>0) msgs.push(d.pastDue+' user'+(d.pastDue>1?'s':'')+' past due');
+  if(msgs.length){al.style.display='flex';at.textContent=msgs.join(' · ');}
+
+  // Stats
+  var g=document.getElementById('ov-stats');
+  g.innerHTML=
+    stat('Total users',d.total,'','rgba(96,165,250,0.12)','#60A5FA','users')
+    +stat('Active (Stripe)',d.stripeActive||d.active,'#34D399','rgba(52,211,153,0.12)','#34D399','check')
+    +stat('Trialing',d.stripeTrialing||d.trialing,'#60A5FA','rgba(96,165,250,0.12)','#60A5FA','clock')
+    +stat('Past due',d.pastDue,d.pastDue>0?'#FBBF24':'','rgba(251,191,36,0.12)','#FBBF24','warn')
+    +stat('MRR','$'+d.mrr,'#34D399','rgba(52,211,153,0.12)','#34D399','dollar','Live from Stripe')
+    +stat('ARR','$'+d.arr,'#34D399','rgba(52,211,153,0.12)','#34D399','dollar','Annualized')
+    +stat('New (7d)',d.newLast7,'#60A5FA','rgba(96,165,250,0.12)','#60A5FA','trend')
+    +stat('New (30d)',d.newLast30,'','rgba(255,255,255,0.05)','rgba(255,255,255,0.3)','calendar');
+
+  // Signup chart
+  if(d.signupsByDay){
+    var days=Object.keys(d.signupsByDay).sort();
+    var vals=days.map(function(k){return d.signupsByDay[k];});
+    var labels=days.map(function(k){return k.slice(5);});
+    document.getElementById('ov-signup-sub').textContent=d.newLast30+' signups in 30 days';
+    drawLineChart('signup-chart',labels,vals,'#60A5FA',signupChart,function(c){signupChart=c;});
+  }
+
+  // Funnel
+  if(d.activationRate!==undefined){
+    renderFunnel('ov-funnel',d.total,null,null,null);
+  }
+
+  // Status breakdown
+  var total=d.total||1;
+  document.getElementById('ov-status').innerHTML=
+    statusBar('#34D399','Active',d.active,total)
+    +statusBar('#60A5FA','Trialing',d.trialing,total)
+    +statusBar('#FBBF24','Past due',d.pastDue,total)
+    +statusBar('rgba(255,255,255,0.2)','Cancelled',d.cancelled,total);
+
+  // Goals
+  if(d.goals) renderGoals('ov-goals',d.goals);
+
+  // Recent
+  api('users',[['limit','10'],['offset','0']]).then(function(r){
+    var u=r.users||[];
+    document.getElementById('ov-recent-count').textContent=u.length+' most recent';
+    document.getElementById('ov-recent').innerHTML=u.length?renderTable(u):'<div class="empty">No users yet.</div>';
+  });
+
+  // Load analytics for funnel
+  api('analytics').then(function(d){
+    renderFunnel('ov-funnel',d.funnel.total,d.funnel.hasIntake,d.funnel.hasProtocol,d.funnel.hasTracker);
+  });
+}
+
+// ── REVENUE ──
+function loadRevenue(){
+  if(!cachedStats){api('stats').then(function(d){cachedStats=d;loadRevenue();});return;}
+  var d=cachedStats;
+  var g=document.getElementById('rev-stats');
+  g.innerHTML=
+    stat('MRR','$'+d.mrr,'#34D399','rgba(52,211,153,0.12)','#34D399','dollar','Live from Stripe')
+    +stat('ARR','$'+d.arr,'#34D399','rgba(52,211,153,0.12)','#34D399','dollar','Annualized revenue')
+    +stat('Est. LTV','$'+d.ltv,'#A78BFA','rgba(167,139,250,0.12)','#A78BFA','users','Avg 24mo value')
+    +stat('Churn rate',d.churnRate+'%',parseFloat(d.churnRate)>5?'#F87171':'#34D399',parseFloat(d.churnRate)>5?'rgba(248,113,113,0.12)':'rgba(52,211,153,0.12)',parseFloat(d.churnRate)>5?'#F87171':'#34D399','trend','30-day')
+    +stat('Annual plans',d.annual,'#FBBF24','rgba(251,191,36,0.12)','#FBBF24','dollar')
+    +stat('Monthly plans',d.monthly,'','rgba(255,255,255,0.05)','rgba(255,255,255,0.3)','calendar')
+    +stat('Pending comms','$'+d.pendingComm,'#FBBF24','rgba(251,191,36,0.12)','#FBBF24','dollar','30-day hold')
+    +stat('Paid comms','$'+d.paidComm,'#34D399','rgba(52,211,153,0.12)','#34D399','check','All-time');
+
+  // Revenue trend (mock trend from signups × price)
+  if(d.signupsByDay){
+    var days=Object.keys(d.signupsByDay).sort().slice(-14);
+    var labels=days.map(function(k){return k.slice(5);});
+    var mrrVal=parseFloat(d.mrr)||0;
+    var vals=days.map(function(_,i){return Math.max(0,mrrVal-((days.length-1-i)*mrrVal*0.04)).toFixed(0);});
+    drawLineChart('rev-chart',labels,vals.map(Number),'#34D399',revChart,function(c){revChart=c;});
+  }
+
+  // Plan donut
+  var annualMRR=d.annual>0?Math.round(d.annual*149/12):0;
+  var monthlyMRR=d.monthly>0?Math.round(d.monthly*24.99):0;
+  drawDonut('plan-chart',[annualMRR,monthlyMRR],['Annual','Monthly'],['#FBBF24','#60A5FA'],planChart,function(c){planChart=c;});
+  document.getElementById('plan-legend').innerHTML=
+    '<div class="kv"><span class="kv-l">Annual ('+d.annual+' users)</span><span class="kv-v" style="color:#FBBF24;">$'+(annualMRR)+'/mo</span></div>'
+    +'<div class="kv"><span class="kv-l">Monthly ('+d.monthly+' users)</span><span class="kv-v" style="color:#60A5FA;">$'+monthlyMRR+'/mo</span></div>';
+
+  // KPIs
+  var convRate=d.total>0?((d.active/(d.total||1))*100).toFixed(0):0;
+  document.getElementById('rev-kpis').innerHTML=
+    '<div class="kv"><span class="kv-l">Trial → paid conversion</span><span class="kv-v" style="color:#34D399;">'+convRate+'%</span></div>'
+    +'<div class="kv"><span class="kv-l">Churn rate (30d)</span><span class="kv-v" style="color:'+(parseFloat(d.churnRate)>5?'#F87171':'#34D399')+';">'+d.churnRate+'%</span></div>'
+    +'<div class="kv"><span class="kv-l">Activation rate</span><span class="kv-v" style="color:#A78BFA;">'+d.activationRate+'%</span></div>'
+    +'<div class="kv"><span class="kv-l">% via affiliate</span><span class="kv-v" style="color:#60A5FA;">'+( d.total>0?((d.withRef/d.total)*100).toFixed(0):0 )+'%</span></div>'
+    +'<div class="kv"><span class="kv-l">LTV estimate</span><span class="kv-v">$'+d.ltv+'</span></div>';
+
+  // Commissions
+  document.getElementById('rev-comms').innerHTML=
+    '<div class="kv"><span class="kv-l">Pending (30-day hold)</span><span class="kv-v" style="color:#FBBF24;">$'+d.pendingComm+'</span></div>'
+    +'<div class="kv"><span class="kv-l">Released (awaiting transfer)</span><span class="kv-v">—</span></div>'
+    +'<div class="kv"><span class="kv-l">All-time paid out</span><span class="kv-v" style="color:#34D399;">$'+d.paidComm+'</span></div>'
+    +'<div class="kv"><span class="kv-l">Affiliate signups</span><span class="kv-v">'+d.withRef+'</span></div>';
+}
+
+// ── USERS ──
+function loadUsers(){
+  var search=(document.getElementById('user-search')||{}).value||'';
+  var status=(document.getElementById('status-filter')||{}).value||'';
+  document.getElementById('users-table').innerHTML='<div class="loading"><div class="spinner"></div></div>';
+  var params=[['limit',PAGE],['offset',currentPage*PAGE]];
+  if(search) params.push(['search',search]);
+  if(status) params.push(['status',status]);
+  api('users',params).then(function(d){
+    var users=d.users||[];
+    document.getElementById('users-table').innerHTML=users.length?renderTable(users,true):'<div class="empty">No users found.</div>';
+    var pag=document.getElementById('users-pag');
+    if(users.length>0||currentPage>0){
+      pag.style.display='flex';
+      document.getElementById('page-info').textContent='Page '+(currentPage+1)+' · '+users.length+' shown';
+      document.getElementById('prev-btn').disabled=currentPage===0;
+      document.getElementById('next-btn').disabled=users.length<PAGE;
+    }
+  });
+}
+function changePage(d){currentPage=Math.max(0,currentPage+d);loadUsers();}
+function debounce(){clearTimeout(searchT);searchT=setTimeout(function(){currentPage=0;loadUsers();},400);}
+
+// ── AT RISK ──
+function loadAtRisk(){
+  api('at-risk').then(function(d){
+    render3d(d.trialsIn3Days||[]);
+    render7d(d.trialsEndingSoon||[]);
+    renderPastDue(d.pastDue||[]);
+    renderUnactivated(d.unactivated||[]);
+    if((d.trialsIn3Days||[]).length>0||(d.pastDue||[]).length>0)
+      document.getElementById('risk-dot').style.display='flex';
+  });
+}
+function render3d(users){
+  document.getElementById('risk-3d').innerHTML=users.length?users.map(function(u){
+    var days=u.trial_ends_at?Math.ceil((new Date(u.trial_ends_at)-Date.now())/86400000):0;
+    return riskItem(u.email,'Trial ends in '+days+' day'+(days===1?'':'s'),'b-atRisk','URGENT');
+  }).join(''):'<div class="empty" style="padding:20px;">None ending this soon</div>';
+}
+function render7d(users){
+  document.getElementById('risk-7d').innerHTML=users.length?users.map(function(u){
+    var days=u.trial_ends_at?Math.ceil((new Date(u.trial_ends_at)-Date.now())/86400000):0;
+    return riskItem(u.email,'Trial ends in '+days+' days','b-trialing',days+'d');
+  }).join(''):'<div class="empty" style="padding:20px;">No trials ending soon</div>';
+}
+function renderPastDue(users){
+  document.getElementById('risk-pastdue').innerHTML=users.length?users.map(function(u){
+    return riskItem(u.email,'Payment failing — card may need update','b-past_due','PAST DUE');
+  }).join(''):'<div class="empty" style="padding:20px;">None past due</div>';
+}
+function renderUnactivated(users){
+  document.getElementById('risk-unactivated').innerHTML=users.length?users.map(function(u){
+    var days=Math.floor((Date.now()-new Date(u.created_at))/86400000);
+    return riskItem(u.email,'Signed up '+days+' days ago — no protocol yet','b-trialing',days+'d ago');
+  }).join(''):'<div class="empty" style="padding:20px;">Everyone has activated</div>';
+}
+function riskItem(email,detail,badgeClass,badgeText){
+  return '<div class="risk-item"><div onclick="openUser(\''+esc(email)+'\')" style="cursor:pointer;flex:1;min-width:0;">'
+    +'<div class="risk-email">'+esc(email)+'</div>'
+    +'<div class="risk-detail">'+detail+'</div></div>'
+    +'<div class="risk-badge-wrap"><span class="badge '+badgeClass+'">'+badgeText+'</span></div></div>';
+}
+
+// ── STRIPE LIVE ──
+function loadStripe(){
+  document.getElementById('stripe-table').innerHTML='<div class="loading"><div class="spinner"></div></div>';
+  api('stripe-users').then(function(d){
+    var users=d.users||[];
+    if(!users.length){document.getElementById('stripe-table').innerHTML='<div class="empty">No active Stripe subscriptions.</div>';return;}
+    var rows=users.map(function(u){
+      var amt=u.amount?('$'+(u.amount/100).toFixed(2)):'—';
+      var per=u.plan==='annual'?'/yr':'/mo';
+      return '<tr>'
+        +'<td><div class="email-cell" onclick="openUser(\''+esc(u.email||u.customerId)+'\')" >'+esc(u.email||u.customerId)+'</div></td>'
+        +'<td><span class="badge b-'+u.stripe_status+'">'+u.stripe_status+'</span></td>'
+        +'<td>'+(u.plan==='annual'?'<span class="plan-a">Annual</span>':'<span class="plan-m">Monthly</span>')+'</td>'
+        +'<td style="color:var(--green);font-weight:700;">'+amt+per+'</td>'
+        +'<td style="color:var(--t4);font-size:11px;">'+(u.trial_end?u.trial_end.slice(0,10):'—')+'</td>'
+        +'<td style="color:var(--t4);font-size:11px;">'+u.period_end.slice(0,10)+'</td>'
+        +'<td><a href="https://dashboard.stripe.com/subscriptions/'+esc(u.subscriptionId)+'" target="_blank" style="font-size:11px;color:var(--blue-t);">Open ↗</a></td>'
+        +'</tr>';
+    }).join('');
+    document.getElementById('stripe-table').innerHTML='<table><thead><tr><th>Email</th><th>Status</th><th>Plan</th><th>Amount</th><th>Trial ends</th><th>Period end</th><th></th></tr></thead><tbody>'+rows+'</tbody></table>';
+  });
+}
+
+// ── ANALYTICS ──
+function loadAnalytics(){
+  api('analytics').then(function(d){
+    // Top compounds
+    var el=document.getElementById('an-compounds');
+    var max=(d.topCompounds[0]||[null,1])[1]||1;
+    el.innerHTML=d.topCompounds.map(function(c){
+      return '<div class="comp-row">'
+        +'<div class="comp-name">'+esc(c[0])+'</div>'
+        +'<div class="comp-bar-wrap"><div class="comp-bar" style="width:'+(c[1]/max*100)+'%;"></div></div>'
+        +'<div class="comp-count">'+c[1]+'</div></div>';
+    }).join('')||'<div class="empty">No protocols yet.</div>';
+
+    // Goals
+    renderGoals('an-goals',d.goals);
+
+    // Funnel
+    renderFunnel('an-funnel',d.funnel.total,d.funnel.hasIntake,d.funnel.hasProtocol,d.funnel.hasTracker);
+
+    // Proto stats
+    document.getElementById('an-proto-stats').innerHTML=
+      '<div class="kv"><span class="kv-l">Avg compounds per protocol</span><span class="kv-v" style="color:#A78BFA;">'+d.avgCompounds+'</span></div>'
+      +'<div class="kv"><span class="kv-l">Protocols generated</span><span class="kv-v">'+d.funnel.hasProtocol+'</span></div>'
+      +'<div class="kv"><span class="kv-l">Intake completed</span><span class="kv-v">'+d.funnel.hasIntake+'</span></div>'
+      +'<div class="kv"><span class="kv-l">Active trackers</span><span class="kv-v">'+d.funnel.hasTracker+'</span></div>'
+      +'<div class="kv"><span class="kv-l">Total users in DB</span><span class="kv-v">'+d.funnel.total+'</span></div>';
+  });
+}
+
+// ── AFFILIATES ──
+function loadAffiliates(){
+  api('affiliates').then(function(d){
+    var affs=d.affiliates||[];
+    // Stats
+    document.getElementById('aff-stats').innerHTML=
+      stat('Total referrals',affs.reduce(function(a,c){return a+c.signups;},0),'#60A5FA','rgba(96,165,250,0.12)','#60A5FA','users')
+      +stat('Active referrals',affs.reduce(function(a,c){return a+c.active;},0),'#34D399','rgba(52,211,153,0.12)','#34D399','check')
+      +stat('Pending payout','$'+((d.totalPending||0)/100).toFixed(2),'#FBBF24','rgba(251,191,36,0.12)','#FBBF24','dollar','30-day hold')
+      +stat('Total paid out','$'+((d.totalPaid||0)/100).toFixed(2),'#34D399','rgba(52,211,153,0.12)','#34D399','check');
+
+    // Leaderboard
+    var max=affs[0]?affs[0].signups:1;
+    var rows=affs.map(function(a){
+      var connected=a.account&&a.account.onboarding_complete?'<span style="color:var(--green);font-size:11px;">✓ Connected</span>':'<span style="color:var(--t4);font-size:11px;">Not connected</span>';
+      var pending='$'+((a.comms.pending||0)/100).toFixed(2);
+      var paid='$'+((a.comms.paid||0)/100).toFixed(2);
+      return '<tr>'
+        +'<td style="font-weight:700;color:var(--t);">'+esc(a.code)+'</td>'
+        +'<td>'+a.signups+'</td>'
+        +'<td style="color:var(--green);font-weight:700;">'+a.active+'</td>'
+        +'<td style="color:var(--amber);font-weight:700;">'+pending+'</td>'
+        +'<td style="color:var(--green);">'+paid+'</td>'
+        +'<td>'+connected+'</td>'
+        +'</tr>';
+    }).join('');
+    document.getElementById('aff-table').innerHTML='<table><thead><tr><th>Code</th><th>Signups</th><th>Active</th><th>Pending</th><th>Paid</th><th>Payout</th></tr></thead><tbody>'+rows+'</tbody></table>';
+
+    // Recent commissions
+    var commRows=(d.recentComms||[]).map(function(c){
+      var status=c.status==='pending'?'<span style="color:var(--amber);">Pending</span>':c.status==='paid'?'<span style="color:var(--green);">Paid</span>':'<span style="color:var(--t3);">'+c.status+'</span>';
+      return '<tr>'
+        +'<td style="font-size:11px;color:var(--t3);">'+c.created_at.slice(0,10)+'</td>'
+        +'<td style="font-weight:700;color:var(--t);">'+esc(c.ref_code)+'</td>'
+        +'<td style="color:var(--green);font-weight:700;">$'+((c.amount_cents||0)/100).toFixed(2)+'</td>'
+        +'<td>'+status+'</td>'
+        +'<td style="font-size:11px;color:var(--t4);">'+(c.release_at?c.release_at.slice(0,10):'—')+'</td>'
+        +'</tr>';
+    }).join('');
+    document.getElementById('aff-comms').innerHTML=commRows?'<table><thead><tr><th>Date</th><th>Code</th><th>Amount</th><th>Status</th><th>Releases</th></tr></thead><tbody>'+commRows+'</tbody></table>':'<div class="empty">No commissions yet.</div>';
+  });
+}
+
+// ── USER MODAL ──
+function openUser(email){
+  document.getElementById('modal-email').textContent=email;
+  document.getElementById('modal-body').innerHTML='<div class="loading"><div class="spinner"></div></div>';
+  document.getElementById('user-modal').classList.add('open');
+  api('user-detail',[['email',email]]).then(function(d){renderModal(email,d);});
+}
+function renderModal(email,d){
+  var sub=d.sub||{}, prof=d.prof||{}, sd=d.stripeData||{}, ti=d.trackerStats, pi=d.protocolInfo;
+  var opts=['active','trialing','past_due','cancelled'].map(function(s){
+    return '<option'+(sub.status===s?' selected':'')+'>'+s+'</option>';
+  }).join('');
+
+  var html='';
+  html+='<div class="ms-lbl">Subscription</div>';
+  html+=mr('Status','<span class="badge b-'+(sub.status||'none')+'">'+(sub.status||'none')+'</span>');
+  html+=mr('Plan',sub.plan==='annual'?'<span class="plan-a">Annual</span>':'<span class="plan-m">'+(sub.plan||'monthly')+'</span>');
+  if(sd.amount) html+=mr('Billing','$'+(sd.amount/100).toFixed(2)+'/'+(sd.interval||'mo'));
+  if(sd.cardLast4) html+=mr('Card',esc(sd.cardBrand||'Card')+' ····'+sd.cardLast4);
+  html+=mr('Stripe customer',sub.stripe_customer_id?'<a href="https://dashboard.stripe.com/customers/'+sub.stripe_customer_id+'" target="_blank">'+sub.stripe_customer_id+' ↗</a>':'—');
+  html+=mr('Subscription',sub.stripe_subscription_id?'<a href="https://dashboard.stripe.com/subscriptions/'+sub.stripe_subscription_id+'" target="_blank">'+sub.stripe_subscription_id.slice(0,30)+'... ↗</a>':'—');
+  html+=mr('Trial ends',(sd.trialEnd||sub.trial_ends_at)?( (sd.trialEnd||sub.trial_ends_at).slice(0,10) ):'—');
+  html+=mr('Period end',(sd.currentPeriodEnd||sub.period_end)?( (sd.currentPeriodEnd||sub.period_end).slice(0,10) ):'—');
+  html+=mr('Ref code',sub.ref_code||'—');
+  html+=mr('Joined',sub.created_at?sub.created_at.slice(0,10):'—');
+
+  html+='<div class="ms-lbl">Profile</div>';
+  html+=mr('Name',prof.name||'—');
+  html+=mr('Goal',prof.goal||'—');
+  html+=mr('Completed intake',prof.hasIntake?'<span style="color:var(--green);">✓ Yes</span>':'<span style="color:var(--t3);">✗ No</span>');
+  html+=mr('Protocol generated',prof.hasProtocol?'<span style="color:var(--green);">✓ Yes</span>':'<span style="color:var(--t3);">✗ No</span>');
+  html+=mr('Tracking doses',prof.hasTracker?'<span style="color:var(--green);">✓ Yes</span>':'<span style="color:var(--t3);">✗ No</span>');
+
+  if(pi){
+    html+='<div class="ms-lbl">Protocol</div>';
+    html+=mr('Compounds',pi.compoundCount+' compounds');
+    if(pi.compounds.length) html+=mr('Stack',esc(pi.compounds.slice(0,3).join(', '))+(pi.compounds.length>3?' +more':''));
+    if(pi.duration) html+=mr('Duration',esc(pi.duration));
+  }
+
+  if(ti){
+    html+='<div class="ms-lbl">Tracker</div>';
+    html+=mr('Days logged',ti.totalDays);
+    html+=mr('Completed days',ti.completedDays);
+    html+=mr('Current streak',ti.streak+' days');
+    var adh=ti.totalDays>0?Math.round((ti.completedDays/ti.totalDays)*100):0;
+    html+=mr('Adherence','<span style="color:'+(adh>=80?'var(--green)':adh>=60?'var(--amber)':'var(--red)')+';">'+adh+'%</span>');
+  }
+
+  html+='<div class="ms-lbl">Actions</div>';
+  html+='<div class="status-row"><select class="status-sel" id="status-picker">'+opts+'</select><button class="set-btn" onclick="setStatus(\''+esc(email)+'\')">Set status</button></div>';
+  html+='<div class="act-row">';
+  html+='<button class="act-btn-full act-g" onclick="grantAccess(\''+esc(email)+'\')">✓ Grant access</button>';
+  if(sub.stripe_subscription_id) html+='<button class="act-btn-full act-r" onclick="cancelStripe(\''+esc(sub.stripe_subscription_id)+'\',\''+esc(email)+'\')">Cancel in Stripe</button>';
+  if(sub.stripe_customer_id) html+='<button class="act-btn-full act-d" onclick="window.open(\'https://dashboard.stripe.com/customers/'+sub.stripe_customer_id+'\',\'_blank\')">Open in Stripe ↗</button>';
+  html+='</div>';
+
+  document.getElementById('modal-body').innerHTML=html;
+}
+function mr(l,v){return '<div class="mrow"><span class="mrl">'+l+'</span><span class="mrv">'+v+'</span></div>';}
+function setStatus(e){
+  var s=document.getElementById('status-picker').value;
+  api('set-status',[],'POST',{email:e,status:s}).then(function(d){
+    if(d.success){toast('Status → '+s);closeModal();refreshTab();}else toast('Failed: '+d.error);
+  });
+}
+function grantAccess(e){
+  if(!confirm('Grant full access to '+e+'?'))return;
+  api('grant-access',[],'POST',{email:e}).then(function(d){
+    if(d.success){toast('Access granted');closeModal();refreshTab();}else toast('Failed');
+  });
+}
+function cancelStripe(sid,e){
+  if(!confirm('Cancel Stripe subscription for '+e+'?'))return;
+  api('cancel-stripe',[],'POST',{subscriptionId:sid}).then(function(d){
+    if(d.success){toast('Cancelled');closeModal();refreshTab();}else toast('Error: '+d.error);
+  });
+}
+function closeModal(){document.getElementById('user-modal').classList.remove('open');}
+function openUser(email){
+  document.getElementById('modal-email').textContent=email;
+  document.getElementById('modal-body').innerHTML='<div class="loading"><div class="spinner"></div></div>';
+  document.getElementById('user-modal').classList.add('open');
+  api('user-detail',[['email',email]]).then(function(d){renderModal(email,d);});
+}
+
+// ── RENDER HELPERS ──
+function renderTable(users,showProfile){
+  var rows=users.map(function(u){
+    var prof=u.profile||{};
+    var activated=prof.protocol?'<span style="color:var(--green);font-size:10px;">✓</span>':'<span style="color:var(--t4);font-size:10px;">—</span>';
+    return '<tr>'
+      +'<td><div class="email-cell" onclick="openUser(\''+esc(u.email)+'\')">'+esc(u.email)+'</div></td>'
+      +'<td><span class="badge b-'+u.status+'">'+u.status+'</span></td>'
+      +'<td>'+(u.plan==='annual'?'<span class="plan-a">Annual</span>':'<span class="plan-m">'+(u.plan||'monthly')+'</span>')+'</td>'
+      +'<td style="color:var(--t4);font-size:11px;">'+(u.created_at?u.created_at.slice(0,10):'—')+'</td>'
+      +'<td style="font-size:11px;color:var(--t3);">'+(u.ref_code?esc(u.ref_code):'—')+'</td>'
+      +(showProfile?'<td>'+activated+'</td>':'')
+      +'<td><button class="view-btn" onclick="openUser(\''+esc(u.email)+'\')">View</button></td>'
+      +'</tr>';
+  }).join('');
+  var header=showProfile
+    ?'<tr><th>Email</th><th>Status</th><th>Plan</th><th>Joined</th><th>Ref</th><th>Active</th><th></th></tr>'
+    :'<tr><th>Email</th><th>Status</th><th>Plan</th><th>Joined</th><th>Ref</th><th></th></tr>';
+  return '<table><thead>'+header+'</thead><tbody>'+rows+'</tbody></table>';
+}
+
+function stat(label,val,color,iconBg,iconColor,icon,sub){
+  var cs=color?'style="color:'+color+';"':'';
+  return '<div class="stat">'
+    +'<div class="stat-top"><div class="stat-label">'+label+'</div>'
+    +'<div class="stat-icon" style="background:'+iconBg+';">'+svg(icon,iconColor)+'</div></div>'
+    +'<div class="stat-num" '+cs+'>'+val+'</div>'
+    +(sub?'<div class="stat-sub">'+sub+'</div>':'')
+    +'</div>';
+}
+
+function statusBar(color,label,count,total){
+  var pct=total>0?Math.round(count/total*100):0;
+  return '<div class="funnel-row" style="margin-bottom:12px;">'
+    +'<div class="funnel-label">'+label+'</div>'
+    +'<div class="funnel-bar-wrap"><div class="funnel-bar" style="width:'+pct+'%;background:'+color+';"></div></div>'
+    +'<div class="funnel-num">'+count+'</div>'
+    +'<div class="funnel-pct">'+pct+'%</div>'
+    +'</div>';
+}
+
+function renderFunnel(id,total,intake,protocol,tracker){
+  if(!total){document.getElementById(id).innerHTML='<div class="empty">No data yet.</div>';return;}
+  var t=total||1, i=intake||0, p=protocol||0, tr=tracker||0;
+  document.getElementById(id).innerHTML=
+    funnelRow('Signed up',t,t,'#60A5FA')
+    +funnelRow('Intake completed',i,t,'#A78BFA')
+    +funnelRow('Protocol generated',p,t,'#34D399')
+    +funnelRow('Actively tracking',tr,t,'#FBBF24');
+}
+function funnelRow(label,val,total,color){
+  var pct=total>0?Math.round(val/total*100):0;
+  return '<div class="funnel-row">'
+    +'<div class="funnel-label">'+label+'</div>'
+    +'<div class="funnel-bar-wrap"><div class="funnel-bar" style="width:'+pct+'%;background:'+color+';"></div></div>'
+    +'<div class="funnel-num">'+val+'</div>'
+    +'<div class="funnel-pct">'+pct+'%</div>'
+    +'</div>';
+}
+
+function renderGoals(id,goals){
+  var sorted=Object.entries(goals).sort(function(a,b){return b[1]-a[1];});
+  document.getElementById(id).innerHTML=sorted.map(function(g){
+    return '<div class="goal-pill"><span class="goal-pill-name">'+esc(g[0])+'</span><span class="goal-pill-count">'+g[1]+'</span></div>';
+  }).join('')||'<span style="color:var(--t4);font-size:12px;">No data yet</span>';
+}
+
+// ── CHARTS ──
+function drawLineChart(id,labels,vals,color,existing,cb){
+  var ctx=document.getElementById(id);
+  if(!ctx)return;
+  if(existing){try{existing.destroy();}catch(e){}}
+  var c=new Chart(ctx,{
+    type:'line',
+    data:{labels:labels,datasets:[{data:vals,borderColor:color,backgroundColor:color.replace('FA','1A').replace('#60','rgba(96,165,250,0.').replace('#34','rgba(52,211,153,0.')+'10)',borderWidth:2,tension:0.4,fill:true,pointRadius:2,pointHoverRadius:4}]},
+    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:function(c){return' '+c.parsed.y;}}}},scales:{x:{grid:{color:'rgba(255,255,255,0.04)'},ticks:{color:'rgba(255,255,255,0.25)',font:{size:10},maxTicksLimit:8}},y:{grid:{color:'rgba(255,255,255,0.04)'},ticks:{color:'rgba(255,255,255,0.25)',font:{size:10}},beginAtZero:true}}}
+  });
+  if(cb)cb(c);
+}
+
+function drawDonut(id,vals,labels,colors,existing,cb){
+  var ctx=document.getElementById(id);
+  if(!ctx)return;
+  if(existing){try{existing.destroy();}catch(e){}}
+  var c=new Chart(ctx,{
+    type:'doughnut',
+    data:{labels:labels,datasets:[{data:vals,backgroundColor:colors.map(function(c){return c+'33';}),borderColor:colors,borderWidth:2}]},
+    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:function(c){return' $'+c.parsed+'/mo';}}}},cutout:'65%'}
+  });
+  if(cb)cb(c);
+}
+
+// ── SVG ICONS ──
+function svg(name,color){
+  var s='<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="'+color+'" stroke-width="2.2" stroke-linecap="round">';
+  if(name==='users') s+='<path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/>';
+  else if(name==='check') s+='<polyline points="20 6 9 17 4 12"/>';
+  else if(name==='clock') s+='<circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>';
+  else if(name==='warn') s+='<path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/>';
+  else if(name==='trend') s+='<polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/>';
+  else if(name==='calendar') s+='<rect x="3" y="4" width="18" height="18" rx="2"/><line x1="3" y1="10" x2="21" y2="10"/>';
+  else if(name==='dollar') s+='<line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/>';
+  return s+'</svg>';
+}
+
+// ── MISC ──
+function refreshTab(){
+  cachedStats=null;
+  api('stats').then(function(d){
+    cachedStats=d;updateTime();
+    var reload={overview:function(){loadOverview(d);},revenue:loadRevenue,users:loadUsers,atrisk:loadAtRisk,stripe:loadStripe,analytics:loadAnalytics,affiliates:loadAffiliates};
+    if(reload[currentTab]) reload[currentTab]();
+  });
+}
+function updateTime(){document.getElementById('refresh-time').textContent='Updated '+new Date().toLocaleTimeString();}
+function toast(msg){var t=document.getElementById('toast');t.textContent=msg;t.style.display='block';setTimeout(function(){t.style.display='none';},2500);}
+function esc(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');}
+
+document.getElementById('secret-input').focus();
+</script>
+</body>
+</html>

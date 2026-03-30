@@ -1,0 +1,1187 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"/>
+<title>PepTrak — Your Personalized Peptide Protocol</title>
+<meta name="description" content="Answer questions about your body, goals, and health history. PepTrak builds a research-backed peptide protocol matched precisely to you — not a template."/>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,300&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+html{-webkit-text-size-adjust:100%;scroll-behavior:smooth;}
+:root{
+  --blue:#0876FF;--blue-dark:#0557CC;--blue-pale:#EEF4FF;
+  --ink:#07090D;--ink-2:#1A1D23;--ink-3:#252830;
+  --gray-1:#F7F8FA;--gray-2:#EAECF0;--gray-3:#C8CDD6;
+  --gray-4:#8A919E;--gray-5:#545B67;--white:#FFFFFF;
+  --green:#00C076;--green-pale:#E6FAF3;--green-dark:#00A065;
+  --gold:#F0A500;--red:#FF3B30;
+  --font:'DM Sans',system-ui,sans-serif;
+  --mono:'DM Mono',monospace;
+}
+body{font-family:var(--font);background:var(--white);color:var(--ink);-webkit-font-smoothing:antialiased;overflow-x:hidden;}
+
+/* ── HEADER ── */
+.hdr{position:fixed;top:0;left:0;right:0;z-index:200;height:56px;background:rgba(255,255,255,0.92);backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);border-bottom:1px solid rgba(0,0,0,0.06);display:flex;align-items:center;justify-content:space-between;padding:0 20px;transition:box-shadow 0.3s,background 0.3s;}
+.hdr.scrolled{background:rgba(255,255,255,0.97);box-shadow:0 1px 24px rgba(0,0,0,0.07);}
+.hdr-logo{display:flex;align-items:center;gap:8px;font-size:16px;font-weight:700;color:var(--ink);text-decoration:none;-webkit-tap-highlight-color:transparent;}
+.hdr-mark{width:28px;height:28px;border-radius:8px;background:var(--blue);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800;color:#fff;flex-shrink:0;transition:transform 0.2s;}
+.hdr-logo:hover .hdr-mark{transform:scale(1.08);}
+.hdr-right{display:flex;align-items:center;gap:8px;}
+.hdr-nav{display:flex;align-items:center;gap:4px;}
+.hdr-link{font-size:13px;font-weight:500;color:var(--gray-4);text-decoration:none;padding:6px 12px;border-radius:8px;transition:color 0.15s,background 0.15s;}
+.hdr-link:hover{color:var(--ink);background:var(--gray-1);}
+.hdr-signin{font-size:13px;font-weight:600;color:var(--gray-5);text-decoration:none;padding:7px 14px;border-radius:980px;border:1.5px solid var(--gray-2);transition:border-color 0.15s,color 0.15s;white-space:nowrap;}
+.hdr-signin:hover{border-color:var(--blue);color:var(--blue);}
+.hdr-cta{background:var(--blue);color:#fff;font-family:var(--font);font-size:13px;font-weight:600;padding:8px 16px;border-radius:980px;cursor:pointer;text-decoration:none;border:none;transition:transform 0.15s,box-shadow 0.15s;white-space:nowrap;box-shadow:0 2px 10px rgba(8,118,255,0.3);}
+.hdr-cta:hover{transform:translateY(-1px);box-shadow:0 4px 16px rgba(8,118,255,0.4);}
+.hdr-hamburger{width:40px;height:40px;display:none;align-items:center;justify-content:center;cursor:pointer;border:none;background:none;border-radius:10px;padding:0;-webkit-tap-highlight-color:transparent;}
+.drawer{position:fixed;top:0;right:0;bottom:0;width:min(300px,85vw);z-index:300;background:rgba(255,255,255,0.98);backdrop-filter:blur(30px);transform:translateX(100%);transition:transform 0.38s cubic-bezier(0.4,0,0.2,1);display:flex;flex-direction:column;padding-top:56px;box-shadow:-12px 0 48px rgba(0,0,0,0.1);}
+.drawer.open{transform:translateX(0);}
+.drawer-body{flex:1;display:flex;flex-direction:column;justify-content:center;padding:32px 32px calc(32px + env(safe-area-inset-bottom));overflow-y:auto;}
+.drawer-link{display:flex;align-items:center;justify-content:space-between;padding:16px 0;border-bottom:1px solid var(--gray-2);font-size:22px;font-weight:600;letter-spacing:-0.5px;color:var(--ink);text-decoration:none;-webkit-tap-highlight-color:transparent;opacity:0;transform:translateY(8px);transition:opacity 0.3s ease,transform 0.3s ease,color 0.15s;}
+.drawer.open .drawer-link:nth-child(1){opacity:1;transform:none;transition-delay:0.06s;}
+.drawer.open .drawer-link:nth-child(2){opacity:1;transform:none;transition-delay:0.1s;}
+.drawer.open .drawer-link:nth-child(3){opacity:1;transform:none;transition-delay:0.14s;}
+.drawer.open .drawer-link:nth-child(4){opacity:1;transform:none;transition-delay:0.18s;}
+.drawer-link:last-child{border-bottom:none;}
+.drawer-footer{padding:24px 32px calc(32px + env(safe-area-inset-bottom));border-top:1px solid var(--gray-2);display:flex;flex-direction:column;gap:10px;}
+.drawer-cta{display:block;width:100%;padding:16px;background:var(--blue);color:#fff;font-family:var(--font);font-size:16px;font-weight:600;border-radius:980px;text-align:center;text-decoration:none;border:none;cursor:pointer;}
+.drawer-signin{display:block;width:100%;padding:15px;background:transparent;color:var(--gray-5);font-family:var(--font);font-size:15px;font-weight:500;border-radius:980px;text-align:center;text-decoration:none;border:1.5px solid var(--gray-2);}
+.drawer-overlay{position:fixed;inset:0;z-index:290;background:rgba(7,9,13,0.35);backdrop-filter:blur(3px);opacity:0;pointer-events:none;transition:opacity 0.38s;}
+.drawer-overlay.open{opacity:1;pointer-events:all;}
+@media(max-width:680px){.hdr-nav,.hdr-signin,.hdr-cta{display:none;}.hdr-hamburger{display:flex;}}
+@media(min-width:681px){.drawer,.drawer-overlay{display:none;}}
+
+/* ── HERO ── */
+.hero{min-height:100svh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:72px 24px 48px;text-align:center;background:var(--ink-2);position:relative;overflow:hidden;}
+.hero-glow{position:absolute;top:-200px;left:50%;transform:translateX(-50%);width:900px;height:900px;background:radial-gradient(circle,rgba(8,118,255,0.16),transparent 62%);pointer-events:none;}
+#hero-canvas{position:absolute;top:0;left:0;width:100%;height:100%;z-index:0;pointer-events:none;}
+.hero-content{position:relative;z-index:1;display:flex;flex-direction:column;align-items:center;}
+.hero-eyebrow{display:inline-flex;align-items:center;gap:7px;font-size:11px;font-weight:600;letter-spacing:0.1em;text-transform:uppercase;color:rgba(8,118,255,0.85);background:rgba(8,118,255,0.1);border:1px solid rgba(8,118,255,0.2);padding:6px 14px;border-radius:20px;margin-bottom:24px;opacity:0;animation:fadeUp 0.6s ease 0.1s both;}
+.eyebrow-dot{width:5px;height:5px;border-radius:50%;background:var(--blue);animation:blink 2s ease-in-out infinite;}
+@keyframes blink{0%,100%{opacity:1;}50%{opacity:0.3;}}
+.hero-title{font-size:clamp(36px,7vw,68px);font-weight:700;letter-spacing:-2.5px;line-height:1.06;color:#fff;margin-bottom:10px;max-width:720px;opacity:0;animation:fadeUp 0.6s ease 0.25s both;}
+.hero-title em{color:var(--blue);font-style:normal;}
+.hero-rotating-wrap{display:block;position:relative;height:1.12em;overflow:visible;width:100%;margin-top:4px;opacity:0;animation:fadeUp 0.6s ease 0.4s both;}
+.hero-word{position:absolute;left:0;right:0;text-align:center;color:var(--blue);font-style:normal;opacity:0;transform:translateY(28px);transition:opacity 0.5s cubic-bezier(0.4,0,0.2,1),transform 0.5s cubic-bezier(0.4,0,0.2,1);}
+.hero-word.active{opacity:1;transform:translateY(0);}
+.hero-word.exit{opacity:0;transform:translateY(-28px);}
+.hero-sub{font-size:clamp(15px,2.2vw,18px);color:rgba(255,255,255,0.45);line-height:1.7;max-width:420px;margin:16px auto 32px;opacity:0;animation:fadeUp 0.6s ease 0.55s both;}
+.hero-proof{display:inline-flex;align-items:center;gap:7px;font-size:12px;font-weight:500;color:rgba(255,255,255,0.3);margin-bottom:20px;letter-spacing:0.02em;opacity:0;animation:fadeUp 0.6s ease 0.6s both;}
+.hero-proof::before{content:'';width:6px;height:6px;border-radius:50%;background:var(--green);box-shadow:0 0 6px rgba(0,192,118,0.8);flex-shrink:0;}
+.hero-actions{display:flex;flex-direction:column;align-items:center;gap:14px;opacity:0;animation:fadeUp 0.6s ease 0.7s both;}
+.btn-hero{display:inline-flex;align-items:center;gap:9px;background:var(--blue);color:#fff;font-family:var(--font);font-size:16px;font-weight:600;padding:16px 32px;border-radius:980px;text-decoration:none;border:none;cursor:pointer;box-shadow:0 6px 28px rgba(8,118,255,0.45);transition:transform 0.15s,box-shadow 0.15s;letter-spacing:-0.2px;-webkit-tap-highlight-color:transparent;}
+.btn-hero:active{transform:scale(0.97);}
+.hero-note{font-size:12px;color:rgba(255,255,255,0.22);font-weight:500;}
+.hero-trust{display:grid;grid-template-columns:1fr 1fr;gap:10px 0;margin-top:44px;max-width:360px;width:100%;opacity:0;animation:fadeUp 0.6s ease 0.85s both;}
+.trust-item{display:flex;align-items:center;justify-content:center;gap:7px;font-size:12px;font-weight:500;color:rgba(255,255,255,0.28);}
+@keyframes fadeUp{from{opacity:0;transform:translateY(22px);}to{opacity:1;transform:none;}}
+
+/* ── TICKER ── */
+.ticker-wrap{background:var(--blue);padding:12px 0;overflow:hidden;}
+.ticker-inner{display:flex;animation:ticker 32s linear infinite;white-space:nowrap;will-change:transform;}
+.ticker-item{font-size:12px;font-weight:600;letter-spacing:0.07em;text-transform:uppercase;color:rgba(255,255,255,0.8);padding:0 28px;display:flex;align-items:center;gap:10px;}
+.ticker-sep{color:rgba(255,255,255,0.3);}
+@keyframes ticker{0%{transform:translateX(0);}100%{transform:translateX(-25%);}}
+
+/* ── PHONE DEMO ── */
+.demo-section{background:var(--ink-2);padding:0 24px 100px;}
+.demo-inner{max-width:960px;margin:0 auto;}
+.demo-header{text-align:center;padding-bottom:56px;}
+.demo-eyebrow{font-size:10px;font-weight:600;letter-spacing:0.14em;text-transform:uppercase;color:rgba(8,118,255,0.8);margin-bottom:10px;}
+.demo-title{font-size:clamp(28px,4vw,40px);font-weight:700;letter-spacing:-1.5px;color:#fff;line-height:1.1;margin-bottom:10px;}
+.demo-sub{font-size:15px;color:rgba(255,255,255,0.35);line-height:1.7;max-width:440px;margin:0 auto;}
+
+/* Tab nav */
+.demo-tabs{display:flex;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.08);border-radius:14px;padding:4px;gap:4px;margin-bottom:40px;overflow-x:auto;scrollbar-width:none;}
+.demo-tabs::-webkit-scrollbar{display:none;}
+.demo-tab{flex:1;min-width:fit-content;padding:9px 16px;border-radius:10px;font-size:12px;font-weight:600;color:rgba(255,255,255,0.35);border:none;background:none;cursor:pointer;font-family:var(--font);transition:all 0.18s;white-space:nowrap;-webkit-tap-highlight-color:transparent;}
+.demo-tab.active{background:rgba(255,255,255,0.1);color:#fff;}
+
+/* Phone frame */
+.demo-stage{display:flex;gap:40px;align-items:flex-start;justify-content:center;}
+.phone-wrap{flex-shrink:0;}
+.phone-frame{width:260px;background:#0D0F12;border-radius:42px;padding:12px;box-shadow:0 40px 80px rgba(0,0,0,0.6),0 0 0 1px rgba(255,255,255,0.08);position:relative;}
+.phone-notch{width:80px;height:24px;background:#0D0F12;border-radius:0 0 14px 14px;position:absolute;top:12px;left:50%;transform:translateX(-50%);z-index:10;}
+.phone-screen{background:#F7F8FA;border-radius:32px;overflow:hidden;height:520px;position:relative;}
+.screen-panel{position:absolute;inset:0;opacity:0;transition:opacity 0.35s ease;overflow-y:auto;scrollbar-width:none;}
+.screen-panel::-webkit-scrollbar{display:none;}
+.screen-panel.active{opacity:1;}
+
+/* Screen content styles */
+.s-hdr{height:52px;background:#F7F8FA;border-bottom:1px solid #EAECF0;display:flex;align-items:center;justify-content:space-between;padding:0 14px;position:sticky;top:0;z-index:10;flex-shrink:0;}
+.s-hdr-logo{display:flex;align-items:center;gap:6px;font-size:13px;font-weight:700;color:#07090D;}
+.s-hdr-mark{width:22px;height:22px;border-radius:6px;background:#0876FF;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:800;color:#fff;}
+.s-body{padding:14px;}
+.s-label{font-size:9px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:#8A919E;margin-bottom:8px;}
+.s-card{background:#fff;border:1px solid #EAECF0;border-radius:14px;padding:12px 14px;margin-bottom:10px;}
+.s-compound{display:flex;align-items:center;justify-content:space-between;padding:9px 0;border-bottom:1px solid #F0F1F3;}
+.s-compound:last-child{border-bottom:none;}
+.s-c-name{font-size:12px;font-weight:600;color:#07090D;}
+.s-c-dose{font-size:10px;color:#8A919E;margin-top:2px;}
+.s-fit{font-size:13px;font-weight:700;color:#00C076;}
+.s-why{background:#EEF4FF;border-left:2.5px solid #0876FF;border-radius:0 10px 10px 0;padding:10px 12px;margin-top:10px;}
+.s-why-lbl{font-size:9px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:#0876FF;margin-bottom:4px;}
+.s-why-txt{font-size:11px;color:#1A1D23;line-height:1.6;}
+
+/* Tracker screen */
+.s-streak{background:#fff;border:1px solid #EAECF0;border-radius:14px;padding:12px 14px;margin-bottom:10px;}
+.s-streak-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;}
+.s-streak-label{font-size:12px;font-weight:700;color:#07090D;}
+.s-streak-badge{font-size:11px;font-weight:700;color:#F0A500;background:rgba(240,165,0,0.1);padding:3px 8px;border-radius:20px;}
+.s-dots{display:flex;gap:4px;}
+.s-dot{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:700;}
+.s-dot.done{background:#00C076;color:#fff;}
+.s-dot.today{background:#0876FF;color:#fff;box-shadow:0 0 0 3px rgba(8,118,255,0.2);}
+.s-dot.empty{background:#EAECF0;color:#8A919E;}
+.s-dose-row{display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid #F0F1F3;}
+.s-dose-row:last-child{border-bottom:none;}
+.s-dose-check{width:22px;height:22px;border-radius:50%;background:#00C076;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.s-dose-ring{width:22px;height:22px;border-radius:50%;border:2px solid #EAECF0;flex-shrink:0;}
+.s-dose-name{font-size:12px;font-weight:600;color:#07090D;}
+.s-dose-time{font-size:10px;color:#8A919E;margin-top:1px;}
+.s-dose-row.taken .s-dose-name{color:#8A919E;}
+.s-prog{height:3px;background:#EAECF0;border-radius:3px;overflow:hidden;margin-top:10px;}
+.s-prog-fill{height:100%;background:#0876FF;border-radius:3px;}
+
+/* Chat screen */
+.s-chat{display:flex;flex-direction:column;gap:8px;padding:14px;}
+.s-bubble{max-width:85%;padding:10px 13px;border-radius:16px;font-size:11px;line-height:1.55;}
+.s-bubble.user{background:#0876FF;color:#fff;border-radius:16px 3px 16px 16px;align-self:flex-end;margin-left:auto;}
+.s-bubble.alex{background:#fff;color:#07090D;border:1px solid #EAECF0;border-radius:3px 16px 16px 16px;}
+.s-bubble.typing{display:flex;align-items:center;gap:3px;padding:12px 14px;}
+.s-typing-dot{width:5px;height:5px;border-radius:50%;background:#C8CDD6;animation:typingDot 1.2s ease-in-out infinite;}
+.s-typing-dot:nth-child(2){animation-delay:0.2s;}
+.s-typing-dot:nth-child(3){animation-delay:0.4s;}
+@keyframes typingDot{0%,60%,100%{transform:translateY(0);}30%{transform:translateY(-4px);}}
+.s-chat-input{position:sticky;bottom:0;background:#F7F8FA;padding:10px 14px;border-top:1px solid #EAECF0;display:flex;align-items:center;gap:8px;}
+.s-input-box{flex:1;background:#fff;border:1.5px solid #EAECF0;border-radius:20px;padding:8px 12px;font-size:11px;color:#8A919E;}
+.s-send{width:30px;height:30px;border-radius:50%;background:#0876FF;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+
+/* Library screen */
+.s-search{display:flex;align-items:center;gap:8px;background:#fff;border:1.5px solid #EAECF0;border-radius:10px;padding:8px 12px;margin-bottom:10px;}
+.s-search-icon{color:#8A919E;}
+.s-search-txt{font-size:11px;color:#C8CDD6;}
+.s-filter-row{display:flex;gap:6px;margin-bottom:10px;overflow-x:auto;scrollbar-width:none;}
+.s-filter-row::-webkit-scrollbar{display:none;}
+.s-chip{font-size:10px;font-weight:600;padding:5px 11px;border-radius:20px;border:1.5px solid #EAECF0;background:#fff;color:#545B67;white-space:nowrap;}
+.s-chip.active{background:#0876FF;color:#fff;border-color:#0876FF;}
+.s-lib-row{display:flex;align-items:center;gap:10px;background:#fff;border:1px solid #EAECF0;border-radius:12px;padding:10px 12px;margin-bottom:6px;}
+.s-lib-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;}
+.s-lib-name{font-size:12px;font-weight:600;color:#07090D;flex:1;}
+.s-lib-cat{font-size:9px;color:#8A919E;margin-top:1px;}
+.s-diff{font-size:9px;font-weight:700;padding:3px 7px;border-radius:20px;}
+
+/* Tools screen */
+.s-tool-tabs{display:flex;background:#fff;border:1px solid #EAECF0;border-radius:10px;padding:3px;gap:3px;margin-bottom:12px;}
+.s-tool-tab{flex:1;padding:6px 4px;border-radius:7px;font-size:9px;font-weight:600;color:#8A919E;border:none;background:none;text-align:center;}
+.s-tool-tab.active{background:#0876FF;color:#fff;}
+.s-calc-tile{background:#F7F8FA;border-radius:12px;padding:11px;margin-bottom:8px;}
+.s-calc-lbl{font-size:9px;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;color:#8A919E;margin-bottom:6px;}
+.s-calc-val{font-size:14px;font-weight:700;color:#07090D;}
+.s-calc-sub{font-size:10px;color:#8A919E;margin-top:1px;}
+.s-dark-card{background:#1A1D23;border-radius:12px;padding:12px;margin-top:10px;}
+.s-dark-row{display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px solid rgba(255,255,255,0.06);}
+.s-dark-row:last-child{border-bottom:none;}
+.s-dark-lbl{font-size:10px;color:rgba(255,255,255,0.4);}
+.s-dark-val{font-size:11px;font-weight:700;color:#fff;}
+.s-dark-val.blue{color:rgba(100,170,255,0.9);}
+.s-dark-val.green{color:#34C759;}
+
+/* Right side feature callouts */
+.demo-callouts{flex:1;max-width:320px;display:flex;flex-direction:column;gap:16px;padding-top:20px;}
+.callout{background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:16px;padding:16px 18px;cursor:pointer;transition:all 0.2s;-webkit-tap-highlight-color:transparent;}
+.callout.active{background:rgba(8,118,255,0.1);border-color:rgba(8,118,255,0.3);}
+.callout-icon{width:32px;height:32px;border-radius:9px;background:rgba(8,118,255,0.15);display:flex;align-items:center;justify-content:center;margin-bottom:10px;}
+.callout.active .callout-icon{background:rgba(8,118,255,0.25);}
+.callout-title{font-size:14px;font-weight:600;color:#fff;margin-bottom:4px;}
+.callout-desc{font-size:12px;color:rgba(255,255,255,0.4);line-height:1.6;}
+.callout.active .callout-desc{color:rgba(255,255,255,0.6);}
+
+@media(max-width:780px){
+  .demo-stage{flex-direction:column;align-items:center;}
+  .demo-callouts{max-width:100%;flex-direction:row;flex-wrap:wrap;padding-top:0;}
+  .callout{flex:1;min-width:calc(50% - 8px);}
+}
+@media(max-width:480px){
+  .callout{min-width:100%;}
+  .phone-frame{width:240px;}
+  .phone-screen{height:480px;}
+}
+
+/* ── PROBLEM ── */
+.problem-bg{background:var(--gray-1);padding:88px 24px;}
+.prob-inner{max-width:640px;margin:0 auto;}
+.section-eyebrow{font-size:10px;font-weight:600;letter-spacing:0.14em;text-transform:uppercase;color:var(--blue);margin-bottom:10px;}
+.section-title{font-size:clamp(28px,4.5vw,42px);font-weight:700;letter-spacing:-1.5px;color:var(--ink);line-height:1.1;margin-bottom:10px;}
+.section-sub{font-size:16px;color:var(--gray-5);line-height:1.75;margin-bottom:36px;}
+.problem-cards{display:flex;flex-direction:column;gap:10px;}
+.problem-card{background:var(--white);border:1px solid var(--gray-2);border-radius:16px;padding:18px 20px;display:flex;align-items:flex-start;gap:14px;}
+.problem-x{width:28px;height:28px;border-radius:50%;background:#FEE2E2;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:13px;}
+.problem-text{font-size:14px;color:var(--gray-5);line-height:1.6;}
+.problem-text strong{color:var(--ink);}
+.solution-callout{background:var(--ink-2);border-radius:18px;padding:24px;margin-top:24px;position:relative;overflow:hidden;}
+.solution-callout::before{content:'';position:absolute;top:-60px;right:-60px;width:200px;height:200px;background:radial-gradient(circle,rgba(8,118,255,0.2),transparent 65%);pointer-events:none;}
+.solution-callout-label{font-size:10px;font-weight:600;letter-spacing:0.1em;text-transform:uppercase;color:rgba(8,118,255,0.7);margin-bottom:8px;}
+.solution-callout-text{font-size:15px;color:#fff;line-height:1.7;font-weight:500;}
+.solution-callout-text em{color:var(--blue);font-style:normal;}
+
+/* ── HOW IT WORKS ── */
+.how-bg{background:var(--white);padding:88px 24px;}
+.how-inner{max-width:640px;margin:0 auto;}
+.steps{display:flex;flex-direction:column;gap:0;}
+.step-item{display:flex;gap:20px;padding-bottom:36px;position:relative;}
+.step-item:last-child{padding-bottom:0;}
+.step-left{display:flex;flex-direction:column;align-items:center;flex-shrink:0;}
+.step-num{width:36px;height:36px;border-radius:50%;background:var(--blue);color:#fff;font-size:14px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.step-line{width:2px;flex:1;background:var(--gray-2);margin-top:8px;}
+.step-item:last-child .step-line{display:none;}
+.step-body{padding-top:6px;}
+.step-title{font-size:16px;font-weight:700;color:var(--ink);margin-bottom:5px;}
+.step-desc{font-size:14px;color:var(--gray-5);line-height:1.65;}
+.step-tag{display:inline-block;margin-top:8px;font-size:11px;font-weight:600;padding:3px 10px;border-radius:20px;background:var(--blue-pale);color:var(--blue);}
+
+/* ── WHO ── */
+.who-bg{background:var(--gray-1);padding:88px 24px;}
+.who-inner{max-width:640px;margin:0 auto;}
+.who-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+.who-card{background:var(--white);border:1px solid var(--gray-2);border-radius:18px;padding:20px;transition:border-color 0.2s,transform 0.2s,box-shadow 0.2s;}
+.who-card:hover{border-color:rgba(8,118,255,0.3);transform:translateY(-2px);box-shadow:0 6px 20px rgba(0,0,0,0.06);}
+.who-emoji{font-size:26px;margin-bottom:10px;}
+.who-title{font-size:14px;font-weight:700;color:var(--ink);margin-bottom:6px;}
+.who-desc{font-size:12px;color:var(--gray-5);line-height:1.65;}
+@media(max-width:480px){.who-grid{grid-template-columns:1fr;}}
+
+/* ── BEFORE / AFTER ── */
+.ba-bg{background:var(--white);padding:88px 24px;}
+.ba-inner{max-width:640px;margin:0 auto;}
+.ba-cards{display:flex;flex-direction:column;gap:12px;}
+.ba-card{border-radius:20px;overflow:hidden;}
+.ba-card.before{background:var(--white);border:1px solid var(--gray-2);}
+.ba-card.after{background:var(--ink-2);border:1px solid rgba(8,118,255,0.2);}
+.ba-card-label{font-size:11px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;padding:12px 18px;}
+.before-label{color:var(--gray-4);background:var(--gray-1);border-bottom:1px solid var(--gray-2);}
+.after-label{color:rgba(8,118,255,0.8);background:rgba(8,118,255,0.06);border-bottom:1px solid rgba(8,118,255,0.08);}
+.ba-rows{padding:10px 18px 14px;display:flex;flex-direction:column;gap:2px;}
+.ba-row{display:flex;align-items:flex-start;gap:11px;padding:9px 0;border-bottom:1px solid rgba(255,255,255,0.04);}
+.ba-card.before .ba-row{border-bottom:1px solid var(--gray-2);}
+.ba-row:last-child{border-bottom:none;}
+.ba-x{font-size:13px;color:var(--gray-3);flex-shrink:0;margin-top:1px;}
+.ba-check{font-size:12px;color:var(--green);flex-shrink:0;margin-top:1px;font-weight:700;}
+.ba-text{font-size:13px;line-height:1.55;}
+.ba-card.before .ba-text{color:var(--gray-5);}
+.ba-card.after .ba-text{color:rgba(255,255,255,0.75);}
+
+/* ── FEATURES ── */
+.features-bg{background:var(--gray-1);padding:88px 24px;}
+.features-inner{max-width:640px;margin:0 auto;}
+.feature-list{display:flex;flex-direction:column;gap:12px;}
+.feature-item{background:var(--white);border:1px solid var(--gray-2);border-radius:18px;padding:20px;display:flex;gap:16px;align-items:flex-start;transition:transform 0.2s,box-shadow 0.2s,border-color 0.2s;cursor:default;}
+.feature-item:hover{transform:translateY(-3px);box-shadow:0 8px 32px rgba(8,118,255,0.1);border-color:rgba(8,118,255,0.25);}
+.feature-icon-wrap{width:42px;height:42px;border-radius:12px;background:var(--blue-pale);display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.feature-title{font-size:15px;font-weight:700;color:var(--ink);margin-bottom:4px;}
+.feature-desc{font-size:13px;color:var(--gray-5);line-height:1.65;}
+.feature-tags{display:flex;flex-wrap:wrap;gap:5px;margin-top:8px;}
+.feature-tag{font-size:10px;font-weight:600;padding:2px 8px;border-radius:20px;background:var(--gray-1);color:var(--gray-4);}
+
+/* ── ALEX DEMO ── */
+.alex-bg{background:var(--ink-2);padding:88px 24px;position:relative;overflow:hidden;}
+.alex-bg::before{content:'';position:absolute;top:-100px;right:-100px;width:500px;height:500px;background:radial-gradient(circle,rgba(8,118,255,0.12),transparent 65%);pointer-events:none;}
+.alex-inner{max-width:560px;margin:0 auto;position:relative;z-index:1;}
+.alex-title{font-size:clamp(26px,4vw,38px);font-weight:700;letter-spacing:-1px;color:#fff;line-height:1.15;margin-bottom:10px;}
+.alex-sub{font-size:15px;color:rgba(255,255,255,0.38);line-height:1.7;margin-bottom:32px;}
+.chat-demo{display:flex;flex-direction:column;gap:10px;}
+.chat-bubble{max-width:85%;padding:12px 16px;border-radius:18px;font-size:14px;line-height:1.6;}
+.chat-bubble.user{background:var(--blue);color:#fff;border-radius:18px 4px 18px 18px;align-self:flex-end;margin-left:auto;}
+.chat-bubble.alex{background:rgba(255,255,255,0.07);color:rgba(255,255,255,0.85);border:1px solid rgba(255,255,255,0.08);border-radius:4px 18px 18px 18px;}
+.chat-label{font-size:10px;font-weight:600;letter-spacing:0.07em;text-transform:uppercase;color:rgba(255,255,255,0.2);margin-bottom:4px;}
+.chat-label.right{text-align:right;}
+
+/* ── COMPOUNDS ── */
+.compounds-bg{background:var(--white);padding:88px 24px;}
+.compounds-inner{max-width:640px;margin:0 auto;}
+.compounds-scroll{display:flex;flex-direction:column;gap:8px;margin-top:32px;}
+.compound-row{background:var(--white);border:1px solid var(--gray-2);border-radius:14px;padding:14px 16px;display:flex;align-items:center;gap:12px;}
+.compound-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0;}
+.compound-name{font-size:14px;font-weight:600;color:var(--ink);flex:1;}
+.compound-tag{font-size:10px;color:var(--gray-4);margin-top:1px;}
+.diff-badge{font-size:10px;font-weight:700;padding:3px 9px;border-radius:20px;flex-shrink:0;}
+
+/* ── TESTIMONIALS ── */
+.testis-bg{background:var(--gray-1);padding:88px 24px;}
+.testis-inner{max-width:640px;margin:0 auto;}
+.testi-list{display:flex;flex-direction:column;gap:12px;margin-top:32px;}
+.testi-card{background:var(--white);border:1px solid var(--gray-2);border-radius:18px;padding:22px 20px;}
+.testi-stars{font-size:13px;letter-spacing:1px;color:var(--gold);margin-bottom:10px;}
+.testi-quote{font-size:14px;color:var(--gray-5);line-height:1.7;font-style:italic;margin-bottom:14px;}
+.testi-author{display:flex;align-items:center;gap:10px;}
+.testi-avatar{width:34px;height:34px;border-radius:50%;background:linear-gradient(135deg,var(--blue),#60A5FA);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:#fff;flex-shrink:0;}
+.testi-name{font-size:13px;font-weight:600;color:var(--ink);}
+.testi-detail{font-size:11px;color:var(--gray-4);margin-top:1px;}
+.testi-goal{display:inline-block;font-size:10px;font-weight:700;padding:2px 8px;border-radius:20px;background:var(--blue-pale);color:var(--blue);margin-top:4px;}
+
+/* ── PRICING ── */
+.pricing-bg{background:var(--white);padding:88px 24px;}
+.pricing-inner{max-width:560px;margin:0 auto;}
+.pricing-cards{display:flex;flex-direction:column;gap:12px;margin-top:32px;}
+.pricing-card{background:var(--white);border:1.5px solid var(--gray-2);border-radius:20px;padding:24px 22px;}
+@property --border-angle{syntax:"<angle>";inherits:true;initial-value:0deg;}
+.pricing-card.featured{position:relative;background:var(--blue-pale);border:none;padding:25px 23px;}
+.pricing-card.featured::before{content:'';position:absolute;inset:0;border-radius:20px;padding:1.5px;background:conic-gradient(from var(--border-angle),#0876FF,#60A5FA,#0876FF,#0557CC,#0876FF);-webkit-mask:linear-gradient(#fff 0 0) content-box,linear-gradient(#fff 0 0);-webkit-mask-composite:xor;mask-composite:exclude;animation:rotateBorder 3s linear infinite;}
+@keyframes rotateBorder{to{--border-angle:360deg;}}
+.pricing-badge{display:inline-block;font-size:10px;font-weight:700;padding:3px 10px;border-radius:20px;background:var(--blue);color:#fff;margin-bottom:12px;}
+.pricing-amount{font-size:36px;font-weight:700;letter-spacing:-1.5px;color:var(--ink);}
+.pricing-per{font-size:14px;color:var(--gray-4);font-weight:400;}
+.pricing-billed{font-size:12px;color:var(--gray-4);margin-top:2px;}
+.pricing-features{margin-top:16px;display:flex;flex-direction:column;gap:8px;}
+.pricing-feat{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--gray-5);}
+.pricing-feat-check{width:16px;height:16px;border-radius:50%;background:var(--green-pale);display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.pricing-cta{width:100%;padding:15px;border:none;border-radius:980px;font-size:15px;font-weight:600;font-family:var(--font);cursor:pointer;margin-top:20px;text-align:center;text-decoration:none;display:block;transition:opacity 0.15s;}
+.pricing-cta.primary{background:var(--blue);color:#fff;}
+.pricing-cta.secondary{background:var(--ink);color:#fff;}
+.pricing-trial-note{font-size:11px;color:var(--gray-4);text-align:center;margin-top:8px;}
+
+/* ── FAQ ── */
+.faq-bg{background:var(--gray-1);padding:88px 24px;}
+.faq-inner{max-width:600px;margin:0 auto;}
+.faq-list{display:flex;flex-direction:column;margin-top:32px;border-radius:18px;overflow:hidden;border:1px solid var(--gray-2);background:var(--white);}
+.faq-item{border-bottom:1px solid var(--gray-2);}
+.faq-item:last-child{border-bottom:none;}
+.faq-q{display:flex;align-items:center;justify-content:space-between;padding:18px 20px;font-size:14px;font-weight:600;color:var(--ink);cursor:pointer;gap:12px;-webkit-tap-highlight-color:transparent;}
+.faq-icon{width:22px;height:22px;border-radius:50%;background:var(--gray-1);display:flex;align-items:center;justify-content:center;flex-shrink:0;color:var(--gray-4);font-size:16px;transition:transform 0.2s;}
+.faq-item.open .faq-icon{transform:rotate(45deg);background:var(--blue-pale);color:var(--blue);}
+.faq-a{display:none;padding:0 20px 18px;font-size:13px;color:var(--gray-5);line-height:1.75;}
+.faq-item.open .faq-a{display:block;}
+
+/* ── FINAL CTA ── */
+.final-cta{background:var(--ink-2);padding:88px 24px;text-align:center;position:relative;overflow:hidden;}
+.final-cta::before{content:'';position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:800px;height:800px;background:radial-gradient(circle,rgba(8,118,255,0.14),transparent 60%);pointer-events:none;}
+.final-cta-inner{max-width:520px;margin:0 auto;position:relative;z-index:1;}
+.final-title{font-size:clamp(32px,5vw,52px);font-weight:700;letter-spacing:-2px;color:#fff;line-height:1.06;margin-bottom:14px;}
+.final-sub{font-size:16px;color:rgba(255,255,255,0.38);line-height:1.7;margin-bottom:36px;}
+.final-disclaimer{font-size:11px;color:rgba(255,255,255,0.16);margin-top:16px;}
+
+/* ── FOOTER ── */
+footer{background:var(--ink);padding:28px 24px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:14px;}
+.footer-logo{display:flex;align-items:center;gap:8px;font-size:14px;font-weight:700;color:rgba(255,255,255,0.4);text-decoration:none;}
+.footer-links{display:flex;gap:20px;}
+.footer-link{font-size:12px;color:rgba(255,255,255,0.2);text-decoration:none;}
+
+/* ── REVEAL ── */
+.reveal{opacity:0;transform:translateY(24px);transition:opacity 0.6s ease,transform 0.6s ease;}
+.reveal.visible{opacity:1;transform:none;}
+
+@media(max-width:680px){
+  .hero{padding:64px 20px 40px;}
+  .problem-bg,.how-bg,.who-bg,.ba-bg,.features-bg,.alex-bg,.compounds-bg,.testis-bg,.pricing-bg,.faq-bg,.final-cta{padding:60px 20px;}
+  .demo-section{padding:0 16px 60px;}
+}
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header class="hdr" id="hdr">
+  <a href="/" class="hdr-logo">
+    <div class="hdr-mark">P</div>
+    PepTrak
+  </a>
+  <nav class="hdr-nav">
+    <a href="#demo" class="hdr-link">See the app</a>
+    <a href="#features" class="hdr-link">Features</a>
+    <a href="#pricing" class="hdr-link">Pricing</a>
+  </nav>
+  <div class="hdr-right">
+    <a href="/signin" class="hdr-signin">Sign In</a>
+    <a href="/onboarding" class="hdr-cta">Build My Protocol</a>
+    <button class="hdr-hamburger" id="hamburger" onclick="toggleDrawer()" aria-label="Menu">
+      <svg id="hamburger-icon" width="20" height="14" viewBox="0 0 20 14" fill="none">
+        <line x1="0" y1="1" x2="20" y2="1" stroke="var(--ink)" stroke-width="1.6" stroke-linecap="round"/>
+        <line x1="0" y1="7" x2="20" y2="7" stroke="var(--ink)" stroke-width="1.6" stroke-linecap="round"/>
+        <line x1="0" y1="13" x2="20" y2="13" stroke="var(--ink)" stroke-width="1.6" stroke-linecap="round"/>
+      </svg>
+      <svg id="close-icon" width="16" height="16" viewBox="0 0 16 16" fill="none" style="display:none;">
+        <line x1="1" y1="1" x2="15" y2="15" stroke="var(--ink)" stroke-width="1.6" stroke-linecap="round"/>
+        <line x1="15" y1="1" x2="1" y2="15" stroke="var(--ink)" stroke-width="1.6" stroke-linecap="round"/>
+      </svg>
+    </button>
+  </div>
+</header>
+
+<div class="drawer-overlay" id="drawer-overlay" onclick="closeDrawer()"></div>
+<div class="drawer" id="drawer">
+  <div class="drawer-body">
+    <a href="#demo" class="drawer-link" onclick="closeDrawer()">See the app <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--gray-3)" stroke-width="2" stroke-linecap="round"><polyline points="9 18 15 12 9 6"/></svg></a>
+    <a href="#features" class="drawer-link" onclick="closeDrawer()">Features <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--gray-3)" stroke-width="2" stroke-linecap="round"><polyline points="9 18 15 12 9 6"/></svg></a>
+    <a href="#pricing" class="drawer-link" onclick="closeDrawer()">Pricing <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--gray-3)" stroke-width="2" stroke-linecap="round"><polyline points="9 18 15 12 9 6"/></svg></a>
+    <a href="/library" class="drawer-link" onclick="closeDrawer()">Compound Library <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--gray-3)" stroke-width="2" stroke-linecap="round"><polyline points="9 18 15 12 9 6"/></svg></a>
+  </div>
+  <div class="drawer-footer">
+    <a href="/onboarding" class="drawer-cta">Build My Protocol — Free</a>
+    <a href="/signin" class="drawer-signin">Sign In</a>
+  </div>
+</div>
+
+<!-- HERO -->
+<section class="hero">
+  <canvas id="hero-canvas"></canvas>
+  <div class="hero-glow"></div>
+  <div class="hero-content">
+    <div class="hero-eyebrow"><div class="eyebrow-dot"></div>Protocol built from your biometrics</div>
+    <h1 class="hero-title">
+      The peptide protocol<br>built for your
+      <div class="hero-rotating-wrap" id="rotating-wrap">
+        <span class="hero-word active">fat loss.</span>
+        <span class="hero-word">recovery.</span>
+        <span class="hero-word">performance.</span>
+        <span class="hero-word">longevity.</span>
+        <span class="hero-word">better sleep.</span>
+      </div>
+    </h1>
+    <p class="hero-sub">Your peptide protocol, built from your biology. Not a template someone else used.</p>
+    <div class="hero-proof" id="hero-proof"></div>
+    <div class="hero-actions">
+      <a href="/onboarding" class="btn-hero">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M9 3H5a2 2 0 00-2 2v4m6-6h10a2 2 0 012 2v4M9 3v18m0 0h10a2 2 0 002-2V9M9 21H5a2 2 0 01-2-2V9m0 0h18"/></svg>
+        Build My Protocol — Free
+      </a>
+      <div class="hero-note">21-day free trial · No credit card required</div>
+    </div>
+    <div class="hero-trust">
+      <div class="trust-item">🧬 55+ compounds</div>
+      <div class="trust-item">⏱ ~10 min intake</div>
+      <div class="trust-item">✦ 100% personalized</div>
+      <div class="trust-item">🔬 Research-backed</div>
+    </div>
+  </div>
+</section>
+
+<!-- TICKER -->
+<div class="ticker-wrap">
+  <div class="ticker-inner" id="ticker">
+    <div class="ticker-item">Personalized protocols <span class="ticker-sep">✦</span></div>
+    <div class="ticker-item">55+ compounds in library <span class="ticker-sep">✦</span></div>
+    <div class="ticker-item">AI research advisor Alex <span class="ticker-sep">✦</span></div>
+    <div class="ticker-item">Daily dose tracking <span class="ticker-sep">✦</span></div>
+    <div class="ticker-item">Reconstitution calculator <span class="ticker-sep">✦</span></div>
+    <div class="ticker-item">Insulin syringe visualizer <span class="ticker-sep">✦</span></div>
+    <div class="ticker-item">Injection site rotation <span class="ticker-sep">✦</span></div>
+    <div class="ticker-item">Cycle history tracking <span class="ticker-sep">✦</span></div>
+    <div class="ticker-item">Personalized protocols <span class="ticker-sep">✦</span></div>
+    <div class="ticker-item">55+ compounds in library <span class="ticker-sep">✦</span></div>
+    <div class="ticker-item">AI research advisor Alex <span class="ticker-sep">✦</span></div>
+    <div class="ticker-item">Daily dose tracking <span class="ticker-sep">✦</span></div>
+    <div class="ticker-item">Reconstitution calculator <span class="ticker-sep">✦</span></div>
+    <div class="ticker-item">Insulin syringe visualizer <span class="ticker-sep">✦</span></div>
+    <div class="ticker-item">Injection site rotation <span class="ticker-sep">✦</span></div>
+    <div class="ticker-item">Cycle history tracking <span class="ticker-sep">✦</span></div>
+    <div class="ticker-item">Personalized protocols <span class="ticker-sep">✦</span></div>
+    <div class="ticker-item">55+ compounds in library <span class="ticker-sep">✦</span></div>
+    <div class="ticker-item">AI research advisor Alex <span class="ticker-sep">✦</span></div>
+    <div class="ticker-item">Daily dose tracking <span class="ticker-sep">✦</span></div>
+    <div class="ticker-item">Reconstitution calculator <span class="ticker-sep">✦</span></div>
+    <div class="ticker-item">Insulin syringe visualizer <span class="ticker-sep">✦</span></div>
+    <div class="ticker-item">Injection site rotation <span class="ticker-sep">✦</span></div>
+    <div class="ticker-item">Cycle history tracking <span class="ticker-sep">✦</span></div>
+  </div>
+</div>
+
+<!-- INTERACTIVE APP DEMO -->
+<div style="background:#FFFFFF;padding:80px 24px 96px;" id="demo">
+<div style="max-width:860px;margin:0 auto;">
+  <div style="text-align:center;margin-bottom:40px;" class="reveal">
+    <div class="eyebrow" style="color:#0876FF;margin-bottom:10px;">Inside PepTrak</div>
+    <h2 class="section-title" style="color:#07090D;margin-bottom:10px;">Every screen. Tap to explore.</h2>
+    <p style="font-size:15px;color:#545B67;line-height:1.7;max-width:420px;margin:0 auto;">Click each tab to see exactly what you get — from your personalized protocol to the dose calculator.</p>
+  </div>
+
+  <!-- TABS -->
+  <div style="display:flex;gap:8px;flex-wrap:wrap;justify-content:center;margin-bottom:40px;" class="reveal" id="demo-tabs">
+    <button onclick="swDemo('protocol',this)" style="padding:9px 20px;border-radius:980px;font-size:13px;font-weight:600;border:1.5px solid #0876FF;background:#0876FF;color:#fff;cursor:pointer;font-family:var(--font);box-shadow:0 4px 14px rgba(8,118,255,0.4);-webkit-tap-highlight-color:transparent;" class="demo-tab">Protocol</button>
+    <button onclick="swDemo('tracker',this)" style="padding:9px 20px;border-radius:980px;font-size:13px;font-weight:600;border:1.5px solid #EAECF0;background:#fff;color:#545B67;cursor:pointer;font-family:var(--font);-webkit-tap-highlight-color:transparent;" class="demo-tab">Tracker</button>
+    <button onclick="swDemo('alex',this)" style="padding:9px 20px;border-radius:980px;font-size:13px;font-weight:600;border:1.5px solid #EAECF0;background:#fff;color:#545B67;cursor:pointer;font-family:var(--font);-webkit-tap-highlight-color:transparent;" class="demo-tab">Ask Alex</button>
+    <button onclick="swDemo('library',this)" style="padding:9px 20px;border-radius:980px;font-size:13px;font-weight:600;border:1.5px solid #EAECF0;background:#fff;color:#545B67;cursor:pointer;font-family:var(--font);-webkit-tap-highlight-color:transparent;" class="demo-tab">Library</button>
+    <button onclick="swDemo('tools',this)" style="padding:9px 20px;border-radius:980px;font-size:13px;font-weight:600;border:1.5px solid #EAECF0;background:#fff;color:#545B67;cursor:pointer;font-family:var(--font);-webkit-tap-highlight-color:transparent;" class="demo-tab">Tools</button>
+  </div>
+
+  <!-- STAGE -->
+  <div style="display:flex;gap:48px;align-items:flex-start;" class="demo-stage reveal" id="demo-stage">
+
+    <!-- PHONE -->
+    <div style="flex-shrink:0;width:270px;" id="demo-phone-wrap">
+      <div style="background:#1A1D23;border-radius:44px;padding:14px;box-shadow:0 0 0 1px rgba(255,255,255,0.08),0 60px 120px rgba(0,0,0,0.6),inset 0 0 0 1px rgba(255,255,255,0.04);position:relative;">
+        <div style="width:88px;height:26px;background:#1A1D23;border-radius:0 0 16px 16px;position:absolute;top:14px;left:50%;transform:translateX(-50%);z-index:10;"></div>
+        <div id="demo-screen" style="background:#F7F8FA;border-radius:32px;overflow:hidden;height:540px;display:flex;flex-direction:column;position:relative;">
+
+          <!-- PROTOCOL PANEL -->
+          <div class="dp active" id="dp-protocol" style="display:flex;flex-direction:column;height:100%;">
+            <div style="background:#fff;padding:36px 14px 10px;border-bottom:1px solid #EAECF0;display:flex;align-items:center;justify-content:space-between;flex-shrink:0;">
+              <div style="display:flex;align-items:center;gap:5px;font-size:13px;font-weight:700;color:#07090D;"><div style="width:22px;height:22px;border-radius:6px;background:#0876FF;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:800;color:#fff;">P</div>PepTrak</div>
+              <div style="font-size:10px;font-weight:700;color:#00C076;">Week 4 of 12</div>
+            </div>
+            <div style="flex:1;overflow:hidden;padding:12px;display:flex;flex-direction:column;gap:7px;">
+              <div style="font-size:8px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:#8A919E;padding:0 2px;">Your Protocol</div>
+              <div style="background:#fff;border:1px solid #EAECF0;border-radius:14px;overflow:hidden;">
+                <div style="background:#F7F8FA;padding:8px 12px;border-bottom:1px solid #EAECF0;display:flex;align-items:center;justify-content:space-between;"><span style="font-size:11px;font-weight:700;color:#07090D;">GLOW Blend</span><span style="font-size:8px;font-weight:700;padding:2px 7px;border-radius:20px;background:#E6FAF3;color:#00A065;">94% fit</span></div>
+                <div style="padding:8px 12px;display:flex;align-items:center;justify-content:space-between;"><div><div style="font-size:10px;font-weight:600;color:#07090D;">BPC-157 + TB-500 + GHK-Cu</div><div style="font-size:8px;color:#8A919E;margin-top:1px;">250mcg · SubQ · Daily · AM</div></div><div style="font-size:11px;font-weight:800;color:#00C076;">✓</div></div>
+              </div>
+              <div style="background:#fff;border:1px solid #EAECF0;border-radius:14px;overflow:hidden;">
+                <div style="background:#F7F8FA;padding:8px 12px;border-bottom:1px solid #EAECF0;display:flex;align-items:center;justify-content:space-between;"><span style="font-size:11px;font-weight:700;color:#07090D;">CJC + Ipamorelin</span><span style="font-size:8px;font-weight:700;padding:2px 7px;border-radius:20px;background:#EEF4FF;color:#0557CC;">91% fit</span></div>
+                <div style="padding:8px 12px;"><div style="font-size:10px;font-weight:600;color:#07090D;">GH secretagogue blend</div><div style="font-size:8px;color:#8A919E;margin-top:1px;">100mcg each · SubQ · 5x/wk · Bedtime</div></div>
+              </div>
+              <div style="background:#fff;border:1px solid #EAECF0;border-radius:14px;overflow:hidden;">
+                <div style="background:#F7F8FA;padding:8px 12px;border-bottom:1px solid #EAECF0;display:flex;align-items:center;justify-content:space-between;"><span style="font-size:11px;font-weight:700;color:#07090D;">Retatrutide</span><span style="font-size:8px;font-weight:700;padding:2px 7px;border-radius:20px;background:rgba(240,165,0,0.12);color:#B07A00;">97% fit</span></div>
+                <div style="padding:8px 12px;"><div style="font-size:10px;font-weight:600;color:#07090D;">Triple agonist GLP-1</div><div style="font-size:8px;color:#8A919E;margin-top:1px;">0.5mg · SubQ · Weekly · AM</div></div>
+              </div>
+              <div style="background:#EEF4FF;border-radius:8px;padding:8px 10px;border-left:2px solid #0876FF;">
+                <div style="font-size:7px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:#0876FF;margin-bottom:3px;">Why you specifically</div>
+                <div style="font-size:8px;color:#1A1D23;line-height:1.55;">At 187lbs with fat loss as your primary goal and low IGF-1 in bloodwork, Retatrutide addresses both appetite and metabolic rate — more targeted than semaglutide alone for your profile.</div>
+              </div>
+            </div>
+            <div style="background:#fff;border-top:1px solid #EAECF0;padding:6px 4px 10px;display:flex;flex-shrink:0;">
+              <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#0876FF" stroke-width="2.2" stroke-linecap="round"><path d="M9 3H5a2 2 0 00-2 2v4m6-6h10a2 2 0 012 2v4M9 3v18m0 0h10a2 2 0 002-2V9M9 21H5a2 2 0 01-2-2V9m0 0h18"/></svg><div style="font-size:7px;font-weight:700;color:#0876FF;">Protocol</div></div>
+              <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#C8CDD6" stroke-width="2.2" stroke-linecap="round"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg><div style="font-size:7px;font-weight:500;color:#8A919E;">Advisor</div></div>
+              <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#C8CDD6" stroke-width="2.2" stroke-linecap="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="3" y1="10" x2="21" y2="10"/></svg><div style="font-size:7px;font-weight:500;color:#8A919E;">Tracker</div></div>
+              <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#C8CDD6" stroke-width="2.2" stroke-linecap="round"><path d="M2 3h6a4 4 0 014 4v14a3 3 0 00-3-3H2z"/><path d="M22 3h-6a4 4 0 00-4 4v14a3 3 0 013-3h7z"/></svg><div style="font-size:7px;font-weight:500;color:#8A919E;">Library</div></div>
+              <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#C8CDD6" stroke-width="2.2" stroke-linecap="round"><circle cx="12" cy="7" r="4"/><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/></svg><div style="font-size:7px;font-weight:500;color:#8A919E;">Account</div></div>
+            </div>
+          </div>
+
+          <!-- TRACKER PANEL -->
+          <div class="dp" id="dp-tracker" style="display:none;flex-direction:column;height:100%;">
+            <div style="background:#fff;padding:36px 14px 10px;border-bottom:1px solid #EAECF0;display:flex;align-items:center;justify-content:space-between;flex-shrink:0;">
+              <div style="display:flex;align-items:center;gap:5px;font-size:13px;font-weight:700;color:#07090D;"><div style="width:22px;height:22px;border-radius:6px;background:#0876FF;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:800;color:#fff;">P</div>PepTrak</div>
+              <div style="font-size:10px;font-weight:700;color:#F0A500;">&#128293; 12 days</div>
+            </div>
+            <div style="flex:1;overflow:hidden;padding:12px;display:flex;flex-direction:column;gap:8px;">
+              <div style="background:#fff;border:1px solid #EAECF0;border-radius:14px;padding:10px 12px;display:flex;align-items:center;justify-content:space-between;">
+                <div><div style="font-size:11px;font-weight:700;color:#07090D;">12-day streak</div><div style="font-size:8px;color:#8A919E;margin-top:1px;">94% adherence this week</div></div>
+                <div style="font-size:20px;font-weight:800;color:#F0A500;letter-spacing:-1px;">12</div>
+              </div>
+              <div style="font-size:8px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:#8A919E;">Today's doses</div>
+              <div style="background:#fff;border:1px solid #EAECF0;border-radius:14px;overflow:hidden;">
+                <div style="padding:8px 12px;border-bottom:1px solid #F7F8FA;display:flex;align-items:center;gap:8px;"><div style="width:20px;height:20px;border-radius:50%;background:#00C076;display:flex;align-items:center;justify-content:center;flex-shrink:0;"><svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg></div><div><div style="font-size:10px;font-weight:600;color:#8A919E;">GLOW Blend</div><div style="font-size:8px;color:#8A919E;margin-top:1px;">Taken &middot; 7:42 AM</div></div></div>
+                <div style="padding:8px 12px;border-bottom:1px solid #F7F8FA;display:flex;align-items:center;gap:8px;"><div style="width:20px;height:20px;border-radius:50%;background:#00C076;display:flex;align-items:center;justify-content:center;flex-shrink:0;"><svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg></div><div><div style="font-size:10px;font-weight:600;color:#8A919E;">Retatrutide</div><div style="font-size:8px;color:#8A919E;margin-top:1px;">Taken &middot; 8:01 AM</div></div></div>
+                <div style="padding:8px 12px;display:flex;align-items:center;gap:8px;"><div style="width:20px;height:20px;border-radius:50%;border:1.5px solid #C8CDD6;flex-shrink:0;"></div><div><div style="font-size:10px;font-weight:600;color:#07090D;">CJC + Ipamorelin</div><div style="font-size:8px;color:#8A919E;margin-top:1px;">Tonight &middot; Bedtime &middot; Fasted</div></div></div>
+                <div style="height:3px;background:#EAECF0;border-radius:3px;margin:8px 12px 10px;"><div style="height:100%;width:66%;background:#0876FF;border-radius:3px;"></div></div>
+              </div>
+              <div style="background:#E6FAF3;border-radius:10px;padding:8px 10px;border-left:2px solid #00C076;">
+                <div style="font-size:7px;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;color:#00A065;margin-bottom:2px;">Alex &middot; Week 4 take</div>
+                <div style="font-size:8px;color:#07090D;line-height:1.55;">"Week 4 is the results window — compounds are fully saturated. Body composition changes become visible now."</div>
+              </div>
+            </div>
+            <div style="background:#fff;border-top:1px solid #EAECF0;padding:6px 4px 10px;display:flex;flex-shrink:0;">
+              <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#C8CDD6" stroke-width="2.2" stroke-linecap="round"><path d="M9 3H5a2 2 0 00-2 2v4m6-6h10a2 2 0 012 2v4M9 3v18m0 0h10a2 2 0 002-2V9M9 21H5a2 2 0 01-2-2V9m0 0h18"/></svg><div style="font-size:7px;font-weight:500;color:#8A919E;">Protocol</div></div>
+              <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#C8CDD6" stroke-width="2.2" stroke-linecap="round"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg><div style="font-size:7px;font-weight:500;color:#8A919E;">Advisor</div></div>
+              <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#0876FF" stroke-width="2.2" stroke-linecap="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="3" y1="10" x2="21" y2="10"/></svg><div style="font-size:7px;font-weight:700;color:#0876FF;">Tracker</div></div>
+              <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#C8CDD6" stroke-width="2.2" stroke-linecap="round"><path d="M2 3h6a4 4 0 014 4v14a3 3 0 00-3-3H2z"/><path d="M22 3h-6a4 4 0 00-4 4v14a3 3 0 013-3h7z"/></svg><div style="font-size:7px;font-weight:500;color:#8A919E;">Library</div></div>
+              <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#C8CDD6" stroke-width="2.2" stroke-linecap="round"><circle cx="12" cy="7" r="4"/><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/></svg><div style="font-size:7px;font-weight:500;color:#8A919E;">Account</div></div>
+            </div>
+          </div>
+
+          <!-- ALEX PANEL -->
+          <div class="dp" id="dp-alex" style="display:none;flex-direction:column;height:100%;">
+            <div style="background:#fff;padding:36px 14px 10px;border-bottom:1px solid #EAECF0;flex-shrink:0;">
+              <div style="display:flex;align-items:center;gap:5px;"><div style="width:22px;height:22px;border-radius:6px;background:#1A1D23;display:flex;align-items:center;justify-content:center;font-size:8px;font-weight:800;color:#fff;letter-spacing:-0.5px;">AI</div><span style="font-size:12px;font-weight:600;color:#07090D;">Alex &mdash; Research Advisor</span></div>
+            </div>
+            <div style="flex:1;overflow:hidden;padding:10px;display:flex;flex-direction:column;gap:6px;">
+              <div style="max-width:84%;padding:8px 10px;border-radius:14px 3px 14px 14px;background:#0876FF;color:#fff;font-size:9px;line-height:1.55;align-self:flex-end;margin-left:auto;">I'm in week 2 feeling tired in the afternoons. Normal?</div>
+              <div style="max-width:84%;padding:8px 10px;border-radius:3px 14px 14px 14px;background:#fff;border:1px solid #EAECF0;color:#1A1D23;font-size:9px;line-height:1.55;">Really common in week 2, especially with CJC + Ipamorelin. Your GH pulse is ramping up — afternoon fatigue often means it's working.</div>
+              <div style="max-width:84%;padding:8px 10px;border-radius:3px 14px 14px 14px;background:#fff;border:1px solid #EAECF0;color:#1A1D23;font-size:9px;line-height:1.55;">How's your sleep? If you're sleeping deeper, that's the GH doing its job. Fatigue usually clears by week 3–4.</div>
+              <div style="max-width:84%;padding:8px 10px;border-radius:14px 3px 14px 14px;background:#0876FF;color:#fff;font-size:9px;line-height:1.55;align-self:flex-end;margin-left:auto;">Sleep has been incredible. Best in years.</div>
+              <div style="max-width:84%;padding:8px 10px;border-radius:3px 14px 14px 14px;background:#fff;border:1px solid #EAECF0;color:#1A1D23;font-size:9px;line-height:1.55;">Exactly what we want. Keep the bedtime dose fasted — you're on track.</div>
+            </div>
+            <div style="background:#fff;border-top:1px solid #EAECF0;padding:8px 10px;display:flex;gap:6px;align-items:center;flex-shrink:0;">
+              <div style="flex:1;background:#F7F8FA;border-radius:980px;padding:7px 10px;font-size:9px;color:#8A919E;">Ask anything about your protocol...</div>
+              <div style="width:24px;height:24px;border-radius:50%;background:#0876FF;display:flex;align-items:center;justify-content:center;flex-shrink:0;"><svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5" stroke-linecap="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2" fill="#fff"/></svg></div>
+            </div>
+            <div style="background:#fff;border-top:1px solid #EAECF0;padding:6px 4px 10px;display:flex;flex-shrink:0;">
+              <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#C8CDD6" stroke-width="2.2" stroke-linecap="round"><path d="M9 3H5a2 2 0 00-2 2v4m6-6h10a2 2 0 012 2v4M9 3v18m0 0h10a2 2 0 002-2V9M9 21H5a2 2 0 01-2-2V9m0 0h18"/></svg><div style="font-size:7px;font-weight:500;color:#8A919E;">Protocol</div></div>
+              <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#0876FF" stroke-width="2.2" stroke-linecap="round"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg><div style="font-size:7px;font-weight:700;color:#0876FF;">Advisor</div></div>
+              <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#C8CDD6" stroke-width="2.2" stroke-linecap="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="3" y1="10" x2="21" y2="10"/></svg><div style="font-size:7px;font-weight:500;color:#8A919E;">Tracker</div></div>
+              <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#C8CDD6" stroke-width="2.2" stroke-linecap="round"><path d="M2 3h6a4 4 0 014 4v14a3 3 0 00-3-3H2z"/><path d="M22 3h-6a4 4 0 00-4 4v14a3 3 0 013-3h7z"/></svg><div style="font-size:7px;font-weight:500;color:#8A919E;">Library</div></div>
+              <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#C8CDD6" stroke-width="2.2" stroke-linecap="round"><circle cx="12" cy="7" r="4"/><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/></svg><div style="font-size:7px;font-weight:500;color:#8A919E;">Account</div></div>
+            </div>
+          </div>
+
+          <!-- LIBRARY PANEL — compound detail sheet open on BPC-157 -->
+          <div class="dp" id="dp-library" style="display:none;flex-direction:column;height:100%;">
+            <div style="background:#fff;padding:36px 14px 10px;border-bottom:1px solid #EAECF0;display:flex;align-items:center;justify-content:space-between;flex-shrink:0;">
+              <div style="display:flex;align-items:center;gap:5px;font-size:13px;font-weight:700;color:#07090D;"><div style="width:22px;height:22px;border-radius:6px;background:#0876FF;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:800;color:#fff;">P</div>Library</div>
+              <div style="font-size:9px;font-weight:600;color:#8A919E;">55 compounds</div>
+            </div>
+            <div style="margin:8px 8px 4px;background:#fff;border:1.5px solid #EAECF0;border-radius:10px;padding:7px 10px;font-size:9px;color:#8A919E;display:flex;align-items:center;gap:5px;flex-shrink:0;"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#C8CDD6" stroke-width="2.5" stroke-linecap="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>Search compounds...</div>
+            <div style="display:flex;gap:5px;padding:0 8px 6px;overflow:hidden;flex-shrink:0;">
+              <div style="font-size:8px;font-weight:600;padding:4px 9px;border-radius:20px;border:1px solid #EAECF0;background:#fff;color:#8A919E;white-space:nowrap;flex-shrink:0;">All</div>
+              <div style="font-size:8px;font-weight:600;padding:4px 9px;border-radius:20px;background:#0876FF;border:1px solid #0876FF;color:#fff;white-space:nowrap;flex-shrink:0;">Recovery</div>
+              <div style="font-size:8px;font-weight:600;padding:4px 9px;border-radius:20px;border:1px solid #EAECF0;background:#fff;color:#8A919E;white-space:nowrap;flex-shrink:0;">GH / IGF</div>
+              <div style="font-size:8px;font-weight:600;padding:4px 9px;border-radius:20px;border:1px solid #EAECF0;background:#fff;color:#8A919E;white-space:nowrap;flex-shrink:0;">Fat Loss</div>
+            </div>
+            <!-- BPC-157 detail sheet open (bottom sheet style) -->
+            <div style="flex:1;overflow:hidden;position:relative;">
+              <!-- List behind (dimmed) -->
+              <div style="padding:0 8px;opacity:0.3;">
+                <div style="background:#fff;border:1px solid #EAECF0;border-radius:14px;overflow:hidden;">
+                  <div style="padding:8px 12px;border-bottom:1px solid #F7F8FA;display:flex;align-items:center;gap:8px;"><div style="width:7px;height:7px;border-radius:50%;background:#0876FF;flex-shrink:0;"></div><div style="flex:1;"><div style="font-size:10px;font-weight:600;color:#07090D;">GLOW Blend</div><div style="font-size:8px;color:#8A919E;">Recovery &middot; Collagen &middot; Skin</div></div><div style="font-size:8px;font-weight:700;padding:2px 6px;border-radius:10px;background:#E6FAF3;color:#00A065;">Beginner</div></div>
+                  <div style="padding:8px 12px;border-bottom:1px solid #F7F8FA;display:flex;align-items:center;gap:8px;background:#EEF4FF;"><div style="width:7px;height:7px;border-radius:50%;background:#0876FF;flex-shrink:0;"></div><div style="flex:1;"><div style="font-size:10px;font-weight:700;color:#0876FF;">BPC-157</div><div style="font-size:8px;color:#8A919E;">Healing &middot; Gut &middot; Joints</div></div><div style="font-size:8px;font-weight:700;padding:2px 6px;border-radius:10px;background:#E6FAF3;color:#00A065;">Beginner</div></div>
+                  <div style="padding:8px 12px;display:flex;align-items:center;gap:8px;"><div style="width:7px;height:7px;border-radius:50%;background:#0876FF;flex-shrink:0;"></div><div style="flex:1;"><div style="font-size:10px;font-weight:600;color:#07090D;">TB-500</div><div style="font-size:8px;color:#8A919E;">Systemic Healing &middot; Anti-inflam</div></div><div style="font-size:8px;font-weight:700;padding:2px 6px;border-radius:10px;background:#E6FAF3;color:#00A065;">Beginner</div></div>
+                </div>
+              </div>
+              <!-- Detail sheet -->
+              <div style="position:absolute;bottom:0;left:0;right:0;background:#fff;border-radius:18px 18px 0 0;border-top:1px solid #EAECF0;box-shadow:0 -8px 32px rgba(0,0,0,0.12);overflow-y:auto;max-height:92%;padding-bottom:4px;">
+                <!-- Sheet handle -->
+                <div style="display:flex;justify-content:center;padding:8px 0 4px;"><div style="width:32px;height:3px;background:#EAECF0;border-radius:3px;"></div></div>
+                <div style="padding:0 12px 12px;">
+                  <!-- Header -->
+                  <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:8px;">
+                    <div>
+                      <div style="display:inline-flex;align-items:center;gap:4px;font-size:8px;font-weight:700;padding:2px 8px;border-radius:20px;background:#E6FAF3;color:#00A065;margin-bottom:5px;">Beginner Friendly</div>
+                      <div style="font-size:15px;font-weight:800;color:#07090D;letter-spacing:-0.3px;">BPC-157</div>
+                      <div style="font-size:8px;color:#8A919E;margin-top:1px;">Tissue Repair Peptide &middot; Recovery</div>
+                    </div>
+                    <a href="https://usetridentlabs.com" style="font-size:8px;font-weight:700;background:#0876FF;color:#fff;padding:5px 9px;border-radius:20px;text-decoration:none;white-space:nowrap;flex-shrink:0;">Buy &#8594;</a>
+                  </div>
+                  <!-- Tagline -->
+                  <div style="font-size:9px;color:#545B67;line-height:1.55;margin-bottom:10px;font-style:italic;">"The most researched healing peptide. Repairs tendons, gut, muscle, and nerves."</div>
+                  <!-- Tabs -->
+                  <div style="display:flex;gap:4px;margin-bottom:10px;border-bottom:1px solid #EAECF0;padding-bottom:8px;">
+                    <div style="font-size:8px;font-weight:700;padding:3px 8px;border-radius:20px;background:#0876FF;color:#fff;">Overview</div>
+                    <div style="font-size:8px;font-weight:600;padding:3px 8px;border-radius:20px;color:#8A919E;">Dosing</div>
+                    <div style="font-size:8px;font-weight:600;padding:3px 8px;border-radius:20px;color:#8A919E;">Stacks</div>
+                    <div style="font-size:8px;font-weight:600;padding:3px 8px;border-radius:20px;color:#8A919E;">Research</div>
+                  </div>
+                  <!-- Key benefits -->
+                  <div style="font-size:8px;font-weight:700;letter-spacing:0.07em;text-transform:uppercase;color:#8A919E;margin-bottom:6px;">Key Benefits</div>
+                  <div style="display:flex;flex-direction:column;gap:4px;margin-bottom:10px;">
+                    <div style="display:flex;align-items:center;gap:6px;"><div style="width:14px;height:14px;border-radius:50%;background:#E6FAF3;display:flex;align-items:center;justify-content:center;flex-shrink:0;"><svg width="7" height="7" viewBox="0 0 24 24" fill="none" stroke="#00A065" stroke-width="3" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg></div><span style="font-size:9px;color:#07090D;">Accelerated tendon and ligament healing</span></div>
+                    <div style="display:flex;align-items:center;gap:6px;"><div style="width:14px;height:14px;border-radius:50%;background:#E6FAF3;display:flex;align-items:center;justify-content:center;flex-shrink:0;"><svg width="7" height="7" viewBox="0 0 24 24" fill="none" stroke="#00A065" stroke-width="3" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg></div><span style="font-size:9px;color:#07090D;">Gut lining repair and protection</span></div>
+                    <div style="display:flex;align-items:center;gap:6px;"><div style="width:14px;height:14px;border-radius:50%;background:#E6FAF3;display:flex;align-items:center;justify-content:center;flex-shrink:0;"><svg width="7" height="7" viewBox="0 0 24 24" fill="none" stroke="#00A065" stroke-width="3" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg></div><span style="font-size:9px;color:#07090D;">Reduced inflammation at injury site</span></div>
+                    <div style="display:flex;align-items:center;gap:6px;"><div style="width:14px;height:14px;border-radius:50%;background:#E6FAF3;display:flex;align-items:center;justify-content:center;flex-shrink:0;"><svg width="7" height="7" viewBox="0 0 24 24" fill="none" stroke="#00A065" stroke-width="3" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg></div><span style="font-size:9px;color:#07090D;">Neuroprotective effects</span></div>
+                  </div>
+                  <!-- Dosing quick ref -->
+                  <div style="font-size:8px;font-weight:700;letter-spacing:0.07em;text-transform:uppercase;color:#8A919E;margin-bottom:6px;">Dosing</div>
+                  <div style="background:#F7F8FA;border-radius:10px;overflow:hidden;margin-bottom:10px;">
+                    <div style="display:flex;align-items:center;justify-content:space-between;padding:6px 10px;border-bottom:1px solid #EAECF0;">
+                      <div style="display:flex;align-items:center;gap:5px;"><span style="font-size:8px;font-weight:700;padding:1px 6px;border-radius:10px;background:#DCFCE7;color:#15803D;">Beginner</span><span style="font-size:9px;color:#07090D;font-weight:600;">200–250mcg/day</span></div>
+                      <span style="font-size:8px;color:#8A919E;">SubQ near injury</span>
+                    </div>
+                    <div style="display:flex;align-items:center;justify-content:space-between;padding:6px 10px;border-bottom:1px solid #EAECF0;">
+                      <div style="display:flex;align-items:center;gap:5px;"><span style="font-size:8px;font-weight:700;padding:1px 6px;border-radius:10px;background:#FEF9C3;color:#A16207;">Intermediate</span><span style="font-size:9px;color:#07090D;font-weight:600;">300–500mcg/day</span></div>
+                      <span style="font-size:8px;color:#8A919E;">Standard range</span>
+                    </div>
+                    <div style="display:flex;align-items:center;justify-content:space-between;padding:6px 10px;">
+                      <div style="display:flex;align-items:center;gap:5px;"><span style="font-size:8px;font-weight:700;padding:1px 6px;border-radius:10px;background:#FEE2E2;color:#DC2626;">Advanced</span><span style="font-size:9px;color:#07090D;font-weight:600;">500–750mcg/day</span></div>
+                      <span style="font-size:8px;color:#8A919E;">Acute only</span>
+                    </div>
+                  </div>
+                  <!-- Stack synergy -->
+                  <div style="font-size:8px;font-weight:700;letter-spacing:0.07em;text-transform:uppercase;color:#8A919E;margin-bottom:6px;">Stacks well with</div>
+                  <div style="display:flex;flex-direction:column;gap:5px;">
+                    <div style="background:#F7F8FA;border-radius:8px;padding:7px 9px;display:flex;align-items:flex-start;justify-content:space-between;gap:8px;"><div><div style="font-size:9px;font-weight:700;color:#07090D;">TB-500</div><div style="font-size:8px;color:#545B67;margin-top:1px;line-height:1.4;">BPC works locally. TB-500 works systemically. Together they cover everything.</div></div><span style="font-size:7px;font-weight:700;background:#EEF4FF;color:#0876FF;padding:2px 6px;border-radius:10px;white-space:nowrap;flex-shrink:0;">Systemic + local</span></div>
+                    <div style="background:#F7F8FA;border-radius:8px;padding:7px 9px;display:flex;align-items:flex-start;justify-content:space-between;gap:8px;"><div><div style="font-size:9px;font-weight:700;color:#07090D;">GHK-Cu</div><div style="font-size:8px;color:#545B67;margin-top:1px;line-height:1.4;">Adds collagen synthesis. Classic recovery triple stack.</div></div><span style="font-size:7px;font-weight:700;background:#EEF4FF;color:#0876FF;padding:2px 6px;border-radius:10px;white-space:nowrap;flex-shrink:0;">Collagen synergy</span></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div style="background:#fff;border-top:1px solid #EAECF0;padding:6px 4px 10px;display:flex;flex-shrink:0;">
+              <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#C8CDD6" stroke-width="2.2" stroke-linecap="round"><path d="M9 3H5a2 2 0 00-2 2v4m6-6h10a2 2 0 012 2v4M9 3v18m0 0h10a2 2 0 002-2V9M9 21H5a2 2 0 01-2-2V9m0 0h18"/></svg><div style="font-size:7px;font-weight:500;color:#8A919E;">Protocol</div></div>
+              <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#C8CDD6" stroke-width="2.2" stroke-linecap="round"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg><div style="font-size:7px;font-weight:500;color:#8A919E;">Advisor</div></div>
+              <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#C8CDD6" stroke-width="2.2" stroke-linecap="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="3" y1="10" x2="21" y2="10"/></svg><div style="font-size:7px;font-weight:500;color:#8A919E;">Tracker</div></div>
+              <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#0876FF" stroke-width="2.2" stroke-linecap="round"><path d="M2 3h6a4 4 0 014 4v14a3 3 0 00-3-3H2z"/><path d="M22 3h-6a4 4 0 00-4 4v14a3 3 0 013-3h7z"/></svg><div style="font-size:7px;font-weight:700;color:#0876FF;">Library</div></div>
+              <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#C8CDD6" stroke-width="2.2" stroke-linecap="round"><circle cx="12" cy="7" r="4"/><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/></svg><div style="font-size:7px;font-weight:500;color:#8A919E;">Account</div></div>
+            </div>
+          </div>
+
+          <!-- TOOLS PANEL -->
+          <div class="dp" id="dp-tools" style="display:none;flex-direction:column;height:100%;">
+            <div style="background:#fff;padding:36px 14px 10px;border-bottom:1px solid #EAECF0;display:flex;align-items:center;justify-content:space-between;flex-shrink:0;">
+              <div style="display:flex;align-items:center;gap:5px;font-size:13px;font-weight:700;color:#07090D;"><div style="width:22px;height:22px;border-radius:6px;background:#0876FF;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:800;color:#fff;">P</div>Tools</div>
+            </div>
+            <div style="flex:1;overflow:hidden;padding:10px;display:flex;flex-direction:column;gap:8px;">
+              <div style="background:#fff;border:1px solid #EAECF0;border-radius:12px;padding:10px;">
+                <div style="font-size:10px;font-weight:700;color:#07090D;margin-bottom:8px;">Dose Calculator</div>
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:5px;margin-bottom:7px;">
+                  <div style="background:#F7F8FA;border-radius:7px;padding:5px 7px;"><div style="font-size:7px;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;color:#8A919E;margin-bottom:2px;">Compound</div><div style="font-size:10px;font-weight:600;color:#07090D;">BPC-157</div></div>
+                  <div style="background:#F7F8FA;border-radius:7px;padding:5px 7px;"><div style="font-size:7px;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;color:#8A919E;margin-bottom:2px;">Vial size</div><div style="font-size:10px;font-weight:600;color:#07090D;">5mg</div></div>
+                  <div style="background:#F7F8FA;border-radius:7px;padding:5px 7px;"><div style="font-size:7px;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;color:#8A919E;margin-bottom:2px;">BAC water</div><div style="font-size:10px;font-weight:600;color:#07090D;">2mL</div></div>
+                  <div style="background:#F7F8FA;border-radius:7px;padding:5px 7px;"><div style="font-size:7px;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;color:#8A919E;margin-bottom:2px;">Your dose</div><div style="font-size:10px;font-weight:600;color:#07090D;">250mcg</div></div>
+                </div>
+                <div style="background:#1A1D23;border-radius:10px;padding:8px 10px;">
+                  <div style="display:flex;justify-content:space-between;align-items:center;padding:3px 0;border-bottom:1px solid rgba(255,255,255,0.06);"><span style="font-size:8px;color:rgba(255,255,255,0.4);">Draw to line</span><span style="font-size:10px;font-weight:700;color:rgba(100,170,255,0.9);">10 units</span></div>
+                  <div style="display:flex;justify-content:space-between;align-items:center;padding:3px 0;border-bottom:1px solid rgba(255,255,255,0.06);"><span style="font-size:8px;color:rgba(255,255,255,0.4);">Concentration</span><span style="font-size:10px;font-weight:700;color:#fff;">2500 mcg/mL</span></div>
+                  <div style="display:flex;justify-content:space-between;align-items:center;padding:3px 0;"><span style="font-size:8px;color:rgba(255,255,255,0.4);">Doses per vial</span><span style="font-size:10px;font-weight:700;color:#34C759;">20 doses</span></div>
+                </div>
+              </div>
+              <div style="background:#fff;border:1px solid #EAECF0;border-radius:12px;padding:10px;">
+                <div style="font-size:10px;font-weight:700;color:#07090D;margin-bottom:8px;">Site Rotation</div>
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:5px;">
+                  <div style="background:#E6FAF3;border:1px solid #00C076;border-radius:8px;padding:7px;text-align:center;"><div style="font-size:8px;font-weight:700;color:#00A065;margin-bottom:2px;">Today ✓</div><div style="font-size:9px;font-weight:600;color:#07090D;">Abdomen L Upper</div></div>
+                  <div style="background:#F7F8FA;border:1px solid #EAECF0;border-radius:8px;padding:7px;text-align:center;"><div style="font-size:8px;color:#8A919E;margin-bottom:2px;">2 days ago</div><div style="font-size:9px;font-weight:600;color:#07090D;">Abdomen R Upper</div></div>
+                  <div style="background:#F7F8FA;border:1px solid #EAECF0;border-radius:8px;padding:7px;text-align:center;"><div style="font-size:8px;color:#8A919E;margin-bottom:2px;">4 days ago</div><div style="font-size:9px;font-weight:600;color:#07090D;">Left Thigh</div></div>
+                  <div style="background:#EEF4FF;border:1.5px solid #0876FF;border-radius:8px;padding:7px;text-align:center;"><div style="font-size:8px;font-weight:700;color:#0876FF;margin-bottom:2px;">Use next &#8594;</div><div style="font-size:9px;font-weight:600;color:#07090D;">Right Thigh</div></div>
+                </div>
+              </div>
+            </div>
+            <div style="background:#fff;border-top:1px solid #EAECF0;padding:6px 4px 10px;display:flex;flex-shrink:0;">
+              <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#C8CDD6" stroke-width="2.2" stroke-linecap="round"><path d="M9 3H5a2 2 0 00-2 2v4m6-6h10a2 2 0 012 2v4M9 3v18m0 0h10a2 2 0 002-2V9M9 21H5a2 2 0 01-2-2V9m0 0h18"/></svg><div style="font-size:7px;font-weight:500;color:#8A919E;">Protocol</div></div>
+              <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#C8CDD6" stroke-width="2.2" stroke-linecap="round"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg><div style="font-size:7px;font-weight:500;color:#8A919E;">Advisor</div></div>
+              <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#0876FF" stroke-width="2.2" stroke-linecap="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="3" y1="10" x2="21" y2="10"/></svg><div style="font-size:7px;font-weight:700;color:#0876FF;">Tracker</div></div>
+              <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#C8CDD6" stroke-width="2.2" stroke-linecap="round"><path d="M2 3h6a4 4 0 014 4v14a3 3 0 00-3-3H2z"/><path d="M22 3h-6a4 4 0 00-4 4v14a3 3 0 013-3h7z"/></svg><div style="font-size:7px;font-weight:500;color:#8A919E;">Library</div></div>
+              <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#C8CDD6" stroke-width="2.2" stroke-linecap="round"><circle cx="12" cy="7" r="4"/><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/></svg><div style="font-size:7px;font-weight:500;color:#8A919E;">Account</div></div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <!-- INFO PANELS -->
+    <div style="flex:1;display:flex;flex-direction:column;" id="demo-info-wrap">
+
+      <div class="di active" id="di-protocol" style="display:flex;flex-direction:column;gap:20px;">
+        <div style="font-size:10px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:#0876FF;">Protocol page</div>
+        <div style="font-size:22px;font-weight:700;letter-spacing:-0.5px;color:#07090D;line-height:1.2;">Built from your biology.<br>Not a template.</div>
+        <div style="font-size:14px;color:#545B67;line-height:1.7;">Real AI reads your complete intake — weight, goals, bloodwork, experience — and builds a protocol from scratch. Every compound has a fit score and a "Why you specifically" rationale written for your exact data.</div>
+        <div style="display:flex;flex-direction:column;gap:10px;">
+          <div style="display:flex;align-items:flex-start;gap:10px;"><div style="width:20px;height:20px;border-radius:50%;background:rgba(0,192,118,0.15);border:1px solid rgba(0,192,118,0.3);display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px;"><svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="#00C076" stroke-width="3" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg></div><div style="font-size:13px;color:#545B67;line-height:1.55;">Protocol fit score per compound based on your biometrics</div></div>
+          <div style="display:flex;align-items:flex-start;gap:10px;"><div style="width:20px;height:20px;border-radius:50%;background:rgba(0,192,118,0.15);border:1px solid rgba(0,192,118,0.3);display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px;"><svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="#00C076" stroke-width="3" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg></div><div style="font-size:13px;color:#545B67;line-height:1.55;">Exact dose, timing, route, and frequency for every compound</div></div>
+          <div style="display:flex;align-items:flex-start;gap:10px;"><div style="width:20px;height:20px;border-radius:50%;background:rgba(0,192,118,0.15);border:1px solid rgba(0,192,118,0.3);display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px;"><svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="#00C076" stroke-width="3" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg></div><div style="font-size:13px;color:#545B67;line-height:1.55;">"Why you specifically" reasoning written for your exact intake</div></div>
+        </div>
+        <a href="/onboarding" style="display:inline-flex;align-items:center;gap:8px;background:#0876FF;color:#fff;font-size:14px;font-weight:600;padding:13px 24px;border-radius:980px;text-decoration:none;box-shadow:0 4px 16px rgba(8,118,255,0.4);transition:all 0.2s;width:fit-content;">Build my protocol free &#8594;</a>
+      </div>
+
+      <div class="di" id="di-tracker" style="display:none;flex-direction:column;gap:20px;">
+        <div style="font-size:10px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:#0876FF;">Daily tracker</div>
+        <div style="font-size:22px;font-weight:700;letter-spacing:-0.5px;color:#07090D;line-height:1.2;">One tap to log.<br>Never lose your streak.</div>
+        <div style="font-size:14px;color:#545B67;line-height:1.7;">Your protocol loads as a daily checklist grouped by timing. Tap each compound as you take it. Streak tracking, adherence score, missed dose alerts, and Alex's weekly take shown inline.</div>
+        <div style="display:flex;flex-direction:column;gap:10px;">
+          <div style="display:flex;align-items:flex-start;gap:10px;"><div style="width:20px;height:20px;border-radius:50%;background:rgba(0,192,118,0.15);border:1px solid rgba(0,192,118,0.3);display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px;"><svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="#00C076" stroke-width="3" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg></div><div style="font-size:13px;color:#545B67;line-height:1.55;">7-day streak rings with full cycle progress bar</div></div>
+          <div style="display:flex;align-items:flex-start;gap:10px;"><div style="width:20px;height:20px;border-radius:50%;background:rgba(0,192,118,0.15);border:1px solid rgba(0,192,118,0.3);display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px;"><svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="#00C076" stroke-width="3" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg></div><div style="font-size:13px;color:#545B67;line-height:1.55;">Side effect logging across 10 common categories</div></div>
+          <div style="display:flex;align-items:flex-start;gap:10px;"><div style="width:20px;height:20px;border-radius:50%;background:rgba(0,192,118,0.15);border:1px solid rgba(0,192,118,0.3);display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px;"><svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="#00C076" stroke-width="3" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg></div><div style="font-size:13px;color:#545B67;line-height:1.55;">Alex's week-specific take shown inline every day</div></div>
+        </div>
+        <a href="/onboarding" style="display:inline-flex;align-items:center;gap:8px;background:#0876FF;color:#fff;font-size:14px;font-weight:600;padding:13px 24px;border-radius:980px;text-decoration:none;box-shadow:0 4px 16px rgba(8,118,255,0.4);width:fit-content;">Start free trial &#8594;</a>
+      </div>
+
+      <div class="di" id="di-alex" style="display:none;flex-direction:column;gap:20px;">
+        <div style="font-size:10px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:#0876FF;">Alex &mdash; AI advisor</div>
+        <div style="font-size:22px;font-weight:700;letter-spacing:-0.5px;color:#07090D;line-height:1.2;">The knowledgeable friend<br>who's done this for years.</div>
+        <div style="font-size:14px;color:#545B67;line-height:1.7;">Alex knows your full protocol, biometrics, week number, and side effect history. Ask anything and get a real, specific answer — not generic forum advice.</div>
+        <div style="display:flex;flex-direction:column;gap:10px;">
+          <div style="display:flex;align-items:flex-start;gap:10px;"><div style="width:20px;height:20px;border-radius:50%;background:rgba(0,192,118,0.15);border:1px solid rgba(0,192,118,0.3);display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px;"><svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="#00C076" stroke-width="3" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg></div><div style="font-size:13px;color:#545B67;line-height:1.55;">Knows your full protocol — no need to explain context</div></div>
+          <div style="display:flex;align-items:flex-start;gap:10px;"><div style="width:20px;height:20px;border-radius:50%;background:rgba(0,192,118,0.15);border:1px solid rgba(0,192,118,0.3);display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px;"><svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="#00C076" stroke-width="3" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg></div><div style="font-size:13px;color:#545B67;line-height:1.55;">Week-aware: week 4 advice, not generic guidance</div></div>
+          <div style="display:flex;align-items:flex-start;gap:10px;"><div style="width:20px;height:20px;border-radius:50%;background:rgba(0,192,118,0.15);border:1px solid rgba(0,192,118,0.3);display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px;"><svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="#00C076" stroke-width="3" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg></div><div style="font-size:13px;color:#545B67;line-height:1.55;">Available 24/7, responds instantly</div></div>
+        </div>
+        <a href="/onboarding" style="display:inline-flex;align-items:center;gap:8px;background:#0876FF;color:#fff;font-size:14px;font-weight:600;padding:13px 24px;border-radius:980px;text-decoration:none;box-shadow:0 4px 16px rgba(8,118,255,0.4);width:fit-content;">Start free trial &#8594;</a>
+      </div>
+
+      <div class="di" id="di-library" style="display:none;flex-direction:column;gap:20px;">
+        <div style="font-size:10px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:#0876FF;">Compound library</div>
+        <div style="font-size:22px;font-weight:700;letter-spacing:-0.5px;color:#07090D;line-height:1.2;">Not just a list.<br>A full research sheet on every compound.</div>
+        <div style="font-size:14px;color:#545B67;line-height:1.7;">Tap any compound and get everything you need to know — what it does, exactly how to dose it, what to stack it with and why, and the real research behind it.</div>
+        <div style="display:flex;flex-direction:column;gap:10px;">
+          <div style="display:flex;align-items:flex-start;gap:10px;"><div style="width:20px;height:20px;border-radius:50%;background:rgba(0,192,118,0.15);border:1px solid rgba(0,192,118,0.3);display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px;"><svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="#00C076" stroke-width="3" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg></div><div style="font-size:13px;color:#545B67;line-height:1.55;"><strong style="color:#07090D;">3-tier dosing table</strong> — beginner, intermediate, and advanced doses with exact notes for each level</div></div>
+          <div style="display:flex;align-items:flex-start;gap:10px;"><div style="width:20px;height:20px;border-radius:50%;background:rgba(0,192,118,0.15);border:1px solid rgba(0,192,118,0.3);display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px;"><svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="#00C076" stroke-width="3" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg></div><div style="font-size:13px;color:#545B67;line-height:1.55;"><strong style="color:#07090D;">Stacking guide with synergy labels</strong> — exactly what to combine, why it works, and what the mechanism is</div></div>
+          <div style="display:flex;align-items:flex-start;gap:10px;"><div style="width:20px;height:20px;border-radius:50%;background:rgba(0,192,118,0.15);border:1px solid rgba(0,192,118,0.3);display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px;"><svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="#00C076" stroke-width="3" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg></div><div style="font-size:13px;color:#545B67;line-height:1.55;"><strong style="color:#07090D;">Real research citations</strong> — study findings with journal sources, not paraphrased marketing claims</div></div>
+          <div style="display:flex;align-items:flex-start;gap:10px;"><div style="width:20px;height:20px;border-radius:50%;background:rgba(0,192,118,0.15);border:1px solid rgba(0,192,118,0.3);display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px;"><svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="#00C076" stroke-width="3" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg></div><div style="font-size:13px;color:#545B67;line-height:1.55;"><strong style="color:#07090D;">Mechanism explained in plain English</strong> — how it actually works in your body, not just what it does</div></div>
+        </div>
+        <a href="/onboarding" style="display:inline-flex;align-items:center;gap:8px;background:#0876FF;color:#fff;font-size:14px;font-weight:600;padding:13px 24px;border-radius:980px;text-decoration:none;box-shadow:0 4px 16px rgba(8,118,255,0.4);width:fit-content;">Explore the library &#8594;</a>
+      </div>
+
+      <div class="di" id="di-tools" style="display:none;flex-direction:column;gap:20px;">
+        <div style="font-size:10px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:#0876FF;">Research tools</div>
+        <div style="font-size:22px;font-weight:700;letter-spacing:-0.5px;color:#07090D;line-height:1.2;">Every calculator you need.<br>Nothing to figure out.</div>
+        <div style="font-size:14px;color:#545B67;line-height:1.7;">The dose calculator shows exact units to draw on an insulin syringe — visualized as a real syringe diagram. Site rotator tracks 6 injection zones and tells you which to use next.</div>
+        <div style="display:flex;flex-direction:column;gap:10px;">
+          <div style="display:flex;align-items:flex-start;gap:10px;"><div style="width:20px;height:20px;border-radius:50%;background:rgba(0,192,118,0.15);border:1px solid rgba(0,192,118,0.3);display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px;"><svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="#00C076" stroke-width="3" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg></div><div style="font-size:13px;color:#545B67;line-height:1.55;">Vial + BAC water &#8594; exact units to draw on your syringe</div></div>
+          <div style="display:flex;align-items:flex-start;gap:10px;"><div style="width:20px;height:20px;border-radius:50%;background:rgba(0,192,118,0.15);border:1px solid rgba(0,192,118,0.3);display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px;"><svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="#00C076" stroke-width="3" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg></div><div style="font-size:13px;color:#545B67;line-height:1.55;">Vial tracker: doses remaining + reorder alert when low</div></div>
+          <div style="display:flex;align-items:flex-start;gap:10px;"><div style="width:20px;height:20px;border-radius:50%;background:rgba(0,192,118,0.15);border:1px solid rgba(0,192,118,0.3);display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px;"><svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="#00C076" stroke-width="3" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg></div><div style="font-size:13px;color:#545B67;line-height:1.55;">6-zone rotation: last-used tracking, next recommendation</div></div>
+        </div>
+        <a href="/onboarding" style="display:inline-flex;align-items:center;gap:8px;background:#0876FF;color:#fff;font-size:14px;font-weight:600;padding:13px 24px;border-radius:980px;text-decoration:none;box-shadow:0 4px 16px rgba(8,118,255,0.4);width:fit-content;">Start free trial &#8594;</a>
+      </div>
+
+    </div>
+  </div>
+
+  <script>
+  function swDemo(id, btn){
+    document.querySelectorAll('.demo-tab').forEach(function(t){
+      t.style.background='#fff';t.style.borderColor='#EAECF0';t.style.color='#545B67';t.style.boxShadow='none';
+    });
+    btn.style.background='#0876FF';btn.style.borderColor='#0876FF';btn.style.color='#fff';btn.style.boxShadow='0 4px 14px rgba(8,118,255,0.4)';
+    document.querySelectorAll('.dp').forEach(function(p){p.style.display='none';});
+    var ph=document.getElementById('dp-'+id);if(ph){ph.style.display='flex';}
+    document.querySelectorAll('.di').forEach(function(p){p.style.display='none';});
+    var di=document.getElementById('di-'+id);if(di){di.style.display='flex';}
+  }
+  </script>
+
+  <style>
+  @media(max-width:720px){
+    .demo-stage{flex-direction:column !important;align-items:center !important;}
+    #demo-info-wrap{width:100% !important;}
+  }
+  @media(max-width:480px){
+    #demo-phone-wrap{width:240px !important;}
+    #demo-phone-wrap > div > div:last-child{height:490px !important;}
+  }
+  </style>
+
+</div>
+</div>
+
+<div class="problem-bg">
+<div class="prob-inner reveal">
+  <div class="section-eyebrow">The problem</div>
+  <h2 class="section-title">Peptide info is everywhere.<br>Knowing what to take for <em style="color:var(--blue);font-style:normal;">your</em> body isn't.</h2>
+  <p class="section-sub">Most people spend weeks reading forums and still end up guessing. That's dangerous, expensive, and completely unnecessary.</p>
+  <div class="problem-cards">
+    <div class="problem-card reveal"><div class="problem-x">✗</div><div class="problem-text"><strong>Generic forum protocols</strong> — written for someone else's body weight, goals, and experience level.</div></div>
+    <div class="problem-card reveal"><div class="problem-x">✗</div><div class="problem-text"><strong>Conflicting dosing advice</strong> — one source says 250mcg, another says 500mcg. No context for your body.</div></div>
+    <div class="problem-card reveal"><div class="problem-x">✗</div><div class="problem-text"><strong>No tracking system</strong> — most people keep notes in their phone or don't track at all.</div></div>
+    <div class="problem-card reveal"><div class="problem-x">✗</div><div class="problem-text"><strong>Nobody to ask questions</strong> — forums are slow, doctors won't help, most "experts" are selling something.</div></div>
+  </div>
+  <div class="solution-callout reveal">
+    <div class="solution-callout-label">PepTrak solves this</div>
+    <div class="solution-callout-text">Tell us about your body, goals, and health history. Our AI builds a protocol with <em>exact compounds, weight-appropriate doses, and the reasoning behind every choice</em> — then stays with you the entire cycle.</div>
+  </div>
+</div>
+</div>
+
+<!-- HOW IT WORKS -->
+<div id="how" class="how-bg">
+<div class="how-inner reveal">
+  <div class="section-eyebrow">How it works</div>
+  <h2 class="section-title">From zero to your first<br>protocol in under 15 minutes.</h2>
+  <p class="section-sub" style="margin-bottom:36px;">No experience needed.</p>
+  <div class="steps">
+    <div class="step-item reveal">
+      <div class="step-left"><div class="step-num">1</div><div class="step-line"></div></div>
+      <div class="step-body">
+        <div class="step-title">Complete your intake questionnaire</div>
+        <div class="step-desc">Goals, body composition, training, sleep, stress, health history, medications, and bloodwork. The more detail you share, the more precise your protocol.</div>
+        <div class="step-tag">~10 minutes</div>
+      </div>
+    </div>
+    <div class="step-item reveal">
+      <div class="step-left"><div class="step-num">2</div><div class="step-line"></div></div>
+      <div class="step-body">
+        <div class="step-title">Your protocol is generated instantly</div>
+        <div class="step-desc">AI reviews your data and selects from 55+ compounds. Weight-appropriate doses, schedules, routes, and a "why you specifically" rationale for every compound.</div>
+        <div class="step-tag">Instant generation</div>
+      </div>
+    </div>
+    <div class="step-item reveal">
+      <div class="step-left"><div class="step-num">3</div><div class="step-line"></div></div>
+      <div class="step-body">
+        <div class="step-title">Order your compounds & reconstitute</div>
+        <div class="step-desc">Your protocol links to verified sources. The built-in dosing calculator shows you a visual syringe with exactly which line to draw to — no math, no guessing.</div>
+        <div class="step-tag">Step-by-step guidance</div>
+      </div>
+    </div>
+    <div class="step-item reveal">
+      <div class="step-left"><div class="step-num">4</div></div>
+      <div class="step-body">
+        <div class="step-title">Track every dose, every day</div>
+        <div class="step-desc">Tap to log each dose. Streak tracking, weekly adherence reports, side effect logging, injection site rotation, and Alex who knows your full protocol history.</div>
+        <div class="step-tag">Daily tracking</div>
+      </div>
+    </div>
+  </div>
+</div>
+</div>
+
+<!-- WHO THIS IS FOR -->
+<div class="who-bg">
+<div class="who-inner reveal">
+  <div class="section-eyebrow" style="text-align:center;">Who it's for</div>
+  <h2 class="section-title" style="text-align:center;margin-bottom:32px;">If any of these sound like you,<br>you're in the right place.</h2>
+  <div class="who-grid">
+    <div class="who-card reveal"><div class="who-emoji">🏋️</div><div class="who-title">The gym person</div><div class="who-desc">You train consistently but feel like you've hit a ceiling. You've heard about peptides but have no idea where to start.</div></div>
+    <div class="who-card reveal"><div class="who-emoji">🔬</div><div class="who-title">The biohacker</div><div class="who-desc">You've done your research but you want a system. A protocol built from your actual bloodwork, tracked in one place.</div></div>
+    <div class="who-card reveal"><div class="who-emoji">🩹</div><div class="who-title">The injury recovery</div><div class="who-desc">You have a chronic injury, joint pain, or slow recovery. You want to know if BPC-157 or TB-500 is right for your situation.</div></div>
+    <div class="who-card reveal"><div class="who-emoji">⏳</div><div class="who-title">The longevity seeker</div><div class="who-desc">You're playing the long game — sleep quality, cellular health, GH optimization. Research-backed, not marketing fluff.</div></div>
+  </div>
+</div>
+</div>
+
+<!-- BEFORE / AFTER -->
+<div class="ba-bg">
+<div class="ba-inner reveal">
+  <div class="section-eyebrow" style="text-align:center;">The difference</div>
+  <h2 class="section-title" style="text-align:center;margin-bottom:32px;">What changes when you stop guessing.</h2>
+  <div class="ba-cards">
+    <div class="ba-card before reveal">
+      <div class="ba-card-label before-label">Without PepTrak</div>
+      <div class="ba-rows">
+        <div class="ba-row"><div class="ba-x">✗</div><div class="ba-text">Generic forum protocol written for someone else</div></div>
+        <div class="ba-row"><div class="ba-x">✗</div><div class="ba-text">Guessing doses based on body weight</div></div>
+        <div class="ba-row"><div class="ba-x">✗</div><div class="ba-text">No idea if it's working or why</div></div>
+        <div class="ba-row"><div class="ba-x">✗</div><div class="ba-text">Tracking doses in your notes app</div></div>
+        <div class="ba-row"><div class="ba-x">✗</div><div class="ba-text">Googling side effects at 2am</div></div>
+        <div class="ba-row"><div class="ba-x">✗</div><div class="ba-text">Wrong BAC water ratio, wasted vial</div></div>
+      </div>
+    </div>
+    <div class="ba-card after reveal">
+      <div class="ba-card-label after-label">With PepTrak</div>
+      <div class="ba-rows">
+        <div class="ba-row"><div class="ba-check">✓</div><div class="ba-text">Protocol built from your exact biometrics</div></div>
+        <div class="ba-row"><div class="ba-check">✓</div><div class="ba-text">Weight-calculated doses, titration built in</div></div>
+        <div class="ba-row"><div class="ba-check">✓</div><div class="ba-text">"Why you specifically" for every compound</div></div>
+        <div class="ba-row"><div class="ba-check">✓</div><div class="ba-text">One-tap dose logging with streak tracking</div></div>
+        <div class="ba-row"><div class="ba-check">✓</div><div class="ba-text">Alex answers in seconds, knows your full protocol</div></div>
+        <div class="ba-row"><div class="ba-check">✓</div><div class="ba-text">Visual syringe shows exact BAC water and units</div></div>
+      </div>
+    </div>
+  </div>
+</div>
+</div>
+
+<!-- FEATURES -->
+<div id="features" class="features-bg">
+<div class="features-inner">
+  <div class="section-eyebrow">Everything included</div>
+  <h2 class="section-title">Every tool you need.<br>Nothing you don't.</h2>
+  <p class="section-sub" style="margin-bottom:28px;">One subscription covers your entire peptide journey.</p>
+  <div class="feature-list">
+    <div class="feature-item reveal">
+      <div class="feature-icon-wrap"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#0876FF" stroke-width="2" stroke-linecap="round"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></div>
+      <div><div class="feature-title">Personalized Protocol Generator</div><div class="feature-desc">A real AI reviews your complete intake — weight, goals, health history, bloodwork, experience level, budget — and builds a protocol from scratch. Exact doses. Exact timing. Exact reasoning for every compound.</div><div class="feature-tags"><span class="feature-tag">Weight-based dosing</span><span class="feature-tag">Why you specifically</span><span class="feature-tag">55+ compounds</span></div></div>
+    </div>
+    <div class="feature-item reveal">
+      <div class="feature-icon-wrap"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#0876FF" stroke-width="2" stroke-linecap="round"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg></div>
+      <div><div class="feature-title">Alex — Your Research Advisor</div><div class="feature-desc">Alex knows your full protocol, biometrics, and cycle history. Ask why you're taking a compound, whether a side effect is normal, or when to expect results. Available 24/7, responds in seconds.</div><div class="feature-tags"><span class="feature-tag">Protocol-aware</span><span class="feature-tag">Week-specific advice</span><span class="feature-tag">Side effect triage</span></div></div>
+    </div>
+    <div class="feature-item reveal">
+      <div class="feature-icon-wrap"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#0876FF" stroke-width="2" stroke-linecap="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="3" y1="10" x2="21" y2="10"/></svg></div>
+      <div><div class="feature-title">Daily Dose Tracker</div><div class="feature-desc">Tap to log each dose. Grouped by morning, evening, and bedtime. Progress bar, 7-day streak rings, full adherence score, and side effect logging. Miss a day? Retroactive logging is built in.</div><div class="feature-tags"><span class="feature-tag">Streak tracking</span><span class="feature-tag">Missed dose alerts</span><span class="feature-tag">Weekly recaps</span></div></div>
+    </div>
+    <div class="feature-item reveal">
+      <div class="feature-icon-wrap"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#0876FF" stroke-width="2" stroke-linecap="round"><path d="M14.7 6.3a1 1 0 000 1.4l1.6 1.6a1 1 0 001.4 0l3.77-3.77a6 6 0 01-7.94 7.94l-6.91 6.91a2.12 2.12 0 01-3-3l6.91-6.91a6 6 0 017.94-7.94l-3.76 3.76z"/></svg></div>
+      <div><div class="feature-title">Visual Dosing Calculator</div><div class="feature-desc">Select your compound and the calculator shows a live insulin syringe with the exact line to draw to. BAC water amount, concentration, doses per vial, and shelf life — all compound-specific for 55+ peptides.</div><div class="feature-tags"><span class="feature-tag">Syringe visualizer</span><span class="feature-tag">BAC water amounts</span><span class="feature-tag">All peptide blends</span></div></div>
+    </div>
+    <div class="feature-item reveal">
+      <div class="feature-icon-wrap"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#0876FF" stroke-width="2" stroke-linecap="round"><path d="M2 3h6a4 4 0 014 4v14a3 3 0 00-3-3H2z"/><path d="M22 3h-6a4 4 0 00-4 4v14a3 3 0 013-3h7z"/></svg></div>
+      <div><div class="feature-title">55+ Compound Research Library</div><div class="feature-desc">Deep-dive sheets on every peptide. Overview, dosing tiers, stacking guides, a live AI research tab, and verified source links. Filter by goal, difficulty, or your active protocol.</div><div class="feature-tags"><span class="feature-tag">Difficulty ratings</span><span class="feature-tag">Stacking guides</span><span class="feature-tag">Live AI research</span></div></div>
+    </div>
+    <div class="feature-item reveal">
+      <div class="feature-icon-wrap"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#0876FF" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></div>
+      <div><div class="feature-title">Injection Site Rotation</div><div class="feature-desc">6-zone rotation tracker (abdomen quadrants + thighs). Tracks when you last used each site, recommends the least-recently-used zone, and flags overuse. Tissue health matters.</div><div class="feature-tags"><span class="feature-tag">6 zones</span><span class="feature-tag">Auto-recommendation</span><span class="feature-tag">Overuse alerts</span></div></div>
+    </div>
+  </div>
+</div>
+</div>
+
+<!-- ALEX DEMO -->
+<div class="alex-bg">
+<div class="alex-inner">
+  <div class="section-eyebrow" style="color:rgba(8,118,255,0.8);">Meet Alex</div>
+  <h2 class="alex-title">Your research advisor.<br>Available 24/7.</h2>
+  <p class="alex-sub">Alex knows your full protocol, biometrics, and week-by-week history. Ask anything — from basic questions to "why am I feeling this way?"</p>
+  <div class="chat-demo reveal">
+    <div class="chat-label">You</div>
+    <div class="chat-bubble user">I'm in week 2 and feeling tired in the afternoons. Is that normal?</div>
+    <div class="chat-label" style="margin-top:8px;">Alex</div>
+    <div class="chat-bubble alex">Really common in week 2, especially with CJC + Ipamorelin.</div>
+    <div class="chat-bubble alex">Your GH pulse at bedtime is ramping up — afternoon fatigue is often a sign it's actually working.</div>
+    <div class="chat-bubble alex">How's your sleep been? If you're sleeping deeper than usual, that's the GH doing its thing. The fatigue usually fades by week 3–4.</div>
+  </div>
+  <div style="margin-top:24px;text-align:center;">
+    <a href="/onboarding" class="btn-hero" style="font-size:14px;padding:14px 28px;">Try PepTrak free →</a>
+  </div>
+</div>
+</div>
+
+<!-- COMPOUNDS -->
+<div class="compounds-bg">
+<div class="compounds-inner reveal">
+  <div class="section-eyebrow">Compound library</div>
+  <h2 class="section-title">55+ compounds. Every one researched.</h2>
+  <p class="section-sub" style="margin-bottom:4px;">From beginner-friendly blends to advanced compounds. Every peptide has a full research sheet, dosing guide, and stacking recommendations.</p>
+  <div class="compounds-scroll">
+    <div class="compound-row reveal"><div class="compound-dot" style="background:#0876FF;"></div><div><div class="compound-name">GLOW Blend (BPC-157 + TB-500 + GHK-Cu)</div><div class="compound-tag">Recovery · Healing · Collagen</div></div><div class="diff-badge" style="background:#E6FAF3;color:#00A065;">Beginner</div></div>
+    <div class="compound-row reveal"><div class="compound-dot" style="background:#0876FF;"></div><div><div class="compound-name">CJC-1295 + Ipamorelin Blend</div><div class="compound-tag">GH Secretagogue · Sleep · Muscle</div></div><div class="diff-badge" style="background:#E6FAF3;color:#00A065;">Beginner</div></div>
+    <div class="compound-row reveal"><div class="compound-dot" style="background:#F0A500;"></div><div><div class="compound-name">Retatrutide</div><div class="compound-tag">GLP-1 Triple Agonist · Fat Loss</div></div><div class="diff-badge" style="background:#FEE2E2;color:#FF3B30;">Advanced</div></div>
+    <div class="compound-row reveal"><div class="compound-dot" style="background:#F0A500;"></div><div><div class="compound-name">Semax + Selank</div><div class="compound-tag">Cognitive · Anxiety · Focus</div></div><div class="diff-badge" style="background:#FEF3C7;color:#92400E;">Intermediate</div></div>
+    <div class="compound-row reveal"><div class="compound-dot" style="background:#0876FF;"></div><div><div class="compound-name">Epithalon</div><div class="compound-tag">Longevity · Telomere · Sleep</div></div><div class="diff-badge" style="background:#E6FAF3;color:#00A065;">Beginner</div></div>
+    <div class="compound-row reveal"><div class="compound-dot" style="background:#F0A500;"></div><div><div class="compound-name">IGF-1 LR3</div><div class="compound-tag">IGF · Muscle · Recovery</div></div><div class="diff-badge" style="background:#FEE2E2;color:#FF3B30;">Advanced</div></div>
+  </div>
+  <div style="text-align:center;margin-top:20px;"><a href="/library" style="font-size:13px;font-weight:600;color:var(--blue);text-decoration:none;">View full library →</a></div>
+</div>
+</div>
+
+<!-- TESTIMONIALS -->
+<div class="testis-bg">
+<div class="testis-inner">
+  <div class="section-eyebrow">Real results</div>
+  <h2 class="section-title">What members are saying.</h2>
+  <div class="testi-list">
+    <div class="testi-card reveal"><div class="testi-stars">★★★★★</div><div class="testi-quote">"PepTrak answered what 3 months of forum reading couldn't. The protocol referenced my actual bloodwork and explained exactly why each compound. 8 weeks in, down 14lbs and holding muscle."</div><div class="testi-author"><div class="testi-avatar">M</div><div><div class="testi-name">Marcus T.</div><div class="testi-detail">38 · San Diego</div><div class="testi-goal">Fat loss protocol</div></div></div></div>
+    <div class="testi-card reveal"><div class="testi-stars">★★★★★</div><div class="testi-quote">"I'd basically given up on my rotator cuff. PepTrak built me a GLOW protocol, the dosing calculator made the first vial so easy, and at 6 weeks I had 80% range of motion back."</div><div class="testi-author"><div class="testi-avatar">J</div><div><div class="testi-name">Jake R.</div><div class="testi-detail">44 · Austin</div><div class="testi-goal">Recovery protocol</div></div></div></div>
+    <div class="testi-card reveal"><div class="testi-stars">★★★★★</div><div class="testi-quote">"Zero experience, terrified of needles. The intake caught that and built my protocol around intranasal first. Alex walked me through every step. 3 months later, sleep is the best it's been in years."</div><div class="testi-author"><div class="testi-avatar">S</div><div><div class="testi-name">Sarah K.</div><div class="testi-detail">29 · Chicago</div><div class="testi-goal">Cognitive + sleep protocol</div></div></div></div>
+  </div>
+</div>
+</div>
+
+<!-- PRICING -->
+<div id="pricing" class="pricing-bg">
+<div class="pricing-inner reveal">
+  <div class="section-eyebrow">Pricing</div>
+  <h2 class="section-title">Simple, transparent pricing.</h2>
+  <p class="section-sub" style="margin-bottom:8px;">Start free. No credit card required until your trial ends.</p>
+  <div class="pricing-cards">
+    <div class="pricing-card featured reveal">
+      <div class="pricing-badge">Most Popular</div>
+      <div style="display:flex;align-items:baseline;gap:4px;"><div class="pricing-amount">$12</div><div class="pricing-per">/mo</div></div>
+      <div class="pricing-billed">Billed $149/year · Save $151 vs monthly</div>
+      <div class="pricing-features">
+        <div class="pricing-feat"><div class="pricing-feat-check"><svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="#00C076" stroke-width="3.5" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg></div>Unlimited protocol generations</div>
+        <div class="pricing-feat"><div class="pricing-feat-check"><svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="#00C076" stroke-width="3.5" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg></div>Unlimited Alex advisor access</div>
+        <div class="pricing-feat"><div class="pricing-feat-check"><svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="#00C076" stroke-width="3.5" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg></div>Full dose tracker + weekly recaps</div>
+        <div class="pricing-feat"><div class="pricing-feat-check"><svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="#00C076" stroke-width="3.5" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg></div>55+ compound research library</div>
+        <div class="pricing-feat"><div class="pricing-feat-check"><svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="#00C076" stroke-width="3.5" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg></div>Visual dosing calculator + all tools</div>
+        <div class="pricing-feat"><div class="pricing-feat-check"><svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="#00C076" stroke-width="3.5" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg></div>Cycle history + progress tracking</div>
+      </div>
+      <a href="/onboarding" class="pricing-cta primary">Start 21-Day Free Trial</a>
+      <div class="pricing-trial-note">No charge for 21 days. Cancel anytime.</div>
+    </div>
+    <div class="pricing-card reveal">
+      <div style="display:flex;align-items:baseline;gap:4px;"><div class="pricing-amount">$24.99</div><div class="pricing-per">/mo</div></div>
+      <div class="pricing-billed">Billed monthly</div>
+      <div class="pricing-features">
+        <div class="pricing-feat"><div class="pricing-feat-check"><svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="#00C076" stroke-width="3.5" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg></div>Everything in Annual plan</div>
+        <div class="pricing-feat"><div class="pricing-feat-check"><svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="#00C076" stroke-width="3.5" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg></div>No annual commitment</div>
+      </div>
+      <a href="/onboarding" class="pricing-cta secondary">Start 21-Day Free Trial</a>
+      <div class="pricing-trial-note">No charge for 21 days. Cancel anytime.</div>
+    </div>
+  </div>
+</div>
+</div>
+
+<!-- FAQ -->
+<div class="faq-bg">
+<div class="faq-inner reveal">
+  <div class="section-eyebrow">Questions</div>
+  <h2 class="section-title">Answers to the things beginners always ask.</h2>
+  <div class="faq-list">
+    <div class="faq-item"><div class="faq-q" onclick="toggleFaq(this)">Do I need any experience with peptides?<div class="faq-icon">+</div></div><div class="faq-a">Not at all. PepTrak was built with complete beginners in mind. The intake questionnaire asks about your experience level and injection comfort — the protocol it generates is calibrated to where you are right now.</div></div>
+    <div class="faq-item"><div class="faq-q" onclick="toggleFaq(this)">Are peptides safe? What about side effects?<div class="faq-icon">+</div></div><div class="faq-a">Peptides are research compounds. Most commonly used peptides like BPC-157, TB-500, and GH secretagogues have strong safety records at proper doses. PepTrak uses conservative dosing for beginners, includes a side effect logging system, and Alex is trained to triage side effects. PepTrak is for research use only and is not medical advice.</div></div>
+    <div class="faq-item"><div class="faq-q" onclick="toggleFaq(this)">What if I'm scared of injections?<div class="faq-icon">+</div></div><div class="faq-a">The intake asks specifically about injection comfort. If you're nervous, your protocol will prioritize intranasal compounds that require no injections at all. For injectable protocols, Alex walks you through first-injection guidance step by step.</div></div>
+    <div class="faq-item"><div class="faq-q" onclick="toggleFaq(this)">How is this different from forum research?<div class="faq-icon">+</div></div><div class="faq-a">Forum protocols are written for anonymous users with no knowledge of your body weight, health history, bloodwork, or experience level. PepTrak uses your actual data to build something specific to you — and you have an advisor available 24/7 who knows your full context.</div></div>
+    <div class="faq-item"><div class="faq-q" onclick="toggleFaq(this)">Where do I get the actual peptides?<div class="faq-icon">+</div></div><div class="faq-a">Your protocol includes a direct link to order from Trident Labs, a verified peptide supplier with 6-panel COA testing on every batch. PepTrak doesn't sell compounds — we connect you to verified sources.</div></div>
+    <div class="faq-item"><div class="faq-q" onclick="toggleFaq(this)">What happens after the 21-day trial?<div class="faq-icon">+</div></div><div class="faq-a">After 21 days, you'll be charged for the plan you selected — $24.99/month or $149/year. You can cancel anytime before the trial ends with no charge. Your protocol, tracker data, and cycle history are saved to your account.</div></div>
+  </div>
+</div>
+</div>
+
+<!-- FINAL CTA -->
+<div class="final-cta">
+  <div class="final-cta-inner reveal">
+    <div class="section-eyebrow" style="color:rgba(8,118,255,0.7);margin-bottom:16px;">Start today</div>
+    <h2 class="final-title">Your protocol is<br>10 minutes away.</h2>
+    <p class="final-sub">Stop guessing. Start with a protocol built for your exact body.</p>
+    <a href="/onboarding" class="btn-hero" style="font-size:16px;padding:18px 40px;">Build My Protocol — Free →</a>
+    <div class="final-disclaimer">For research use only · Not medical advice · Cancel anytime</div>
+  </div>
+</div>
+
+<footer>
+  <a href="/" class="footer-logo"><div class="hdr-mark">P</div>PepTrak</a>
+  <div class="footer-links">
+    <a href="/privacy" class="footer-link">Privacy</a>
+    <a href="/terms" class="footer-link">Terms</a>
+  </div>
+</footer>
+
+<script>
+// ── AUTH-AWARE CTAs ──
+(function(){
+  var paid=localStorage.getItem('peptrak_paid'),email=localStorage.getItem('peptrak_auth_email');
+  if(paid&&email){
+    var cta=document.querySelector('.hdr-cta');if(cta){cta.textContent='Go to App';cta.href='/tracker';}
+    var si=document.querySelector('.hdr-signin');if(si){si.textContent='My Account';si.href='/account';}
+    var dc=document.querySelector('.drawer-cta');if(dc){dc.textContent='Go to App →';dc.href='/tracker';}
+    var ds=document.querySelector('.drawer-signin');if(ds){ds.textContent='My Account';ds.href='/account';}
+    document.querySelectorAll('.btn-hero').forEach(function(b){if(b.href&&b.href.indexOf('/onboarding')>-1){b.textContent='Go to My Protocol →';b.href='/protocol';}});
+    document.querySelectorAll('.pricing-cta').forEach(function(b){b.textContent='Go to App';b.href='/tracker';});
+  }
+})();
+
+// ── REF CODE CAPTURE ──
+(function(){
+  var p=new URLSearchParams(window.location.search),ref=p.get('ref');
+  if(ref&&ref.length>=3){localStorage.setItem('peptrak_ref_code',ref.toUpperCase());localStorage.setItem('peptrak_ref_ts',Date.now().toString());}
+})();
+
+// ── DEMO SWITCHER ──
+function switchDemo(id, btn){
+  // Tabs
+  document.querySelectorAll('.demo-tab').forEach(function(t){t.classList.remove('active');});
+  if(btn&&btn.classList){btn.classList.add('active');}
+  else{document.querySelectorAll('.demo-tab').forEach(function(t){if((t.getAttribute('onclick')||'').indexOf("'"+id+"'")>-1)t.classList.add('active');});}
+  // Screens
+  document.querySelectorAll('.screen-panel').forEach(function(p){p.classList.remove('active');});
+  var sc=document.getElementById('screen-'+id);if(sc)sc.classList.add('active');
+  // Callouts
+  document.querySelectorAll('.callout').forEach(function(c){c.classList.remove('active');});
+  var co=document.getElementById('callout-'+id);if(co)co.classList.add('active');
+}
+
+// ── PARTICLE CANVAS ──
+(function(){
+  var canvas=document.getElementById('hero-canvas');if(!canvas)return;
+  var ctx=canvas.getContext('2d');var W,H;
+  function resize(){W=canvas.width=canvas.offsetWidth;H=canvas.height=canvas.offsetHeight;}
+  resize();window.addEventListener('resize',resize);
+  var mols=[];
+  function make(){return{x:Math.random()*W,y:Math.random()*H,type:Math.floor(Math.random()*3),size:Math.random()*10+8,angle:Math.random()*Math.PI*2,dA:(Math.random()-0.5)*0.012,dx:(Math.random()-0.5)*0.45,dy:(Math.random()-0.5)*0.45,o:Math.random()*0.15+0.07};}
+  for(var i=0;i<38;i++){var m=make();m.x=(i%6)*(W/5)+Math.random()*(W/5);m.y=Math.floor(i/6)*(H/7)+Math.random()*(H/7);mols.push(m);}
+  function drawHex(x,y,r,a,o){ctx.save();ctx.translate(x,y);ctx.rotate(a);ctx.beginPath();for(var i=0;i<6;i++){var ang=(Math.PI/3)*i;i===0?ctx.moveTo(Math.cos(ang)*r,Math.sin(ang)*r):ctx.lineTo(Math.cos(ang)*r,Math.sin(ang)*r);}ctx.closePath();ctx.strokeStyle='rgba(8,118,255,'+o+')';ctx.lineWidth=1;ctx.stroke();ctx.beginPath();ctx.arc(0,0,1.5,0,Math.PI*2);ctx.fillStyle='rgba(8,118,255,'+(o*1.5)+')';ctx.fill();ctx.restore();}
+  function drawChain(x,y,r,a,o){ctx.save();ctx.translate(x,y);ctx.rotate(a);var ns=[{nx:-r*1.2,ny:0},{nx:0,ny:0},{nx:r*1.2,ny:0}];ctx.strokeStyle='rgba(8,118,255,'+o+')';ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(ns[0].nx,ns[0].ny);ns.forEach(function(n){ctx.lineTo(n.nx,n.ny);});ctx.stroke();ctx.beginPath();ctx.moveTo(0,0);ctx.lineTo(0,-r*0.9);ctx.stroke();ns.forEach(function(n,i){ctx.beginPath();ctx.arc(n.nx,n.ny,i===1?2.5:2,0,Math.PI*2);ctx.fillStyle='rgba(8,118,255,'+(o*1.8)+')';ctx.fill();});ctx.restore();}
+  function drawTri(x,y,r,a,o){ctx.save();ctx.translate(x,y);ctx.rotate(a);ctx.beginPath();for(var i=0;i<5;i++){var ang=(Math.PI*2/5)*i-Math.PI/2;i===0?ctx.moveTo(Math.cos(ang)*r,Math.sin(ang)*r):ctx.lineTo(Math.cos(ang)*r,Math.sin(ang)*r);}ctx.closePath();ctx.strokeStyle='rgba(8,118,255,'+o+')';ctx.lineWidth=1;ctx.stroke();ctx.restore();}
+  function draw(){ctx.clearRect(0,0,W,H);mols.forEach(function(m){m.x+=m.dx;m.y+=m.dy;m.angle+=m.dA;if(m.x<-40)m.x=W+40;if(m.x>W+40)m.x=-40;if(m.y<-40)m.y=H+40;if(m.y>H+40)m.y=-40;if(m.type===0)drawHex(m.x,m.y,m.size,m.angle,m.o);else if(m.type===1)drawChain(m.x,m.y,m.size,m.angle,m.o);else drawTri(m.x,m.y,m.size,m.angle,m.o);});requestAnimationFrame(draw);}
+  draw();
+})();
+
+// ── HEADER SCROLL ──
+(function(){
+  var hdr=document.getElementById('hdr');
+  window.addEventListener('scroll',function(){hdr.classList.toggle('scrolled',window.scrollY>20);},{passive:true});
+})();
+
+// ── WORD ROTATION ──
+(function(){
+  var words=document.querySelectorAll('.hero-word'),current=0;
+  function next(){words[current].classList.remove('active');words[current].classList.add('exit');var prev=current;current=(current+1)%words.length;words[current].classList.add('active');setTimeout(function(){words[prev].classList.remove('exit');},500);}
+  setInterval(next,2400);
+})();
+
+// ── LIVE COUNTER ──
+(function(){
+  var el=document.getElementById('hero-proof');if(!el)return;
+  var now=new Date(),dom=now.getDate(),tod=(now.getHours()*3600+now.getMinutes()*60+now.getSeconds());
+  var count=Math.floor(1231+100*((((dom-1)*86400)+tod)/(new Date(now.getFullYear(),now.getMonth()+1,0).getDate()*86400)));
+  var start=Math.max(1231,count-8),dur=1800,t0=performance.now();
+  function up(t){var p=Math.min((t-t0)/dur,1),e=1-Math.pow(1-p,3);el.textContent=Math.floor(start+(count-start)*e).toLocaleString()+' protocols built this month';if(p<1)requestAnimationFrame(up);}
+  requestAnimationFrame(up);
+  setInterval(function(){count++;el.textContent=count.toLocaleString()+' protocols built this month';},864000);
+})();
+
+// ── SCROLL REVEAL ──
+(function(){
+  var io=new IntersectionObserver(function(entries){entries.forEach(function(e){if(e.isIntersecting){e.target.classList.add('visible');io.unobserve(e.target);}});},{threshold:0.12});
+  document.querySelectorAll('.reveal').forEach(function(el){io.observe(el);});
+})();
+
+// ── FAQ ──
+function toggleFaq(el){var item=el.parentElement,isOpen=item.classList.contains('open');document.querySelectorAll('.faq-item.open').forEach(function(i){i.classList.remove('open');});if(!isOpen)item.classList.add('open');}
+
+// ── DRAWER ──
+function toggleDrawer(){var d=document.getElementById('drawer'),o=document.getElementById('drawer-overlay'),isOpen=d.classList.contains('open');if(isOpen){closeDrawer();}else{d.classList.add('open');o.classList.add('open');document.body.style.overflow='hidden';document.getElementById('hamburger-icon').style.display='none';document.getElementById('close-icon').style.display='block';}}
+function closeDrawer(){document.getElementById('drawer').classList.remove('open');document.getElementById('drawer-overlay').classList.remove('open');document.body.style.overflow='';document.getElementById('hamburger-icon').style.display='block';document.getElementById('close-icon').style.display='none';}
+</script>
+</body>
+</html>

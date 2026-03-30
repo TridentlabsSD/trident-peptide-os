@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"/>
+<title>PepTrak — Update Payment</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+html{-webkit-text-size-adjust:100%;}
+:root{
+  --blue:#0876FF;--ink:#07090D;--ink-2:#1A1D23;
+  --gray-1:#F7F8FA;--gray-2:#EAECF0;--gray-3:#C8CDD6;
+  --gray-4:#8A919E;--gray-5:#545B67;--white:#FFFFFF;
+  --red:#FF3B30;--red-pale:#FFF1F0;--green:#00C076;
+  --font:-apple-system,BlinkMacSystemFont,'SF Pro Display','SF Pro Text','Helvetica Neue',sans-serif;
+}
+body{overflow-x:hidden;-webkit-tap-highlight-color:transparent;font-family:var(--font);background:var(--gray-1);color:var(--ink);-webkit-font-smoothing:antialiased;min-height:100svh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px 20px calc(24px + env(safe-area-inset-bottom));}
+.card{width:100%;max-width:400px;background:var(--white);border:1px solid var(--gray-2);border-radius:22px;padding:32px 28px;box-shadow:0 4px 24px rgba(0,0,0,0.06);}
+.icon-wrap{width:60px;height:60px;border-radius:50%;background:var(--red-pale);display:flex;align-items:center;justify-content:center;margin:0 auto 20px;}
+.title{font-size:22px;font-weight:700;letter-spacing:-0.5px;color:var(--ink);text-align:center;margin-bottom:8px;}
+.sub{font-size:14px;color:var(--gray-4);text-align:center;line-height:1.6;margin-bottom:28px;}
+.alert{background:var(--red-pale);border:1px solid rgba(255,59,48,0.2);border-radius:12px;padding:14px 16px;margin-bottom:20px;font-size:13px;color:var(--red);line-height:1.5;}
+.btn{width:100%;padding:15px;border:none;border-radius:980px;font-size:16px;font-weight:600;font-family:var(--font);cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;transition:opacity 0.15s;}
+.btn-primary{background:var(--blue);color:#fff;box-shadow:0 4px 14px rgba(8,118,255,0.3);margin-bottom:12px;}
+.btn-primary:active{opacity:0.85;}
+.btn-primary:disabled{opacity:0.45;cursor:not-allowed;}
+.btn-secondary{background:transparent;color:var(--gray-4);font-size:14px;padding:12px;}
+.spinner{width:16px;height:16px;border:2px solid rgba(255,255,255,0.3);border-top-color:#fff;border-radius:50%;animation:spin 0.65s linear infinite;}
+@keyframes spin{to{transform:rotate(360deg);}}
+.loading-state{display:flex;flex-direction:column;align-items:center;gap:12px;padding:20px 0;}
+.loading-ring{width:36px;height:36px;border:3px solid var(--gray-2);border-top-color:var(--blue);border-radius:50%;animation:spin 0.8s linear infinite;}
+.loading-txt{font-size:14px;color:var(--gray-4);}
+.success-state{display:none;flex-direction:column;align-items:center;text-align:center;padding:8px 0;}
+.success-ring{width:60px;height:60px;border-radius:50%;background:#E6FAF3;display:flex;align-items:center;justify-content:center;margin-bottom:14px;}
+.success-title{font-size:20px;font-weight:700;color:var(--ink);margin-bottom:6px;}
+.success-sub{font-size:14px;color:var(--gray-5);line-height:1.6;}
+</style>
+</head>
+<body>
+<div class="card" id="main-card">
+  <!-- Loading state while we verify -->
+  <div class="loading-state" id="loading-state">
+    <div class="loading-ring"></div>
+    <div class="loading-txt">Checking your account...</div>
+  </div>
+
+  <!-- Payment failed state -->
+  <div id="failed-state" style="display:none;">
+    <div class="icon-wrap">
+      <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="var(--red)" stroke-width="2.5" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+    </div>
+    <div class="title">Payment failed</div>
+    <div class="sub">Your last payment didn't go through. Update your payment method to restore access to PepTrak.</div>
+    <div class="alert" id="alert-msg">Your subscription is past due. Update your card to continue.</div>
+    <button class="btn btn-primary" id="update-btn" onclick="openPortal()">
+      <span id="btn-txt">Update Payment Method</span>
+      <div class="spinner" id="spinner" style="display:none;"></div>
+    </button>
+    <button class="btn btn-secondary" onclick="signOut()">Sign out</button>
+  </div>
+
+  <!-- Cancelled state -->
+  <div id="cancelled-state" style="display:none;">
+    <div class="icon-wrap" style="background:#F7F8FA;">
+      <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="var(--gray-4)" stroke-width="2.5" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>
+    </div>
+    <div class="title">Subscription cancelled</div>
+    <div class="sub">Your PepTrak subscription has ended. Resubscribe to get access back.</div>
+    <button class="btn btn-primary" onclick="window.location.href='/checkout'">Resubscribe</button>
+    <button class="btn btn-secondary" onclick="signOut()">Sign out</button>
+  </div>
+
+  <!-- Success state -->
+  <div class="success-state" id="success-state">
+    <div class="success-ring">
+      <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="var(--green)" stroke-width="2.5" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg>
+    </div>
+    <div class="success-title">You're back in</div>
+    <div class="success-sub">Payment updated. Redirecting to your protocol...</div>
+  </div>
+</div>
+
+<script>
+var email = localStorage.getItem('peptrak_auth_email');
+var customerId = localStorage.getItem('peptrak_stripe_customer_id');
+var isTest = localStorage.getItem('peptrak_test_account') === '1';
+
+// If test account or not logged in, redirect appropriately
+if(isTest){ window.location.replace('/protocol'); }
+if(!email){ window.location.replace('/signin'); }
+
+async function checkStatus(){
+  try{
+    // Check server-side status
+    var res = await fetch('/api/check-access?email=' + encodeURIComponent(email));
+    var data = await res.json();
+
+    document.getElementById('loading-state').style.display = 'none';
+
+    if(data.access){
+      // They're fine — maybe they already updated. Send them in.
+      showSuccess();
+      return;
+    }
+
+    if(data.status === 'past_due' || data.status === 'unpaid'){
+      document.getElementById('failed-state').style.display = 'block';
+      // Update localStorage to reflect reality
+      localStorage.setItem('peptrak_subscription_status', 'past_due');
+      localStorage.removeItem('peptrak_paid');
+      if(data.stripeCustomerId){
+        localStorage.setItem('peptrak_stripe_customer_id', data.stripeCustomerId);
+        customerId = data.stripeCustomerId;
+      }
+    } else if(data.status === 'cancelled' || data.status === 'canceled'){
+      document.getElementById('cancelled-state').style.display = 'block';
+      localStorage.removeItem('peptrak_paid');
+    } else {
+      // Unknown or none — send to checkout
+      window.location.replace('/checkout');
+    }
+  }catch(e){
+    // Network error — show failed state as safe default
+    document.getElementById('loading-state').style.display = 'none';
+    document.getElementById('failed-state').style.display = 'block';
+  }
+}
+
+async function openPortal(){
+  if(!customerId){
+    document.getElementById('alert-msg').textContent = 'Could not find your account. Please sign out and sign in again.';
+    return;
+  }
+  setLoading(true);
+  try{
+    var res = await fetch('/api/stripe?action=portal', {
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({
+        customerId: customerId,
+        returnUrl: window.location.href
+      })
+    });
+    var data = await res.json();
+    if(data.url) window.location.href = data.url;
+    else throw new Error('No portal URL');
+  }catch(e){
+    setLoading(false);
+    document.getElementById('alert-msg').textContent = 'Could not open billing portal. Try again or contact support@peptrak.com';
+  }
+}
+
+function setLoading(on){
+  document.getElementById('update-btn').disabled = on;
+  document.getElementById('btn-txt').style.display = on ? 'none' : 'block';
+  document.getElementById('spinner').style.display = on ? 'block' : 'none';
+}
+
+function showSuccess(){
+  document.getElementById('failed-state').style.display = 'none';
+  document.getElementById('cancelled-state').style.display = 'none';
+  var s = document.getElementById('success-state');
+  s.style.display = 'flex';
+  // Restore access flag and redirect
+  localStorage.setItem('peptrak_paid', '1');
+  localStorage.setItem('peptrak_subscription_status', 'active');
+  setTimeout(function(){ window.location.replace('/protocol'); }, 2000);
+}
+
+function signOut(){
+  ['peptrak_paid','peptrak_paid_ts','peptrak_auth_email','peptrak_auth_pw',
+   'peptrak_test_account','peptrak_stripe_customer_id','peptrak_stripe_subscription_id',
+   'peptrak_subscription_status','peptrak_trial_end','peptrak_period_end']
+  .forEach(function(k){ localStorage.removeItem(k); });
+  window.location.href = '/';
+}
+
+// When user returns from Stripe portal, re-check status
+var params = new URLSearchParams(window.location.search);
+if(params.get('return') === '1'){
+  // They just came back from Stripe — re-check if payment was updated
+  setTimeout(checkStatus, 1500); // brief delay for webhook to fire
+} else {
+  checkStatus();
+}
+</script>
+</body>
+</html>

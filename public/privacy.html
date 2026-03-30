@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"/>
+<title>Privacy Policy — PepTrak</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+html{-webkit-text-size-adjust:100%;}
+:root{
+  --blue:#0876FF;
+  --blue-pale:#EEF4FF;
+  --ink:#07090D;
+  --ink-2:#1A1D23;
+  --gray-1:#F7F8FA;
+  --gray-2:#EAECF0;
+  --gray-4:#8A919E;
+  --gray-5:#545B67;
+  --white:#FFFFFF;
+  --green:#00C076;
+  --font:-apple-system,BlinkMacSystemFont,'SF Pro Display','SF Pro Text','Helvetica Neue',sans-serif;
+}
+body{overflow-x:hidden;-webkit-tap-highlight-color:transparent;
+  font-family:var(--font);
+  background:var(--white);
+  color:var(--ink);
+  -webkit-font-smoothing:antialiased;
+  min-height:100svh;
+}
+
+/* ── HEADER ── */
+.hdr{
+  position:sticky;top:0;z-index:100;
+  background:rgba(255,255,255,0.96);
+  backdrop-filter:blur(20px);
+  border-bottom:1px solid var(--gray-2);
+  height:56px;
+  display:flex;align-items:center;justify-content:space-between;
+  padding:0 20px;
+}
+.hdr-logo{display:flex;align-items:center;gap:7px;font-size:16px;font-weight:700;color:var(--ink);text-decoration:none;}
+.hdr-mark{width:26px;height:26px;border-radius:7px;background:var(--blue);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;color:#fff;}
+.hdr-back{font-size:14px;font-weight:500;color:var(--blue);text-decoration:none;display:flex;align-items:center;gap:4px;}
+
+/* ── HERO ── */
+.hero{
+  background:var(--ink-2);
+  padding:48px 24px 40px;
+  position:relative;overflow:hidden;
+}
+.hero::before{
+  content:'';position:absolute;top:-80px;right:-60px;
+  width:280px;height:280px;
+  background:radial-gradient(circle,rgba(8,118,255,0.18),transparent 65%);
+  pointer-events:none;
+}
+.hero-eyebrow{
+  font-size:11px;font-weight:700;letter-spacing:0.1em;
+  text-transform:uppercase;color:rgba(8,118,255,0.7);
+  margin-bottom:10px;position:relative;z-index:1;
+}
+.hero-title{
+  font-size:32px;font-weight:700;letter-spacing:-0.6px;
+  color:#fff;line-height:1.15;
+  position:relative;z-index:1;margin-bottom:12px;
+}
+.hero-meta{
+  font-size:12px;color:rgba(255,255,255,0.35);
+  position:relative;z-index:1;
+}
+.ruo-banner{
+  background:rgba(0,192,118,0.12);
+  border:1px solid rgba(0,192,118,0.25);
+  border-radius:12px;
+  padding:14px 16px;
+  margin:24px 24px 0;
+  display:flex;gap:12px;align-items:flex-start;
+}
+.ruo-icon{font-size:18px;flex-shrink:0;margin-top:1px;}
+.ruo-text{font-size:13px;color:var(--gray-5);line-height:1.6;}
+.ruo-text strong{color:var(--ink);font-weight:700;}
+
+/* ── CONTENT ── */
+.content{max-width:680px;margin:0 auto;padding:32px 24px 80px;}
+
+.section{margin-bottom:36px;}
+.section-num{
+  font-size:11px;font-weight:700;letter-spacing:0.08em;
+  text-transform:uppercase;color:var(--blue);margin-bottom:6px;
+}
+.section-title{
+  font-size:20px;font-weight:700;letter-spacing:-0.3px;
+  color:var(--ink);margin-bottom:14px;padding-bottom:12px;
+  border-bottom:1px solid var(--gray-2);
+}
+.prose{font-size:15px;color:var(--gray-5);line-height:1.75;}
+.prose p{margin-bottom:12px;}
+.prose p:last-child{margin-bottom:0;}
+.prose strong{color:var(--ink);font-weight:600;}
+.prose a{color:var(--blue);text-decoration:none;}
+
+.bullet-list{
+  margin:12px 0;padding:0;list-style:none;
+  display:flex;flex-direction:column;gap:8px;
+}
+.bullet-list li{
+  display:flex;gap:10px;
+  font-size:15px;color:var(--gray-5);line-height:1.6;
+}
+.bullet-list li::before{
+  content:'';
+  width:6px;height:6px;border-radius:50%;
+  background:var(--blue);flex-shrink:0;
+  margin-top:8px;
+}
+
+.highlight-box{
+  background:var(--gray-1);border-radius:12px;
+  padding:16px 18px;margin:14px 0;
+}
+.highlight-box p{font-size:14px;color:var(--gray-5);line-height:1.7;margin:0;}
+.highlight-box p strong{color:var(--ink);}
+
+.ruo-callout{
+  background:rgba(8,118,255,0.04);
+  border:1.5px solid rgba(8,118,255,0.15);
+  border-radius:12px;padding:16px 18px;margin:16px 0;
+}
+.ruo-callout p{font-size:14px;color:var(--ink-2);line-height:1.7;margin:0;}
+
+/* ── CONTACT CARD ── */
+.contact-card{
+  background:var(--ink-2);border-radius:16px;
+  padding:24px;margin-top:36px;
+  position:relative;overflow:hidden;
+}
+.contact-card::before{
+  content:'';position:absolute;top:-40px;right:-40px;
+  width:140px;height:140px;
+  background:radial-gradient(circle,rgba(8,118,255,0.15),transparent 65%);
+  pointer-events:none;
+}
+.contact-title{font-size:16px;font-weight:700;color:#fff;margin-bottom:6px;position:relative;z-index:1;}
+.contact-sub{font-size:13px;color:rgba(255,255,255,0.45);margin-bottom:16px;line-height:1.6;position:relative;z-index:1;}
+.contact-email{
+  display:inline-flex;align-items:center;gap:8px;
+  background:rgba(8,118,255,0.2);border:1px solid rgba(8,118,255,0.3);
+  color:#fff;font-size:14px;font-weight:600;
+  padding:11px 18px;border-radius:980px;text-decoration:none;
+  position:relative;z-index:1;
+}
+.toc{
+  background:var(--gray-1);border-radius:14px;
+  padding:20px;margin-bottom:32px;
+}
+.toc-title{font-size:12px;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;color:var(--gray-4);margin-bottom:12px;}
+.toc-list{list-style:none;display:flex;flex-direction:column;gap:6px;}
+.toc-list li a{
+  font-size:14px;color:var(--blue);text-decoration:none;font-weight:500;
+  display:flex;align-items:center;gap:6px;
+}
+.toc-list li a:hover{text-decoration:underline;}
+.divider{height:1px;background:var(--gray-2);margin:36px 0;}
+</style>
+</head>
+<body>
+
+<header class="hdr">
+  <a href="/account" class="hdr-back">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="15 18 9 12 15 6"/></svg>
+    Back
+  </a>
+  <a href="/" class="hdr-logo">
+    <div class="hdr-mark">P</div>
+    PepTrak
+  </a>
+  <div style="width:52px;"></div>
+</header>
+
+<div class="hero">
+  <div class="hero-eyebrow">Legal</div>
+  <div class="hero-title">Privacy Policy</div>
+  <div class="hero-meta">PepTrak LLC &nbsp;·&nbsp; Effective: March 21, 2026 &nbsp;·&nbsp; California</div>
+</div>
+
+<div class="ruo-banner">
+  <div class="ruo-icon">🔬</div>
+  <div class="ruo-text"><strong>Research Use Only Platform.</strong> PepTrak is a research tracking tool. All compounds referenced within this application are for laboratory and research purposes only, not for human consumption. This Privacy Policy governs data collected in the context of that research use.</div>
+</div>
+
+<div class="content">
+
+  <div class="toc">
+    <div class="toc-title">Contents</div>
+    <ol class="toc-list">
+      <li><a href="#s1">1. Who We Are</a></li>
+      <li><a href="#s2">2. What We Collect</a></li>
+      <li><a href="#s3">3. How We Use Your Data</a></li>
+      <li><a href="#s4">4. Data Storage & Security</a></li>
+      <li><a href="#s5">5. Third-Party Services</a></li>
+      <li><a href="#s6">6. Your Rights</a></li>
+      <li><a href="#s7">7. Children's Privacy</a></li>
+      <li><a href="#s8">8. California Privacy Rights (CCPA)</a></li>
+      <li><a href="#s9">9. Changes to This Policy</a></li>
+      <li><a href="#s10">10. Contact</a></li>
+    </ol>
+  </div>
+
+  <div class="section" id="s1">
+    <div class="section-num">01</div>
+    <div class="section-title">Who We Are</div>
+    <div class="prose">
+      <p>PepTrak is a research protocol tracking application operated by <strong>PepTrak LLC</strong>, a California limited liability company ("we," "us," or "our"). Our principal address is in San Diego, California.</p>
+      <p>PepTrak is designed exclusively as a <strong>research use only (RUO) tool</strong>. It assists researchers and licensed professionals in tracking, logging, and organizing information about peptide compounds for research and scientific reference purposes only. Nothing in this application constitutes medical advice, and no compounds or protocols referenced within it are intended for human use.</p>
+    </div>
+  </div>
+
+  <div class="section" id="s2">
+    <div class="section-num">02</div>
+    <div class="section-title">What We Collect</div>
+    <div class="prose">
+      <p>We collect the following categories of information when you use PepTrak:</p>
+    </div>
+    <ul class="bullet-list">
+      <li><strong>Account Information:</strong> Name and email address provided during registration or checkout.</li>
+      <li><strong>Research Intake Data:</strong> Information entered during the protocol questionnaire, including research goals, biometric parameters (height, weight, age range), activity patterns, sleep quality, and prior research experience. This data is used solely to generate a personalized research protocol.</li>
+      <li><strong>Research Tracking Logs:</strong> Dose tracking entries, adherence records, side effect observations, and research notes you log within the app. This data is stored locally on your device and may be transmitted to our servers if you enable sync features.</li>
+      <li><strong>Payment Information:</strong> Billing name, email, and payment method details processed via Stripe. We do not store full card numbers — all payment processing is handled by Stripe, Inc.</li>
+      <li><strong>Device & Usage Data:</strong> Browser type, device type, operating system, IP address, pages visited, and feature usage patterns. Collected to improve app performance and user experience.</li>
+      <li><strong>Communications:</strong> Any messages you send to our support team or through in-app feedback channels.</li>
+    </ul>
+    <div class="highlight-box">
+      <p><strong>Local Storage:</strong> The majority of your research tracking data (protocols, dose logs, tracker history) is stored locally in your browser's localStorage and does not leave your device unless you explicitly use a sync or export feature.</p>
+    </div>
+  </div>
+
+  <div class="section" id="s3">
+    <div class="section-num">03</div>
+    <div class="section-title">How We Use Your Data</div>
+    <div class="prose">
+      <p>We use your information for the following purposes:</p>
+    </div>
+    <ul class="bullet-list">
+      <li><strong>Protocol Generation:</strong> Your research intake data is transmitted to our AI research system to generate a personalized research compound protocol. This data is processed in real time and not retained by the AI system beyond the duration of the request.</li>
+      <li><strong>Research Advisor (Alex):</strong> Tracker summaries and protocol context may be sent to our research advisor system to provide contextually relevant research guidance. This data is processed per-session and is not used for AI training.</li>
+      <li><strong>Subscription Management:</strong> Billing and account data is used to manage your subscription, process payments, and communicate about your account.</li>
+      <li><strong>Service Improvement:</strong> Aggregated, anonymized usage data is used to improve app features, fix bugs, and optimize the research experience.</li>
+      <li><strong>Legal Compliance:</strong> We may use or disclose data as required by applicable law, regulation, legal process, or governmental request.</li>
+    </ul>
+    <div class="ruo-callout">
+      <p><strong>We do not sell your personal data.</strong> We do not share your research intake data, tracking logs, or personal information with third-party advertisers or data brokers. Your research data is yours.</p>
+    </div>
+  </div>
+
+  <div class="section" id="s4">
+    <div class="section-num">04</div>
+    <div class="section-title">Data Storage & Security</div>
+    <div class="prose">
+      <p>Research tracking data is stored primarily in your browser's local storage. Where server-side storage is used (account data, subscription records), data is stored on secured infrastructure provided by Cloudways and protected by industry-standard encryption (TLS in transit, AES-256 at rest).</p>
+      <p>We implement reasonable administrative, technical, and physical security measures to protect your data. However, no system is completely secure. We encourage you to use a strong, unique password and to contact us immediately if you suspect unauthorized access to your account.</p>
+      <p>We retain your account data for as long as your account is active. Research tracking data stored locally persists until you clear your browser data or use the "Reset All Data" function within the app. Upon account deletion request, we will delete your server-side data within 30 days.</p>
+    </div>
+  </div>
+
+  <div class="section" id="s5">
+    <div class="section-num">05</div>
+    <div class="section-title">Third-Party Services</div>
+    <div class="prose">
+      <p>PepTrak uses the following third-party services. Each has its own privacy policy governing how they handle data:</p>
+    </div>
+    <ul class="bullet-list">
+      <li><strong>Anthropic (Claude API):</strong> Our AI research protocol generation and advisor features are powered by Anthropic's Claude API. Research intake data and session context is transmitted to Anthropic to generate responses. Anthropic does not use API data to train its models. See <a href="https://www.anthropic.com/privacy" target="_blank">anthropic.com/privacy</a>.</li>
+      <li><strong>Stripe, Inc.:</strong> All payment processing is handled by Stripe. We do not store payment card details. See <a href="https://stripe.com/privacy" target="_blank">stripe.com/privacy</a>.</li>
+      <li><strong>Vercel:</strong> The PepTrak application is hosted on Vercel's infrastructure. See <a href="https://vercel.com/legal/privacy-policy" target="_blank">vercel.com/legal/privacy-policy</a>.</li>
+      <li><strong>Cloudways:</strong> Backend infrastructure and database hosting. See <a href="https://www.cloudways.com/en/privacy.php" target="_blank">cloudways.com/privacy</a>.</li>
+    </ul>
+    <div class="highlight-box">
+      <p>When you interact with the Alex research advisor or protocol generation features, your research context (goals, tracking data, protocol information) is transmitted to Anthropic's API to generate responses. This data is used solely for generating your response and is not retained or used for model training per Anthropic's API terms.</p>
+    </div>
+  </div>
+
+  <div class="section" id="s6">
+    <div class="section-num">06</div>
+    <div class="section-title">Your Rights</div>
+    <div class="prose">
+      <p>You have the following rights with respect to your personal data:</p>
+    </div>
+    <ul class="bullet-list">
+      <li><strong>Access:</strong> You may request a copy of the personal data we hold about you.</li>
+      <li><strong>Correction:</strong> You may request correction of inaccurate or incomplete data.</li>
+      <li><strong>Deletion:</strong> You may request deletion of your account and associated server-side data. Local data can be cleared at any time using the "Reset All Data" option in your Account settings.</li>
+      <li><strong>Data Portability:</strong> You may request your data in a portable format.</li>
+      <li><strong>Opt-Out:</strong> You may opt out of non-essential communications at any time by contacting us or using unsubscribe links in emails.</li>
+    </ul>
+    <div class="prose" style="margin-top:12px;">
+      <p>To exercise any of these rights, contact us at <a href="/cdn-cgi/l/email-protection#becdcbceced1cccafecedbcecaccdfd590ddd1d3"><span class="__cf_email__" data-cfemail="7b080e0b0b14090f3b0b1e0b0f091a1055181416">[email&#160;protected]</span></a>. We will respond within 30 days.</p>
+    </div>
+  </div>
+
+  <div class="section" id="s7">
+    <div class="section-num">07</div>
+    <div class="section-title">Children's Privacy</div>
+    <div class="prose">
+      <p>PepTrak is a research platform intended for use by adults aged 18 and older. We do not knowingly collect personal information from individuals under the age of 18. If you are under 18, you may not use PepTrak.</p>
+      <p>If we become aware that we have collected personal data from a minor, we will take prompt steps to delete that information. If you believe we have inadvertently collected data from a minor, please contact us at <a href="/cdn-cgi/l/email-protection#c7b4b2b7b7a8b5b387b7a2b7b3b5a6ace9a4a8aa"><span class="__cf_email__" data-cfemail="44373134342b3630043421343036252f6a272b29">[email&#160;protected]</span></a>.</p>
+    </div>
+  </div>
+
+  <div class="section" id="s8">
+    <div class="section-num">08</div>
+    <div class="section-title">California Privacy Rights (CCPA)</div>
+    <div class="prose">
+      <p>If you are a California resident, you have additional rights under the California Consumer Privacy Act (CCPA):</p>
+    </div>
+    <ul class="bullet-list">
+      <li><strong>Right to Know:</strong> You may request information about the categories and specific pieces of personal data we collect, use, disclose, and sell.</li>
+      <li><strong>Right to Delete:</strong> You may request deletion of your personal data, subject to certain exceptions.</li>
+      <li><strong>Right to Non-Discrimination:</strong> We will not discriminate against you for exercising your CCPA rights.</li>
+      <li><strong>Right to Opt-Out of Sale:</strong> We do not sell personal information. You therefore do not need to opt out of any sale of your data.</li>
+    </ul>
+    <div class="prose" style="margin-top:12px;">
+      <p>To submit a CCPA request, email <a href="/cdn-cgi/l/email-protection#92e1e7e2e2fde0e6d2e2f7e2e6e0f3f9bcf1fdff"><span class="__cf_email__" data-cfemail="02717772726d707642726772767063692c616d6f">[email&#160;protected]</span></a> with the subject line "CCPA Request." We will respond within 45 days.</p>
+    </div>
+  </div>
+
+  <div class="section" id="s9">
+    <div class="section-num">09</div>
+    <div class="section-title">Changes to This Policy</div>
+    <div class="prose">
+      <p>We may update this Privacy Policy from time to time to reflect changes in our practices, technology, or legal requirements. When we make material changes, we will update the "Effective" date at the top of this page and, where appropriate, notify you via email or an in-app notice.</p>
+      <p>Your continued use of PepTrak after any changes constitutes acceptance of the updated Privacy Policy. We encourage you to review this page periodically.</p>
+    </div>
+  </div>
+
+  <div class="section" id="s10">
+    <div class="section-num">10</div>
+    <div class="section-title">Contact</div>
+    <div class="prose">
+      <p>If you have questions, concerns, or requests regarding this Privacy Policy or your personal data, please contact us:</p>
+    </div>
+
+    <div class="contact-card">
+      <div class="contact-title">Privacy Inquiries</div>
+      <div class="contact-sub">PepTrak LLC &nbsp;·&nbsp; San Diego, California<br>We respond to all privacy requests within 30 days.</div>
+      <a href="/cdn-cgi/l/email-protection#02717772726d707642726772767063692c616d6f" class="contact-email">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+        <span class="__cf_email__" data-cfemail="f4878184849b8680b48491848086959fda979b99">[email
