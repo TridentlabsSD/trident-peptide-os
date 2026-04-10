@@ -46,7 +46,7 @@ body{
   padding:0 20px;
 }
 .hdr-logo{display:flex;align-items:center;gap:7px;font-size:16px;font-weight:700;color:var(--ink);text-decoration:none;}
-.hdr-mark{width:26px;height:26px;border-radius:7px;background:var(--blue);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;color:#fff;}
+.hdr-mark{width:26px;height:26px;border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;color:#fff;}
 .hdr-streak{
   display:flex;align-items:center;gap:5px;
   font-size:14px;font-weight:700;color:var(--ink);
@@ -405,31 +405,7 @@ body{
 
 
 /* ── INSTALL PROMPT ── */
-.install-sheet-overlay{
-  display:none;position:fixed;inset:0;z-index:998;
-  background:rgba(7,9,13,0.5);backdrop-filter:blur(6px);
-}
-.install-sheet-overlay.show{display:block;}
-.install-sheet{
-  position:fixed;bottom:0;left:0;right:0;z-index:999;
-  background:#fff;border-radius:24px 24px 0 0;
-  padding:20px 20px calc(24px + env(safe-area-inset-bottom));
-  transform:translateY(100%);
-  transition:transform 0.38s cubic-bezier(0.32,0.72,0,1);
-  max-width:520px;margin:0 auto;
-}
-.install-sheet.show{transform:translateY(0);}
-.install-sheet-handle{width:36px;height:4px;background:var(--gray-2);border-radius:99px;margin:0 auto 18px;}
-.install-sheet-eyebrow{font-size:10px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:var(--blue);margin-bottom:6px;}
-.install-sheet-title{font-size:20px;font-weight:700;letter-spacing:-0.4px;color:var(--ink);margin-bottom:6px;}
-.install-sheet-sub{font-size:14px;color:var(--gray-5);line-height:1.6;margin-bottom:20px;}
-.install-steps-list{display:flex;flex-direction:column;gap:10px;margin-bottom:22px;}
-.install-step-row{display:flex;gap:12px;align-items:flex-start;}
-.install-step-num{width:24px;height:24px;border-radius:50%;background:var(--blue);color:#fff;font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px;}
-.install-step-txt{font-size:13px;color:var(--ink);line-height:1.55;}
-.install-step-txt strong{font-weight:600;}
-.install-sheet-btn{width:100%;padding:15px;background:var(--ink);color:#fff;border:none;border-radius:980px;font-size:15px;font-weight:600;font-family:var(--font);cursor:pointer;margin-bottom:10px;-webkit-tap-highlight-color:transparent;}
-.install-sheet-skip{width:100%;padding:12px;background:none;border:none;font-size:13px;color:var(--gray-4);font-family:var(--font);cursor:pointer;}
+
 
 /* ── BOTTOM NAV ── */
 .bnav{
@@ -514,7 +490,7 @@ body{
 <!-- HEADER -->
 <header class="hdr">
   <a href="/tracker" class="hdr-logo">
-    <div class="hdr-mark">P</div>
+    <div class="hdr-mark"><img src="/peptrak-logo.png" alt="PepTrak" style="width:100%;height:100%;object-fit:contain;display:block;"/></div>
     PepTrak
   </a>
   <div style="display:flex;align-items:center;gap:10px;">
@@ -1281,7 +1257,7 @@ function checkInstallPrompt(){
 
   // Show after 3 seconds so tracker loads first
   setTimeout(function(){
-    document.getElementById('install-overlay').classList.add('show');
+    showInstallBanner();
     setTimeout(function(){
       document.getElementById('install-sheet').classList.add('show');
     }, 50);
@@ -2255,47 +2231,7 @@ function getPrevWeekAdherenceForRecap(){
 init();
 </script>
 
-<!-- INSTALL PROMPT -->
-<div class="install-sheet-overlay" id="install-overlay" onclick="dismissInstall()"></div>
-<div class="install-sheet" id="install-sheet">
-  <div class="install-sheet-handle"></div>
-  <div class="install-sheet-eyebrow">Quick setup</div>
-  <div class="install-sheet-title">Add PepTrak to your home screen</div>
-  <div class="install-sheet-sub">Open the app instantly every time you dose — no browser, no searching.</div>
 
-  <div id="install-steps-ios" class="install-steps-list">
-    <div class="install-step-row">
-      <div class="install-step-num">1</div>
-      <div class="install-step-txt">Tap the <strong>Share button</strong> <svg style="vertical-align:-3px;" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M4 12v8a2 2 0 002 2h12a2 2 0 002-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/></svg> at the bottom of Safari</div>
-    </div>
-    <div class="install-step-row">
-      <div class="install-step-num">2</div>
-      <div class="install-step-txt">Scroll down and tap <strong>"Add to Home Screen"</strong></div>
-    </div>
-    <div class="install-step-row">
-      <div class="install-step-num">3</div>
-      <div class="install-step-txt">Tap <strong>Add</strong> in the top right — done</div>
-    </div>
-  </div>
-
-  <div id="install-steps-android" class="install-steps-list" style="display:none;">
-    <div class="install-step-row">
-      <div class="install-step-num">1</div>
-      <div class="install-step-txt">Tap the <strong>⋮ menu</strong> in the top right of Chrome</div>
-    </div>
-    <div class="install-step-row">
-      <div class="install-step-num">2</div>
-      <div class="install-step-txt">Tap <strong>"Add to Home screen"</strong></div>
-    </div>
-    <div class="install-step-row">
-      <div class="install-step-num">3</div>
-      <div class="install-step-txt">Tap <strong>Add</strong> — PepTrak appears on your home screen</div>
-    </div>
-  </div>
-
-  <button class="install-sheet-btn" onclick="dismissInstall()">Got it — I'll add it now</button>
-  <button class="install-sheet-skip" onclick="dismissInstall()">Maybe later</button>
-</div>
 
 <script>
 // ── SUPABASE SYNC ──
@@ -3118,7 +3054,7 @@ function checkInstallPrompt(){
 
   // Show after 3 seconds so tracker loads first
   setTimeout(function(){
-    document.getElementById('install-overlay').classList.add('show');
+    showInstallBanner();
     setTimeout(function(){
       document.getElementById('install-sheet').classList.add('show');
     }, 50);
@@ -3129,7 +3065,7 @@ function dismissInstall(){
   localStorage.setItem('peptrak_install_shown', '1');
   document.getElementById('install-sheet').classList.remove('show');
   setTimeout(function(){
-    document.getElementById('install-overlay').classList.remove('show');
+    // install banner dismissed by its own buttons
   }, 380);
 }
 
@@ -4100,46 +4036,7 @@ init();
 </script>
 
 <!-- INSTALL PROMPT -->
-<div class="install-sheet-overlay" id="install-overlay" onclick="dismissInstall()"></div>
-<div class="install-sheet" id="install-sheet">
-  <div class="install-sheet-handle"></div>
-  <div class="install-sheet-eyebrow">Quick setup</div>
-  <div class="install-sheet-title">Add PepTrak to your home screen</div>
-  <div class="install-sheet-sub">Open the app instantly every time you dose — no browser, no searching.</div>
 
-  <div id="install-steps-ios" class="install-steps-list">
-    <div class="install-step-row">
-      <div class="install-step-num">1</div>
-      <div class="install-step-txt">Tap the <strong>Share button</strong> <svg style="vertical-align:-3px;" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M4 12v8a2 2 0 002 2h12a2 2 0 002-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/></svg> at the bottom of Safari</div>
-    </div>
-    <div class="install-step-row">
-      <div class="install-step-num">2</div>
-      <div class="install-step-txt">Scroll down and tap <strong>"Add to Home Screen"</strong></div>
-    </div>
-    <div class="install-step-row">
-      <div class="install-step-num">3</div>
-      <div class="install-step-txt">Tap <strong>Add</strong> in the top right — done</div>
-    </div>
-  </div>
-
-  <div id="install-steps-android" class="install-steps-list" style="display:none;">
-    <div class="install-step-row">
-      <div class="install-step-num">1</div>
-      <div class="install-step-txt">Tap the <strong>⋮ menu</strong> in the top right of Chrome</div>
-    </div>
-    <div class="install-step-row">
-      <div class="install-step-num">2</div>
-      <div class="install-step-txt">Tap <strong>"Add to Home screen"</strong></div>
-    </div>
-    <div class="install-step-row">
-      <div class="install-step-num">3</div>
-      <div class="install-step-txt">Tap <strong>Add</strong> — PepTrak appears on your home screen</div>
-    </div>
-  </div>
-
-  <button class="install-sheet-btn" onclick="dismissInstall()">Got it — I'll add it now</button>
-  <button class="install-sheet-skip" onclick="dismissInstall()">Maybe later</button>
-</div>
 
 <script>
 // ── SUPABASE SYNC ──
@@ -4192,7 +4089,7 @@ setInterval(syncToSupabase, 5 * 60 * 1000);
 
 <!-- Android install banner -->
 <div id="install-banner" style="display:none;position:fixed;left:12px;right:12px;bottom:calc(68px + env(safe-area-inset-bottom));background:#07090D;border-radius:16px;padding:14px 16px;align-items:center;gap:10px;z-index:400;border:1px solid rgba(255,255,255,0.08);-webkit-tap-highlight-color:transparent;">
-  <div style="width:36px;height:36px;border-radius:10px;background:#0876FF;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:16px;font-weight:800;color:#fff;font-family:inherit;">P</div>
+  <div style="width:36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:16px;font-weight:800;color:#fff;font-family:inherit;"><img src="/peptrak-logo.png" alt="PepTrak" style="width:100%;height:100%;object-fit:contain;display:block;"/></div>
   <div style="flex:1;min-width:0;">
     <div style="font-size:13px;font-weight:700;color:#fff;line-height:1.2;">Add PepTrak to home screen</div>
     <div style="font-size:11px;color:rgba(255,255,255,0.45);margin-top:2px;">One tap to log doses — no browser needed</div>
@@ -4204,7 +4101,7 @@ setInterval(syncToSupabase, 5 * 60 * 1000);
 <!-- iOS install banner -->
 <div id="ios-install-banner" style="display:none;position:fixed;left:12px;right:12px;bottom:calc(68px + env(safe-area-inset-bottom));background:#07090D;border-radius:16px;padding:14px 16px;flex-direction:column;gap:10px;z-index:400;border:1px solid rgba(255,255,255,0.08);-webkit-tap-highlight-color:transparent;">
   <div style="display:flex;align-items:center;gap:10px;">
-    <div style="width:36px;height:36px;border-radius:10px;background:#0876FF;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:16px;font-weight:800;color:#fff;">P</div>
+    <div style="width:36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:16px;font-weight:800;color:#fff;"><img src="/peptrak-logo.png" alt="PepTrak" style="width:100%;height:100%;object-fit:contain;display:block;"/></div>
     <div style="flex:1;min-width:0;">
       <div style="font-size:13px;font-weight:700;color:#fff;line-height:1.2;">Install PepTrak</div>
       <div style="font-size:11px;color:rgba(255,255,255,0.45);margin-top:2px;">Add to home screen for the full app experience</div>
@@ -4275,9 +4172,15 @@ setInterval(syncToSupabase, 5 * 60 * 1000);
     localStorage.setItem('peptrak_install_dismissed','1');
     var b = document.getElementById('install-banner');
     if(b){
+      b.style.transition = 'transform 0.35s cubic-bezier(0.4,0,1,1), opacity 0.3s';
       b.style.opacity = '0';
-      b.style.transform = 'translateY(20px)';
-      setTimeout(function(){ b.style.display = 'none'; }, 300);
+      b.style.transform = 'translateY(calc(100% + 20px))';
+      setTimeout(function(){
+        b.style.display = 'none';
+        b.style.transition = '';
+        b.style.opacity = '';
+        b.style.transform = '';
+      }, 360);
     }
   };
 
@@ -4306,9 +4209,15 @@ setInterval(syncToSupabase, 5 * 60 * 1000);
     localStorage.setItem('peptrak_ios_install_dismissed','1');
     var b = document.getElementById('ios-install-banner');
     if(b){
+      b.style.transition = 'transform 0.35s cubic-bezier(0.4,0,1,1), opacity 0.3s';
       b.style.opacity = '0';
-      b.style.transform = 'translateY(20px)';
-      setTimeout(function(){ b.style.display = 'none'; }, 300);
+      b.style.transform = 'translateY(calc(100% + 20px))';
+      setTimeout(function(){
+        b.style.display = 'none';
+        b.style.transition = '';
+        b.style.opacity = '';
+        b.style.transform = '';
+      }, 360);
     }
   };
 

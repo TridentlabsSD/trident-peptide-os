@@ -27,7 +27,7 @@ body{font-family:var(--font);background:var(--white);color:var(--ink);-webkit-fo
 .hdr{position:fixed;top:0;left:0;right:0;z-index:200;height:56px;background:rgba(255,255,255,0.92);backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);border-bottom:1px solid rgba(0,0,0,0.06);display:flex;align-items:center;justify-content:space-between;padding:0 20px;transition:box-shadow 0.3s,background 0.3s;}
 .hdr.scrolled{background:rgba(255,255,255,0.97);box-shadow:0 1px 24px rgba(0,0,0,0.07);}
 .hdr-logo{display:flex;align-items:center;gap:8px;font-size:16px;font-weight:700;color:var(--ink);text-decoration:none;-webkit-tap-highlight-color:transparent;}
-.hdr-mark{width:28px;height:28px;border-radius:8px;background:var(--blue);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800;color:#fff;flex-shrink:0;transition:transform 0.2s;}
+.hdr-mark{width:28px;height:28px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800;color:#fff;flex-shrink:0;transition:transform 0.2s;}
 .hdr-logo:hover .hdr-mark{transform:scale(1.08);}
 .hdr-right{display:flex;align-items:center;gap:8px;}
 .hdr-nav{display:flex;align-items:center;gap:4px;}
@@ -393,7 +393,7 @@ footer{background:var(--ink);padding:28px 24px;display:flex;align-items:center;j
 <!-- HEADER -->
 <header class="hdr" id="hdr">
   <a href="/" class="hdr-logo">
-    <div class="hdr-mark">P</div>
+    <div class="hdr-mark"><img src="/peptrak-logo.png" alt="PepTrak" style="width:100%;height:100%;object-fit:contain;display:block;"/></div>
     PepTrak
   </a>
   <nav class="hdr-nav">
@@ -526,7 +526,7 @@ footer{background:var(--ink);padding:28px 24px;display:flex;align-items:center;j
           <!-- PROTOCOL PANEL -->
           <div class="dp active" id="dp-protocol" style="display:flex;flex-direction:column;height:100%;">
             <div style="background:#fff;padding:36px 14px 10px;border-bottom:1px solid #EAECF0;display:flex;align-items:center;justify-content:space-between;flex-shrink:0;">
-              <div style="display:flex;align-items:center;gap:5px;font-size:13px;font-weight:700;color:#07090D;"><div style="width:22px;height:22px;border-radius:6px;background:#0876FF;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:800;color:#fff;">P</div>PepTrak</div>
+              <div style="display:flex;align-items:center;gap:5px;font-size:13px;font-weight:700;color:#07090D;"><div style="width:22px;height:22px;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:800;color:#fff;"><img src="/peptrak-logo.png" alt="PepTrak" style="width:100%;height:100%;object-fit:contain;display:block;"/></div>PepTrak</div>
               <div style="font-size:10px;font-weight:700;color:#00C076;">Week 4 of 12</div>
             </div>
             <div style="flex:1;overflow:hidden;padding:12px;display:flex;flex-direction:column;gap:7px;">
@@ -560,7 +560,7 @@ footer{background:var(--ink);padding:28px 24px;display:flex;align-items:center;j
           <!-- TRACKER PANEL -->
           <div class="dp" id="dp-tracker" style="display:none;flex-direction:column;height:100%;">
             <div style="background:#fff;padding:36px 14px 10px;border-bottom:1px solid #EAECF0;display:flex;align-items:center;justify-content:space-between;flex-shrink:0;">
-              <div style="display:flex;align-items:center;gap:5px;font-size:13px;font-weight:700;color:#07090D;"><div style="width:22px;height:22px;border-radius:6px;background:#0876FF;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:800;color:#fff;">P</div>PepTrak</div>
+              <div style="display:flex;align-items:center;gap:5px;font-size:13px;font-weight:700;color:#07090D;"><div style="width:22px;height:22px;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:800;color:#fff;"><img src="/peptrak-logo.png" alt="PepTrak" style="width:100%;height:100%;object-fit:contain;display:block;"/></div>PepTrak</div>
               <div style="font-size:10px;font-weight:700;color:#F0A500;">&#128293; 12 days</div>
             </div>
             <div style="flex:1;overflow:hidden;padding:12px;display:flex;flex-direction:column;gap:8px;">
@@ -617,7 +617,7 @@ footer{background:var(--ink);padding:28px 24px;display:flex;align-items:center;j
           <!-- LIBRARY PANEL — compound detail sheet open on BPC-157 -->
           <div class="dp" id="dp-library" style="display:none;flex-direction:column;height:100%;">
             <div style="background:#fff;padding:36px 14px 10px;border-bottom:1px solid #EAECF0;display:flex;align-items:center;justify-content:space-between;flex-shrink:0;">
-              <div style="display:flex;align-items:center;gap:5px;font-size:13px;font-weight:700;color:#07090D;"><div style="width:22px;height:22px;border-radius:6px;background:#0876FF;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:800;color:#fff;">P</div>Library</div>
+              <div style="display:flex;align-items:center;gap:5px;font-size:13px;font-weight:700;color:#07090D;"><div style="width:22px;height:22px;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:800;color:#fff;"><img src="/peptrak-logo.png" alt="PepTrak" style="width:100%;height:100%;object-fit:contain;display:block;"/></div>Library</div>
               <div style="font-size:9px;font-weight:600;color:#8A919E;">55 compounds</div>
             </div>
             <div style="margin:8px 8px 4px;background:#fff;border:1.5px solid #EAECF0;border-radius:10px;padding:7px 10px;font-size:9px;color:#8A919E;display:flex;align-items:center;gap:5px;flex-shrink:0;"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#C8CDD6" stroke-width="2.5" stroke-linecap="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>Search compounds...</div>
@@ -705,7 +705,7 @@ footer{background:var(--ink);padding:28px 24px;display:flex;align-items:center;j
           <!-- TOOLS PANEL -->
           <div class="dp" id="dp-tools" style="display:none;flex-direction:column;height:100%;">
             <div style="background:#fff;padding:36px 14px 10px;border-bottom:1px solid #EAECF0;display:flex;align-items:center;justify-content:space-between;flex-shrink:0;">
-              <div style="display:flex;align-items:center;gap:5px;font-size:13px;font-weight:700;color:#07090D;"><div style="width:22px;height:22px;border-radius:6px;background:#0876FF;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:800;color:#fff;">P</div>Tools</div>
+              <div style="display:flex;align-items:center;gap:5px;font-size:13px;font-weight:700;color:#07090D;"><div style="width:22px;height:22px;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:800;color:#fff;"><img src="/peptrak-logo.png" alt="PepTrak" style="width:100%;height:100%;object-fit:contain;display:block;"/></div>Tools</div>
             </div>
             <div style="flex:1;overflow:hidden;padding:10px;display:flex;flex-direction:column;gap:8px;">
               <div style="background:#fff;border:1px solid #EAECF0;border-radius:12px;padding:10px;">
@@ -1096,7 +1096,7 @@ footer{background:var(--ink);padding:28px 24px;display:flex;align-items:center;j
 </div>
 
 <footer>
-  <a href="/" class="footer-logo"><div class="hdr-mark">P</div>PepTrak</a>
+  <a href="/" class="footer-logo"><div class="hdr-mark"><img src="/peptrak-logo.png" alt="PepTrak" style="width:100%;height:100%;object-fit:contain;display:block;"/></div>PepTrak</a>
   <div class="footer-links">
     <a href="/privacy" class="footer-link">Privacy</a>
     <a href="/terms" class="footer-link">Terms</a>
