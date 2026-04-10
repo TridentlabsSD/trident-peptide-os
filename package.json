@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "private": true,
   "scripts": {
-    "dev": "vercel dev",
+    "dev": "npx serve public -l 3000",
     "build": "npm install",
     "deploy": "vercel --prod"
   },
