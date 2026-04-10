@@ -1,6 +1,6 @@
 {
   "framework": null,
-  "buildCommand": "npm install",
+  "buildCommand": "echo 'No build step required'",
   "outputDirectory": "public",
   "cleanUrls": true,
   "trailingSlash": false,
