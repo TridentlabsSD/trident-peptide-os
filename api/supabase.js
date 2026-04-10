@@ -142,7 +142,7 @@ module.exports = async function handler(req, res) {
   // ── UPSERT-USER ───────────────────────────────────────────
   if (action === 'upsert-user') {
     if (req.method !== 'POST') return res.status(405).end();
-    const { email, name, plan, customerId, subscriptionId, status, trialEnd, goal, refCode } = req.body;
+    const { email, name, plan, customerId, subscriptionId, status, trialEnd, goal, refCode, authPw } = req.body;
     if (!email) return res.status(400).json({ error: 'Email required' });
     const now = new Date().toISOString();
     try {
@@ -151,12 +151,13 @@ module.exports = async function handler(req, res) {
         sbFetch('/rest/v1/user_subscriptions', 'POST', {
           email: email.toLowerCase().trim(),
           stripe_customer_id: customerId || null, stripe_subscription_id: subscriptionId || null,
-          status: status || 'trialing', plan: plan || 'monthly',
+          status: status || 'free', plan: plan || 'free',
           trial_ends_at: trialEnd || null, ref_code: refCode || null,
           created_at: now, updated_at: now,
         }, prefer),
         sbFetch('/rest/v1/user_profiles', 'POST', {
           email: email.toLowerCase().trim(), name: name || null, goal: goal || null,
+          auth_pw: authPw || null,
           created_at: now, updated_at: now,
         }, prefer),
       ]);

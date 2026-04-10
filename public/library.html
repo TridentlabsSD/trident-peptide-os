@@ -360,6 +360,13 @@ body{-webkit-tap-highlight-color:transparent;font-family:var(--font);background:
 .bnav-lbl{font-size:10px;font-weight:500;}
 .bnav-item.active .bnav-lbl{font-weight:700;}
 </style>
+<link rel="manifest" href="/manifest.json"/>
+<meta name="theme-color" content="#0876FF"/>
+<meta name="mobile-web-app-capable" content="yes"/>
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+<meta name="apple-mobile-web-app-status-bar-style" content="default"/>
+<meta name="apple-mobile-web-app-title" content="PepTrak"/>
+<link rel="apple-touch-icon" href="/apple-touch-icon.png"/>
 </head>
 <body>
 
@@ -521,35 +528,24 @@ body{-webkit-tap-highlight-color:transparent;font-family:var(--font);background:
 
 // ── PAYWALL GUARD (server-side) ──
 (function(){
-  var email  = localStorage.getItem('peptrak_auth_email');
-  var paid   = localStorage.getItem('peptrak_paid');
-  var isTest = localStorage.getItem('peptrak_test_account') === '1';
-
-  if(isTest) return; // test account always passes
-
-  if(!email || !paid){
-    window.location.replace('/checkout');
+  var email = localStorage.getItem('peptrak_auth_email');
+  if(!email && localStorage.getItem('peptrak_test_account') !== '1'){
+    window.location.replace('/questionnaire');
     return;
   }
-
-  // Async server-side check — catches past_due / cancelled without blocking page load
-  fetch('/api/check-access?email=' + encodeURIComponent(email))
-    .then(function(r){ return r.json(); })
-    .then(function(data){
-      if(data.access) return;
-      if(data.status === 'past_due' || data.status === 'unpaid'){
-        localStorage.removeItem('peptrak_paid');
-        localStorage.setItem('peptrak_subscription_status','past_due');
-        window.location.replace('/rebill');
-      } else if(data.status === 'cancelled' || data.status === 'canceled'){
-        localStorage.removeItem('peptrak_paid');
-        window.location.replace('/rebill');
-      } else if(data.redirect){
-        localStorage.removeItem('peptrak_paid');
-        window.location.replace(data.redirect);
-      }
-    })
-    .catch(function(){}); // network error — fail open
+  // Cross-device: load data from Supabase if we have email but no local data
+  if(email){
+    fetch('/api/supabase?action=get-user&email=' + encodeURIComponent(email))
+      .then(function(r){ return r.json(); })
+      .then(function(d){
+        if(d.intake && !localStorage.getItem('peptrak_intake'))
+          localStorage.setItem('peptrak_intake', JSON.stringify(d.intake));
+        if(d.protocol && !localStorage.getItem('peptrak_protocol'))
+          localStorage.setItem('peptrak_protocol', typeof d.protocol === 'string' ? d.protocol : JSON.stringify(d.protocol));
+        if(d.tracker && !localStorage.getItem('peptrak_tracker'))
+          localStorage.setItem('peptrak_tracker', typeof d.tracker === 'string' ? d.tracker : JSON.stringify(d.tracker));
+      }).catch(function(){});
+  }
 })();
 
 // ── COMPOUND DATABASE ──
@@ -2336,6 +2332,17 @@ buildCompoundList();
 buildFaq();
 buildCOTW();
 buildProtocolRecs();
+</script>
+
+
+<script>
+(function(){
+  if('serviceWorker' in navigator){
+    window.addEventListener('load', function(){
+      navigator.serviceWorker.register('/sw.js').catch(function(){});
+    });
+  }
+})();
 </script>
 </body>
 </html>

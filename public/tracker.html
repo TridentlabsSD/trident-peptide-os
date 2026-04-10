@@ -501,6 +501,13 @@ body{
 }
 
 </style>
+<link rel="manifest" href="/manifest.json"/>
+<meta name="theme-color" content="#0876FF"/>
+<meta name="mobile-web-app-capable" content="yes"/>
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+<meta name="apple-mobile-web-app-status-bar-style" content="default"/>
+<meta name="apple-mobile-web-app-title" content="PepTrak"/>
+<link rel="apple-touch-icon" href="/apple-touch-icon.png"/>
 </head>
 <body>
 
@@ -712,35 +719,1861 @@ body{
 
 // ── PAYWALL GUARD (server-side) ──
 (function(){
-  var email  = localStorage.getItem('peptrak_auth_email');
-  var paid   = localStorage.getItem('peptrak_paid');
-  var isTest = localStorage.getItem('peptrak_test_account') === '1';
+  var email = localStorage.getItem('peptrak_auth_email');
+  if(!email && localStorage.getItem('peptrak_test_account') !== '1'){
+    window.location.replace('/questionnaire');
+    return;
+  }
+  // Cross-device: load data from Supabase if we have email but no local data
+  if(email){
+    fetch('/api/supabase?action=get-user&email=' + encodeURIComponent(email))
+      .then(function(r){ return r.json(); })
+      .then(function(d){
+        if(d.intake && !localStorage.getItem('peptrak_intake'))
+          localStorage.setItem('peptrak_intake', JSON.stringify(d.intake));
+        if(d.protocol && !localStorage.getItem('peptrak_protocol'))
+          localStorage.setItem('peptrak_protocol', typeof d.protocol === 'string' ? d.protocol : JSON.stringify(d.protocol));
+        if(d.tracker && !localStorage.getItem('peptrak_tracker'))
+          localStorage.setItem('peptrak_tracker', typeof d.tracker === 'string' ? d.tracker : JSON.stringify(d.tracker));
+      }).catch(function(){});
+  }
+})();
 
-  if(isTest) return; // test account always passes
+// ── DATA ──
+var protocol = {};
+var trackerData = {logs:[], streak:0};
+var intake = {};
+var todayKey = new Date().toISOString().split('T')[0];
+var todayLog = null;
+var dosesState = {};
+var sidesState = [];
+var allDoseTaken = false;
 
-  if(!email || !paid){
-    window.location.replace('/checkout');
+try{ protocol = JSON.parse(localStorage.getItem('peptrak_protocol')||'{}'); }catch(e){}
+try{ trackerData = JSON.parse(localStorage.getItem('peptrak_tracker')||'{"logs":[],"streak":0,"restocks":{}}'); }catch(e){}
+if(!trackerData.restocks) trackerData.restocks = {};
+try{ intake = JSON.parse(localStorage.getItem('peptrak_intake')||'{}'); }catch(e){}
+var customStack = {};
+try{ customStack = JSON.parse(localStorage.getItem('peptrak_custom_stack')||'{}'); }catch(e){}
+
+// Find today's log if exists
+todayLog = trackerData.logs.find(function(l){ return l.date === todayKey; }) || null;
+if(todayLog){ dosesState = todayLog.doses || {}; sidesState = todayLog.sides || []; }
+
+// ── PROTOCOL WEEK ──
+function getProgress(){
+  var startTs = parseInt(localStorage.getItem('peptrak_protocol_start') || intake.trial_start || 0);
+  if(!startTs) return {day:1, week:1, totalWeeks:12, pct:0};
+  var daysSince = Math.floor((Date.now() - startTs) / 86400000);
+  var totalWeeks = parseInt((protocol.duration||'12').replace(/\D/g,'')) || 12;
+  var totalDays = totalWeeks * 7;
+  var week = Math.floor(daysSince / 7) + 1;
+  var pct = Math.min(Math.round((daysSince / totalDays) * 100), 100);
+  return {day: daysSince + 1, week: Math.min(week, totalWeeks), totalWeeks: totalWeeks, pct: pct};
+}
+
+// ── BUILD UI ──
+function init(){
+  var progress = getProgress();
+  var now = new Date();
+  var hour = now.getHours();
+  var greeting = hour < 12 ? 'Good morning.' : hour < 17 ? 'Good afternoon.' : 'Good evening.';
+  var name = intake.first_name ? ', ' + intake.first_name : '';
+
+  // Hero
+  var days = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+  var months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  // Week pill in header
+  var weekPill = document.getElementById('week-pill');
+  if(weekPill && progress && progress.week){
+    weekPill.textContent = 'Week ' + progress.week;
+    weekPill.style.display = 'block';
+  }
+  // Week shown in streak badge
+  var badge = document.getElementById('streak-badge');
+
+  // Streak dots
+  buildStreakDots();
+
+  // Streak header
+  var streak = calcStreak();
+  document.getElementById('streak-count').textContent = streak;
+  document.getElementById('streak-fire').style.opacity = streak > 0 ? '1' : '0.2';
+  document.getElementById('streak-fire').style.filter = streak > 0 ? '' : 'grayscale(1)';
+  var ssEl = document.getElementById('stat-streak'); if(ssEl) ssEl.textContent = streak;
+
+  // Doses
+  buildDoses();
+
+  // Vials
+  buildVials();
+
+  // Stats
+  buildStats();
+  buildAlexTake();
+  buildCycleEndBanner();
+  buildTitration();
+  buildSiteRotator();
+  buildSideCompoundSelect();
+  buildReconSelector();
+  // Update stack button label
+
+  checkShowStartBanner();
+  checkMissedYesterday();
+  checkInstallPrompt();
+  // Restore note input
+  setTimeout(function(){ var n=document.getElementById('note-input'); if(n&&todayLog&&todayLog.note) n.value=todayLog.note; }, 50);
+
+  // If today already logged fully, show complete state and set flag
+  if(todayLog && todayLog.complete){
+    allDoseTaken = true;
+    showDayComplete(false);
+  }
+
+  buildSideChips();
+}
+
+// ── STREAK DOTS ──
+function buildStreakDots(){
+  var wrap = document.getElementById('streak-dots');
+  if(!wrap) return;
+  wrap.innerHTML = '';
+  var today = new Date();
+  var totalStreak = calcStreak();
+  var badge = document.getElementById('streak-badge');
+  if(badge){
+    if(totalStreak > 0){
+      badge.innerHTML = '🔥 ' + totalStreak + ' day' + (totalStreak !== 1 ? 's' : '');
+      badge.style.display = 'flex';
+    } else {
+      badge.textContent = '';
+      badge.style.display = 'none';
+    }
+  }
+  var totalCompounds = protocol.compounds ? protocol.compounds.length : 0;
+  for(var i=6; i>=0; i--){
+    var d = new Date(today);
+    d.setDate(today.getDate() - i);
+    var key = d.toISOString().slice(0,10);
+    var log = trackerData.logs.find(function(l){ return l.date === key; });
+    var isToday = i === 0;
+    var done = !!(log && log.complete);
+    var dayLbl = ['Su','M','Tu','W','Th','F','Sa'][d.getDay()];
+    var dateNum = d.getDate();
+    var isFuture = !isToday && d > today;
+    var isPast = !isToday && d < today;
+    var missed = isPast && !done;
+
+    var takenCount = 0;
+    if(isToday){
+      takenCount = Object.values(dosesState).filter(function(ds){ return ds.taken; }).length;
+    } else if(log && log.doses){
+      takenCount = Object.values(log.doses).filter(function(ds){ return ds.taken; }).length;
+    }
+    var pct = totalCompounds > 0 ? Math.round((takenCount / totalCompounds) * 100) : 0;
+    if(done) pct = 100;
+
+    var sz = isToday ? 42 : 36;
+    var cx = sz/2, cy = sz/2, r = isToday ? 18 : 15;
+    var circ = 2 * Math.PI * r;
+    var dash = (pct/100) * circ;
+    var gap = circ - dash;
+    var offset = (circ/4).toFixed(1);
+
+    var bgFill = done ? 'rgba(0,192,118,0.1)' : isToday ? 'var(--blue-pale)' : 'var(--gray-1)';
+    var ringStroke = done ? 'var(--green)' : isToday ? 'var(--blue)' : pct > 0 ? 'var(--gold)' : 'var(--gray-2)';
+    var ringW = isToday ? '2.5' : '2';
+
+    var ringArc = '';
+    if(pct === 100){
+      ringArc = '<circle cx="'+cx+'" cy="'+cy+'" r="'+r+'" fill="none" stroke="'+ringStroke+'" stroke-width="'+ringW+'"/>';
+    } else if(pct > 0){
+      ringArc = '<circle cx="'+cx+'" cy="'+cy+'" r="'+r+'" fill="none" stroke="'+ringStroke+'" stroke-width="'+ringW+'" stroke-dasharray="'+dash.toFixed(1)+' '+gap.toFixed(1)+'" stroke-dashoffset="'+offset+'" stroke-linecap="round"/>';
+    } else if(!isFuture){
+      var emptyStroke = isToday ? 'rgba(8,118,255,0.3)' : 'var(--gray-2)';
+      ringArc = '<circle cx="'+cx+'" cy="'+cy+'" r="'+r+'" fill="none" stroke="'+emptyStroke+'" stroke-width="'+(isToday?'2':'1.5')+'"/>';
+    }
+
+    var checkSz = isToday ? 14 : 12;
+    var centerHTML = done
+      ? '<div class="streak-ring-icon"><svg width="'+checkSz+'" height="'+checkSz+'" viewBox="0 0 24 24" fill="none" stroke="var(--green)" stroke-width="3.5" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg></div>'
+      : isToday
+        ? '<div class="streak-ring-icon today-num">'+dateNum+'</div>'
+        : pct > 0
+          ? '<div class="streak-ring-icon" style="color:var(--gold);font-size:10px;">'+takenCount+'</div>'
+          : '<div class="streak-ring-icon num">'+dateNum+'</div>';
+
+    var tooltipTxt = done ? 'Complete' : isFuture ? '' : pct > 0 ? takenCount+'/'+totalCompounds+' doses' : missed ? 'Not logged' : 'Today';
+    var pulseHTML = isToday && !done ? '<div class="streak-today-pulse"></div>' : '';
+    var tooltipHTML = tooltipTxt ? '<div class="streak-tooltip">'+tooltipTxt+'</div>' : '';
+
+    var ringHTML = '<div class="streak-ring-wrap">'
+      + '<svg width="'+sz+'" height="'+sz+'" viewBox="0 0 '+sz+' '+sz+'"><circle cx="'+cx+'" cy="'+cy+'" r="'+r+'" fill="'+bgFill+'"/>'+ringArc+'</svg>'
+      + pulseHTML + centerHTML + tooltipHTML + '</div>';
+
+    var dotWrap = document.createElement('div');
+    dotWrap.className = 'streak-dot-wrap' + (isToday ? ' is-today' : '');
+    var lblClass = 'streak-day-lbl' + (isToday ? ' today' : done ? ' done' : '');
+    dotWrap.innerHTML = ringHTML + '<div class="'+lblClass+'">'+dayLbl+'</div>';
+    wrap.appendChild(dotWrap);
+  }
+}
+
+// ── BUILD DOSES ──
+function buildDoses(){
+  var wrap = document.getElementById('doses-list');
+  wrap.innerHTML = '';
+  if(!protocol.compounds || !protocol.compounds.length){
+    wrap.innerHTML = '<div style="text-align:center;padding:24px 16px;"><div style="font-size:32px;margin-bottom:10px;">🧬</div><div style="font-size:15px;font-weight:700;color:var(--ink);margin-bottom:6px;">No protocol yet</div><div style="font-size:13px;color:var(--gray-4);margin-bottom:16px;line-height:1.5;">Build your personalized protocol to start tracking.</div><a href="/onboarding" style="display:inline-block;padding:12px 24px;background:var(--blue);color:#fff;border-radius:980px;font-size:14px;font-weight:600;text-decoration:none;">Build My Protocol →</a></div>';
+    // Hide sections that need a protocol
+    var streakEl=document.getElementById('streak-row-wrap');if(streakEl)streakEl.style.display='none';
+    var progEl=document.getElementById('streak-progress');if(progEl)progEl.style.display='none';
     return;
   }
 
-  // Async server-side check — catches past_due / cancelled without blocking page load
-  fetch('/api/check-access?email=' + encodeURIComponent(email))
-    .then(function(r){ return r.json(); })
-    .then(function(data){
-      if(data.access) return;
-      if(data.status === 'past_due' || data.status === 'unpaid'){
-        localStorage.removeItem('peptrak_paid');
-        localStorage.setItem('peptrak_subscription_status','past_due');
-        window.location.replace('/rebill');
-      } else if(data.status === 'cancelled' || data.status === 'canceled'){
-        localStorage.removeItem('peptrak_paid');
-        window.location.replace('/rebill');
-      } else if(data.redirect){
-        localStorage.removeItem('peptrak_paid');
-        window.location.replace(data.redirect);
+  var progEl=document.getElementById('streak-progress');if(progEl)progEl.style.display='block';
+  // Group by time of day
+  function getTimeGroup(timing){
+    var t = (timing||'').toLowerCase();
+    if(t.match(/morning|am|fasted|wake|pre-workout|pwo/)) return 'Morning';
+    if(t.match(/afternoon|midday|noon|lunch/)) return 'Afternoon';
+    if(t.match(/pre.?bed|bedtime|night|pm|sleep|evening/)) return 'Evening / Bedtime';
+    return 'Other';
+  }
+
+  var ORDER = ['Morning','Afternoon','Evening / Bedtime','Other'];
+  var groups = {};
+  ORDER.forEach(function(g){ groups[g] = []; });
+
+  protocol.compounds.forEach(function(c, i){
+    var g = getTimeGroup(c.timing);
+    groups[g].push({c:c, i:i});
+  });
+
+  ORDER.forEach(function(groupName){
+    var items = groups[groupName];
+    if(!items.length) return;
+
+    // Group header
+    var header = document.createElement('div');
+    header.style.cssText = 'font-size:10px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:var(--gray-4);padding:4px 2px 6px;margin-top:4px;';
+    header.textContent = groupName;
+    wrap.appendChild(header);
+
+    items.forEach(function(item){
+      var c = item.c; var i = item.i;
+      var key = 'c'+i;
+      var taken = dosesState[key] && dosesState[key].taken;
+      var row = document.createElement('div');
+      var cycleStarted = !!localStorage.getItem('peptrak_protocol_start');
+      row.className = 'dose-row' + (taken?' taken':'') + (!cycleStarted?' not-started':'');
+      // Clean dose string - strip parenthetical titration notes
+      var cleanDose = (c.dose||'').replace(/\s*\([^)]*\)/g, '').trim();
+      var metaParts = [cleanDose, c.route].filter(Boolean);
+      // Shorten timing for display — long strings get clipped
+      var timingShort = (c.timing||'').split(',')[0].trim().slice(0,28);
+      var timingMap = {
+        'Same day/time each week, morning preferred': 'Weekly · Morning',
+        'Same day each week': 'Weekly',
+        'Bedtime (on empty stomach)': 'Bedtime · Empty stomach',
+        'Morning or post-workout': 'AM or post-workout',
+        'Morning fasted': 'AM · Fasted',
+        'Morning, fasted': 'AM · Fasted',
+        'Evening / Bedtime': 'Bedtime',
+        'Morning preferred': 'Morning',
+        'Pre-bed, fasted': 'Bedtime · Fasted',
+        'Bedtime, fasted': 'Bedtime · Fasted',
+      };
+      if(timingMap[timingShort]) timingShort = timingMap[timingShort];
+      // Generic shortener: if still >30 chars, truncate at last space before 30
+      if(timingShort.length > 32){
+        var cut = timingShort.lastIndexOf(' ', 28);
+        timingShort = timingShort.slice(0, cut > 0 ? cut : 28) + '…';
       }
-    })
-    .catch(function(){}); // network error — fail open
+      var timingHTML = timingShort ? '<span class="dose-timing">' + timingShort + '</span>' : '';
+      row.innerHTML =
+        '<div class="dose-check">' +
+          '<svg class="check-svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3.5" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg>' +
+        '</div>' +
+        '<div class="dose-info">' +
+          '<div class="dose-name">' + c.name + '</div>' +
+          '<div class="dose-bottom">' +
+            '<span class="dose-meta">' + metaParts.join(' · ') + '</span>' +
+            timingHTML +
+          '</div>' +
+        '</div>';
+      row.onclick = (function(k, idx, r, compound){ return function(){ toggleDose(k, idx, r, compound); }; })(key, i, row, c);
+      wrap.appendChild(row);
+    });
+  });
+}
+
+// ── TOGGLE DOSE ──
+function toggleDose(key, idx, rowEl, compound){
+  var wasTaken = dosesState[key] && dosesState[key].taken;
+
+  dosesState[key] = {
+    taken: !wasTaken,
+    time: !wasTaken ? new Date().toTimeString().slice(0,5) : null,
+    name: compound.name
+  };
+  rowEl.classList.toggle('taken', !wasTaken);
+  updateProgress();
+  saveToTracker();
+  setTimeout(syncToSupabase, 1000); // sync after dose tap
+}
+
+// ── UPDATE PROGRESS ──
+function updateProgress(){
+  if(!protocol.compounds || !protocol.compounds.length) return;
+  var total = protocol.compounds.length;
+  var done = Object.values(dosesState).filter(function(d){ return d.taken; }).length;
+  var pct = Math.round((done/total)*100);
+  document.getElementById('hero-fill').style.width = pct + '%';
+  document.getElementById('hero-done-txt').textContent = done + ' of ' + total + ' doses logged';
+  document.getElementById('hero-pct-txt').textContent = pct + '%';
+  if(done === total && !allDoseTaken){
+    allDoseTaken = true;
+    setTimeout(function(){
+      triggerConfetti();
+      showDayComplete(true);
+      checkMilestone();
+    }, 400);
+  }
+}
+
+// ── VIAL CALCULATOR ──
+var VIAL_SIZES = {
+  'CJC+IPA':10,'CJC-1295':5,'Ipamorelin':5,'BPC-157':5,'TB-500':5,
+  'GLOW':70,'KLOW':80,'Semax':5,'Selank':5,'Retatrutide':5,
+  'Tesamorelin':5,'AOD-9604':5,'IGF-1 LR3':1,'GHK-Cu':50,
+  'Semaglutide':5,'Tirzepatide':5,'SS-31':10,'NAD+':100
+};
+function buildVials(){
+  var wrap = document.getElementById('vials-list');
+  if(!wrap) return;
+  wrap.innerHTML = '';
+  if(!protocol.compounds || !protocol.compounds.length) return;
+  protocol.compounds.forEach(function(c){
+    var doseNum = parseFloat((c.dose||'').replace(/[^0-9.]/g,'')) || 0;
+    var unit = (c.dose||'').replace(/[0-9.]/g,'').trim().toLowerCase();
+    if(unit === 'mcg') doseNum = doseNum / 1000;
+    var freq = c.frequency || '';
+    var dosesPerWeek = 7; // default: daily
+    if(freq.match(/2x|twice|2\s*\/\s*week|every other day|eod/i)) dosesPerWeek = 3.5;
+    else if(freq.match(/3x|3\s*\/\s*week/i)) dosesPerWeek = 3;
+    else if(freq.match(/4x|4\s*\/\s*week/i)) dosesPerWeek = 4;
+    else if(freq.match(/5x|5\s*\/\s*week/i)) dosesPerWeek = 5;
+    else if(freq.match(/6x|6\s*\/\s*week/i)) dosesPerWeek = 6;
+    else if(freq.match(/weekly|1x|once\s*a?\s*week|1\s*\/\s*week/i)) dosesPerWeek = 1;
+    else if(freq.match(/twice\s*daily|2x\s*daily|bid/i)) dosesPerWeek = 14;
+    else if(freq.match(/3x\s*daily|tid/i)) dosesPerWeek = 21;
+    else if(freq.match(/daily|every\s*day|each\s*day|once\s*daily|qd/i)) dosesPerWeek = 7;
+    var vialMg = 5;
+    Object.keys(VIAL_SIZES).forEach(function(k){
+      if(c.name && c.name.toLowerCase().indexOf(k.toLowerCase()) > -1) vialMg = VIAL_SIZES[k];
+    });
+    var dosesPerVial = doseNum > 0 ? Math.floor(vialMg / doseNum) : 0;
+    var restockDate = trackerData.restocks[c.name] || null;
+    var totalTaken = 0;
+    trackerData.logs.forEach(function(log){
+      if(restockDate && log.date <= restockDate) return; // ignore doses before restock
+      if(log.doses){ Object.values(log.doses).forEach(function(d){ if(d.taken && d.name === c.name) totalTaken++; }); }
+    });
+    var dosesRemaining = Math.max(dosesPerVial - (totalTaken % (dosesPerVial||1)), 0);
+    var daysRemaining = dosesPerWeek > 0 ? Math.round((dosesRemaining / dosesPerWeek) * 7) : 0;
+    var isLow = daysRemaining <= 4;
+    var row = document.createElement('div');
+    row.className = 'vial-row';
+
+    var leftDiv = document.createElement('div');
+    leftDiv.innerHTML = '<div class="vial-name">' + c.name + '</div><div class="vial-sub">' + c.dose + ' &middot; ' + c.frequency + '</div>';
+
+    var rightDiv = document.createElement('div');
+    rightDiv.className = 'vial-right';
+    rightDiv.innerHTML =
+      '<div class="vial-doses">' + dosesRemaining + ' doses left</div>' +
+      '<div class="vial-days ' + (isLow?'vial-warn':'vial-ok') + '">' +
+        (isLow ? '⚠️ Reorder soon — ' : '') + '~' + daysRemaining + ' days left' +
+      '</div>' +
+      (isLow ? '<a href="https://usetridentlabs.com" target="_blank" style="display:inline-block;margin-top:6px;font-size:11px;font-weight:700;color:var(--blue);text-decoration:none;background:var(--blue-pale);padding:4px 10px;border-radius:20px;">Reorder at Trident Labs →</a>' : '');
+
+    // New vial button — inline confirm on first tap, execute on second
+    var newVialBtn = document.createElement('button');
+    newVialBtn.textContent = '+ New vial';
+    newVialBtn.style.cssText = 'display:block;margin-top:8px;background:var(--white);border:1.5px solid var(--gray-2);color:var(--gray-5);border-radius:20px;font-size:11px;font-weight:600;padding:5px 12px;cursor:pointer;font-family:inherit;transition:all 0.2s;';
+    var confirming = false;
+    newVialBtn.onclick = (function(compName, btn){ return function(e){
+      e.stopPropagation();
+      if(!confirming){
+        confirming = true;
+        btn.textContent = 'Tap again to confirm';
+        btn.style.background = 'var(--blue)';
+        btn.style.color = '#fff';
+        btn.style.borderColor = 'var(--blue)';
+        setTimeout(function(){
+          if(confirming){
+            confirming = false;
+            btn.textContent = '+ New vial';
+            btn.style.background = 'var(--white)';
+            btn.style.color = 'var(--gray-5)';
+            btn.style.borderColor = 'var(--gray-2)';
+          }
+        }, 3000);
+      } else {
+        confirming = false;
+        trackerData.restocks[compName] = new Date().toISOString().split('T')[0];
+        localStorage.setItem('peptrak_tracker', JSON.stringify(trackerData));
+        showSaveToast();
+        buildVials();
+      }
+    }; })(c.name, newVialBtn);
+    if(dosesRemaining === 0) rightDiv.appendChild(newVialBtn);
+
+    row.appendChild(leftDiv);
+    row.appendChild(rightDiv);
+    wrap.appendChild(row);
+  });
+}
+
+
+function buildStats(){
+  var logs = trackerData.logs;
+  var totalDoses = 0, takenDoses = 0;
+  logs.forEach(function(log){
+    if(log.doses){ Object.values(log.doses).forEach(function(d){ totalDoses++; if(d.taken) takenDoses++; }); }
+  });
+  var adherence = totalDoses ? Math.round((takenDoses/totalDoses)*100) : null;
+}
+
+// ── SIDE CHIPS ──
+var SIDES = ['Water retention','Fatigue','Hunger changes','Mood changes','Headache','Flushing','Nausea','Sleep changes','Joint soreness','Libido changes'];
+function buildSideChips(){
+  var wrap = document.getElementById('sides-chips');
+  if(!wrap) return;
+  wrap.innerHTML = '';
+  SIDES.forEach(function(s){
+    var chip = document.createElement('button');
+    chip.className = 'side-chip' + (sidesState.indexOf(s)>-1?' sel':'');
+    chip.textContent = s;
+    chip.dataset.val = s;
+    chip.onclick = function(){
+      chip.classList.toggle('sel');
+      if(chip.classList.contains('sel')){
+        if(sidesState.indexOf(s)<0) sidesState.push(s);
+      } else {
+        sidesState = sidesState.filter(function(x){return x!==s;});
+      }
+      saveToTracker();
+    };
+    wrap.appendChild(chip);
+  });
+}
+
+
+var WEEK_TAKES = {
+  1: "Week 1 is about consistency, not results. Just stay on schedule.",
+  2: "Sleep quality usually shifts around now — notice anything different when you wake up?",
+  3: "Recovery between sessions is the main thing to watch this week.",
+  4: "Week 4 is the results window. Body composition and energy are the markers.",
+  6: "You are past the halfway point. The compounds are fully saturated now.",
+  8: "Most people notice the compounding effect here — results build on results.",
+  12: "End of first cycle approaching. Start thinking about what you want to adjust next run."
+};
+
+function buildAlexTake(){
+  var hasStart = !!localStorage.getItem('peptrak_protocol_start');
+  if(!hasStart){
+    var card0 = document.getElementById('alex-take-card');
+    if(card0) card0.style.display = 'none';
+    return;
+  }
+  var progress = getProgress();
+  var keys = Object.keys(WEEK_TAKES).map(Number).sort(function(a,b){return b-a;});
+  var take = null;
+  for(var i=0;i<keys.length;i++){
+    if(progress.week >= keys[i]){ take = WEEK_TAKES[keys[i]]; break; }
+  }
+  if(!take) take = "Stay consistent — peptides reward daily discipline more than perfect dosing.";
+  var card = document.getElementById('alex-take-card');
+  var txt = document.getElementById('alex-take-txt');
+  if(card && txt){
+    // Only show week 2+, and not when all doses are already logged today
+    var prog2 = getProgress();
+    var doneToday = Object.values(dosesState).filter(function(d){return d.taken;}).length;
+    var totalToday = protocol.compounds ? protocol.compounds.length : 0;
+    var allDoneToday = totalToday > 0 && doneToday === totalToday;
+    if(!allDoneToday && prog2 && prog2.week >= 2){
+      card.style.display = 'block';
+      txt.textContent = '"' + take + '"';
+    }
+  }
+}
+
+// ── MISSED DOSE BANNER ──
+
+
+function askAlexProtocol(){
+  localStorage.setItem('peptrak_prefill_msg', 'I want to adjust my protocol — can you help me add or change a compound?');
+  window.location.href = '/chat';
+}
+
+function showToast(msg){
+  var t = document.getElementById('save-toast');
+  if(!t){
+    t = document.createElement('div');
+    t.id = 'save-toast';
+    t.style.cssText = 'position:fixed;bottom:90px;left:50%;transform:translateX(-50%);background:var(--ink);color:#fff;padding:10px 20px;border-radius:20px;font-size:13px;font-weight:600;z-index:999;opacity:0;transition:opacity 0.3s;pointer-events:none;';
+    document.body.appendChild(t);
+  }
+  t.textContent = msg;
+  t.style.opacity = '1';
+  setTimeout(function(){ t.style.opacity = '0'; }, 2000);
+}
+
+function startCycleToday(){
+  localStorage.setItem('peptrak_protocol_start', Date.now().toString());
+  saveMemory('protocol_started', new Date().toDateString());
+  document.getElementById('start-banner').style.display = 'none';
+  showToast('Cycle started! Day 1 begins today 🔥');
+  // Re-render doses to remove grayout
+  setTimeout(function(){
+    buildDoses();
+    buildAlexTake();
+    updateProgress();
+  }, 150);
+}
+
+
+function reshowStartBanner(){
+  localStorage.removeItem('peptrak_start_dismissed');
+  document.getElementById('ready-to-start-link').style.display = 'none';
+  var banner = document.getElementById('start-banner');
+  if(banner) banner.style.display = 'block';
+}
+
+function startCycleLater(){
+  // Dismiss banner — show persistent "I'm ready" link instead
+  localStorage.setItem('peptrak_start_dismissed', new Date().toISOString().slice(0,10));
+  document.getElementById('start-banner').style.display = 'none';
+  var link = document.getElementById('ready-to-start-link');
+  if(link) link.style.display = 'block';
+}
+
+
+// ── INSTALL PROMPT ──
+function checkInstallPrompt(){
+  // Only show if: paid user, never shown before, not already installed
+  var paid = localStorage.getItem('peptrak_paid');
+  var shown = localStorage.getItem('peptrak_install_shown');
+  var isStandalone = window.navigator.standalone || window.matchMedia('(display-mode: standalone)').matches;
+  if(!paid || shown || isStandalone) return;
+
+  // Detect device
+  var ua = navigator.userAgent;
+  var isAndroid = /Android/.test(ua);
+  var isIOS = /iPad|iPhone|iPod/.test(ua);
+  if(!isIOS && !isAndroid) return; // Desktop — skip
+
+  // Show correct steps
+  document.getElementById('install-steps-ios').style.display = isIOS ? 'flex' : 'none';
+  document.getElementById('install-steps-android').style.display = isAndroid ? 'flex' : 'none';
+
+  // Show after 3 seconds so tracker loads first
+  setTimeout(function(){
+    document.getElementById('install-overlay').classList.add('show');
+    setTimeout(function(){
+      document.getElementById('install-sheet').classList.add('show');
+    }, 50);
+  }, 3000);
+}
+
+
+function checkShowStartBanner(){
+  var banner = document.getElementById('start-banner');
+  if(!banner) return;
+  var hasProtocol = protocol && protocol.compounds && protocol.compounds.length;
+  var hasStart = !!localStorage.getItem('peptrak_protocol_start');
+  var dismissed = localStorage.getItem('peptrak_start_dismissed');
+  var dismissedToday = dismissed === new Date().toISOString().slice(0,10);
+  var readyLink = document.getElementById('ready-to-start-link');
+  if(hasProtocol && !hasStart && !dismissedToday){
+    banner.style.display = 'block';
+    if(readyLink) readyLink.style.display = 'none';
+  } else if(hasProtocol && !hasStart && dismissedToday){
+    banner.style.display = 'none';
+    if(readyLink) readyLink.style.display = 'block';
+  } else if(hasStart){
+    banner.style.display = 'none';
+    if(readyLink) readyLink.style.display = 'none';
+  }
+}
+
+function checkMissedYesterday(){
+  if(!protocol.compounds || !protocol.compounds.length) return;
+  // Don't show missed banner if cycle hasn't started yet
+  var startTs = parseInt(localStorage.getItem('peptrak_protocol_start') || 0);
+  if(!startTs) return;
+  var yesterday = new Date();
+  yesterday.setDate(yesterday.getDate() - 1);
+  var yKey = yesterday.toISOString().split('T')[0];
+  var yLog = trackerData.logs.find(function(l){ return l.date === yKey; });
+
+  // Only show if yesterday was incomplete
+  if(yLog && yLog.complete) return;
+
+  var banner = document.getElementById('missed-banner');
+  var list = document.getElementById('missed-doses-list');
+  if(!banner || !list) return;
+
+  banner.style.display = 'flex';
+  banner.style.flexDirection = 'column';
+  list.innerHTML = '';
+
+  protocol.compounds.forEach(function(comp, i){
+    var key = 'c' + i;
+    var alreadyTaken = yLog && yLog.doses && yLog.doses[key] && yLog.doses[key].taken;
+
+    var row = document.createElement('div');
+    row.style.cssText = 'display:flex;align-items:center;justify-content:space-between;background:#fff;border-radius:10px;padding:10px 12px;gap:10px;';
+
+    var nameDiv = document.createElement('div');
+    nameDiv.style.cssText = 'font-size:13px;font-weight:500;color:#92400E;flex:1;';
+    nameDiv.textContent = comp.name + ' — ' + comp.dose;
+
+    var btnWrap = document.createElement('div');
+    btnWrap.style.cssText = 'display:flex;gap:6px;';
+
+    var takenBtn = document.createElement('button');
+    takenBtn.textContent = '✓ Taken';
+    takenBtn.style.cssText = 'padding:5px 12px;border-radius:20px;border:none;cursor:pointer;font-size:12px;font-weight:600;font-family:inherit;' + (alreadyTaken ? 'background:var(--green);color:#fff;' : 'background:var(--green-pale);color:var(--green-dark);');
+    takenBtn.onclick = (function(yk,k,nm,bw){ return function(){ logYesterdayDose(yk,k,nm,true,bw); }; })(yKey,key,comp.name,btnWrap);
+
+    var missedBtn = document.createElement('button');
+    missedBtn.textContent = '✗ Missed';
+    missedBtn.style.cssText = 'padding:5px 12px;border-radius:20px;border:none;cursor:pointer;font-size:12px;font-weight:600;font-family:inherit;' + (!alreadyTaken && yLog ? 'background:#FEE2E2;color:var(--red);' : 'background:var(--gray-1);color:var(--gray-4);');
+    missedBtn.onclick = (function(yk,k,nm,bw){ return function(){ logYesterdayDose(yk,k,nm,false,bw); }; })(yKey,key,comp.name,btnWrap);
+
+    btnWrap.appendChild(takenBtn);
+    btnWrap.appendChild(missedBtn);
+    row.appendChild(nameDiv);
+    row.appendChild(btnWrap);
+    list.appendChild(row);
+  });
+}
+
+function logYesterdayDose(yKey, doseKey, compName, taken, rowEl){
+  // Find or create yesterday log
+  var logIdx = trackerData.logs.findIndex(function(l){ return l.date === yKey; });
+  var yLog;
+  if(logIdx > -1){
+    yLog = trackerData.logs[logIdx];
+  } else {
+    yLog = {date: yKey, doses:{}, feel:{}, sides:[], complete:false};
+    trackerData.logs.push(yLog);
+    logIdx = trackerData.logs.length - 1;
+  }
+
+  if(!yLog.doses) yLog.doses = {};
+  yLog.doses[doseKey] = {taken: taken, name: compName, time: taken ? 'retroactive' : null};
+
+  // Check if all doses now marked (taken OR explicitly missed)
+  var total = protocol.compounds ? protocol.compounds.length : 0;
+  var markedCount = Object.values(yLog.doses).filter(function(d){ return d.taken === true || d.taken === false; }).length;
+  var allMarked = markedCount >= total;
+  var done = Object.values(yLog.doses).filter(function(d){ return d.taken; }).length;
+  yLog.complete = allMarked && done === total;
+
+  trackerData.logs[logIdx] = yLog;
+  localStorage.setItem('peptrak_tracker', JSON.stringify(trackerData));
+  showSaveToast();
+
+  // Update button styles in row
+  var btns = rowEl.querySelectorAll('button');
+  if(taken){
+    btns[0].style.background = 'var(--green)';
+    btns[0].style.color = '#fff';
+    btns[1].style.background = 'var(--gray-1)';
+    btns[1].style.color = 'var(--gray-4)';
+  } else {
+    btns[0].style.background = 'var(--green-pale)';
+    btns[0].style.color = 'var(--green-dark)';
+    btns[1].style.background = '#FEE2E2';
+    btns[1].style.color = 'var(--red)';
+  }
+
+  // If all marked, hide banner
+  if(allMarked){
+    setTimeout(function(){
+      var banner = document.getElementById('missed-banner');
+      if(banner) banner.style.display = 'none';
+    }, 600);
+  }
+}
+
+function askAlexMissed(){
+  localStorage.setItem('peptrak_prefill_msg', 'I missed a dose yesterday — should I double up today or skip it?');
+  window.location.href = '/chat';
+}
+
+// ── TOGGLE SIDES ──
+function toggleSides(){
+  var wrap = document.getElementById('sides-wrap');
+  var chevron = document.getElementById('sides-chevron');
+  var btn = document.getElementById('sides-toggle');
+  var open = wrap.style.display === 'block';
+  wrap.style.display = open ? 'none' : 'block';
+  chevron.style.transform = open ? '' : 'rotate(180deg)';
+  if(btn) btn.classList.toggle('open', !open);
+}
+
+// ── AUTO-SAVE TOAST ──
+function showSaveToast(){
+  var toast = document.getElementById('save-toast');
+  if(!toast) return;
+  toast.style.display = 'block';
+  toast.style.opacity = '1';
+  setTimeout(function(){
+    toast.style.opacity = '0';
+    setTimeout(function(){ toast.style.display = 'none'; }, 300);
+  }, 1200);
+}
+
+// ── CALC STREAK ──
+function calcStreak(){
+  var streak = 0;
+  var d = new Date();
+  while(true){
+    var key = d.toISOString().split('T')[0];
+    var log = trackerData.logs.find(function(l){ return l.date === key; });
+    if(log && log.complete){ streak++; d.setDate(d.getDate()-1); }
+    else if(key === todayKey){ d.setDate(d.getDate()-1); } // today not complete yet, skip
+    else break;
+  }
+  return streak;
+}
+
+// ── SAVE TO TRACKER ──
+function saveToTracker(){
+  var logIdx = trackerData.logs.findIndex(function(l){ return l.date === todayKey; });
+  var total = protocol.compounds ? protocol.compounds.length : 0;
+  var done = Object.values(dosesState).filter(function(d){ return d.taken; }).length;
+  var complete = total > 0 && done === total;
+
+  var log = {
+    date: todayKey,
+    doses: dosesState,
+    feel: null,
+    sides: sidesState,
+    note: (document.getElementById('note-input')||{}).value || '',
+    complete: complete
+  };
+
+  if(logIdx > -1) trackerData.logs[logIdx] = log;
+  else trackerData.logs.push(log);
+
+  // Update streak before saving
+  if(complete) trackerData.streak = calcStreak();
+  localStorage.setItem('peptrak_tracker', JSON.stringify(trackerData));
+  showSaveToast();
+}
+
+// ── DAY COMPLETE ──
+function showDayComplete(animate){
+  // Turn streak card green
+  var streakRow = document.getElementById('streak-row-wrap');
+  if(streakRow) streakRow.classList.add('day-complete');
+  // Update progress text
+  var ptxt = document.getElementById('streak-progress-txt');
+  if(ptxt) ptxt.classList.add('complete');
+  var doneEl = document.getElementById('hero-done-txt');
+  if(doneEl) doneEl.textContent = 'All done — come back tomorrow';
+  var pctEl = document.getElementById('hero-pct-txt');
+  if(pctEl) pctEl.textContent = '100%';
+  // Update streak count in header
+  var streak = calcStreak();
+  document.getElementById('streak-count').textContent = streak;
+  document.getElementById('streak-fire').style.opacity = streak > 0 ? '1' : '0.2';
+  document.getElementById('streak-fire').style.filter = streak > 0 ? '' : 'grayscale(1)';
+  buildStreakDots();
+}
+
+// ── CONFETTI ──
+function triggerConfetti(){
+  var wrap = document.getElementById('confetti-wrap');
+  wrap.innerHTML = '';
+  var colors = ['#0876FF','#00C076','#F0A500','#FF3B30','#34C759','#5856D6'];
+  for(var i=0; i<60; i++){
+    var piece = document.createElement('div');
+    piece.className = 'confetti-piece';
+    piece.style.cssText = [
+      'left:' + Math.random()*100 + '%',
+      'background:' + colors[Math.floor(Math.random()*colors.length)],
+      'width:' + (6+Math.random()*6) + 'px',
+      'height:' + (6+Math.random()*6) + 'px',
+      'animation-duration:' + (1.5+Math.random()*1.5) + 's',
+      'animation-delay:' + (Math.random()*0.5) + 's',
+      'border-radius:' + (Math.random()>0.5?'50%':'2px')
+    ].join(';');
+    wrap.appendChild(piece);
+  }
+  setTimeout(function(){ wrap.innerHTML = ''; }, 3500);
+}
+
+// ── MILESTONE CHECK ──
+
+function checkMilestone(){
+  var progress = getProgress();
+  var totalWeeks = progress.totalWeeks || 12;
+  var totalDays = totalWeeks * 7;
+  var halfDay = Math.floor(totalDays / 2);
+  var threeQDay = Math.floor(totalDays * 0.75);
+
+  var MILESTONES_DYNAMIC = {
+    7:  {icon:'🔥', title:'One Week Strong', sub:'First week done. The peptides are building up — keep the consistency.'},
+    14: {icon:'💪', title:'Two Weeks In', sub:'Your GH pulse is responding. Most people notice sleep quality shifting around now.'},
+    28: {icon:'🎯', title:'One Month Complete', sub:'This is where real results become visible. Your consistency is what got you here.'},
+  };
+  // Add dynamic milestones based on actual cycle length
+  MILESTONES_DYNAMIC[halfDay] = {icon:'⚡', title:'Halfway Through', sub:'Week ' + Math.round(totalWeeks/2) + ' of ' + totalWeeks + '. Compounds are fully saturated. The second half is where results compound.'};
+  MILESTONES_DYNAMIC[threeQDay] = {icon:'🏃', title:'Final Quarter', sub:Math.round(totalWeeks * 0.25) + ' weeks left. Start thinking about your next cycle goals.'};
+  MILESTONES_DYNAMIC[totalDays] = {icon:'🏆', title:'Cycle Complete', sub:totalWeeks + '-week cycle done. Time to assess, adjust, and plan cycle 2.'};
+
+  var m = MILESTONES_DYNAMIC[progress.day];
+  if(m && !localStorage.getItem('peptrak_milestone_' + progress.day)){
+    localStorage.setItem('peptrak_milestone_' + progress.day, '1');
+    setTimeout(function(){
+      document.getElementById('m-icon').textContent = m.icon;
+      document.getElementById('m-title').textContent = m.title;
+      document.getElementById('m-sub').textContent = m.sub;
+      document.getElementById('milestone-overlay').classList.add('show');
+    }, 1200);
+  }
+}
+
+function closeMilestone(){
+  document.getElementById('milestone-overlay').classList.remove('show');
+}
+
+// ── CYCLE END BANNER ──
+function buildCycleEndBanner(){
+  var el = document.getElementById('cycle-end-banner');
+  if(!el) return;
+  var progress = getProgress();
+  if(!progress || !progress.totalWeeks) return;
+  var totalDays = progress.totalWeeks * 7;
+  var daysLeft = totalDays - progress.day + 1;
+  // Show within last 5 days or after completion
+  if(daysLeft > 5) return;
+
+  var isDone = progress.day > totalDays;
+  var weeksLabel = progress.totalWeeks + '-week';
+
+  el.style.display = 'block';
+  el.innerHTML = '<div class="cycle-end-banner">'
+    + '<div class="ceb-eyebrow">' + (isDone ? 'Cycle Complete' : 'Cycle Ending Soon') + '</div>'
+    + '<div class="ceb-title">' + (isDone ? 'Your ' + weeksLabel + ' cycle is done.' : daysLeft + ' day' + (daysLeft === 1 ? '' : 's') + ' left in your ' + weeksLabel + ' cycle.') + '</div>'
+    + '<div class="ceb-sub">' + (isDone ? 'Time to assess your results, adjust your protocol, or take a break before cycle 2.' : 'Start thinking about what comes next — continue, adjust compounds, or cycle off.') + '</div>'
+    + '<div class="ceb-actions">'
+    +   '<a href="/onboarding?refresh=1" class="ceb-btn primary">Refresh Protocol</a>'
+    +   '<a href="/chat" class="ceb-btn secondary">Ask Alex</a>'
+    + '</div>'
+    + '</div>';
+}
+
+// ── RECONSTITUTION CALCULATOR ──
+var RECON_DB = {
+
+  // ── RECOVERY / REPAIR ──
+  'BPC-157': {
+    vials:[2,5,10], defaultVial:5, defaultDose:250, defaultUnit:'mcg',
+    bacMl:{2:1, 5:2, 10:2},
+    note:'Add BAC water slowly down the vial wall — never shake, only swirl. 5mg vial + 2mL = 2.5mg/mL; 250mcg dose = 10 units. Standard research dose: 250–500mcg/day SubQ. Store refrigerated immediately.',
+    shelf:'4–6 weeks refrigerated'
+  },
+  'TB-500': {
+    vials:[2,5,10], defaultVial:5, defaultDose:2000, defaultUnit:'mcg',
+    bacMl:{2:1, 5:1, 10:2},
+    note:'5mg vial + 1mL = 5mg/mL; 2mg dose = 40 units. Loading: 2–5mg twice weekly for 4–6 weeks. Maintenance: 2mg once weekly. Dissolves easily — swirl gently until clear.',
+    shelf:'4–6 weeks refrigerated'
+  },
+  'GLOW (BPC-157 + TB-500 + GHK-Cu)': {
+    vials:[70], defaultVial:70, defaultDose:250, defaultUnit:'mcg',
+    bacMl:{70:3},
+    note:'70mg blend + 3mL BAC water = ~23mg/mL concentration. Each 250mcg BPC-157 equivalent ≈ 10 units on a 100u syringe. Swirl gently — high-concentration blend takes 1–2 min to fully dissolve. Store refrigerated.',
+    shelf:'4–6 weeks refrigerated'
+  },
+  'KLOW': {
+    vials:[80], defaultVial:80, defaultDose:250, defaultUnit:'mcg',
+    bacMl:{80:3},
+    note:'80mg blend + 3mL BAC water = ~27mg/mL. Swirl gently until fully dissolved. High peptide concentration — takes 1–2 min. Store refrigerated immediately after reconstitution.',
+    shelf:'4–6 weeks refrigerated'
+  },
+  'Wolverine': {
+    vials:[10,20], defaultVial:10, defaultDose:500, defaultUnit:'mcg',
+    bacMl:{10:2, 20:2},
+    note:'10mg + 2mL = 5mg/mL; 500mcg dose = 10 units. Contains IGF-1 LR3 fraction — use within 3–4 weeks. Store refrigerated.',
+    shelf:'3–4 weeks refrigerated'
+  },
+  'GHK-Cu': {
+    vials:[50,100], defaultVial:50, defaultDose:1000, defaultUnit:'mcg',
+    bacMl:{50:2, 100:2},
+    note:'50mg + 2mL = 25mg/mL; 1mg (1000mcg) dose = 4 units. Highly water soluble — dissolves quickly. Use the 50mg vial for better draw precision. Can be used SubQ or diluted further for topical application.',
+    shelf:'6–8 weeks refrigerated'
+  },
+  'Thymosin Alpha-1': {
+    vials:[5,10], defaultVial:5, defaultDose:1600, defaultUnit:'mcg',
+    bacMl:{5:1, 10:2},
+    note:'5mg + 1mL = 5mg/mL; 1.6mg (1600mcg) dose = 32 units. Standard research protocol: 1.6mg SubQ twice weekly. Use within 4 weeks after reconstitution.',
+    shelf:'4 weeks refrigerated'
+  },
+  'LL-37': {
+    vials:[5], defaultVial:5, defaultDose:100, defaultUnit:'mcg',
+    bacMl:{5:1},
+    note:'5mg + 1mL = 5mg/mL; 100mcg dose = 2 units. Low-volume draw — use a 31g insulin syringe for precision. Research doses 100–500mcg SubQ. Handle in sterile conditions.',
+    shelf:'4 weeks refrigerated'
+  },
+  'Snap-8': {
+    vials:[10], defaultVial:10, defaultDose:200, defaultUnit:'mcg',
+    bacMl:{10:2},
+    note:'10mg + 2mL = 5mg/mL. Primarily topical — dissolve and mix into serum or moisturizer. For SubQ research use: 200mcg = 4 units. Anti-wrinkle peptide (acetyl octapeptide-3).',
+    shelf:'4 weeks refrigerated'
+  },
+  'Lysine-Proline-Valine': {
+    vials:[5], defaultVial:5, defaultDose:500, defaultUnit:'mcg',
+    bacMl:{5:1},
+    note:'5mg + 1mL = 5mg/mL; 500mcg dose = 10 units. KPV tripeptide — dissolves readily. Research doses 500mcg–1mg SubQ or oral. Anti-inflammatory, studied for IBD and wound healing.',
+    shelf:'4 weeks refrigerated'
+  },
+
+  // ── GH / IGF ──
+  'CJC-1295 (no DAC)': {
+    vials:[5,10], defaultVial:5, defaultDose:100, defaultUnit:'mcg',
+    bacMl:{5:2, 10:2},
+    note:'5mg + 2mL = 2.5mg/mL; 100mcg dose = 4 units. Always dose fasted — food blunts GH release. Bedtime is optimal. Combine with Ipamorelin for synergistic GH pulse. Can be drawn in the same syringe.',
+    shelf:'4 weeks refrigerated'
+  },
+  'Ipamorelin': {
+    vials:[5,10], defaultVial:5, defaultDose:100, defaultUnit:'mcg',
+    bacMl:{5:2, 10:2},
+    note:'5mg + 2mL = 2.5mg/mL; 100mcg dose = 4 units. Cleanest GHRP — minimal cortisol or prolactin elevation. Always dose fasted. Can be mixed in same syringe as CJC-1295.',
+    shelf:'4 weeks refrigerated'
+  },
+  'CJC+IPA Blend': {
+    vials:[10], defaultVial:10, defaultDose:200, defaultUnit:'mcg',
+    bacMl:{10:2},
+    note:'10mg + 2mL = 5mg/mL; 200mcg dose = 4 units (100mcg each peptide). Dose fasted, bedtime preferred. Pre-blended for convenience — single injection delivers both peptides.',
+    shelf:'4 weeks refrigerated'
+  },
+  'Sermorelin': {
+    vials:[5,10], defaultVial:5, defaultDose:200, defaultUnit:'mcg',
+    bacMl:{5:1, 10:2},
+    note:'5mg + 1mL = 5mg/mL; 200mcg dose = 4 units. Shorter half-life than CJC — dose 30 min before sleep on an empty stomach. Tachyphylaxis develops more slowly than synthetic GHRPs.',
+    shelf:'4 weeks refrigerated'
+  },
+  'Hexarelin': {
+    vials:[2,5,10], defaultVial:5, defaultDose:100, defaultUnit:'mcg',
+    bacMl:{2:1, 5:2, 10:2},
+    note:'5mg + 2mL = 2.5mg/mL; 100mcg dose = 4 units. Most potent GHRP — expect strong GH pulse. Desensitization occurs; cycle 8 weeks on / 4 weeks off. Dose fasted.',
+    shelf:'4 weeks refrigerated'
+  },
+  'Tesamorelin': {
+    vials:[5,10,20], defaultVial:10, defaultDose:2000, defaultUnit:'mcg',
+    bacMl:{5:2, 10:2, 20:2},
+    note:'10mg + 2mL = 5mg/mL; 2mg (2000mcg) dose = 40 units. FDA-approved (Egrifta) — reconstituted vials stable 21 days refrigerated per FDA labeling. Daily SubQ injection.',
+    shelf:'21 days refrigerated (FDA-labeled)'
+  },
+  'IGF-1 LR3': {
+    vials:[0.1,1], defaultVial:1, defaultDose:40, defaultUnit:'mcg',
+    bacMl:{0.1:0.5, 1:1},
+    note:'⚠️ Requires acidic reconstitution — use 0.6% acetic acid (NOT BAC water) first. 1mg + 1mL acetic acid = 1mg/mL; 40mcg dose = 4 units. Then dilute working dose with sterile saline. Cycle 4 weeks on / 4 weeks off minimum.',
+    shelf:'3 weeks refrigerated (acetic acid)'
+  },
+  'IGF-DES': {
+    vials:[2], defaultVial:2, defaultDose:50, defaultUnit:'mcg',
+    bacMl:{2:1},
+    note:'⚠️ 2mg + 1mL = 2mg/mL; 50mcg dose = 2.5 units. Prefers acidic reconstitution. Extremely short half-life (~20 min) — inject immediately post-workout directly into trained muscle (IM). SubQ is significantly less effective for DES.',
+    shelf:'2–3 weeks refrigerated'
+  },
+  'HGH Fragment 176-191': {
+    vials:[5], defaultVial:5, defaultDose:250, defaultUnit:'mcg',
+    bacMl:{5:2},
+    note:'5mg + 2mL = 2.5mg/mL; 250mcg dose = 10 units. Always dose fasted. Morning and pre-bed are optimal windows for lipolytic effect. No GH receptor binding — purely targets fat cell beta-3 receptors.',
+    shelf:'4 weeks refrigerated'
+  },
+  'HGH': {
+    vials:[10,15,24], defaultVial:10, defaultDose:2, defaultUnit:'iu',
+    bacMl:{10:1, 15:1.5, 24:2.4},
+    note:'10IU + 1mL = 10IU/mL; 2IU dose = 20 units. Refrigerate immediately — HGH degrades rapidly at room temperature. Rotate injection sites. Use within 3 weeks of first draw from reconstituted vial.',
+    shelf:'3 weeks refrigerated after first use'
+  },
+
+  // ── GLP-1 / WEIGHT LOSS ──
+  'Semaglutide': {
+    vials:[5,10,15,20,30], defaultVial:5, defaultDose:250, defaultUnit:'mcg',
+    bacMl:{5:1, 10:2, 15:3, 20:3, 30:3},
+    note:'5mg + 1mL = 5mg/mL; 250mcg (0.25mg) dose = 5 units. Research start: 0.25mg weekly for 4 weeks, then titrate. Same day each week — consistency matters for steady-state levels. Nausea diminishes after 2–4 weeks.',
+    shelf:'4–6 weeks refrigerated'
+  },
+  'Tirzepatide': {
+    vials:[5,10,15,20], defaultVial:5, defaultDose:2500, defaultUnit:'mcg',
+    bacMl:{5:1, 10:2, 15:3, 20:3},
+    note:'5mg + 1mL = 5mg/mL; 2.5mg (2500mcg) dose = 50 units. Research start: 2.5mg weekly, increase by 2.5mg every 4 weeks. More potent than semaglutide — titrate conservatively. Weekly SubQ.',
+    shelf:'4–6 weeks refrigerated'
+  },
+  'Retatrutide': {
+    vials:[5,10,20,30,60], defaultVial:5, defaultDose:500, defaultUnit:'mcg',
+    bacMl:{5:1, 10:2, 20:2, 30:3, 60:3},
+    note:'5mg + 1mL = 5mg/mL; 500mcg (0.5mg) starting dose = 10 units. 60mg + 3mL = 20mg/mL; 2mg dose = 10 units. Research start: 0.5mg weekly. Triple agonist — titrate slowly. Weekly SubQ, same day.',
+    shelf:'4–6 weeks refrigerated'
+  },
+  'Cagrilintide': {
+    vials:[5,10], defaultVial:5, defaultDose:300, defaultUnit:'mcg',
+    bacMl:{5:1, 10:2},
+    note:'5mg + 1mL = 5mg/mL; 300mcg dose = 6 units. Research start: 0.3mg weekly, titrate to 2.4mg. Often combined with Semaglutide (CagriSema protocol). Once weekly SubQ.',
+    shelf:'4–6 weeks refrigerated'
+  },
+  'Cagrilintide+Semaglutide blend': {
+    vials:[5,10], defaultVial:5, defaultDose:250, defaultUnit:'mcg',
+    bacMl:{5:1, 10:2},
+    note:'5mg + 1mL = 5mg/mL. Dose based on Semaglutide component — start at 0.25mg weekly and titrate same as Sema monotherapy. Weekly SubQ injection.',
+    shelf:'4–6 weeks refrigerated'
+  },
+  'AOD-9604': {
+    vials:[5,10], defaultVial:5, defaultDose:300, defaultUnit:'mcg',
+    bacMl:{5:1, 10:2},
+    note:'5mg + 1mL = 5mg/mL; 300mcg dose = 6 units. Dose fasted — morning preferred. HGH fragment targeting fat-specific beta-3 receptors only. No IGF-1 elevation, no insulin resistance effect.',
+    shelf:'4 weeks refrigerated'
+  },
+  'Adipotide': {
+    vials:[2,5], defaultVial:2, defaultDose:500, defaultUnit:'mcg',
+    bacMl:{2:1, 5:1},
+    note:'2mg + 1mL = 2mg/mL; 500mcg dose = 25 units. Research doses 500mcg–1mg SubQ daily for 4–8 week cycles. Targets vasculature supplying white adipose tissue.',
+    shelf:'3–4 weeks refrigerated'
+  },
+  'Survodutide': {
+    vials:[10], defaultVial:10, defaultDose:600, defaultUnit:'mcg',
+    bacMl:{10:2},
+    note:'10mg + 2mL = 5mg/mL; 600mcg dose = 12 units. Glucagon + GLP-1 dual agonist. Research doses escalate from 0.6mg weekly. Strong metabolic effect via glucagon receptor activation.',
+    shelf:'4–6 weeks refrigerated'
+  },
+  '5-Amino-1MQ': {
+    vials:[5,10], defaultVial:5, defaultDose:50, defaultUnit:'mg',
+    bacMl:{5:1, 10:2},
+    note:'5mg + 1mL = 5mg/mL; 50mg dose — note this is a high-concentration compound dosed in mg. Research doses 50–100mg SubQ. NNMT inhibitor — novel metabolic pathway, limited long-term data.',
+    shelf:'4 weeks refrigerated'
+  },
+
+  // ── COGNITIVE / NEURO ──
+  'Semax': {
+    vials:[5,10], defaultVial:5, defaultDose:300, defaultUnit:'mcg',
+    bacMl:{5:1, 10:2},
+    note:'5mg + 1mL = 5mg/mL. Intranasal delivery — transfer to nasal spray bottle after reconstitution. Each spray pump delivers ~100mcg. Research dose: 300–600mcg (3–6 pumps). Use AM only. Effects within 30–60 min.',
+    shelf:'30 days refrigerated in nasal bottle'
+  },
+  'Selank': {
+    vials:[5,10], defaultVial:5, defaultDose:250, defaultUnit:'mcg',
+    bacMl:{5:1, 10:2},
+    note:'5mg + 1mL = 5mg/mL. Intranasal only — transfer to nasal spray. Can be combined with Semax in same bottle. Research dose: 250–750mcg. Anxiolytic effects in 30–60 min.',
+    shelf:'30 days refrigerated'
+  },
+  'Pinealon': {
+    vials:[10,15,20], defaultVial:10, defaultDose:1000, defaultUnit:'mcg',
+    bacMl:{10:2, 15:3, 20:3},
+    note:'10mg + 2mL = 5mg/mL; 1mg (1000mcg) dose = 20 units. SubQ or intranasal. Research: 1–5mg/day for 10-day courses. Morning dosing preferred. Dissolves quickly.',
+    shelf:'4 weeks refrigerated'
+  },
+  'Cerebrolysin': {
+    vials:[60], defaultVial:60, defaultDose:10, defaultUnit:'mg',
+    bacMl:{60:3},
+    note:'60mg + 3mL = 20mg/mL; 10mg dose = 50 units. IM injection strongly preferred. Clinical protocols use 10–30mL IV — for research SubQ use, 10mg IM is standard starting point. Do not mix with other compounds.',
+    shelf:'Use same session after reconstitution'
+  },
+  'PT-141': {
+    vials:[10], defaultVial:10, defaultDose:1000, defaultUnit:'mcg',
+    bacMl:{10:2},
+    note:'10mg + 2mL = 5mg/mL; 1mg (1000mcg) dose = 20 units. Dose 1–2 hours before activity. SubQ preferred over intranasal for consistent absorption. Start at 500mcg — flushing and nausea common above 2mg.',
+    shelf:'4 weeks refrigerated'
+  },
+  'Oxytocin Acetate': {
+    vials:[2,5], defaultVial:2, defaultDose:100, defaultUnit:'iu',
+    bacMl:{2:1, 5:2},
+    note:'2mg + 1mL = 2mg/mL. Oxytocin is dosed in IU — verify IU content on your specific vial (typically ~500IU per mg). SubQ or intranasal. Research doses 10–40IU. Refrigerate immediately — temperature sensitive.',
+    shelf:'4 weeks refrigerated'
+  },
+  'KissPeptin': {
+    vials:[5,10], defaultVial:5, defaultDose:100, defaultUnit:'mcg',
+    bacMl:{5:1, 10:2},
+    note:'5mg + 1mL = 5mg/mL; 100mcg dose = 2 units. Research doses 1–100mcg SubQ. LH/FSH stimulator via GnRH pathway. Verify whether your vial is Kisspeptin-10 or Kisspeptin-54. Use 31g syringe for low-volume precision.',
+    shelf:'4 weeks refrigerated'
+  },
+
+  // ── LONGEVITY ──
+  'Epithalon': {
+    vials:[10,50], defaultVial:10, defaultDose:5000, defaultUnit:'mcg',
+    bacMl:{10:2, 50:2},
+    note:'10mg + 2mL = 5mg/mL; 5mg (5000mcg) dose = 100 units. Research protocol: 5–10mg/day for 10 consecutive days, 2–4 cycles per year. Store lyophilized powder frozen until use — refrigerate after reconstitution.',
+    shelf:'30 days refrigerated (store powder frozen)'
+  },
+  'SS-31': {
+    vials:[10,50], defaultVial:10, defaultDose:5000, defaultUnit:'mcg',
+    bacMl:{10:1, 50:2},
+    note:'10mg + 1mL = 10mg/mL; 5mg (5000mcg) dose = 50 units. Mitochondrial membrane-targeted. SubQ or IM. Research doses 10–40mg — note these are mg, not mcg. Use fresh BAC water.',
+    shelf:'3–4 weeks refrigerated'
+  },
+  'MOTS-c': {
+    vials:[10,40], defaultVial:10, defaultDose:5000, defaultUnit:'mcg',
+    bacMl:{10:1, 40:2},
+    note:'10mg + 1mL = 10mg/mL; 5mg (5000mcg) dose = 50 units. Research doses 5–15mg SubQ, 3–5x per week. First mitochondria-encoded peptide. Morning dosing preferred.',
+    shelf:'3–4 weeks refrigerated'
+  },
+  'NAD+': {
+    vials:[100,500,1000], defaultVial:500, defaultDose:100, defaultUnit:'mg',
+    bacMl:{100:1, 500:1, 1000:2},
+    note:'500mg + 1mL = 500mg/mL; 100mg dose = 20 units. 1000mg + 2mL = 500mg/mL; 100mg dose = 20 units. ⚠️ Inject slowly — rapid injection causes flushing, nausea, and chest tightness. SubQ over 30–60 seconds. Use within 24h of reconstitution.',
+    shelf:'24 hours after reconstitution'
+  },
+  'Thymalin': {
+    vials:[10], defaultVial:10, defaultDose:5000, defaultUnit:'mcg',
+    bacMl:{10:2},
+    note:'10mg + 2mL = 5mg/mL; 5mg (5000mcg) dose = 100 units. Research: 5–10mg/day IM for 10 days, 1–2 cycles per year. Thymus-derived immune modulator. Often stacked with Epithalon.',
+    shelf:'4 weeks refrigerated'
+  },
+  'SLU-PP-322': {
+    vials:[5], defaultVial:5, defaultDose:5, defaultUnit:'mg',
+    bacMl:{5:1},
+    note:'5mg + 1mL = 5mg/mL; 5mg dose = 100 units. ERR nuclear receptor agonist — exercise mimetic. Very limited human data. Research doses 5–10mg SubQ. Handle as experimental compound.',
+    shelf:'4 weeks refrigerated'
+  },
+  'FOX04': {
+    vials:[10], defaultVial:10, defaultDose:1000, defaultUnit:'mcg',
+    bacMl:{10:2},
+    note:'10mg + 2mL = 5mg/mL; 1mg (1000mcg) dose = 20 units. Senolytic peptide — research doses 1–3mg SubQ/IP for 3 consecutive days per month. Selectively induces apoptosis in senescent cells. Very experimental.',
+    shelf:'4 weeks refrigerated'
+  },
+  'AICAR': {
+    vials:[50], defaultVial:50, defaultDose:10, defaultUnit:'mg',
+    bacMl:{50:1},
+    note:'50mg + 1mL = 50mg/mL; 10mg dose = 20 units. AMPK activator — exercise mimetic. Research doses 10–50mg SubQ daily. Store refrigerated.',
+    shelf:'4 weeks refrigerated'
+  },
+
+  // ── HORMONES / OTHER ──
+  'HCG': {
+    vials:[5000,10000], defaultVial:5000, defaultDose:500, defaultUnit:'iu',
+    bacMl:{5000:1, 10000:2},
+    note:'5000IU + 1mL = 5000IU/mL; 500IU dose = 10 units. Refrigerate immediately — sensitive to heat and light. Use within 30 days. Do not freeze reconstituted vial.',
+    shelf:'30 days refrigerated'
+  },
+  'HMG': {
+    vials:[75], defaultVial:75, defaultDose:75, defaultUnit:'iu',
+    bacMl:{75:1},
+    note:'75IU + 1mL sterile water or saline = 75IU/mL; full 75IU vial = 100 units. ⚠️ Use immediately — HMG is NOT stable for multi-day storage after reconstitution. IM or SubQ.',
+    shelf:'Use same day — not stable after reconstitution'
+  },
+  'VIP': {
+    vials:[5,10], defaultVial:5, defaultDose:50, defaultUnit:'mcg',
+    bacMl:{5:1, 10:2},
+    note:'5mg + 1mL = 5mg/mL; 50mcg dose = 1 unit. Very low volume draw — use 31g insulin syringe. Research doses 25–100mcg SubQ or inhaled. Immune modulator and neuroprotective. Temperature sensitive — keep refrigerated.',
+    shelf:'3–4 weeks refrigerated'
+  },
+  'Ara-290': {
+    vials:[10], defaultVial:10, defaultDose:4000, defaultUnit:'mcg',
+    bacMl:{10:2},
+    note:'10mg + 2mL = 5mg/mL; 4mg (4000mcg) dose = 80 units. Research: 4mg SubQ daily. EPO receptor agonist (non-hematopoietic) — neuroprotective and anti-inflammatory without red blood cell effects.',
+    shelf:'4 weeks refrigerated'
+  },
+  'Glutathione': {
+    vials:[1500], defaultVial:1500, defaultDose:500, defaultUnit:'mg',
+    bacMl:{1500:3},
+    note:'1500mg + 3mL = 500mg/mL; 500mg dose = 100 units. ⚠️ Light sensitive — store in dark. Research doses 1–3g SubQ or IV. IV delivers fastest systemic effect; SubQ well-tolerated for regular use. Use within 24h.',
+    shelf:'24 hours after reconstitution'
+  },
+  'Melatonin': {
+    vials:[10], defaultVial:10, defaultDose:500, defaultUnit:'mcg',
+    bacMl:{10:2},
+    note:'10mg + 2mL = 5mg/mL; 500mcg dose = 10 units. SubQ bioavailability dramatically higher than oral — 500mcg SubQ ≈ 5–10mg oral. Start at 100–500mcg. Inject 30–60 min before sleep.',
+    shelf:'4 weeks refrigerated'
+  },
+  'MT-1': {
+    vials:[10], defaultVial:10, defaultDose:500, defaultUnit:'mcg',
+    bacMl:{10:2},
+    note:'10mg + 2mL = 5mg/mL; 500mcg dose = 10 units. More selective for MC1R than MT-2 — less nausea and fewer sexual effects. Tanning requires UV exposure. Single dose or daily protocols.',
+    shelf:'4 weeks refrigerated'
+  },
+  'MT-2 (Melanotan II)': {
+    vials:[10], defaultVial:10, defaultDose:500, defaultUnit:'mcg',
+    bacMl:{10:2},
+    note:'10mg + 2mL = 5mg/mL; 500mcg dose = 10 units. Start at 100–250mcg to assess tolerance — nausea and flushing common, dose at bedtime to sleep through it. Tanning requires UV. Do not exceed 1mg per dose.',
+    shelf:'4 weeks refrigerated'
+  },
+};
+// Full compound list for selector (superset of RECON_DB + protocol compounds)
+var RECON_ALL_COMPOUNDS = Object.keys(RECON_DB).sort();
+
+function buildReconSelector(){
+  var sel = document.getElementById('rc-compound');
+  if(!sel) return;
+
+  // Start with protocol compounds at top, then full list
+  var options = ['<option value="">— Select compound —</option>'];
+  var protoNames = [];
+
+  if(protocol.compounds && protocol.compounds.length){
+    options.push('<optgroup label="Your Protocol">');
+    protocol.compounds.forEach(function(c){
+      var name = c.name || c.compound || '';
+      if(name){ protoNames.push(name); options.push('<option value="'+name+'">'+name+'</option>'); }
+    });
+    options.push('</optgroup>');
+  }
+
+  options.push('<optgroup label="All Compounds">');
+  RECON_ALL_COMPOUNDS.forEach(function(name){
+    if(protoNames.indexOf(name) === -1) options.push('<option value="'+name+'">'+name+'</option>');
+  });
+  // Allow any compound not in DB
+  options.push('</optgroup>');
+  options.push('<optgroup label="Other"><option value="__custom__">Other / Custom</option></optgroup>');
+
+  sel.innerHTML = options.join('');
+}
+
+function onReconCompound(){
+  var sel = document.getElementById('rc-compound');
+  var name = sel ? sel.value : '';
+  var noteEl = document.getElementById('rc-note');
+  var vialSel = document.getElementById('rc-vial');
+  var doseEl = document.getElementById('rc-dose');
+  var unitSel = document.getElementById('rc-unit');
+
+  if(!name || name === '__custom__'){
+    if(noteEl) noteEl.style.display = 'none';
+    calcRecon();
+    return;
+  }
+
+  var data = RECON_DB[name];
+  if(!data){
+    // Not in DB — use defaults, hide note
+    if(noteEl) noteEl.style.display = 'none';
+    calcRecon();
+    return;
+  }
+
+  // Auto-set vial size to compound default
+  if(vialSel && data.defaultVial){
+    // Find closest option
+    var opts = Array.from(vialSel.options).map(function(o){ return parseFloat(o.value); });
+    var closest = opts.reduce(function(prev, curr){
+      return Math.abs(curr - data.defaultVial) < Math.abs(prev - data.defaultVial) ? curr : prev;
+    });
+    vialSel.value = closest;
+  }
+
+  // Auto-set dose
+  if(doseEl && data.defaultDoseMcg){
+    if(data.defaultUnit === 'mcg') doseEl.value = data.defaultDoseMcg;
+    else if(data.defaultUnit === 'mg') doseEl.value = data.defaultDoseMcg / 1000;
+    else if(data.defaultUnit === 'iu') doseEl.value = data.defaultDoseMcg;
+  }
+
+  // Auto-set unit
+  if(unitSel && data.defaultUnit) unitSel.value = data.defaultUnit;
+
+  // Show note
+  if(noteEl && data.note){
+    noteEl.textContent = data.note;
+    noteEl.style.display = 'block';
+  } else if(noteEl){
+    noteEl.style.display = 'none';
+  }
+
+  calcRecon();
+}
+
+function calcRecon(){
+  var compoundName = (document.getElementById('rc-compound')||{value:''}).value;
+  var vialMg = parseFloat((document.getElementById('rc-vial')||{value:5}).value) || 5;
+  var doseVal = parseFloat((document.getElementById('rc-dose')||{value:0}).value) || 0;
+  var unit = (document.getElementById('rc-unit')||{value:'mcg'}).value;
+  var result = document.getElementById('rc-result');
+  if(!result) return;
+  if(!doseVal){ result.style.display='none'; return; }
+
+  // Convert dose to mg
+  var doseMg;
+  if(unit === 'mcg') doseMg = doseVal / 1000;
+  else if(unit === 'iu') doseMg = doseVal / 1000; // approximate for peptide IU
+  else doseMg = doseVal;
+
+  // Get compound-specific BAC water recommendation
+  var data = RECON_DB[compoundName];
+  var bacMl;
+  if(data && data.bacMl){
+    if(typeof data.bacMl === 'object'){
+      // Find closest vial size key
+      var keys = Object.keys(data.bacMl).map(Number);
+      var closestKey = keys.reduce(function(prev, curr){
+        return Math.abs(curr - vialMg) < Math.abs(prev - vialMg) ? curr : prev;
+      });
+      bacMl = data.bacMl[closestKey];
+    } else {
+      bacMl = data.bacMl;
+    }
+  } else {
+    // Generic fallback based on vial size
+    if(vialMg <= 2) bacMl = 1;
+    else if(vialMg <= 10) bacMl = 2;
+    else if(vialMg <= 20) bacMl = 4;
+    else if(vialMg <= 50) bacMl = 5;
+    else bacMl = Math.round(vialMg / 10);
+  }
+
+  var concMgPerMl = vialMg / bacMl;
+  var drawMl = doseMg / concMgPerMl;
+  var drawUnits = Math.round(drawMl * 100);
+  var dosesPerVial = doseMg > 0 ? Math.floor(vialMg / doseMg) : 0;
+
+  var concDisplay;
+  if(unit === 'mcg') concDisplay = Math.round(concMgPerMl * 1000) + 'mcg/mL';
+  else if(unit === 'iu') concDisplay = Math.round(concMgPerMl * 1000) + 'IU/mL (approx)';
+  else concDisplay = concMgPerMl.toFixed(2) + 'mg/mL';
+
+  document.getElementById('rc-bac').textContent = bacMl + 'mL BAC water';
+  document.getElementById('rc-draw').textContent = drawUnits + ' units (' + drawMl.toFixed(2) + 'mL)';
+  document.getElementById('rc-doses').textContent = dosesPerVial + ' doses';
+  document.getElementById('rc-conc').textContent = concDisplay;
+
+  // Shelf life
+  var shelfRow = document.getElementById('rc-shelf-row');
+  var shelfEl = document.getElementById('rc-shelf');
+  if(data && data.shelf && shelfRow && shelfEl){
+    shelfEl.textContent = data.shelf;
+    shelfRow.style.display = 'flex';
+  } else if(shelfRow){
+    shelfRow.style.display = 'none';
+  }
+
+  result.style.display = 'block';
+}
+
+// ── CURRENT DOSES (read-only) ──
+function buildTitration(){
+  if(!protocol.compounds || !protocol.compounds.length) return;
+  var card = document.getElementById('titration-card');
+  var label = document.getElementById('titration-label');
+  var list = document.getElementById('titration-list');
+  if(!card || !list) return;
+
+  card.style.display = 'block';
+  if(label) label.style.display = 'block';
+  list.innerHTML = '';
+
+  protocol.compounds.forEach(function(c){
+    // Parse just the numeric dose + unit cleanly
+    var doseStr = (c.dose||'').trim();
+    // Extract leading number and unit — ignore any trailing parenthetical notes
+    var match = doseStr.match(/^([0-9.]+)\s*([a-zA-Z]+)/);
+    var doseNum = match ? match[1] : doseStr;
+    var doseUnit = match ? match[2] : '';
+    var cleanDose = doseNum + doseUnit;
+
+    var row = document.createElement('div');
+    row.className = 'titration-row';
+    row.innerHTML =
+      '<div>'
+      + '<div class="titration-name">' + c.name + '</div>'
+      + '<div class="titration-current">' + (c.frequency||'') + (c.timing ? ' \u00b7 ' + c.timing : '') + '</div>'
+      + '</div>'
+      + '<div style="font-size:18px;font-weight:700;letter-spacing:-0.3px;color:var(--ink);">' + cleanDose + '</div>';
+    list.appendChild(row);
+  });
+}
+
+// ── INJECTION SITE ROTATOR ──
+var SITES = ['Abdomen — Left Upper','Abdomen — Right Upper','Abdomen — Left Lower','Abdomen — Right Lower','Left Thigh','Right Thigh'];
+function buildSiteRotator(){
+  var grid = document.getElementById('site-grid');
+  var rec = document.getElementById('site-recommend');
+  if(!grid) return;
+
+  var siteLog = {};
+  try{ siteLog = JSON.parse(localStorage.getItem('peptrak_site_log')||'{}'); }catch(e){}
+
+  var today = new Date().toISOString().slice(0,10);
+  grid.innerHTML = '';
+
+  var recommended = null;
+  var maxDaysAgo = -1;
+
+  SITES.forEach(function(site){
+    var lastUsed = siteLog[site] || null;
+    var daysAgo = lastUsed ? Math.floor((Date.now() - new Date(lastUsed).getTime())/86400000) : 999;
+    if(daysAgo > maxDaysAgo){ maxDaysAgo = daysAgo; recommended = site; }
+
+    var isToday = lastUsed === today;
+    var isRecent = !isToday && daysAgo <= 2;
+
+    var zone = document.createElement('div');
+    zone.className = 'site-zone' + (isToday ? ' used' : isRecent ? ' recent' : '');
+    zone.innerHTML = '<div class="site-zone-name">' + site + '</div>'
+      + '<div class="site-zone-days">' + (isToday ? 'Used today' : lastUsed ? daysAgo + 'd ago' : 'Not recently used') + '</div>';
+    zone.onclick = (function(s){ return function(){
+      siteLog[s] = today;
+      localStorage.setItem('peptrak_site_log', JSON.stringify(siteLog));
+      buildSiteRotator();
+    }; })(site);
+    grid.appendChild(zone);
+  });
+
+  if(rec && rec.style) rec = document.getElementById('site-recommend');
+  var recEl = document.getElementById('site-recommend');
+  if(recEl) recEl.textContent = recommended
+    ? 'Tap to log: ' + recommended + ' is best today — ' + (maxDaysAgo === 999 ? 'never used recently' : maxDaysAgo + ' days since last use')
+    : 'All sites used recently — rotate back to abdomen';
+}
+
+function resetSites(){
+  localStorage.removeItem('peptrak_site_log');
+  buildSiteRotator();
+}
+
+// ── COMPOUND-LINKED SIDE EFFECTS ──
+function buildSideCompoundSelect(){
+  if(!protocol.compounds || !protocol.compounds.length) return;
+  var row = document.getElementById('side-compound-row');
+  var sel = document.getElementById('side-compound-select');
+  if(!row || !sel) return;
+  row.style.display = 'block';
+  sel.innerHTML = '';
+  protocol.compounds.forEach(function(c){
+    var pill = document.createElement('button');
+    pill.className = 'side-comp-pill' + (sidesState.compound === c.name ? ' sel' : '');
+    pill.textContent = c.name;
+    pill.onclick = function(){
+      sel.querySelectorAll('.side-comp-pill').forEach(function(p){ p.classList.remove('sel'); });
+      if(sidesState.compound === c.name){ sidesState.compound = null; }
+      else { sidesState.compound = c.name; pill.classList.add('sel'); }
+      saveToTracker();
+    };
+    sel.appendChild(pill);
+  });
+}
+
+// ── SUNDAY RECAP ──
+async function buildSundayRecap(){
+  var now=new Date();
+  if(now.getDay()!==0)return;
+  var dk='peptrak_recap_dismissed_'+getISOWeek(now);
+  if(localStorage.getItem(dk))return;
+  var stats=calcWeekStatsForRecap();
+  if(stats.totalDoses===0)return;
+  var el=document.getElementById('sunday-recap');if(!el)return;
+  var progress=getProgress();
+  var weekLabel='Week '+progress.week+' Recap';
+  var prevAdh=getPrevWeekAdherenceForRecap();
+  var adhColor=stats.adherence>=85?'green':stats.adherence>=60?'gold':'red';
+  var sidesHTML=stats.sides.length?'<div class="recap-sides"><div class="recap-sides-label">Side Effects</div><div class="recap-sides-val">'+stats.sides.join(', ')+'</div></div>':'';
+  el.innerHTML='<div class="recap-card">'
+    +'<div class="recap-header"><div><div class="recap-eyebrow">Sunday Recap</div><div class="recap-title">'+weekLabel+'</div></div>'
+    +'<button class="recap-dismiss" onclick="dismissSundayRecap()">&#x2715;</button></div>'
+    +'<div class="recap-stats">'
+    +'<div class="recap-stat"><div class="recap-stat-val '+adhColor+'">'+(stats.adherence!==null?stats.adherence+'%':'—')+'</div><div class="recap-stat-lbl">Adherence</div></div>'
+    +'<div class="recap-stat"><div class="recap-stat-val green">'+(stats.bestDay||'—')+'</div><div class="recap-stat-lbl">Best Day</div></div>'
+    +'<div class="recap-stat"><div class="recap-stat-val">'+(stats.worstDay||'—')+'</div><div class="recap-stat-lbl">Missed Most</div></div>'
+    +'<div class="recap-stat"><div class="recap-stat-val">'+(stats.sides.length||'0')+'</div><div class="recap-stat-lbl">Side Effects</div></div>'
+    +'</div>'+sidesHTML
+    +'<div class="recap-alex"><div class="recap-alex-label">Alex\'s Take</div>'
+    +'<div class="recap-alex-loading" id="recap-loading"><div class="recap-dot"></div><div class="recap-dot"></div><div class="recap-dot"></div></div>'
+    +'<div class="recap-alex-txt" id="recap-txt" style="display:none;"></div></div></div>';
+  el.style.display='block';
+  // AI commentary
+  var cacheKey='peptrak_recap_commentary_'+getISOWeek(now);
+  var commentary=localStorage.getItem(cacheKey);
+  if(!commentary){
+    try{
+      var prompt='You are Alex, PepTrak advisor. One warm personal paragraph (4-5 sentences) summarizing this week. Lead with the human story, reference numbers naturally. No greeting or sign-off.\n\nAdherence: '+(stats.adherence!==null?stats.adherence+'%':'unknown')+'\nBest day: '+(stats.bestDay||'N/A')+'\nSides: '+(stats.sides.length?stats.sides.join(', '):'none')+'\nProtocol week: '+progress.week;
+      var res=await fetch('/api/chat',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-sonnet-4-6',max_tokens:400,messages:[{role:'user',content:prompt}]})});
+      var data=await res.json();
+      commentary=(data.content&&data.content[0])?data.content[0].text.trim():null;
+      if(commentary)localStorage.setItem(cacheKey,commentary);
+    }catch(e){}
+  }
+  var loadEl=document.getElementById('recap-loading');
+  var txtEl=document.getElementById('recap-txt');
+  if(loadEl)loadEl.style.display='none';
+  if(txtEl){txtEl.style.display='block';txtEl.textContent=commentary?'“'+commentary+'”':'“Stay consistent — peptides reward daily discipline.”';}
+  // Save to history
+  var recaps=[];try{recaps=JSON.parse(localStorage.getItem('peptrak_weekly_recaps')||'[]');}catch(e){}
+  var week=getISOWeek(now);
+  recaps=recaps.filter(function(r){return r.week!==week;});
+  recaps.unshift({week:week,weekLabel:weekLabel,date:now.toISOString().slice(0,10),adherence:stats.adherence,bestDay:stats.bestDay,worstDay:stats.worstDay,sides:stats.sides,commentary:commentary});
+  localStorage.setItem('peptrak_weekly_recaps',JSON.stringify(recaps.slice(0,12)));
+}
+function dismissSundayRecap(){
+  localStorage.setItem('peptrak_recap_dismissed_'+getISOWeek(new Date()),'1');
+  var el=document.getElementById('sunday-recap');
+  if(el){el.style.opacity='0';el.style.transition='opacity 0.3s';setTimeout(function(){el.style.display='none';},300);}
+}
+function getISOWeek(date){
+  var d=new Date(Date.UTC(date.getFullYear(),date.getMonth(),date.getDate()));
+  var dayNum=d.getUTCDay()||7;d.setUTCDate(d.getUTCDate()+4-dayNum);
+  var yearStart=new Date(Date.UTC(d.getUTCFullYear(),0,1));
+  return 'W'+d.getUTCFullYear()+'-'+Math.ceil((((d-yearStart)/86400000)+1)/7);
+}
+function calcWeekStatsForRecap(){
+  var stats={adherence:null,totalDoses:0,takenDoses:0,bestDay:null,worstDay:null,sides:[]};
+  var now=new Date();var dayNames=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+  for(var i=6;i>=0;i--){
+    var d=new Date(now);d.setDate(d.getDate()-i);
+    var key=d.toISOString().slice(0,10);
+    var log=trackerData.logs.find(function(l){return l.date===key;});
+    var total=protocol.compounds?protocol.compounds.length:0;
+    var taken=0;
+    if(log&&log.doses)Object.values(log.doses).forEach(function(dose){if(dose.taken)taken++;});
+    if(log&&log.sides)log.sides.forEach(function(s){if(stats.sides.indexOf(s)<0)stats.sides.push(s);});
+    stats.totalDoses+=total;stats.takenDoses+=taken;
+  }
+  if(stats.totalDoses>0)stats.adherence=Math.round(stats.takenDoses/stats.totalDoses*100);
+  return stats;
+}
+function getPrevWeekAdherenceForRecap(){
+  var now=new Date();var total=0,taken=0;
+  for(var i=13;i>=7;i--){
+    var d=new Date(now);d.setDate(d.getDate()-i);
+    var key=d.toISOString().slice(0,10);
+    var log=trackerData.logs.find(function(l){return l.date===key;});
+    var dt=protocol.compounds?protocol.compounds.length:0;total+=dt;
+    if(log&&log.doses)Object.values(log.doses).forEach(function(d){if(d.taken)taken++;});
+  }
+  return total>0?Math.round(taken/total*100):null;
+}
+
+
+// ── INIT ──
+init();
+</script>
+
+<!-- INSTALL PROMPT -->
+<div class="install-sheet-overlay" id="install-overlay" onclick="dismissInstall()"></div>
+<div class="install-sheet" id="install-sheet">
+  <div class="install-sheet-handle"></div>
+  <div class="install-sheet-eyebrow">Quick setup</div>
+  <div class="install-sheet-title">Add PepTrak to your home screen</div>
+  <div class="install-sheet-sub">Open the app instantly every time you dose — no browser, no searching.</div>
+
+  <div id="install-steps-ios" class="install-steps-list">
+    <div class="install-step-row">
+      <div class="install-step-num">1</div>
+      <div class="install-step-txt">Tap the <strong>Share button</strong> <svg style="vertical-align:-3px;" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M4 12v8a2 2 0 002 2h12a2 2 0 002-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/></svg> at the bottom of Safari</div>
+    </div>
+    <div class="install-step-row">
+      <div class="install-step-num">2</div>
+      <div class="install-step-txt">Scroll down and tap <strong>"Add to Home Screen"</strong></div>
+    </div>
+    <div class="install-step-row">
+      <div class="install-step-num">3</div>
+      <div class="install-step-txt">Tap <strong>Add</strong> in the top right — done</div>
+    </div>
+  </div>
+
+  <div id="install-steps-android" class="install-steps-list" style="display:none;">
+    <div class="install-step-row">
+      <div class="install-step-num">1</div>
+      <div class="install-step-txt">Tap the <strong>⋮ menu</strong> in the top right of Chrome</div>
+    </div>
+    <div class="install-step-row">
+      <div class="install-step-num">2</div>
+      <div class="install-step-txt">Tap <strong>"Add to Home screen"</strong></div>
+    </div>
+    <div class="install-step-row">
+      <div class="install-step-num">3</div>
+      <div class="install-step-txt">Tap <strong>Add</strong> — PepTrak appears on your home screen</div>
+    </div>
+  </div>
+
+  <button class="install-sheet-btn" onclick="dismissInstall()">Got it — I'll add it now</button>
+  <button class="install-sheet-skip" onclick="dismissInstall()">Maybe later</button>
+</div>
+
+<script>
+// ── SUPABASE SYNC ──
+function syncToSupabase(){
+  var email = localStorage.getItem('peptrak_auth_email');
+  if(!email || email === 'test@peptrak.com') return; // skip test account
+  var payload = {
+    email: email,
+    intake: (() => { try{ return JSON.parse(localStorage.getItem('peptrak_intake')||'null'); }catch(e){ return null; } })(),
+    protocol: (() => { try{ return JSON.parse(localStorage.getItem('peptrak_protocol')||'null'); }catch(e){ return null; } })(),
+    tracker: (() => { try{ return JSON.parse(localStorage.getItem('peptrak_tracker')||'null'); }catch(e){ return null; } })(),
+    advisorContext: localStorage.getItem('peptrak_advisor_context') || null,
+    alexMemory: (() => { try{ return JSON.parse(localStorage.getItem('peptrak_alex_memory')||'null'); }catch(e){ return null; } })(),
+    cycleHistory: (() => { try{ return JSON.parse(localStorage.getItem('peptrak_cycle_history')||'null'); }catch(e){ return null; } })(),
+    weeklyRecaps: (() => { try{ return JSON.parse(localStorage.getItem('peptrak_weekly_recaps')||'null'); }catch(e){ return null; } })(),
+    protocolStart: localStorage.getItem('peptrak_protocol_start') || null,
+    bodyMetrics: (() => { try{ return JSON.parse(localStorage.getItem('peptrak_body_metrics')||'null'); }catch(e){ return null; } })(),
+    responseProfile: (() => { try{ return JSON.parse(localStorage.getItem('peptrak_response_profile_v1')||'null'); }catch(e){ return null; } })(),
+    affCode: localStorage.getItem('peptrak_aff_code') || null,
+    authPw: localStorage.getItem('peptrak_auth_pw') || null,
+  };
+  fetch('/api/supabase?action=save-data', {
+    method:'POST',
+    headers:{'Content-Type':'application/json'},
+    body: JSON.stringify(payload)
+  }).catch(function(){});
+}
+
+// Sync on page visibility change (when user switches apps)
+document.addEventListener('visibilitychange', function(){
+  if(document.visibilityState === 'hidden') syncToSupabase();
+});
+// Sync every 5 minutes
+setInterval(syncToSupabase, 5 * 60 * 1000);
+</script>
+
+
+
+
+    <div style="flex:1;">
+      <div style="font-size:13px;font-weight:700;color:#fff;margin-bottom:1px;">Install PepTrak</div>
+      <div style="font-size:11px;color:rgba(255,255,255,0.5);">Add to home screen for the full app experience</div>
+    </div>
+    <button onclick="dismissIOSInstall()" style="background:none;border:none;color:rgba(255,255,255,0.4);font-size:20px;cursor:pointer;padding:0 4px;line-height:1;">×</button>
+  </div>
+  <div style="background:rgba(255,255,255,0.06);border-radius:10px;padding:10px 12px;display:flex;align-items:center;gap:8px;">
+    <div style="font-size:12px;color:rgba(255,255,255,0.7);line-height:1.5;">Tap <span style="font-weight:700;color:#fff;">Share</span> <svg style="display:inline;vertical-align:middle;" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.7)" stroke-width="2.5" stroke-linecap="round"><path d="M4 12v8a2 2 0 002 2h12a2 2 0 002-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/></svg> then tap <span style="font-weight:700;color:#fff;">"Add to Home Screen"</span></div>
+  </div>
+</div>
+
+<!-- Android install banner -->
+
+
+
+</body>
+</html>
+    PepTrak
+  </a>
+  <div style="display:flex;align-items:center;gap:10px;">
+    <div style="display:flex;align-items:center;gap:8px;">
+      <div id="week-pill" style="display:none;font-size:11px;font-weight:700;color:var(--gray-5);background:var(--gray-2);padding:4px 10px;border-radius:20px;"></div>
+      <div class="hdr-streak">
+        <span id="streak-fire">🔥</span>
+        <span class="streak-num" id="streak-count">0</span>
+        <span style="font-size:12px;color:var(--gray-4);font-weight:500;">day streak</span>
+      </div>
+    </div>
+    <a href="/tools" style="font-size:12px;font-weight:600;color:var(--blue);background:var(--blue-pale);padding:5px 12px;border-radius:20px;text-decoration:none;white-space:nowrap;">Tools</a>
+  </div>
+</header>
+
+<!-- AUTO SAVE TOAST -->
+<div id="save-toast" style="display:none;position:fixed;top:68px;left:50%;transform:translateX(-50%);background:var(--ink);color:#fff;font-size:12px;font-weight:600;padding:8px 18px;border-radius:20px;z-index:300;white-space:nowrap;pointer-events:none;transition:opacity 0.3s;">Saved</div>
+
+<!-- CONFETTI CONTAINER -->
+<div class="confetti-wrap" id="confetti-wrap"></div>
+
+<!-- MILESTONE OVERLAY -->
+<div class="milestone-overlay" id="milestone-overlay">
+  <div class="milestone-card">
+    <div class="milestone-icon" id="m-icon">🎯</div>
+    <div class="milestone-title" id="m-title">Week 4 Complete</div>
+    <div class="milestone-sub" id="m-sub">This is the week most people start seeing real results. Your consistency is what separates you.</div>
+    <button class="milestone-btn" onclick="closeMilestone()">Keep Going</button>
+  </div>
+</div>
+
+<div class="page">
+
+  <!-- SUNDAY RECAP -->
+  <div id="sunday-recap" style="display:none;"></div>
+
+  <!-- CYCLE END BANNER (shown near end/end of cycle) -->
+  <div id="cycle-end-banner" style="display:none;"></div>
+
+
+
+
+
+  <!-- 7-DAY STREAK -->
+  <div class="streak-row" id="streak-row-wrap">
+    <div class="streak-label">This Week</div>
+    <div class="streak-dots" id="streak-dots"></div>
+    <div class="streak-progress" id="streak-progress" style="display:none;">
+      <div class="streak-progress-bar"><div class="streak-progress-fill" id="hero-fill"></div></div>
+      <div class="streak-progress-txt" id="streak-progress-txt"><span id="hero-done-txt">0 of 0 doses logged</span><span id="hero-pct-txt">0%</span></div>
+    </div>
+  </div>
+
+  <!-- TODAY'S DOSES -->
+  <div class="section-label">Today's Doses</div>
+  <div class="doses" id="doses-list"></div>
+
+  <!-- MISSED DOSE CHECKER -->
+  <!-- READY TO START LINK (shows when banner dismissed but cycle not started) -->
+  <div id="ready-to-start-link" style="display:none;text-align:center;margin-bottom:14px;">
+    <button onclick="reshowStartBanner()" style="background:none;border:none;font-size:13px;font-weight:600;color:var(--blue);cursor:pointer;font-family:var(--font);padding:8px 16px;-webkit-tap-highlight-color:transparent;">
+      ✓ My compounds arrived — start my cycle
+    </button>
+  </div>
+
+  <!-- START CYCLE BANNER -->
+  <div class="start-banner" id="start-banner">
+    <div class="start-banner-title">Ready to start your cycle?</div>
+    <div class="start-banner-sub">Tap below when your compounds arrive and you take your first dose. This sets day 1 of your protocol and starts your tracking.</div>
+    <button class="start-banner-btn" onclick="startCycleToday()">✓ Start dosing today</button>
+    <button class="start-banner-skip" onclick="startCycleLater()">My compounds haven't arrived yet</button>
+  </div>
+
+  <div id="missed-banner" style="display:none;background:#FEF3C7;border:1px solid #F59E0B;border-radius:16px;padding:16px;margin-bottom:14px;">
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px;">
+      <div style="font-size:18px;">⚠️</div>
+      <div>
+        <div style="font-size:13px;font-weight:700;color:#92400E;">Incomplete log yesterday</div>
+        <div style="font-size:12px;color:#B45309;margin-top:1px;">Mark each dose as taken or missed</div>
+      </div>
+    </div>
+    <div id="missed-doses-list" style="display:flex;flex-direction:column;gap:7px;"></div>
+    <button onclick="askAlexMissed()" style="margin-top:10px;background:none;border:none;font-size:12px;font-weight:600;color:#92400E;cursor:pointer;font-family:var(--font);text-decoration:underline;padding:0;">Ask Alex if you should catch up →</button>
+  </div>
+
+  <!-- ALEX'S TAKE -->
+  <div id="alex-take-card" style="display:none;background:var(--ink-2);border-radius:16px;padding:16px 18px;margin-bottom:14px;position:relative;overflow:hidden;">
+    <div style="position:absolute;top:-30px;right:-30px;width:120px;height:120px;background:radial-gradient(circle,rgba(8,118,255,0.15),transparent 70%);pointer-events:none;"></div>
+    <div style="font-size:10px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:rgba(8,118,255,0.6);margin-bottom:8px;">Alex's Take</div>
+    <div id="alex-take-txt" style="font-size:13px;color:rgba(255,255,255,0.8);line-height:1.6;font-style:italic;"></div>
+    <a href="/chat" style="display:inline-flex;align-items:center;gap:5px;margin-top:10px;font-size:12px;font-weight:600;color:rgba(8,118,255,0.8);text-decoration:none;">
+      <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
+      Ask Alex anything
+    </a>
+  </div>
+
+
+  <!-- SIDE EFFECTS TOGGLE -->
+  <button onclick="toggleSides()" id="sides-toggle" class="sides-toggle-btn">
+    <span>Report a side effect or note</span>
+    <svg id="sides-chevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" style="transition:transform 0.2s;color:var(--gray-4);"><polyline points="6 9 12 15 18 9"/></svg>
+  </button>
+  <div id="sides-wrap" style="display:none;margin-bottom:14px;">
+    <div class="sides-card">
+      <div id="side-compound-row" style="display:none;margin-bottom:10px;">
+        <div style="font-size:10px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:var(--gray-4);margin-bottom:6px;">Which compound?</div>
+        <div class="side-compound-select" id="side-compound-select"></div>
+      </div>
+      <div class="sides-chips" id="sides-chips"></div>
+      <textarea class="note-input" id="note-input" placeholder="Any notes for today..." rows="2" oninput="saveToTracker()"></textarea>
+    </div>
+  </div>
+
+  <!-- TOOLS LINK -->
+  <div id="tools-link-card" style="background:var(--white);border:1px solid var(--gray-2);border-radius:16px;margin-bottom:14px;overflow:hidden;">
+    <a href="/tools" style="display:flex;align-items:center;gap:14px;padding:15px 16px;text-decoration:none;color:inherit;-webkit-tap-highlight-color:transparent;">
+      <div style="width:36px;height:36px;border-radius:10px;background:var(--blue-pale);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#0876FF" stroke-width="2" stroke-linecap="round"><path d="M14.7 6.3a1 1 0 000 1.4l1.6 1.6a1 1 0 001.4 0l3.77-3.77a6 6 0 01-7.94 7.94l-6.91 6.91a2.12 2.12 0 01-3-3l6.91-6.91a6 6 0 017.94-7.94l-3.76 3.76z"/></svg>
+      </div>
+      <div style="flex:1;">
+        <div style="font-size:14px;font-weight:600;color:var(--ink);">Research Tools</div>
+        <div style="font-size:11px;color:var(--gray-4);margin-top:1px;">Reconstitution · Vial calc · Site rotation</div>
+      </div>
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="var(--gray-3)" stroke-width="2.5" stroke-linecap="round"><polyline points="9 18 15 12 9 6"/></svg>
+    </a>
+  </div>
+
+
+  <!-- MANAGE PROTOCOL CARD -->
+  <div style="background:var(--white);border:1px solid var(--gray-2);border-radius:16px;margin-bottom:14px;overflow:hidden;">
+    <div style="font-size:10px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:var(--gray-4);padding:12px 16px 8px;">Manage Protocol</div>
+    <a href="/protocol" style="display:flex;align-items:center;gap:14px;padding:12px 16px;text-decoration:none;color:inherit;-webkit-tap-highlight-color:transparent;border-top:1px solid var(--gray-2);">
+      <div style="width:32px;height:32px;border-radius:9px;background:#EEF4FF;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#0876FF" stroke-width="2" stroke-linecap="round"><path d="M9 3H5a2 2 0 00-2 2v4m6-6h10a2 2 0 012 2v4M9 3v18m0 0h10a2 2 0 002-2V9M9 21H5a2 2 0 01-2-2V9m0 0h18"/></svg>
+      </div>
+      <div style="flex:1;">
+        <div style="font-size:14px;font-weight:600;color:var(--ink);">View My Protocol</div>
+        <div style="font-size:11px;color:var(--gray-4);margin-top:1px;">See compounds, doses, and timing</div>
+      </div>
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="var(--gray-3)" stroke-width="2.5" stroke-linecap="round"><polyline points="9 18 15 12 9 6"/></svg>
+    </a>
+    <a href="/library" style="display:flex;align-items:center;gap:14px;padding:12px 16px;text-decoration:none;color:inherit;-webkit-tap-highlight-color:transparent;border-top:1px solid var(--gray-2);">
+      <div style="width:32px;height:32px;border-radius:9px;background:#E6FAF3;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#00A065" stroke-width="2" stroke-linecap="round"><path d="M2 3h6a4 4 0 014 4v14a3 3 0 00-3-3H2z"/><path d="M22 3h-6a4 4 0 00-4 4v14a3 3 0 013-3h7z"/></svg>
+      </div>
+      <div style="flex:1;">
+        <div style="font-size:14px;font-weight:600;color:var(--ink);">Add from Library</div>
+        <div style="font-size:11px;color:var(--gray-4);margin-top:1px;">Browse 55+ compounds to add to your stack</div>
+      </div>
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="var(--gray-3)" stroke-width="2.5" stroke-linecap="round"><polyline points="9 18 15 12 9 6"/></svg>
+    </a>
+    <a href="/stack" style="display:flex;align-items:center;gap:14px;padding:12px 16px;text-decoration:none;color:inherit;-webkit-tap-highlight-color:transparent;border-top:1px solid var(--gray-2);">
+      <div style="width:32px;height:32px;border-radius:9px;background:#FFF8E6;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#B07A00" stroke-width="2" stroke-linecap="round"><polyline points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg>
+      </div>
+      <div style="flex:1;">
+        <div style="font-size:14px;font-weight:600;color:var(--ink);">Build Custom Stack</div>
+        <div style="font-size:11px;color:var(--gray-4);margin-top:1px;">Create or modify your protocol manually</div>
+      </div>
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="var(--gray-3)" stroke-width="2.5" stroke-linecap="round"><polyline points="9 18 15 12 9 6"/></svg>
+    </a>
+    <div onclick="askAlexProtocol()" style="display:flex;align-items:center;gap:14px;padding:12px 16px;cursor:pointer;-webkit-tap-highlight-color:transparent;border-top:1px solid var(--gray-2);">
+      <div style="width:32px;height:32px;border-radius:9px;background:#F3EEFF;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#7B4FA6" stroke-width="2" stroke-linecap="round"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
+      </div>
+      <div style="flex:1;">
+        <div style="font-size:14px;font-weight:600;color:var(--ink);">Ask Alex to Adjust</div>
+        <div style="font-size:11px;color:var(--gray-4);margin-top:1px;">Tell Alex what to add, remove, or change</div>
+      </div>
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="var(--gray-3)" stroke-width="2.5" stroke-linecap="round"><polyline points="9 18 15 12 9 6"/></svg>
+    </div>
+  </div>
+</div>
+
+<!-- BOTTOM NAV -->
+<nav class="bnav">
+  <div class="bnav-inner">
+    <a href="/protocol" class="bnav-item">
+      <div class="bnav-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M9 3H5a2 2 0 00-2 2v4m6-6h10a2 2 0 012 2v4M9 3v18m0 0h10a2 2 0 002-2V9M9 21H5a2 2 0 01-2-2V9m0 0h18"/></svg></div>
+      <div class="bnav-lbl">Protocol</div>
+    </a>
+    <a href="/chat" class="bnav-item">
+      <div class="bnav-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg></div>
+      <div class="bnav-lbl">Advisor</div>
+    </a>
+    <a href="/tracker" class="bnav-item active">
+      <div class="bnav-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></div>
+      <div class="bnav-lbl">Tracker</div>
+    </a>
+    <a href="/library" class="bnav-item">
+      <div class="bnav-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M2 3h6a4 4 0 014 4v14a3 3 0 00-3-3H2z"/><path d="M22 3h-6a4 4 0 00-4 4v14a3 3 0 013-3h7z"/></svg></div>
+      <div class="bnav-lbl">Library</div>
+    </a>
+    <a href="/account" class="bnav-item">
+      <div class="bnav-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></div>
+      <div class="bnav-lbl">Account</div>
+    </a>
+  </div>
+</nav>
+
+<script>
+
+// ── PAYWALL GUARD (server-side) ──
+(function(){
+  var email = localStorage.getItem('peptrak_auth_email');
+  if(!email && localStorage.getItem('peptrak_test_account') !== '1'){
+    window.location.replace('/questionnaire');
+    return;
+  }
+  // Cross-device: load data from Supabase if we have email but no local data
+  if(email){
+    fetch('/api/supabase?action=get-user&email=' + encodeURIComponent(email))
+      .then(function(r){ return r.json(); })
+      .then(function(d){
+        if(d.intake && !localStorage.getItem('peptrak_intake'))
+          localStorage.setItem('peptrak_intake', JSON.stringify(d.intake));
+        if(d.protocol && !localStorage.getItem('peptrak_protocol'))
+          localStorage.setItem('peptrak_protocol', typeof d.protocol === 'string' ? d.protocol : JSON.stringify(d.protocol));
+        if(d.tracker && !localStorage.getItem('peptrak_tracker'))
+          localStorage.setItem('peptrak_tracker', typeof d.tracker === 'string' ? d.tracker : JSON.stringify(d.tracker));
+      }).catch(function(){});
+  }
 })();
 
 // ── DATA ──
@@ -2343,5 +4176,149 @@ document.addEventListener('visibilitychange', function(){
 setInterval(syncToSupabase, 5 * 60 * 1000);
 </script>
 
+
+
+
+    <div style="flex:1;">
+      <div style="font-size:13px;font-weight:700;color:#fff;margin-bottom:1px;">Install PepTrak</div>
+      <div style="font-size:11px;color:rgba(255,255,255,0.5);">Add to home screen for the full app experience</div>
+    </div>
+    <button onclick="dismissIOSInstall()" style="background:none;border:none;color:rgba(255,255,255,0.4);font-size:20px;cursor:pointer;padding:0 4px;line-height:1;">×</button>
+  </div>
+  <div style="background:rgba(255,255,255,0.06);border-radius:10px;padding:10px 12px;display:flex;align-items:center;gap:8px;">
+    <div style="font-size:12px;color:rgba(255,255,255,0.7);line-height:1.5;">Tap <span style="font-weight:700;color:#fff;">Share</span> <svg style="display:inline;vertical-align:middle;" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.7)" stroke-width="2.5" stroke-linecap="round"><path d="M4 12v8a2 2 0 002 2h12a2 2 0 002-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/></svg> then tap <span style="font-weight:700;color:#fff;">"Add to Home Screen"</span></div>
+  </div>
+</div>
+
+<!-- Android install banner -->
+<div id="install-banner" style="display:none;position:fixed;left:12px;right:12px;bottom:calc(68px + env(safe-area-inset-bottom));background:#07090D;border-radius:16px;padding:14px 16px;align-items:center;gap:10px;z-index:400;border:1px solid rgba(255,255,255,0.08);-webkit-tap-highlight-color:transparent;">
+  <div style="width:36px;height:36px;border-radius:10px;background:#0876FF;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:16px;font-weight:800;color:#fff;font-family:inherit;">P</div>
+  <div style="flex:1;min-width:0;">
+    <div style="font-size:13px;font-weight:700;color:#fff;line-height:1.2;">Add PepTrak to home screen</div>
+    <div style="font-size:11px;color:rgba(255,255,255,0.45);margin-top:2px;">One tap to log doses — no browser needed</div>
+  </div>
+  <button onclick="doInstall()" style="flex-shrink:0;padding:8px 16px;background:#0876FF;color:#fff;border:none;border-radius:980px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;-webkit-tap-highlight-color:transparent;min-height:36px;">Add</button>
+  <button onclick="dismissInstall()" style="flex-shrink:0;background:none;border:none;color:rgba(255,255,255,0.35);font-size:22px;cursor:pointer;padding:0 4px;line-height:1;-webkit-tap-highlight-color:transparent;min-width:28px;min-height:36px;display:flex;align-items:center;justify-content:center;">&#215;</button>
+</div>
+
+<!-- iOS install banner -->
+<div id="ios-install-banner" style="display:none;position:fixed;left:12px;right:12px;bottom:calc(68px + env(safe-area-inset-bottom));background:#07090D;border-radius:16px;padding:14px 16px;flex-direction:column;gap:10px;z-index:400;border:1px solid rgba(255,255,255,0.08);-webkit-tap-highlight-color:transparent;">
+  <div style="display:flex;align-items:center;gap:10px;">
+    <div style="width:36px;height:36px;border-radius:10px;background:#0876FF;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:16px;font-weight:800;color:#fff;">P</div>
+    <div style="flex:1;min-width:0;">
+      <div style="font-size:13px;font-weight:700;color:#fff;line-height:1.2;">Install PepTrak</div>
+      <div style="font-size:11px;color:rgba(255,255,255,0.45);margin-top:2px;">Add to home screen for the full app experience</div>
+    </div>
+    <button onclick="dismissIOSInstall()" style="background:none;border:none;color:rgba(255,255,255,0.35);font-size:22px;cursor:pointer;padding:0 4px;line-height:1;flex-shrink:0;min-width:28px;min-height:36px;display:flex;align-items:center;justify-content:center;-webkit-tap-highlight-color:transparent;">&#215;</button>
+  </div>
+  <div style="background:rgba(255,255,255,0.06);border-radius:10px;padding:10px 12px;display:flex;align-items:center;gap:8px;">
+    <div style="font-size:12px;color:rgba(255,255,255,0.7);line-height:1.6;">
+      Tap <strong style="color:#fff;">Share</strong>
+      <svg style="display:inline;vertical-align:middle;margin:0 2px;" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.7)" stroke-width="2.5" stroke-linecap="round"><path d="M4 12v8a2 2 0 002 2h12a2 2 0 002-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/></svg>
+      in Safari, then <strong style="color:#fff;">"Add to Home Screen"</strong>
+    </div>
+  </div>
+</div>
+
+<script>
+(function(){
+  // ── Don't show if already running as installed PWA ──
+  var isStandalone = window.navigator.standalone || window.matchMedia('(display-mode: standalone)').matches;
+  if(isStandalone) return;
+
+  // ── Service Worker ──
+  if('serviceWorker' in navigator){
+    window.addEventListener('load', function(){
+      navigator.serviceWorker.register('/sw.js').catch(function(){});
+    });
+  }
+
+  // ── Android/Chrome install prompt ──
+  var _prompt = null;
+  window.addEventListener('beforeinstallprompt', function(e){
+    e.preventDefault();
+    _prompt = e;
+    if(!localStorage.getItem('peptrak_install_dismissed')){
+      setTimeout(showAndroidBanner, 30000);
+    }
+  });
+
+  function showAndroidBanner(){
+    var b = document.getElementById('install-banner');
+    if(b && _prompt && !localStorage.getItem('peptrak_install_dismissed')){
+      b.style.display = 'flex';
+      // Slide in
+      b.style.transform = 'translateY(20px)';
+      b.style.opacity = '0';
+      b.style.transition = 'transform 0.4s cubic-bezier(0.34,1.1,0.64,1), opacity 0.3s';
+      requestAnimationFrame(function(){
+        requestAnimationFrame(function(){
+          b.style.transform = 'translateY(0)';
+          b.style.opacity = '1';
+        });
+      });
+    }
+  }
+
+  window.doInstall = function(){
+    if(!_prompt) return;
+    var b = document.getElementById('install-banner');
+    if(b) b.style.display = 'none';
+    _prompt.prompt();
+    _prompt.userChoice.then(function(r){
+      _prompt = null;
+      if(r.outcome === 'accepted') localStorage.setItem('peptrak_installed','1');
+    });
+  };
+
+  window.dismissInstall = function(){
+    localStorage.setItem('peptrak_install_dismissed','1');
+    var b = document.getElementById('install-banner');
+    if(b){
+      b.style.opacity = '0';
+      b.style.transform = 'translateY(20px)';
+      setTimeout(function(){ b.style.display = 'none'; }, 300);
+    }
+  };
+
+  // ── iOS install prompt ──
+  var isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent) && !window.MSStream;
+  if(isIOS && !localStorage.getItem('peptrak_ios_install_dismissed')){
+    setTimeout(showIOSBanner, 5000);
+  }
+
+  function showIOSBanner(){
+    var b = document.getElementById('ios-install-banner');
+    if(!b) return;
+    b.style.display = 'flex';
+    b.style.transform = 'translateY(20px)';
+    b.style.opacity = '0';
+    b.style.transition = 'transform 0.4s cubic-bezier(0.34,1.1,0.64,1), opacity 0.3s';
+    requestAnimationFrame(function(){
+      requestAnimationFrame(function(){
+        b.style.transform = 'translateY(0)';
+        b.style.opacity = '1';
+      });
+    });
+  }
+
+  window.dismissIOSInstall = function(){
+    localStorage.setItem('peptrak_ios_install_dismissed','1');
+    var b = document.getElementById('ios-install-banner');
+    if(b){
+      b.style.opacity = '0';
+      b.style.transform = 'translateY(20px)';
+      setTimeout(function(){ b.style.display = 'none'; }, 300);
+    }
+  };
+
+  // ── Expose showInstallBanner for external triggers ──
+  window.showInstallBanner = function(){
+    var isIOS2 = /iphone|ipad|ipod/i.test(navigator.userAgent) && !window.MSStream;
+    if(isIOS2 && !localStorage.getItem('peptrak_ios_install_dismissed')) showIOSBanner();
+    else if(_prompt && !localStorage.getItem('peptrak_install_dismissed')) showAndroidBanner();
+  };
+})();
+</script>
 </body>
 </html>

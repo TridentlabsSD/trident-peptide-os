@@ -421,6 +421,13 @@ function charCount(el, id){
   if(c) c.textContent = el.value.length + ' / 500';
 }
 </script>
+<link rel="manifest" href="/manifest.json"/>
+<meta name="theme-color" content="#0876FF"/>
+<meta name="mobile-web-app-capable" content="yes"/>
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+<meta name="apple-mobile-web-app-status-bar-style" content="default"/>
+<meta name="apple-mobile-web-app-title" content="PepTrak"/>
+<link rel="apple-touch-icon" href="/apple-touch-icon.png"/>
 </head>
 <body>
 
@@ -1949,7 +1956,7 @@ function submitForm(){
   if(localStorage.getItem('peptrak_paid')){
     window.location.href = '/protocol';
   } else {
-    window.location.href = '/checkout';
+    window.location.href = '/protocol';
   }
 }
 
@@ -1970,6 +1977,17 @@ updateUI();
   }
 })();
 
+</script>
+
+
+<script>
+(function(){
+  if('serviceWorker' in navigator){
+    window.addEventListener('load', function(){
+      navigator.serviceWorker.register('/sw.js').catch(function(){});
+    });
+  }
+})();
 </script>
 </body>
 </html>

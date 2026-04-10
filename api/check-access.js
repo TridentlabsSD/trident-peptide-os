@@ -62,7 +62,7 @@ module.exports = async function handler(req, res) {
       return res.status(200).json({ access: false, status: 'none', redirect: '/checkout' });
     }
 
-    const accessStatuses = ['trialing', 'active'];
+    const accessStatuses = ['trialing', 'active', 'free'];
     const pastDueStatuses = ['past_due', 'unpaid'];
     const cancelledStatuses = ['cancelled', 'canceled'];
 

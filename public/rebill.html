@@ -35,6 +35,13 @@ body{overflow-x:hidden;-webkit-tap-highlight-color:transparent;font-family:var(-
 .success-title{font-size:20px;font-weight:700;color:var(--ink);margin-bottom:6px;}
 .success-sub{font-size:14px;color:var(--gray-5);line-height:1.6;}
 </style>
+<link rel="manifest" href="/manifest.json"/>
+<meta name="theme-color" content="#0876FF"/>
+<meta name="mobile-web-app-capable" content="yes"/>
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+<meta name="apple-mobile-web-app-status-bar-style" content="default"/>
+<meta name="apple-mobile-web-app-title" content="PepTrak"/>
+<link rel="apple-touch-icon" href="/apple-touch-icon.png"/>
 </head>
 <body>
 <div class="card" id="main-card">
@@ -183,6 +190,17 @@ if(params.get('return') === '1'){
 } else {
   checkStatus();
 }
+</script>
+
+
+<script>
+(function(){
+  if('serviceWorker' in navigator){
+    window.addEventListener('load', function(){
+      navigator.serviceWorker.register('/sw.js').catch(function(){});
+    });
+  }
+})();
 </script>
 </body>
 </html>

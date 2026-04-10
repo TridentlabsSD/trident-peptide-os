@@ -1,0 +1,41 @@
+{
+  "name": "PepTrak",
+  "short_name": "PepTrak",
+  "description": "Your personalized peptide research protocol",
+  "start_url": "/protocol",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#F7F8FA",
+  "theme_color": "#0876FF",
+  "icons": [
+    {
+      "src": "/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "categories": ["health", "fitness", "medical"],
+  "shortcuts": [
+    {
+      "name": "Daily Tracker",
+      "short_name": "Tracker",
+      "description": "Log today's doses",
+      "url": "/tracker",
+      "icons": [{ "src": "/icon-192.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "Ask Alex",
+      "short_name": "Alex",
+      "description": "Talk to your research advisor",
+      "url": "/chat",
+      "icons": [{ "src": "/icon-192.png", "sizes": "192x192" }]
+    }
+  ]
+}

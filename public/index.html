@@ -380,6 +380,13 @@ footer{background:var(--ink);padding:28px 24px;display:flex;align-items:center;j
   .demo-section{padding:0 16px 60px;}
 }
 </style>
+<link rel="manifest" href="/manifest.json"/>
+<meta name="theme-color" content="#0876FF"/>
+<meta name="mobile-web-app-capable" content="yes"/>
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+<meta name="apple-mobile-web-app-status-bar-style" content="default"/>
+<meta name="apple-mobile-web-app-title" content="PepTrak"/>
+<link rel="apple-touch-icon" href="/apple-touch-icon.png"/>
 </head>
 <body>
 
@@ -396,7 +403,7 @@ footer{background:var(--ink);padding:28px 24px;display:flex;align-items:center;j
   </nav>
   <div class="hdr-right">
     <a href="/signin" class="hdr-signin">Sign In</a>
-    <a href="/onboarding" class="hdr-cta">Build My Protocol</a>
+    <a href="/questionnaire" class="hdr-cta">Build My Protocol</a>
     <button class="hdr-hamburger" id="hamburger" onclick="toggleDrawer()" aria-label="Menu">
       <svg id="hamburger-icon" width="20" height="14" viewBox="0 0 20 14" fill="none">
         <line x1="0" y1="1" x2="20" y2="1" stroke="var(--ink)" stroke-width="1.6" stroke-linecap="round"/>
@@ -420,7 +427,7 @@ footer{background:var(--ink);padding:28px 24px;display:flex;align-items:center;j
     <a href="/library" class="drawer-link" onclick="closeDrawer()">Compound Library <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--gray-3)" stroke-width="2" stroke-linecap="round"><polyline points="9 18 15 12 9 6"/></svg></a>
   </div>
   <div class="drawer-footer">
-    <a href="/onboarding" class="drawer-cta">Build My Protocol — Free</a>
+    <a href="/questionnaire" class="drawer-cta">Build My Protocol — Free</a>
     <a href="/signin" class="drawer-signin">Sign In</a>
   </div>
 </div>
@@ -444,7 +451,7 @@ footer{background:var(--ink);padding:28px 24px;display:flex;align-items:center;j
     <p class="hero-sub">Your peptide protocol, built from your biology. Not a template someone else used.</p>
     <div class="hero-proof" id="hero-proof"></div>
     <div class="hero-actions">
-      <a href="/onboarding" class="btn-hero">
+      <a href="/questionnaire" class="btn-hero">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M9 3H5a2 2 0 00-2 2v4m6-6h10a2 2 0 012 2v4M9 3v18m0 0h10a2 2 0 002-2V9M9 21H5a2 2 0 01-2-2V9m0 0h18"/></svg>
         Build My Protocol — Free
       </a>
@@ -750,7 +757,7 @@ footer{background:var(--ink);padding:28px 24px;display:flex;align-items:center;j
           <div style="display:flex;align-items:flex-start;gap:10px;"><div style="width:20px;height:20px;border-radius:50%;background:rgba(0,192,118,0.15);border:1px solid rgba(0,192,118,0.3);display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px;"><svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="#00C076" stroke-width="3" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg></div><div style="font-size:13px;color:#545B67;line-height:1.55;">Exact dose, timing, route, and frequency for every compound</div></div>
           <div style="display:flex;align-items:flex-start;gap:10px;"><div style="width:20px;height:20px;border-radius:50%;background:rgba(0,192,118,0.15);border:1px solid rgba(0,192,118,0.3);display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px;"><svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="#00C076" stroke-width="3" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg></div><div style="font-size:13px;color:#545B67;line-height:1.55;">"Why you specifically" reasoning written for your exact intake</div></div>
         </div>
-        <a href="/onboarding" style="display:inline-flex;align-items:center;gap:8px;background:#0876FF;color:#fff;font-size:14px;font-weight:600;padding:13px 24px;border-radius:980px;text-decoration:none;box-shadow:0 4px 16px rgba(8,118,255,0.4);transition:all 0.2s;width:fit-content;">Build my protocol free &#8594;</a>
+        <a href="/questionnaire" style="display:inline-flex;align-items:center;gap:8px;background:#0876FF;color:#fff;font-size:14px;font-weight:600;padding:13px 24px;border-radius:980px;text-decoration:none;box-shadow:0 4px 16px rgba(8,118,255,0.4);transition:all 0.2s;width:fit-content;">Build my protocol free &#8594;</a>
       </div>
 
       <div class="di" id="di-tracker" style="display:none;flex-direction:column;gap:20px;">
@@ -762,7 +769,7 @@ footer{background:var(--ink);padding:28px 24px;display:flex;align-items:center;j
           <div style="display:flex;align-items:flex-start;gap:10px;"><div style="width:20px;height:20px;border-radius:50%;background:rgba(0,192,118,0.15);border:1px solid rgba(0,192,118,0.3);display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px;"><svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="#00C076" stroke-width="3" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg></div><div style="font-size:13px;color:#545B67;line-height:1.55;">Side effect logging across 10 common categories</div></div>
           <div style="display:flex;align-items:flex-start;gap:10px;"><div style="width:20px;height:20px;border-radius:50%;background:rgba(0,192,118,0.15);border:1px solid rgba(0,192,118,0.3);display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px;"><svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="#00C076" stroke-width="3" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg></div><div style="font-size:13px;color:#545B67;line-height:1.55;">Alex's week-specific take shown inline every day</div></div>
         </div>
-        <a href="/onboarding" style="display:inline-flex;align-items:center;gap:8px;background:#0876FF;color:#fff;font-size:14px;font-weight:600;padding:13px 24px;border-radius:980px;text-decoration:none;box-shadow:0 4px 16px rgba(8,118,255,0.4);width:fit-content;">Start free trial &#8594;</a>
+        <a href="/questionnaire" style="display:inline-flex;align-items:center;gap:8px;background:#0876FF;color:#fff;font-size:14px;font-weight:600;padding:13px 24px;border-radius:980px;text-decoration:none;box-shadow:0 4px 16px rgba(8,118,255,0.4);width:fit-content;">Start free trial &#8594;</a>
       </div>
 
       <div class="di" id="di-alex" style="display:none;flex-direction:column;gap:20px;">
@@ -774,7 +781,7 @@ footer{background:var(--ink);padding:28px 24px;display:flex;align-items:center;j
           <div style="display:flex;align-items:flex-start;gap:10px;"><div style="width:20px;height:20px;border-radius:50%;background:rgba(0,192,118,0.15);border:1px solid rgba(0,192,118,0.3);display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px;"><svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="#00C076" stroke-width="3" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg></div><div style="font-size:13px;color:#545B67;line-height:1.55;">Week-aware: week 4 advice, not generic guidance</div></div>
           <div style="display:flex;align-items:flex-start;gap:10px;"><div style="width:20px;height:20px;border-radius:50%;background:rgba(0,192,118,0.15);border:1px solid rgba(0,192,118,0.3);display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px;"><svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="#00C076" stroke-width="3" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg></div><div style="font-size:13px;color:#545B67;line-height:1.55;">Available 24/7, responds instantly</div></div>
         </div>
-        <a href="/onboarding" style="display:inline-flex;align-items:center;gap:8px;background:#0876FF;color:#fff;font-size:14px;font-weight:600;padding:13px 24px;border-radius:980px;text-decoration:none;box-shadow:0 4px 16px rgba(8,118,255,0.4);width:fit-content;">Start free trial &#8594;</a>
+        <a href="/questionnaire" style="display:inline-flex;align-items:center;gap:8px;background:#0876FF;color:#fff;font-size:14px;font-weight:600;padding:13px 24px;border-radius:980px;text-decoration:none;box-shadow:0 4px 16px rgba(8,118,255,0.4);width:fit-content;">Start free trial &#8594;</a>
       </div>
 
       <div class="di" id="di-library" style="display:none;flex-direction:column;gap:20px;">
@@ -787,7 +794,7 @@ footer{background:var(--ink);padding:28px 24px;display:flex;align-items:center;j
           <div style="display:flex;align-items:flex-start;gap:10px;"><div style="width:20px;height:20px;border-radius:50%;background:rgba(0,192,118,0.15);border:1px solid rgba(0,192,118,0.3);display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px;"><svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="#00C076" stroke-width="3" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg></div><div style="font-size:13px;color:#545B67;line-height:1.55;"><strong style="color:#07090D;">Real research citations</strong> — study findings with journal sources, not paraphrased marketing claims</div></div>
           <div style="display:flex;align-items:flex-start;gap:10px;"><div style="width:20px;height:20px;border-radius:50%;background:rgba(0,192,118,0.15);border:1px solid rgba(0,192,118,0.3);display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px;"><svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="#00C076" stroke-width="3" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg></div><div style="font-size:13px;color:#545B67;line-height:1.55;"><strong style="color:#07090D;">Mechanism explained in plain English</strong> — how it actually works in your body, not just what it does</div></div>
         </div>
-        <a href="/onboarding" style="display:inline-flex;align-items:center;gap:8px;background:#0876FF;color:#fff;font-size:14px;font-weight:600;padding:13px 24px;border-radius:980px;text-decoration:none;box-shadow:0 4px 16px rgba(8,118,255,0.4);width:fit-content;">Explore the library &#8594;</a>
+        <a href="/questionnaire" style="display:inline-flex;align-items:center;gap:8px;background:#0876FF;color:#fff;font-size:14px;font-weight:600;padding:13px 24px;border-radius:980px;text-decoration:none;box-shadow:0 4px 16px rgba(8,118,255,0.4);width:fit-content;">Explore the library &#8594;</a>
       </div>
 
       <div class="di" id="di-tools" style="display:none;flex-direction:column;gap:20px;">
@@ -799,7 +806,7 @@ footer{background:var(--ink);padding:28px 24px;display:flex;align-items:center;j
           <div style="display:flex;align-items:flex-start;gap:10px;"><div style="width:20px;height:20px;border-radius:50%;background:rgba(0,192,118,0.15);border:1px solid rgba(0,192,118,0.3);display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px;"><svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="#00C076" stroke-width="3" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg></div><div style="font-size:13px;color:#545B67;line-height:1.55;">Vial tracker: doses remaining + reorder alert when low</div></div>
           <div style="display:flex;align-items:flex-start;gap:10px;"><div style="width:20px;height:20px;border-radius:50%;background:rgba(0,192,118,0.15);border:1px solid rgba(0,192,118,0.3);display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px;"><svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="#00C076" stroke-width="3" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg></div><div style="font-size:13px;color:#545B67;line-height:1.55;">6-zone rotation: last-used tracking, next recommendation</div></div>
         </div>
-        <a href="/onboarding" style="display:inline-flex;align-items:center;gap:8px;background:#0876FF;color:#fff;font-size:14px;font-weight:600;padding:13px 24px;border-radius:980px;text-decoration:none;box-shadow:0 4px 16px rgba(8,118,255,0.4);width:fit-content;">Start free trial &#8594;</a>
+        <a href="/questionnaire" style="display:inline-flex;align-items:center;gap:8px;background:#0876FF;color:#fff;font-size:14px;font-weight:600;padding:13px 24px;border-radius:980px;text-decoration:none;box-shadow:0 4px 16px rgba(8,118,255,0.4);width:fit-content;">Start free trial &#8594;</a>
       </div>
 
     </div>
@@ -989,7 +996,7 @@ footer{background:var(--ink);padding:28px 24px;display:flex;align-items:center;j
     <div class="chat-bubble alex">How's your sleep been? If you're sleeping deeper than usual, that's the GH doing its thing. The fatigue usually fades by week 3–4.</div>
   </div>
   <div style="margin-top:24px;text-align:center;">
-    <a href="/onboarding" class="btn-hero" style="font-size:14px;padding:14px 28px;">Try PepTrak free →</a>
+    <a href="/questionnaire" class="btn-hero" style="font-size:14px;padding:14px 28px;">Build My Protocol — Free →</a>
   </div>
 </div>
 </div>
@@ -1044,7 +1051,7 @@ footer{background:var(--ink);padding:28px 24px;display:flex;align-items:center;j
         <div class="pricing-feat"><div class="pricing-feat-check"><svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="#00C076" stroke-width="3.5" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg></div>Visual dosing calculator + all tools</div>
         <div class="pricing-feat"><div class="pricing-feat-check"><svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="#00C076" stroke-width="3.5" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg></div>Cycle history + progress tracking</div>
       </div>
-      <a href="/onboarding" class="pricing-cta primary">Start 21-Day Free Trial</a>
+      <a href="/questionnaire" class="pricing-cta primary">Build My Protocol — Free</a>
       <div class="pricing-trial-note">No charge for 21 days. Cancel anytime.</div>
     </div>
     <div class="pricing-card reveal">
@@ -1054,7 +1061,7 @@ footer{background:var(--ink);padding:28px 24px;display:flex;align-items:center;j
         <div class="pricing-feat"><div class="pricing-feat-check"><svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="#00C076" stroke-width="3.5" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg></div>Everything in Annual plan</div>
         <div class="pricing-feat"><div class="pricing-feat-check"><svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="#00C076" stroke-width="3.5" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg></div>No annual commitment</div>
       </div>
-      <a href="/onboarding" class="pricing-cta secondary">Start 21-Day Free Trial</a>
+      <a href="/questionnaire" class="pricing-cta secondary">Build My Protocol — Free</a>
       <div class="pricing-trial-note">No charge for 21 days. Cancel anytime.</div>
     </div>
   </div>
@@ -1083,7 +1090,7 @@ footer{background:var(--ink);padding:28px 24px;display:flex;align-items:center;j
     <div class="section-eyebrow" style="color:rgba(8,118,255,0.7);margin-bottom:16px;">Start today</div>
     <h2 class="final-title">Your protocol is<br>10 minutes away.</h2>
     <p class="final-sub">Stop guessing. Start with a protocol built for your exact body.</p>
-    <a href="/onboarding" class="btn-hero" style="font-size:16px;padding:18px 40px;">Build My Protocol — Free →</a>
+    <a href="/questionnaire" class="btn-hero" style="font-size:16px;padding:18px 40px;">Build My Protocol — Free →</a>
     <div class="final-disclaimer">For research use only · Not medical advice · Cancel anytime</div>
   </div>
 </div>
@@ -1182,6 +1189,17 @@ function toggleFaq(el){var item=el.parentElement,isOpen=item.classList.contains(
 // ── DRAWER ──
 function toggleDrawer(){var d=document.getElementById('drawer'),o=document.getElementById('drawer-overlay'),isOpen=d.classList.contains('open');if(isOpen){closeDrawer();}else{d.classList.add('open');o.classList.add('open');document.body.style.overflow='hidden';document.getElementById('hamburger-icon').style.display='none';document.getElementById('close-icon').style.display='block';}}
 function closeDrawer(){document.getElementById('drawer').classList.remove('open');document.getElementById('drawer-overlay').classList.remove('open');document.body.style.overflow='';document.getElementById('hamburger-icon').style.display='block';document.getElementById('close-icon').style.display='none';}
+</script>
+
+
+<script>
+(function(){
+  if('serviceWorker' in navigator){
+    window.addEventListener('load', function(){
+      navigator.serviceWorker.register('/sw.js').catch(function(){});
+    });
+  }
+})();
 </script>
 </body>
 </html>

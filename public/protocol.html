@@ -429,6 +429,13 @@ body{
 /* ── ANIMATIONS ── */
 @keyframes fadeUp{from{opacity:0;transform:translateY(14px);}to{opacity:1;transform:translateY(0);}}
 </style>
+<link rel="manifest" href="/manifest.json"/>
+<meta name="theme-color" content="#0876FF"/>
+<meta name="mobile-web-app-capable" content="yes"/>
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+<meta name="apple-mobile-web-app-status-bar-style" content="default"/>
+<meta name="apple-mobile-web-app-title" content="PepTrak"/>
+<link rel="apple-touch-icon" href="/apple-touch-icon.png"/>
 </head>
 <body>
 
@@ -537,48 +544,54 @@ body{
 
 <script>
 
-// ── PAYWALL GUARD (server-side) ──
+// ── CROSS-DEVICE RESTORE (no auth required for protocol) ──
 (function(){
-  var email  = localStorage.getItem('peptrak_auth_email');
-  var paid   = localStorage.getItem('peptrak_paid');
-  var isTest = localStorage.getItem('peptrak_test_account') === '1';
-
-  if(isTest) return; // test account always passes
-
-  if(!email || !paid){
-    window.location.replace('/checkout');
-    return;
+  var email = localStorage.getItem('peptrak_auth_email');
+  if(email){
+    fetch('/api/supabase?action=get-user&email=' + encodeURIComponent(email))
+      .then(function(r){ return r.json(); })
+      .then(function(d){
+        if(d.intake && !localStorage.getItem('peptrak_intake'))
+          localStorage.setItem('peptrak_intake', JSON.stringify(d.intake));
+        if(d.protocol && !localStorage.getItem('peptrak_protocol'))
+          localStorage.setItem('peptrak_protocol', typeof d.protocol === 'string' ? d.protocol : JSON.stringify(d.protocol));
+        if(d.tracker && !localStorage.getItem('peptrak_tracker'))
+          localStorage.setItem('peptrak_tracker', typeof d.tracker === 'string' ? d.tracker : JSON.stringify(d.tracker));
+      }).catch(function(){});
   }
-
-  // Async server-side check — catches past_due / cancelled without blocking page load
-  fetch('/api/check-access?email=' + encodeURIComponent(email))
-    .then(function(r){ return r.json(); })
-    .then(function(data){
-      if(data.access) return;
-      if(data.status === 'past_due' || data.status === 'unpaid'){
-        localStorage.removeItem('peptrak_paid');
-        localStorage.setItem('peptrak_subscription_status','past_due');
-        window.location.replace('/rebill');
-      } else if(data.status === 'cancelled' || data.status === 'canceled'){
-        localStorage.removeItem('peptrak_paid');
-        window.location.replace('/rebill');
-      } else if(data.redirect){
-        localStorage.removeItem('peptrak_paid');
-        window.location.replace(data.redirect);
-      }
-    })
-    .catch(function(){}); // network error — fail open
 })();
 
-// ── INTAKE GUARD ──
-(function(){
+// ── INTAKE GUARD — loads from Supabase if localStorage empty ──
+(async function(){
   var isTest = localStorage.getItem('peptrak_test_account') === '1';
   if(isTest) return;
   var intake = {};
   try{ intake = JSON.parse(localStorage.getItem('peptrak_intake')||'{}'); }catch(e){}
-  if(!intake.goal1 && !localStorage.getItem('peptrak_protocol')){
-    window.location.replace('/questionnaire');
+  var hasProtocol = !!localStorage.getItem('peptrak_protocol');
+
+  // If we have intake or protocol locally, we're good
+  if(intake.goal1 || hasProtocol) return;
+
+  // Try to load from Supabase (cross-device)
+  var email = localStorage.getItem('peptrak_auth_email');
+  if(email){
+    try{
+      var r = await fetch('/api/supabase?action=get-user&email='+encodeURIComponent(email));
+      var data = await r.json();
+      if(data.intake && data.intake.goal1){
+        localStorage.setItem('peptrak_intake', JSON.stringify(data.intake));
+        intake = data.intake;
+        return; // we have intake now — continue to generateProtocol
+      }
+      if(data.protocol){
+        localStorage.setItem('peptrak_protocol', typeof data.protocol === 'string' ? data.protocol : JSON.stringify(data.protocol));
+        return; // we have protocol — continue to render
+      }
+    }catch(e){}
   }
+
+  // Nothing found — send to questionnaire
+  window.location.replace('/questionnaire');
 })();
 
 // ── INTAKE ──
@@ -1041,6 +1054,13 @@ async function generateProtocol(){
       document.getElementById('hdr-badge').style.color = 'var(--green)';
       document.getElementById('hdr-badge').style.background = 'var(--green-pale)';
       renderProtocol(protoData);
+      // Show first-time welcome sheet for new users
+      var isFirstProtocol = !localStorage.getItem('peptrak_welcome_seen');
+      if(isFirstProtocol){
+        setTimeout(function(){ showWelcomeSheet(protoData); }, 800);
+      }
+      // Trigger install prompt 60s after first protocol generation
+      setTimeout(function(){ if(typeof showInstallBanner === 'function') showInstallBanner(); }, 60000);
       setTimeout(function(){ revealCards(protoData); }, 300);
       setTimeout(function(){ screen.style.display='none'; }, 700);
     }, 600);
@@ -1185,5 +1205,337 @@ function confirmRegen(){
     </div>
   </div>
 
+
+
+<!-- Android/Chrome install banner -->
+
+<!-- ── FIRST 60 SECONDS WELCOME SHEET ── -->
+<div id="welcome-overlay" style="display:none;position:fixed;inset:0;background:rgba(7,9,13,0.7);backdrop-filter:blur(8px);z-index:999;align-items:flex-end;justify-content:center;padding:0;">
+  <div id="welcome-sheet" style="background:#fff;border-radius:28px 28px 0 0;width:100%;max-width:520px;padding:0 0 40px;transform:translateY(100%);transition:transform 0.45s cubic-bezier(0.34,1.1,0.64,1);max-height:92vh;overflow-y:auto;">
+    <!-- Handle -->
+    <div style="display:flex;justify-content:center;padding:12px 0 0;"><div style="width:36px;height:4px;background:#EAECF0;border-radius:4px;"></div></div>
+
+    <!-- Confetti strip -->
+    <div id="confetti-strip" style="height:4px;background:linear-gradient(90deg,#0876FF,#00C076,#F0A500,#0876FF);background-size:200%;animation:shimmer 2s linear infinite;margin:12px 24px 0;border-radius:4px;"></div>
+
+    <!-- Header -->
+    <div style="padding:20px 24px 0;text-align:center;">
+      <div style="font-size:36px;margin-bottom:10px;">🎉</div>
+      <div style="font-size:11px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:#0876FF;margin-bottom:8px;">Your protocol is ready</div>
+      <h2 id="welcome-headline" style="font-size:22px;font-weight:800;letter-spacing:-0.5px;color:#07090D;line-height:1.25;margin-bottom:8px;">Your fat loss protocol<br>is built and waiting.</h2>
+      <p id="welcome-sub" style="font-size:14px;color:#545B67;line-height:1.65;">Save it to your free account so you can access it on any device, track your doses, and ask Alex anything.</p>
+    </div>
+
+    <!-- Save prompt — shown if no account yet -->
+    <div id="welcome-save-section" style="padding:16px 20px 0;">
+      <div style="background:#F7F8FA;border:1.5px solid #EAECF0;border-radius:16px;padding:16px;margin-bottom:12px;">
+        <div style="font-size:11px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:#8A919E;margin-bottom:12px;">Save your protocol — free</div>
+        <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:14px;">
+          <input id="ws-name" type="text" placeholder="First name" autocomplete="given-name" autocapitalize="words"
+            style="width:100%;padding:12px 13px;border:1.5px solid #EAECF0;border-radius:11px;font-size:16px;font-family:inherit;color:#07090D;background:#fff;outline:none;-webkit-appearance:none;"
+            onfocus="this.style.borderColor='#0876FF'" onblur="this.style.borderColor='#EAECF0'"/>
+          <input id="ws-email" type="email" placeholder="Email address" autocomplete="email" autocapitalize="none"
+            style="width:100%;padding:12px 13px;border:1.5px solid #EAECF0;border-radius:11px;font-size:16px;font-family:inherit;color:#07090D;background:#fff;outline:none;-webkit-appearance:none;"
+            onfocus="this.style.borderColor='#0876FF'" onblur="this.style.borderColor='#EAECF0'"/>
+          <input id="ws-pw" type="password" placeholder="Create a password (min. 8 chars)" autocomplete="new-password"
+            style="width:100%;padding:12px 13px;border:1.5px solid #EAECF0;border-radius:11px;font-size:16px;font-family:inherit;color:#07090D;background:#fff;outline:none;-webkit-appearance:none;"
+            onfocus="this.style.borderColor='#0876FF'" onblur="this.style.borderColor='#EAECF0'"/>
+        </div>
+        <div id="ws-err" style="display:none;font-size:12px;color:#FF3B30;background:#FFF1F0;border-radius:8px;padding:9px 12px;margin-bottom:10px;"></div>
+        <button id="ws-save-btn" onclick="doWelcomeSave()" style="width:100%;padding:14px;background:#0876FF;color:#fff;border:none;border-radius:980px;font-size:15px;font-weight:700;cursor:pointer;font-family:inherit;box-shadow:0 4px 14px rgba(8,118,255,0.3);display:flex;align-items:center;justify-content:center;gap:8px;">
+          <span id="ws-btn-txt">Save my protocol — free</span>
+          <div id="ws-spinner" style="display:none;width:14px;height:14px;border:2px solid rgba(255,255,255,0.3);border-top-color:#fff;border-radius:50%;animation:spin 0.6s linear infinite;"></div>
+        </button>
+        <div style="font-size:11px;color:#8A919E;text-align:center;margin-top:9px;">No credit card. Access on any device.</div>
+      </div>
+      <div style="text-align:center;">
+        <button onclick="closeWelcomeSheet()" style="font-size:13px;color:#8A919E;background:none;border:none;cursor:pointer;font-family:inherit;padding:8px;">View protocol without saving</button>
+      </div>
+    </div>
+
+    <!-- Success state after saving -->
+    <div id="welcome-saved" style="display:none;padding:16px 20px 20px;text-align:center;">
+      <div style="width:52px;height:52px;border-radius:50%;background:#E6FAF3;display:flex;align-items:center;justify-content:center;margin:0 auto 12px;animation:wsPop 0.4s cubic-bezier(0.34,1.56,0.64,1);">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#00C076" stroke-width="2.5" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg>
+      </div>
+      <div style="font-size:17px;font-weight:700;color:#07090D;margin-bottom:6px;">Protocol saved!</div>
+      <div style="font-size:13px;color:#545B67;line-height:1.6;margin-bottom:16px;">Access it anytime from any device. Your tracker, Alex, and library are all ready.</div>
+      <div style="display:flex;flex-direction:column;gap:8px;">
+        <a href="/tracker" style="display:flex;align-items:center;gap:12px;background:#F7F8FA;border:1.5px solid #EAECF0;border-radius:14px;padding:13px 14px;text-decoration:none;">
+          <div style="width:36px;height:36px;border-radius:10px;background:rgba(240,165,0,0.1);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#F0A500" stroke-width="2" stroke-linecap="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+          </div>
+          <div style="flex:1;text-align:left;"><div style="font-size:13px;font-weight:700;color:#07090D;">Start tracking doses</div><div style="font-size:11px;color:#8A919E;margin-top:1px;">Log your first dose today</div></div>
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#C8CDD6" stroke-width="2.5" stroke-linecap="round"><polyline points="9 18 15 12 9 6"/></svg>
+        </a>
+        <a href="/chat" style="display:flex;align-items:center;gap:12px;background:#F7F8FA;border:1.5px solid #EAECF0;border-radius:14px;padding:13px 14px;text-decoration:none;">
+          <div style="width:36px;height:36px;border-radius:10px;background:#EEF4FF;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#0876FF" stroke-width="2" stroke-linecap="round"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
+          </div>
+          <div style="flex:1;text-align:left;"><div style="font-size:13px;font-weight:700;color:#07090D;">Ask Alex anything</div><div id="welcome-alex-msg" style="font-size:11px;color:#8A919E;margin-top:1px;">Your advisor knows your full protocol</div></div>
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#C8CDD6" stroke-width="2.5" stroke-linecap="round"><polyline points="9 18 15 12 9 6"/></svg>
+        </a>
+      </div>
+      <button onclick="closeWelcomeSheet()" style="width:100%;padding:13px;background:#07090D;color:#fff;border:none;border-radius:980px;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit;margin-top:12px;">View full protocol →</button>
+    </div>
+  </div>
+</div>
+
+<style>
+@keyframes shimmer{0%{background-position:0%}100%{background-position:200%}}
+#welcome-overlay.open{display:flex !important;align-items:flex-end;justify-content:center;}
+#welcome-overlay.open #welcome-sheet{transform:translateY(0);}
+</style>
+<script>
+async function hashPw(pw){
+  var data=new TextEncoder().encode(pw+'peptrak_salt_2026');
+  var hash=await crypto.subtle.digest('SHA-256',data);
+  return Array.from(new Uint8Array(hash)).map(function(b){return b.toString(16).padStart(2,'0');}).join('');
+}
+
+async function doWelcomeSave(){
+  var name = document.getElementById('ws-name').value.trim();
+  var email = document.getElementById('ws-email').value.trim().toLowerCase();
+  var pw = document.getElementById('ws-pw').value;
+  var errEl = document.getElementById('ws-err');
+  errEl.style.display='none';
+
+  if(!name){ errEl.textContent='Enter your first name.'; errEl.style.display='block'; return; }
+  if(!email||!email.includes('@')){ errEl.textContent='Enter a valid email.'; errEl.style.display='block'; return; }
+  if(pw.length<8){ errEl.textContent='Password must be at least 8 characters.'; errEl.style.display='block'; return; }
+
+  var btn=document.getElementById('ws-save-btn');
+  var btnTxt=document.getElementById('ws-btn-txt');
+  var spin=document.getElementById('ws-spinner');
+  btn.disabled=true; btnTxt.style.display='none'; spin.style.display='block';
+
+  var hash = await hashPw(pw);
+  localStorage.setItem('peptrak_auth_email', email);
+  localStorage.setItem('peptrak_auth_pw', hash);
+
+  // Update intake with name/email
+  var intake={};
+  try{intake=JSON.parse(localStorage.getItem('peptrak_intake')||'{}');}catch(e){}
+  intake.first_name=name; intake.email=email;
+  localStorage.setItem('peptrak_intake', JSON.stringify(intake));
+
+  // Get current protocol
+  var proto={};
+  try{proto=JSON.parse(localStorage.getItem('peptrak_protocol')||'{}');}catch(e){}
+
+  // Save everything to Supabase
+  try{
+    await fetch('/api/supabase?action=upsert-user',{
+      method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({email,name,status:'free',plan:'free',authPw:hash})
+    });
+    await fetch('/api/supabase?action=save-data',{
+      method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({email,intake,protocol:proto})
+    });
+  }catch(e){}
+
+  // Show success
+  document.getElementById('welcome-save-section').style.display='none';
+  document.getElementById('welcome-saved').style.display='block';
+  // Update Alex msg
+  if(proto.compounds&&proto.compounds.length){
+    var first=proto.compounds[0];
+    document.getElementById('welcome-alex-msg').textContent='Ask about '+first.name+', timing, side effects, what to expect week by week.';
+  }
+}
+
+// Add wsPop keyframe
+var wsStyle=document.createElement('style');
+wsStyle.textContent='@keyframes wsPop{from{transform:scale(0.4);opacity:0;}to{transform:scale(1);opacity:1;}}';
+document.head.appendChild(wsStyle);
+
+function showWelcomeSheet(proto){
+  var overlay = document.getElementById('welcome-overlay');
+  if(!overlay) return;
+
+  // Personalize headline
+  var name = (typeof intake !== 'undefined' && intake.first_name) ? intake.first_name+"'s " : '';
+  var goalLabels = {fat_loss:'fat loss',muscle:'muscle & strength',recovery:'recovery',brain:'brain & focus',sleep_gh:'sleep & GH',anti_aging:'longevity'};
+  var goalLabel = (typeof intake !== 'undefined' && intake.goal1) ? (goalLabels[intake.goal1]||intake.goal1) : 'personalized';
+  document.getElementById('welcome-headline').innerHTML = name + 'Your <em>' + goalLabel + '</em><br>protocol is ready.';
+
+  // Personalize compounds
+  if(proto && proto.compounds && proto.compounds.length){
+    var names = proto.compounds.slice(0,3).map(function(c){return c.name;}).join(', ');
+    document.getElementById('welcome-compounds').textContent = names + (proto.compounds.length > 3 ? ' + more' : '') + ' — get yours from Trident Labs, ships in 1-2 days.';
+  }
+
+  // Personalize Alex message
+  if(proto && proto.compounds){
+    var firstCompound = proto.compounds[0];
+    if(firstCompound){
+      document.getElementById('welcome-alex-msg').textContent = "Your first compound is " + firstCompound.name + " at " + firstCompound.dose + ". I can walk you through exactly what to expect in week 1 — just ask.";
+    }
+  }
+
+  // Open
+  // If already has account, skip the save form
+  if(localStorage.getItem('peptrak_auth_email')){
+    document.getElementById('welcome-save-section').style.display='none';
+    document.getElementById('welcome-saved').style.display='block';
+    // Pre-fill Alex msg
+    if(proto&&proto.compounds&&proto.compounds.length){
+      var first=proto.compounds[0];
+      var el=document.getElementById('welcome-alex-msg');
+      if(el) el.textContent='Ask about '+first.name+', timing, side effects, what to expect week by week.';
+    }
+  }
+  overlay.classList.add('open');
+  localStorage.setItem('peptrak_welcome_seen', '1');
+
+  // Close on overlay tap
+  overlay.addEventListener('click', function(e){
+    if(e.target === overlay) closeWelcomeSheet();
+  });
+}
+
+function closeWelcomeSheet(){
+  var overlay = document.getElementById('welcome-overlay');
+  if(!overlay) return;
+  var sheet = document.getElementById('welcome-sheet');
+  sheet.style.transform = 'translateY(100%)';
+  setTimeout(function(){ overlay.classList.remove('open'); }, 400);
+}
+</script>
+
+
+
+
+<!-- Android install banner -->
+<div id="install-banner" style="display:none;position:fixed;left:12px;right:12px;bottom:calc(68px + env(safe-area-inset-bottom));background:#07090D;border-radius:16px;padding:14px 16px;align-items:center;gap:10px;z-index:400;border:1px solid rgba(255,255,255,0.08);-webkit-tap-highlight-color:transparent;">
+  <div style="width:36px;height:36px;border-radius:10px;background:#0876FF;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:16px;font-weight:800;color:#fff;font-family:inherit;">P</div>
+  <div style="flex:1;min-width:0;">
+    <div style="font-size:13px;font-weight:700;color:#fff;line-height:1.2;">Add PepTrak to home screen</div>
+    <div style="font-size:11px;color:rgba(255,255,255,0.45);margin-top:2px;">One tap to log doses — no browser needed</div>
+  </div>
+  <button onclick="doInstall()" style="flex-shrink:0;padding:8px 16px;background:#0876FF;color:#fff;border:none;border-radius:980px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;-webkit-tap-highlight-color:transparent;min-height:36px;">Add</button>
+  <button onclick="dismissInstall()" style="flex-shrink:0;background:none;border:none;color:rgba(255,255,255,0.35);font-size:22px;cursor:pointer;padding:0 4px;line-height:1;-webkit-tap-highlight-color:transparent;min-width:28px;min-height:36px;display:flex;align-items:center;justify-content:center;">&#215;</button>
+</div>
+
+<!-- iOS install banner -->
+<div id="ios-install-banner" style="display:none;position:fixed;left:12px;right:12px;bottom:calc(68px + env(safe-area-inset-bottom));background:#07090D;border-radius:16px;padding:14px 16px;flex-direction:column;gap:10px;z-index:400;border:1px solid rgba(255,255,255,0.08);-webkit-tap-highlight-color:transparent;">
+  <div style="display:flex;align-items:center;gap:10px;">
+    <div style="width:36px;height:36px;border-radius:10px;background:#0876FF;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:16px;font-weight:800;color:#fff;">P</div>
+    <div style="flex:1;min-width:0;">
+      <div style="font-size:13px;font-weight:700;color:#fff;line-height:1.2;">Install PepTrak</div>
+      <div style="font-size:11px;color:rgba(255,255,255,0.45);margin-top:2px;">Add to home screen for the full app experience</div>
+    </div>
+    <button onclick="dismissIOSInstall()" style="background:none;border:none;color:rgba(255,255,255,0.35);font-size:22px;cursor:pointer;padding:0 4px;line-height:1;flex-shrink:0;min-width:28px;min-height:36px;display:flex;align-items:center;justify-content:center;-webkit-tap-highlight-color:transparent;">&#215;</button>
+  </div>
+  <div style="background:rgba(255,255,255,0.06);border-radius:10px;padding:10px 12px;display:flex;align-items:center;gap:8px;">
+    <div style="font-size:12px;color:rgba(255,255,255,0.7);line-height:1.6;">
+      Tap <strong style="color:#fff;">Share</strong>
+      <svg style="display:inline;vertical-align:middle;margin:0 2px;" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.7)" stroke-width="2.5" stroke-linecap="round"><path d="M4 12v8a2 2 0 002 2h12a2 2 0 002-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/></svg>
+      in Safari, then <strong style="color:#fff;">"Add to Home Screen"</strong>
+    </div>
+  </div>
+</div>
+
+<script>
+(function(){
+  // ── Don't show if already running as installed PWA ──
+  var isStandalone = window.navigator.standalone || window.matchMedia('(display-mode: standalone)').matches;
+  if(isStandalone) return;
+
+  // ── Service Worker ──
+  if('serviceWorker' in navigator){
+    window.addEventListener('load', function(){
+      navigator.serviceWorker.register('/sw.js').catch(function(){});
+    });
+  }
+
+  // ── Android/Chrome install prompt ──
+  var _prompt = null;
+  window.addEventListener('beforeinstallprompt', function(e){
+    e.preventDefault();
+    _prompt = e;
+    if(!localStorage.getItem('peptrak_install_dismissed')){
+      setTimeout(showAndroidBanner, 30000);
+    }
+  });
+
+  function showAndroidBanner(){
+    var b = document.getElementById('install-banner');
+    if(b && _prompt && !localStorage.getItem('peptrak_install_dismissed')){
+      b.style.display = 'flex';
+      // Slide in
+      b.style.transform = 'translateY(20px)';
+      b.style.opacity = '0';
+      b.style.transition = 'transform 0.4s cubic-bezier(0.34,1.1,0.64,1), opacity 0.3s';
+      requestAnimationFrame(function(){
+        requestAnimationFrame(function(){
+          b.style.transform = 'translateY(0)';
+          b.style.opacity = '1';
+        });
+      });
+    }
+  }
+
+  window.doInstall = function(){
+    if(!_prompt) return;
+    var b = document.getElementById('install-banner');
+    if(b) b.style.display = 'none';
+    _prompt.prompt();
+    _prompt.userChoice.then(function(r){
+      _prompt = null;
+      if(r.outcome === 'accepted') localStorage.setItem('peptrak_installed','1');
+    });
+  };
+
+  window.dismissInstall = function(){
+    localStorage.setItem('peptrak_install_dismissed','1');
+    var b = document.getElementById('install-banner');
+    if(b){
+      b.style.opacity = '0';
+      b.style.transform = 'translateY(20px)';
+      setTimeout(function(){ b.style.display = 'none'; }, 300);
+    }
+  };
+
+  // ── iOS install prompt ──
+  var isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent) && !window.MSStream;
+  if(isIOS && !localStorage.getItem('peptrak_ios_install_dismissed')){
+    setTimeout(showIOSBanner, 5000);
+  }
+
+  function showIOSBanner(){
+    var b = document.getElementById('ios-install-banner');
+    if(!b) return;
+    b.style.display = 'flex';
+    b.style.transform = 'translateY(20px)';
+    b.style.opacity = '0';
+    b.style.transition = 'transform 0.4s cubic-bezier(0.34,1.1,0.64,1), opacity 0.3s';
+    requestAnimationFrame(function(){
+      requestAnimationFrame(function(){
+        b.style.transform = 'translateY(0)';
+        b.style.opacity = '1';
+      });
+    });
+  }
+
+  window.dismissIOSInstall = function(){
+    localStorage.setItem('peptrak_ios_install_dismissed','1');
+    var b = document.getElementById('ios-install-banner');
+    if(b){
+      b.style.opacity = '0';
+      b.style.transform = 'translateY(20px)';
+      setTimeout(function(){ b.style.display = 'none'; }, 300);
+    }
+  };
+
+  // ── Expose showInstallBanner for external triggers ──
+  window.showInstallBanner = function(){
+    var isIOS2 = /iphone|ipad|ipod/i.test(navigator.userAgent) && !window.MSStream;
+    if(isIOS2 && !localStorage.getItem('peptrak_ios_install_dismissed')) showIOSBanner();
+    else if(_prompt && !localStorage.getItem('peptrak_install_dismissed')) showAndroidBanner();
+  };
+})();
+</script>
 </body>
 </html>

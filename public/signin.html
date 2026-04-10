@@ -4,377 +4,738 @@
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"/>
 <title>PepTrak — Sign In</title>
+<link rel="manifest" href="/manifest.json"/>
+<meta name="theme-color" content="#0876FF"/>
+<meta name="mobile-web-app-capable" content="yes"/>
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+<meta name="apple-mobile-web-app-status-bar-style" content="default"/>
+<meta name="apple-mobile-web-app-title" content="PepTrak"/>
+<link rel="apple-touch-icon" href="/apple-touch-icon.png"/>
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
-html{-webkit-text-size-adjust:100%;}
+html{-webkit-text-size-adjust:100%;height:100%;}
 :root{
-  --blue:#0876FF;--blue-dark:#0557CC;--blue-pale:#EEF4FF;
+  --blue:#0876FF;--blue-pale:#EEF4FF;--blue-glow:rgba(8,118,255,0.15);
   --ink:#07090D;--ink-2:#1A1D23;
   --gray-1:#F7F8FA;--gray-2:#EAECF0;--gray-3:#C8CDD6;
-  --gray-4:#8A919E;--gray-5:#545B67;--white:#FFFFFF;
+  --gray-4:#8A919E;--gray-5:#545B67;--white:#fff;
   --green:#00C076;--green-pale:#E6FAF3;--red:#FF3B30;
   --font:-apple-system,BlinkMacSystemFont,'SF Pro Display','SF Pro Text','Helvetica Neue',sans-serif;
+  --ease:cubic-bezier(.22,1,.36,1);
+  --hdr:56px;
 }
-body{overflow-x:hidden;-webkit-tap-highlight-color:transparent;font-family:var(--font);background:var(--gray-1);color:var(--ink);-webkit-font-smoothing:antialiased;min-height:100svh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px 20px calc(24px + env(safe-area-inset-bottom));}
-.hdr{position:fixed;top:0;left:0;right:0;z-index:100;height:56px;background:rgba(247,248,250,0.96);backdrop-filter:blur(20px);border-bottom:1px solid var(--gray-2);display:flex;align-items:center;justify-content:space-between;padding:0 20px;}
-.hdr-logo{display:flex;align-items:center;gap:8px;font-size:16px;font-weight:700;color:var(--ink);text-decoration:none;}
-.hdr-mark{width:28px;height:28px;border-radius:8px;background:var(--blue);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800;color:#fff;}
-.hdr-back{font-size:13px;font-weight:600;color:var(--blue);text-decoration:none;display:flex;align-items:center;gap:5px;}
-.card{width:100%;max-width:400px;background:var(--white);border:1px solid var(--gray-2);border-radius:22px;padding:32px 28px;box-shadow:0 4px 24px rgba(0,0,0,0.06);margin-top:56px;}
-.card-logo{display:flex;align-items:center;justify-content:center;margin-bottom:24px;}
-.card-mark{width:48px;height:48px;border-radius:14px;background:var(--blue);display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:800;color:#fff;box-shadow:0 6px 20px rgba(8,118,255,0.3);}
-.card-title{font-size:22px;font-weight:700;letter-spacing:-0.5px;color:var(--ink);text-align:center;margin-bottom:6px;}
-.card-sub{font-size:14px;color:var(--gray-4);text-align:center;margin-bottom:28px;line-height:1.5;}
-.field{margin-bottom:14px;}
-.flbl{font-size:11px;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;color:var(--gray-4);margin-bottom:6px;display:block;}
-.finput{width:100%;padding:13px 14px;border:1.5px solid var(--gray-2);border-radius:12px;font-size:16px;color:var(--ink);font-family:var(--font);background:var(--white);outline:none;-webkit-appearance:none;transition:border-color 0.18s,box-shadow 0.18s;}
+body{
+  font-family:var(--font);
+  background:var(--gray-1);
+  color:var(--ink);
+  -webkit-font-smoothing:antialiased;
+  -webkit-tap-highlight-color:transparent;
+  min-height:100dvh;
+  min-height:100svh;
+  display:flex;
+  flex-direction:column;
+  overscroll-behavior:none;
+}
+
+/* ── HEADER ── */
+.hdr{
+  position:fixed;top:0;left:0;right:0;z-index:100;
+  height:calc(var(--hdr) + env(safe-area-inset-top));
+  padding-top:env(safe-area-inset-top);
+  background:rgba(247,248,250,0.95);
+  -webkit-backdrop-filter:blur(20px);
+  backdrop-filter:blur(20px);
+  border-bottom:1px solid var(--gray-2);
+  display:flex;align-items:center;justify-content:space-between;
+  padding-left:max(20px, env(safe-area-inset-left));
+  padding-right:max(20px, env(safe-area-inset-right));
+}
+.hdr-logo{
+  display:flex;align-items:center;gap:8px;
+  font-size:16px;font-weight:700;color:var(--ink);
+  text-decoration:none;
+}
+.hdr-mark{
+  width:28px;height:28px;border-radius:8px;
+  background:var(--blue);
+  display:flex;align-items:center;justify-content:center;
+  font-size:13px;font-weight:800;color:#fff;
+  flex-shrink:0;
+}
+
+/* ── SCROLLABLE MAIN ── */
+.main{
+  flex:1;
+  overflow-y:auto;
+  -webkit-overflow-scrolling:touch;
+  padding-top:calc(var(--hdr) + env(safe-area-inset-top) + 20px);
+  padding-bottom:calc(32px + env(safe-area-inset-bottom));
+  padding-left:max(16px, env(safe-area-inset-left));
+  padding-right:max(16px, env(safe-area-inset-right));
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  gap:16px;
+}
+
+/* ── CARD ── */
+.card{
+  width:100%;
+  max-width:420px;
+  background:var(--white);
+  border:1px solid var(--gray-2);
+  border-radius:24px;
+  padding:24px 20px 20px;
+  box-shadow:0 2px 16px rgba(0,0,0,0.05),0 1px 3px rgba(0,0,0,0.04);
+}
+
+/* logo — hides on very short screens */
+.card-logo{
+  display:flex;justify-content:center;
+  margin-bottom:18px;
+}
+.card-mark{
+  width:48px;height:48px;border-radius:14px;
+  background:var(--blue);
+  display:flex;align-items:center;justify-content:center;
+  font-size:22px;font-weight:800;color:#fff;
+  box-shadow:0 6px 20px rgba(8,118,255,0.28);
+}
+
+/* ── TAB SWITCHER ── */
+.tabs{
+  display:flex;
+  background:var(--gray-1);
+  border-radius:13px;padding:3px;
+  margin-bottom:20px;position:relative;
+}
+.tab-slider{
+  position:absolute;top:3px;bottom:3px;
+  background:var(--white);border-radius:10px;
+  box-shadow:0 1px 4px rgba(0,0,0,0.1);
+  transition:left 0.25s var(--ease),width 0.25s var(--ease);
+  pointer-events:none;
+}
+.tab{
+  flex:1;padding:9px 8px;
+  border-radius:10px;border:none;background:none;
+  font-size:14px;font-weight:600;color:var(--gray-4);
+  cursor:pointer;font-family:var(--font);
+  position:relative;z-index:1;
+  transition:color 0.2s;
+  -webkit-tap-highlight-color:transparent;
+  min-height:40px;
+}
+.tab.on{color:var(--ink);}
+
+/* ── SCREENS ── */
+.screen{display:none;animation:fadeUp 0.2s var(--ease);}
+.screen.on{display:block;}
+@keyframes fadeUp{from{opacity:0;transform:translateY(8px);}to{opacity:1;transform:translateY(0);}}
+
+/* ── FIELDS ── */
+.field{margin-bottom:12px;}
+.flbl{
+  font-size:11px;font-weight:700;
+  letter-spacing:0.06em;text-transform:uppercase;
+  color:var(--gray-4);margin-bottom:5px;display:block;
+}
+.field-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:5px;}
+.finput{
+  width:100%;padding:13px 14px;
+  border:1.5px solid var(--gray-2);border-radius:12px;
+  font-size:16px;color:var(--ink);
+  font-family:var(--font);background:var(--white);
+  outline:none;-webkit-appearance:none;
+  transition:border-color 0.15s,box-shadow 0.15s;
+  /* Prevent zoom on iOS */
+  font-size:max(16px, 1rem);
+}
 .finput:focus{border-color:var(--blue);box-shadow:0 0 0 3px rgba(8,118,255,0.08);}
 .finput::placeholder{color:var(--gray-3);}
-.field-row-right{display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;}
-.forgot-link{font-size:12px;color:var(--blue);font-weight:600;cursor:pointer;text-decoration:none;}
-.err-box{display:none;font-size:13px;color:var(--red);background:#FFF1F0;border-radius:10px;padding:11px 14px;margin-bottom:14px;align-items:center;gap:8px;}
+.finput.filled{border-color:var(--gray-3);}
+
+/* ── PASSWORD STRENGTH ── */
+.pw-strength{display:flex;gap:4px;margin-top:6px;}
+.pw-bar{flex:1;height:3px;border-radius:3px;background:var(--gray-2);transition:background 0.25s;}
+.pw-bar.weak{background:var(--red);}
+.pw-bar.ok{background:var(--blue);}
+.pw-bar.strong{background:var(--green);}
+.pw-label{font-size:11px;margin-top:5px;height:14px;transition:color 0.2s;color:transparent;}
+.pw-label.weak{color:var(--red);}
+.pw-label.ok{color:var(--blue);}
+.pw-label.strong{color:var(--green);}
+
+/* ── ERROR ── */
+.err-box{
+  display:none;
+  font-size:13px;color:var(--red);
+  background:#FFF1F0;border:1px solid #FECACA;
+  border-radius:10px;padding:11px 14px;
+  margin-bottom:12px;
+  align-items:flex-start;gap:8px;line-height:1.45;
+}
 .err-box.show{display:flex;}
-.btn-primary{width:100%;padding:15px;background:var(--blue);color:#fff;border:none;border-radius:980px;font-size:16px;font-weight:600;font-family:var(--font);cursor:pointer;box-shadow:0 4px 14px rgba(8,118,255,0.3);transition:opacity 0.15s,transform 0.15s;display:flex;align-items:center;justify-content:center;gap:8px;margin-top:8px;}
-.btn-primary:active{transform:scale(0.98);}
-.btn-primary:disabled{opacity:0.45;cursor:not-allowed;}
-.spinner{width:16px;height:16px;border:2px solid rgba(255,255,255,0.3);border-top-color:#fff;border-radius:50%;animation:spin 0.65s linear infinite;display:none;}
+
+/* ── BUTTON ── */
+.btn{
+  width:100%;padding:15px;
+  background:var(--blue);color:#fff;border:none;
+  border-radius:980px;
+  font-size:16px;font-weight:700;font-family:var(--font);
+  cursor:pointer;
+  box-shadow:0 4px 16px rgba(8,118,255,0.3);
+  display:flex;align-items:center;justify-content:center;gap:8px;
+  margin-top:4px;
+  transition:opacity 0.15s,transform 0.1s,box-shadow 0.15s;
+  -webkit-tap-highlight-color:transparent;
+  min-height:52px;
+}
+.btn:active{transform:scale(0.98);box-shadow:0 2px 8px rgba(8,118,255,0.2);}
+.btn:disabled{opacity:0.45;cursor:not-allowed;}
+.spinner{
+  width:16px;height:16px;flex-shrink:0;
+  border:2px solid rgba(255,255,255,0.3);
+  border-top-color:#fff;border-radius:50%;
+  animation:spin 0.65s linear infinite;display:none;
+}
 @keyframes spin{to{transform:rotate(360deg);}}
-.divider{display:flex;align-items:center;gap:12px;margin:20px 0;}
-.div-line{flex:1;height:1px;background:var(--gray-2);}
-.div-txt{font-size:12px;color:var(--gray-3);}
-.new-account{text-align:center;margin-top:20px;font-size:13px;color:var(--gray-4);}
-.new-account a{color:var(--blue);font-weight:600;text-decoration:none;}
-.success-wrap{display:none;flex-direction:column;align-items:center;text-align:center;padding:8px 0;}
-.success-wrap.show{display:flex;}
-.success-ring{width:60px;height:60px;border-radius:50%;background:var(--green-pale);display:flex;align-items:center;justify-content:center;margin-bottom:14px;animation:pop 0.35s cubic-bezier(0.34,1.56,0.64,1);}
-@keyframes pop{from{transform:scale(0.5);opacity:0;}to{transform:scale(1);opacity:1;}}
-.success-title{font-size:20px;font-weight:700;color:var(--ink);margin-bottom:6px;}
-.success-sub{font-size:14px;color:var(--gray-5);line-height:1.6;margin-bottom:20px;}
-/* Forgot password screen */
-.forgot-screen{display:none;}
-.forgot-screen.show{display:block;}
-.main-screen{display:block;}
-.main-screen.hide{display:none;}
-.back-link{display:flex;align-items:center;gap:5px;font-size:13px;color:var(--blue);font-weight:600;cursor:pointer;margin-bottom:20px;background:none;border:none;font-family:var(--font);}
+
+/* ── LINKS ── */
+.forgot-link{
+  font-size:12px;color:var(--blue);font-weight:600;
+  cursor:pointer;background:none;border:none;
+  font-family:var(--font);
+  min-height:32px;display:flex;align-items:center;
+  -webkit-tap-highlight-color:transparent;
+}
+.hint{
+  font-size:13px;color:var(--gray-4);
+  text-align:center;line-height:1.5;margin-top:14px;
+}
+.hint a,.hint button{
+  color:var(--blue);font-weight:600;
+  text-decoration:none;background:none;border:none;
+  font-family:var(--font);font-size:13px;cursor:pointer;
+  -webkit-tap-highlight-color:transparent;
+}
+
+/* ── FREE BADGE ── */
+.free-badge{
+  display:inline-flex;align-items:center;gap:5px;
+  background:var(--green-pale);
+  border:1px solid rgba(0,192,118,0.2);
+  border-radius:20px;padding:5px 12px;
+  font-size:12px;font-weight:700;color:var(--green);
+  margin-bottom:16px;
+}
+
+/* ── SUCCESS ── */
+.success-wrap{
+  display:none;
+  flex-direction:column;align-items:center;
+  text-align:center;padding:12px 0;
+}
+.success-wrap.show{display:flex;animation:fadeUp 0.3s var(--ease);}
+.success-ring{
+  width:64px;height:64px;border-radius:50%;
+  background:var(--green-pale);
+  display:flex;align-items:center;justify-content:center;
+  margin-bottom:16px;
+  animation:pop 0.4s cubic-bezier(0.34,1.56,0.64,1);
+}
+@keyframes pop{from{transform:scale(0.4);opacity:0;}to{transform:scale(1);opacity:1;}}
+.success-title{font-size:22px;font-weight:700;letter-spacing:-0.4px;color:var(--ink);margin-bottom:6px;}
+.success-sub{font-size:14px;color:var(--gray-5);line-height:1.6;}
+
+/* ── FORGOT ── */
+.back-btn{
+  display:flex;align-items:center;gap:6px;
+  font-size:13px;color:var(--blue);font-weight:600;
+  cursor:pointer;background:none;border:none;
+  font-family:var(--font);margin-bottom:18px;
+  min-height:40px;
+  -webkit-tap-highlight-color:transparent;
+}
+.forgot-title{font-size:18px;font-weight:700;color:var(--ink);margin-bottom:6px;}
+.forgot-desc{font-size:13px;color:var(--gray-5);line-height:1.6;margin-bottom:18px;}
+
+/* ── SOCIAL PROOF ── */
+.proof{
+  display:flex;align-items:center;justify-content:center;gap:8px;
+  width:100%;max-width:420px;
+}
+.proof-avatars{display:flex;}
+.proof-av{
+  width:24px;height:24px;border-radius:50%;
+  border:2px solid var(--gray-1);
+  display:flex;align-items:center;justify-content:center;
+  font-size:9px;font-weight:700;
+  margin-left:-7px;flex-shrink:0;
+}
+.proof-av:first-child{margin-left:0;}
+.proof-txt{font-size:12px;color:var(--gray-4);line-height:1.4;}
+.proof-txt strong{color:var(--gray-5);font-weight:700;}
+
+/* ── TABLET / DESKTOP SPLIT LAYOUT ── */
+@media(min-width:768px){
+  body{background:#EDF0F5;}
+  .main{
+    flex-direction:row;
+    align-items:center;
+    justify-content:center;
+    gap:48px;
+    padding-top:calc(var(--hdr) + env(safe-area-inset-top));
+    min-height:100dvh;
+  }
+  .card{max-width:400px;flex-shrink:0;}
+  .side-panel{
+    display:flex;
+    flex-direction:column;
+    gap:24px;
+    max-width:340px;
+  }
+  .proof{justify-content:flex-start;}
+  .side-title{font-size:28px;font-weight:800;letter-spacing:-0.8px;color:var(--ink);line-height:1.2;}
+  .side-title em{font-style:normal;color:var(--blue);}
+  .side-desc{font-size:15px;color:var(--gray-5);line-height:1.7;}
+  .side-features{display:flex;flex-direction:column;gap:12px;}
+  .side-feat{display:flex;align-items:flex-start;gap:12px;}
+  .side-feat-icon{width:32px;height:32px;border-radius:9px;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+  .side-feat-text{font-size:13px;color:var(--gray-5);line-height:1.55;}
+  .side-feat-text strong{color:var(--ink);display:block;font-size:14px;margin-bottom:1px;}
+}
+
+/* ── SMALL PHONE — collapse logo, tighten padding ── */
+@media(max-height:680px){
+  .card-logo{display:none;}
+  .card{padding:20px 18px 18px;}
+  .field{margin-bottom:10px;}
+  .tabs{margin-bottom:16px;}
+  .btn{min-height:48px;padding:13px;}
+  .hint{margin-top:10px;}
+}
+
+/* ── VERY SMALL (SE 1st gen, 320px) ── */
+@media(max-width:374px){
+  .card{border-radius:20px;padding:18px 16px;}
+  .tab{font-size:13px;padding:8px 4px;}
+  .finput{padding:12px 12px;}
+  .btn{font-size:15px;}
+}
+
+/* ── LANDSCAPE PHONE ── */
+@media(max-height:500px) and (orientation:landscape){
+  .card-logo{display:none;}
+  .main{
+    flex-direction:row;
+    align-items:flex-start;
+    justify-content:center;
+    padding-top:calc(var(--hdr) + env(safe-area-inset-top) + 12px);
+    gap:16px;
+  }
+  .card{max-width:360px;}
+  .proof{display:none;}
+  .field{margin-bottom:8px;}
+  .tabs{margin-bottom:14px;}
+  .btn{min-height:44px;padding:12px;}
+  .hint{margin-top:10px;font-size:12px;}
+  .free-badge{margin-bottom:12px;}
+}
 </style>
 </head>
 <body>
+
 <header class="hdr">
-  <a href="/" class="hdr-logo"><div class="hdr-mark">P</div>PepTrak</a>
-  <a href="/" class="hdr-back">
-    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="15 18 9 12 15 6"/></svg>Back
+  <a href="/" class="hdr-logo">
+    <div class="hdr-mark">P</div>
+    PepTrak
   </a>
 </header>
 
-<div class="card">
+<div class="main" id="main">
 
-  <!-- MAIN SIGN IN -->
-  <div id="main-screen" class="main-screen">
-    <div id="form-wrap">
-      <div class="card-logo"><div class="card-mark">P</div></div>
-      <div class="card-title">Welcome back</div>
-      <div class="card-sub">Sign in to your PepTrak account</div>
-
-      <div class="err-box" id="err-box">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
-        <span id="err-txt"></span>
-      </div>
-
-      <div class="field">
-        <label class="flbl" for="f-email">Email</label>
-        <input class="finput" id="f-email" type="email" placeholder="you@example.com" autocomplete="email" autocapitalize="none"/>
-      </div>
-      <div class="field">
-        <div class="field-row-right">
-          <label class="flbl" for="f-password" style="margin-bottom:0;">Password</label>
-          <span class="forgot-link" onclick="showForgot()">Forgot password?</span>
+  <!-- SIDE PANEL — desktop/tablet only, hidden on mobile via CSS -->
+  <div class="side-panel" style="display:none;" id="side-panel">
+    <div class="side-title">Your peptide protocol,<br><em>completely free.</em></div>
+    <div class="side-desc">Answer 17 questions about your goals and biology. Our AI builds a personalized research protocol based on your exact biometrics.</div>
+    <div class="side-features">
+      <div class="side-feat">
+        <div class="side-feat-icon" style="background:var(--blue-pale);">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#0876FF" stroke-width="2.2" stroke-linecap="round"><path d="M9 3H5a2 2 0 00-2 2v4m6-6h10a2 2 0 012 2v4M9 3v18m0 0h10a2 2 0 002-2V9M9 21H5a2 2 0 01-2-2V9m0 0h18"/></svg>
         </div>
-        <input class="finput" id="f-password" type="password" placeholder="Your password" autocomplete="current-password"/>
+        <div class="side-feat-text"><strong>Personalized protocol</strong>Compounds, doses, and timing built for your exact biometrics — not a template.</div>
       </div>
-
-      <button class="btn-primary" id="signin-btn" onclick="handleSignIn()">
-        <span id="btn-txt">Sign In</span>
-        <div class="spinner" id="spinner"></div>
-      </button>
-
-      <div class="divider"><div class="div-line"></div><div class="div-txt">New to PepTrak?</div><div class="div-line"></div></div>
-      <div class="new-account"><a href="/onboarding">Build your free protocol →</a></div>
+      <div class="side-feat">
+        <div class="side-feat-icon" style="background:var(--green-pale);">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#00C076" stroke-width="2.2" stroke-linecap="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+        </div>
+        <div class="side-feat-text"><strong>Daily dose tracker</strong>Log each injection, build streaks, track adherence across your full cycle.</div>
+      </div>
+      <div class="side-feat">
+        <div class="side-feat-icon" style="background:rgba(240,165,0,0.1);">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#F0A500" stroke-width="2.2" stroke-linecap="round"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
+        </div>
+        <div class="side-feat-text"><strong>Alex — AI research advisor</strong>Knows your full protocol. Ask anything, get specific answers for your exact stack.</div>
+      </div>
     </div>
-
-    <!-- Success -->
-    <div class="success-wrap" id="success-wrap">
-      <div class="success-ring">
-        <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#00C076" stroke-width="2.5" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg>
+    <div class="proof">
+      <div class="proof-avatars">
+        <div class="proof-av" style="background:#EEF4FF;color:#0557CC;">G</div>
+        <div class="proof-av" style="background:var(--green-pale);color:#00A065;">R</div>
+        <div class="proof-av" style="background:rgba(240,165,0,0.1);color:#B07A00;">A</div>
       </div>
-      <div class="success-title">You're in</div>
-      <div class="success-sub">Taking you to your dashboard...</div>
+      <div class="proof-txt"><strong>Free forever</strong> — join researchers already tracking</div>
     </div>
   </div>
 
-  <!-- FORGOT PASSWORD -->
-  <div id="forgot-screen" class="forgot-screen">
-    <button class="back-link" onclick="showMain()">
-      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="15 18 9 12 15 6"/></svg>Back to sign in
-    </button>
-    <div class="card-title" style="text-align:left;font-size:18px;margin-bottom:6px;">Reset password</div>
-    <div class="card-sub" style="text-align:left;margin-bottom:20px;">This only works on the same device you signed up on. If you're on a new device, sign in with your email — your account will be restored.</div>
+  <!-- CARD -->
+  <div class="card">
 
-    <div class="err-box" id="forgot-err-box">
-      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
-      <span id="forgot-err-txt"></span>
-    </div>
+    <div class="card-logo"><div class="card-mark">P</div></div>
 
-    <div class="field">
-      <label class="flbl">Email</label>
-      <input class="finput" id="f-reset-email" type="email" placeholder="you@example.com" autocapitalize="none"/>
-    </div>
-    <div class="field">
-      <label class="flbl">New Password</label>
-      <input class="finput" id="f-new-password" type="password" placeholder="Min. 8 characters"/>
-    </div>
-    <div class="field">
-      <label class="flbl">Confirm New Password</label>
-      <input class="finput" id="f-confirm-password" type="password" placeholder="Repeat password"/>
+    <!-- Tab bar -->
+    <div class="tabs" id="tabs">
+      <div class="tab-slider" id="tab-slider"></div>
+      <button class="tab on" id="tab-signup" onclick="switchTab('signup')">Create account</button>
+      <button class="tab" id="tab-signin" onclick="switchTab('signin')">Sign in</button>
     </div>
 
-    <button class="btn-primary" onclick="handleReset()">Reset Password</button>
+    <!-- ── SIGNUP ── -->
+    <div class="screen on" id="screen-signup">
+      <div id="signup-form">
 
-    <div id="reset-success" style="display:none;text-align:center;margin-top:16px;font-size:13px;color:var(--green);font-weight:600;">
-      ✓ Password updated. <a href="/signin" style="color:var(--blue);">Sign in now</a>
+        <div style="display:flex;justify-content:center;">
+          <div class="free-badge">
+            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg>
+            Free forever &mdash; no credit card
+          </div>
+        </div>
+
+        <div class="err-box" id="signup-err">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" style="flex-shrink:0;margin-top:1px;"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+          <span id="signup-err-txt"></span>
+        </div>
+
+        <div class="field">
+          <label class="flbl" for="su-name">First name</label>
+          <input class="finput" id="su-name" type="text" placeholder="Noah"
+            autocomplete="given-name" autocapitalize="words" spellcheck="false"
+            oninput="this.classList.toggle('filled',this.value.length>0)"/>
+        </div>
+        <div class="field">
+          <label class="flbl" for="su-email">Email</label>
+          <input class="finput" id="su-email" type="email" placeholder="you@example.com"
+            autocomplete="email" autocapitalize="none" autocorrect="off" spellcheck="false"
+            oninput="this.classList.toggle('filled',this.value.length>0)"/>
+        </div>
+        <div class="field">
+          <label class="flbl" for="su-pw">Password</label>
+          <input class="finput" id="su-pw" type="password" placeholder="Min. 8 characters"
+            autocomplete="new-password"
+            oninput="checkStrength(this.value)"/>
+          <div class="pw-strength">
+            <div class="pw-bar" id="pw-1"></div>
+            <div class="pw-bar" id="pw-2"></div>
+            <div class="pw-bar" id="pw-3"></div>
+          </div>
+          <div class="pw-label" id="pw-label">&nbsp;</div>
+        </div>
+
+        <button class="btn" id="signup-btn" onclick="handleSignUp()">
+          <span id="signup-btn-txt">Create account &amp; build my protocol</span>
+          <div class="spinner" id="signup-spinner"></div>
+        </button>
+
+        <div class="hint">Already have an account? <button onclick="switchTab('signin')">Sign in</button></div>
+      </div>
+      <div class="success-wrap" id="signup-success">
+        <div class="success-ring"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#00C076" stroke-width="2.5" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg></div>
+        <div class="success-title">Account created</div>
+        <div class="success-sub">Building your protocol questionnaire...</div>
+      </div>
     </div>
+
+    <!-- ── SIGN IN ── -->
+    <div class="screen" id="screen-signin">
+      <div id="signin-form">
+        <div class="err-box" id="signin-err">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" style="flex-shrink:0;margin-top:1px;"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+          <span id="signin-err-txt"></span>
+        </div>
+        <div class="field">
+          <label class="flbl" for="si-email">Email</label>
+          <input class="finput" id="si-email" type="email" placeholder="you@example.com"
+            autocomplete="email" autocapitalize="none" autocorrect="off" spellcheck="false"
+            oninput="this.classList.toggle('filled',this.value.length>0)"/>
+        </div>
+        <div class="field">
+          <div class="field-row">
+            <label class="flbl" for="si-pw" style="margin-bottom:0;">Password</label>
+            <button class="forgot-link" onclick="switchTab('forgot')">Forgot password?</button>
+          </div>
+          <input class="finput" id="si-pw" type="password" placeholder="Your password"
+            autocomplete="current-password"
+            oninput="this.classList.toggle('filled',this.value.length>0)"/>
+        </div>
+        <button class="btn" id="signin-btn" onclick="handleSignIn()">
+          <span id="signin-btn-txt">Sign in</span>
+          <div class="spinner" id="signin-spinner"></div>
+        </button>
+        <div class="hint">New to PepTrak? <button onclick="switchTab('signup')">Create a free account</button></div>
+      </div>
+      <div class="success-wrap" id="signin-success">
+        <div class="success-ring"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#00C076" stroke-width="2.5" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg></div>
+        <div class="success-title">You're in</div>
+        <div class="success-sub">Loading your protocol...</div>
+      </div>
+    </div>
+
+    <!-- ── FORGOT ── -->
+    <div class="screen" id="screen-forgot">
+      <button class="back-btn" onclick="switchTab('signin')">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="15 18 9 12 15 6"/></svg>
+        Back to sign in
+      </button>
+      <div class="forgot-title">Reset password</div>
+      <div class="forgot-desc">Works on the device you signed up on. On a new device, just sign in with your email — your data restores automatically.</div>
+      <div class="err-box" id="reset-err">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" style="flex-shrink:0;margin-top:1px;"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+        <span id="reset-err-txt"></span>
+      </div>
+      <div class="field"><label class="flbl">Email</label><input class="finput" id="r-email" type="email" placeholder="you@example.com" autocapitalize="none" autocorrect="off"/></div>
+      <div class="field"><label class="flbl">New password</label><input class="finput" id="r-pw" type="password" placeholder="Min. 8 characters"/></div>
+      <div class="field"><label class="flbl">Confirm password</label><input class="finput" id="r-pw2" type="password" placeholder="Repeat password"/></div>
+      <button class="btn" onclick="handleReset()">Reset password</button>
+      <div id="reset-ok" style="display:none;text-align:center;margin-top:14px;font-size:13px;color:var(--green);font-weight:600;">✓ Password updated. <a href="/signin" style="color:var(--blue);">Sign in now</a></div>
+    </div>
+
+  </div>
+
+  <!-- Social proof — mobile only, shown below card -->
+  <div class="proof" id="proof-mobile">
+    <div class="proof-avatars">
+      <div class="proof-av" style="background:#EEF4FF;color:#0557CC;">G</div>
+      <div class="proof-av" style="background:var(--green-pale);color:#00A065;">R</div>
+      <div class="proof-av" style="background:rgba(240,165,0,0.1);color:#B07A00;">A</div>
+    </div>
+    <div class="proof-txt"><strong>Free forever</strong> — join researchers already tracking</div>
   </div>
 
 </div>
 
 <script>
-async function hashPassword(password){
-  var encoder = new TextEncoder();
-  var data = encoder.encode(password + 'peptrak_salt_2026');
-  var hash = await crypto.subtle.digest('SHA-256', data);
-  return Array.from(new Uint8Array(hash)).map(function(b){ return b.toString(16).padStart(2,'0'); }).join('');
-}
+var cur = 'signup';
 
-// ── TEST ACCOUNT: RANDOMIZED INTAKE ──
-function injectTestIntake(plan){
-  var goals = ['fat_loss','muscle','recovery','brain','sleep_gh','anti_aging'];
-  var secondaryPools = {
-    fat_loss:['recovery','sleep_gh','brain'],
-    muscle:['recovery','sleep_gh','fat_loss'],
-    recovery:['sleep_gh','muscle','brain'],
-    brain:['sleep_gh','recovery','fat_loss'],
-    sleep_gh:['recovery','muscle','brain'],
-    anti_aging:['recovery','brain','sleep_gh']
-  };
-  var timelines = ['30','60','90','ongoing'];
-  var budgets = ['75_150','150_300','300_plus'];
-  var sexes = ['male','female'];
-  var ages = ['18-24','25-34','35-44','45-54'];
-  var bodyComps = ['lean','average','overweight'];
-  var trainings = ['light','moderate','active','athlete'];
-  var sports = ['strength','bodybuilding','combat','endurance','crossfit','recreational'];
-  var sleeps = ['excellent','good','fair','poor'];
-  var stresses = ['low','moderate','high'];
-  var alcohols = ['none','occasional','moderate'];
-  var experiences = ['none','some','intermediate','advanced'];
-  var injComforts = ['nervous','okay','comfortable'];
-  var names = ['Alex','Jordan','Taylor','Morgan','Casey','Riley','Sam','Drew'];
-  function pick(arr){ return arr[Math.floor(Math.random()*arr.length)]; }
-  var goal1 = pick(goals);
-  var goal2 = [pick(secondaryPools[goal1])];
-  var sex = pick(sexes);
-  var weightLbs, heightFt, heightIn;
-  if(sex === 'male'){ weightLbs = 155 + Math.floor(Math.random()*85); heightFt = 5; heightIn = 7 + Math.floor(Math.random()*6); }
-  else { weightLbs = 115 + Math.floor(Math.random()*65); heightFt = 5; heightIn = 2 + Math.floor(Math.random()*7); }
-  var totalIn = heightFt*12 + heightIn;
-  var heightCm = Math.round(totalIn*2.54);
-  var weightKg = Math.round(weightLbs*0.453592*10)/10;
-  var bmi = Math.round(weightKg/Math.pow(heightCm/100,2)*10)/10;
-  var bloodwork = {};
-  if(Math.random() > 0.5){
-    if(sex==='male') bloodwork.test = 400 + Math.floor(Math.random()*500);
-    bloodwork.igf1 = 120 + Math.floor(Math.random()*180);
-    bloodwork.tsh = Math.round((0.8 + Math.random()*2.8)*10)/10;
-    if(Math.random()>0.5) bloodwork.cortisol = 8 + Math.floor(Math.random()*14);
+function switchTab(tab){
+  cur = tab;
+  var isForgot = tab==='forgot';
+  document.getElementById('tabs').style.display = isForgot?'none':'flex';
+  document.getElementById('proof-mobile').style.display = isForgot?'none':'flex';
+
+  if(!isForgot){
+    document.getElementById('tab-signup').classList.toggle('on',tab==='signup');
+    document.getElementById('tab-signin').classList.toggle('on',tab==='signin');
+    posSlider(tab);
   }
-  var intake = {
-    goal1:goal1, goal2:goal2, timeline:pick(timelines), budget:pick(budgets),
-    sex:sex, age:pick(ages), unit:'imperial',
-    height_ft:heightFt, height_in:heightIn, height_cm:heightCm,
-    weight_lbs:weightLbs, weight_kg:weightKg, bmi:bmi,
-    body_comp:pick(bodyComps), training:pick(trainings), sport:pick(sports),
-    sleep:pick(sleeps), stress:pick(stresses), alcohol:pick(alcohols),
-    conditions:['none'], medications:['none'],
-    experience:pick(experiences), injection_comfort:pick(injComforts),
-    bloodwork:bloodwork, first_name:pick(names),
-    email:'test@peptrak.com', plan:plan||'monthly'
-  };
-  localStorage.setItem('peptrak_intake', JSON.stringify(intake));
-  localStorage.setItem('peptrak_intake_ts', Date.now().toString());
-  localStorage.removeItem('peptrak_protocol');
-  localStorage.removeItem('peptrak_protocol_ts');
+  ['signup','signin','forgot'].forEach(function(s){
+    document.getElementById('screen-'+s).classList.toggle('on',s===tab);
+  });
+  // Focus first input after animation
+  setTimeout(function(){
+    var inputs = document.getElementById('screen-'+tab).querySelectorAll('input:not([type=hidden])');
+    if(inputs.length && !isMobileKeyboardOpen()) inputs[0].focus();
+  }, 80);
 }
 
-// Pre-fill email if known
-(function(){
-  var intake = {};
-  try{ intake = JSON.parse(localStorage.getItem('peptrak_intake')||'{}'); }catch(e){}
-  var savedEmail = localStorage.getItem('peptrak_auth_email') || intake.email || '';
-  if(savedEmail) document.getElementById('f-email').value = savedEmail;
-})();
+function isMobileKeyboardOpen(){
+  return window.innerWidth < 768 && window.visualViewport && window.visualViewport.height < window.innerHeight * 0.75;
+}
 
+function posSlider(tab){
+  var slider = document.getElementById('tab-slider');
+  var ref = document.getElementById('tab-'+tab);
+  if(!ref) return;
+  slider.style.left = ref.offsetLeft+'px';
+  slider.style.width = ref.offsetWidth+'px';
+}
+
+// Password strength
+function checkStrength(val){
+  var bars=[document.getElementById('pw-1'),document.getElementById('pw-2'),document.getElementById('pw-3')];
+  var lbl=document.getElementById('pw-label');
+  bars.forEach(function(b){b.className='pw-bar';});
+  lbl.className='pw-label';lbl.innerHTML='&nbsp;';
+  if(!val)return;
+  var score=0;
+  if(val.length>=8)score=1;
+  if(val.length>=10&&(/[0-9]/.test(val)||/[^a-zA-Z]/.test(val)))score=2;
+  if(val.length>=12&&/[0-9]/.test(val)&&/[^a-zA-Z0-9]/.test(val))score=3;
+  if(val.length>=8&&/[A-Z]/.test(val)&&/[0-9]/.test(val))score=Math.max(score,2);
+  var cls=score===1?'weak':score===2?'ok':'strong';
+  var txt=score===1?'Weak — add numbers or symbols':score===2?'Good — almost there':'Strong';
+  for(var i=0;i<score;i++)bars[i].classList.add(cls);
+  lbl.classList.add(cls);lbl.textContent=txt;
+}
+
+// Hash
+async function hashPassword(pw){
+  var data=new TextEncoder().encode(pw+'peptrak_salt_2026');
+  var hash=await crypto.subtle.digest('SHA-256',data);
+  return Array.from(new Uint8Array(hash)).map(function(b){return b.toString(16).padStart(2,'0');}).join('');
+}
+
+// Sign up
+async function handleSignUp(){
+  var name=document.getElementById('su-name').value.trim();
+  var email=document.getElementById('su-email').value.trim().toLowerCase();
+  var pw=document.getElementById('su-pw').value;
+  clearErr('signup');
+  if(!name){showErr('signup','Please enter your first name.');return;}
+  if(!email||!email.includes('@')){showErr('signup','Please enter a valid email.');return;}
+  if(pw.length<8){showErr('signup','Password must be at least 8 characters.');return;}
+  setLoading('signup',true);
+  var hash=await hashPassword(pw);
+  localStorage.setItem('peptrak_auth_email',email);
+  localStorage.setItem('peptrak_auth_pw',hash);
+  localStorage.removeItem('peptrak_test_account');
+  localStorage.removeItem('peptrak_paid');
+  var intake={};try{intake=JSON.parse(localStorage.getItem('peptrak_intake')||'{}');}catch(e){}
+  intake.first_name=name;intake.email=email;
+  localStorage.setItem('peptrak_intake',JSON.stringify(intake));
+  fetch('/api/supabase?action=upsert-user',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({email:email,name:name,status:'free',plan:'free',authPw:hash})}).catch(function(){});
+  showSuccess('signup');
+  setTimeout(function(){window.location.href='/questionnaire';},1200);
+}
+
+// Sign in
 async function handleSignIn(){
-  var email = document.getElementById('f-email').value.trim().toLowerCase();
-  var password = document.getElementById('f-password').value;
-
-  if(!email || !email.includes('@')){ showErr('Please enter your email.'); return; }
-  if(!password){ showErr('Please enter your password.'); return; }
-
-  setLoading(true); clearErr();
-
-  var storedEmail = localStorage.getItem('peptrak_auth_email') || '';
-  var storedHash = localStorage.getItem('peptrak_auth_pw') || '';
-
-  // Check credentials
-  var inputHash = await hashPassword(password);
-
-  // Test account bypass
-  if(email === 'test@peptrak.com' && password === 'PepTrak2026!'){
-    localStorage.setItem('peptrak_paid','1');
-    localStorage.setItem('peptrak_paid_ts', Date.now().toString());
-    localStorage.setItem('peptrak_test_account','1');
+  var email=document.getElementById('si-email').value.trim().toLowerCase();
+  var pw=document.getElementById('si-pw').value;
+  clearErr('signin');
+  if(!email||!email.includes('@')){showErr('signin','Please enter your email.');return;}
+  if(!pw){showErr('signin','Please enter your password.');return;}
+  setLoading('signin',true);
+  if(email==='test@peptrak.com'&&pw==='PepTrak2026!'){
     localStorage.setItem('peptrak_auth_email','test@peptrak.com');
-    localStorage.setItem('peptrak_subscription_status','trialing');
-    var trialEndTest = new Date(); trialEndTest.setDate(trialEndTest.getDate()+21);
-    localStorage.setItem('peptrak_trial_end', trialEndTest.toISOString());
-    injectTestIntake('monthly');
-    showSuccess();
-    setTimeout(function(){ window.location.href = '/protocol'; }, 1200);
+    localStorage.setItem('peptrak_auth_pw','TEST');
+    localStorage.setItem('peptrak_test_account','1');
+    localStorage.setItem('peptrak_paid','1');
+    showSuccess('signin');
+    setTimeout(function(){window.location.href='/protocol';},1000);
     return;
   }
-
-  if(storedEmail && storedHash && email === storedEmail && inputHash === storedHash){
-    // Valid — sign in
-    showSuccess();
-    var hasProtocol = !!localStorage.getItem('peptrak_protocol');
-    setTimeout(function(){
-      window.location.href = hasProtocol ? '/tracker' : '/protocol';
-    }, 1200);
-  } else if(!storedEmail || !storedHash){
-    // No local credentials — try Supabase for cross-device login
-    try {
-      var sbRes = await fetch('/api/supabase?action=load-data?email=' + encodeURIComponent(email));
-      if(sbRes.ok){
-        var sbData = await sbRes.json();
-        if(sbData.stripeCustomerId || sbData.status){
-
-          // Verify password against stored hash (if one exists)
-          if(sbData.authPw){
-            var inputHash = await hashPassword(password);
-            if(inputHash !== sbData.authPw){
-              setLoading(false);
-              showErr('Incorrect password.');
-              return;
-            }
-          }
-          // If no stored hash yet: first cross-device login — accept and store going forward
-
-          // ── Restore subscription ──
-          localStorage.setItem('peptrak_paid', '1');
-          localStorage.setItem('peptrak_paid_ts', Date.now().toString());
-          if(sbData.stripeCustomerId) localStorage.setItem('peptrak_stripe_customer_id', sbData.stripeCustomerId);
-          if(sbData.stripeSubscriptionId) localStorage.setItem('peptrak_stripe_subscription_id', sbData.stripeSubscriptionId);
-          if(sbData.trialEnd) localStorage.setItem('peptrak_trial_end', sbData.trialEnd);
-          if(sbData.status) localStorage.setItem('peptrak_subscription_status', sbData.status);
-
-          // ── Restore credentials ──
-          localStorage.setItem('peptrak_auth_email', email);
-          var newHash = sbData.authPw || await hashPassword(password);
-          localStorage.setItem('peptrak_auth_pw', newHash);
-
-          // ── Restore all app data ──
-          if(sbData.intake) localStorage.setItem('peptrak_intake', JSON.stringify(sbData.intake));
-          if(sbData.protocol) localStorage.setItem('peptrak_protocol', JSON.stringify(sbData.protocol));
-          if(sbData.tracker) localStorage.setItem('peptrak_tracker', JSON.stringify(sbData.tracker));
-          if(sbData.advisorContext) localStorage.setItem('peptrak_advisor_context', sbData.advisorContext);
-          if(sbData.alexMemory) localStorage.setItem('peptrak_alex_memory', JSON.stringify(sbData.alexMemory));
-          if(sbData.cycleHistory) localStorage.setItem('peptrak_cycle_history', JSON.stringify(sbData.cycleHistory));
-          if(sbData.weeklyRecaps) localStorage.setItem('peptrak_weekly_recaps', JSON.stringify(sbData.weeklyRecaps));
-          if(sbData.protocolStart) localStorage.setItem('peptrak_protocol_start', String(sbData.protocolStart));
-          if(sbData.bodyMetrics) localStorage.setItem('peptrak_body_metrics', JSON.stringify(sbData.bodyMetrics));
-          if(sbData.responseProfile) localStorage.setItem('peptrak_response_profile_v1', JSON.stringify(sbData.responseProfile));
-          if(sbData.affCode) localStorage.setItem('peptrak_aff_code', sbData.affCode);
-          if(sbData.name){
-            var prof = {}; try{ prof = JSON.parse(localStorage.getItem('peptrak_profile')||'{}'); }catch(e){}
-            prof.name = sbData.name; localStorage.setItem('peptrak_profile', JSON.stringify(prof));
-          }
-
-          showSuccess();
-          // Route: if we have a protocol go straight to tracker, otherwise questionnaire
-          var dest = sbData.protocol ? '/tracker' : '/questionnaire';
-          setTimeout(function(){ window.location.href = dest; }, 1200);
-          return;
-        }
-      }
-    } catch(e){ console.error('Cross-device restore failed:', e); }
-    setLoading(false);
-    showErr('No account found. Check your email or complete onboarding — your subscription will restore automatically.');
-  } else {
-    setLoading(false);
-    showErr('Incorrect email or password.');
+  var storedEmail=localStorage.getItem('peptrak_auth_email')||'';
+  var storedHash=localStorage.getItem('peptrak_auth_pw')||'';
+  var inputHash=await hashPassword(pw);
+  if(storedEmail&&storedHash&&email===storedEmail&&inputHash===storedHash){
+    showSuccess('signin');
+    setTimeout(function(){window.location.href=localStorage.getItem('peptrak_protocol')?'/tracker':'/questionnaire';},1000);
+    return;
   }
+  try{
+    var r=await fetch('/api/supabase?action=get-user&email='+encodeURIComponent(email));
+    var d=await r.json();
+    if(d&&(d.intake||d.protocol||d.authPw)){
+      if(d.authPw&&inputHash!==d.authPw){setLoading('signin',false);showErr('signin','Incorrect password.');return;}
+      localStorage.setItem('peptrak_auth_email',email);
+      localStorage.setItem('peptrak_auth_pw',d.authPw||inputHash);
+      if(d.intake)localStorage.setItem('peptrak_intake',JSON.stringify(d.intake));
+      if(d.protocol)localStorage.setItem('peptrak_protocol',typeof d.protocol==='string'?d.protocol:JSON.stringify(d.protocol));
+      if(d.tracker)localStorage.setItem('peptrak_tracker',typeof d.tracker==='string'?d.tracker:JSON.stringify(d.tracker));
+      if(d.advisorContext)localStorage.setItem('peptrak_advisor_context',d.advisorContext);
+      if(d.alexMemory)localStorage.setItem('peptrak_alex_memory',JSON.stringify(d.alexMemory));
+      if(d.cycleHistory)localStorage.setItem('peptrak_cycle_history',JSON.stringify(d.cycleHistory));
+      showSuccess('signin');
+      setTimeout(function(){window.location.href=d.protocol?'/tracker':'/questionnaire';},1000);
+      return;
+    }
+  }catch(e){}
+  setLoading('signin',false);
+  showErr('signin','No account found. Create a free account to get started.');
 }
 
+// Reset
 async function handleReset(){
-  var email = document.getElementById('f-reset-email').value.trim().toLowerCase();
-  var newPw = document.getElementById('f-new-password').value;
-  var confirmPw = document.getElementById('f-confirm-password').value;
-  var errBox = document.getElementById('forgot-err-box');
-  var errTxt = document.getElementById('forgot-err-txt');
+  var email=document.getElementById('r-email').value.trim().toLowerCase();
+  var pw=document.getElementById('r-pw').value;
+  var pw2=document.getElementById('r-pw2').value;
+  clearErr('reset');
+  if(!email){showErr('reset','Enter your email.');return;}
+  if(pw.length<8){showErr('reset','Password must be at least 8 characters.');return;}
+  if(pw!==pw2){showErr('reset','Passwords do not match.');return;}
+  if(email!==(localStorage.getItem('peptrak_auth_email')||'')){showErr('reset','That email does not match this device.');return;}
+  localStorage.setItem('peptrak_auth_pw',await hashPassword(pw));
+  document.getElementById('reset-ok').style.display='block';
+}
 
-  if(!email){ errBox.classList.add('show'); errTxt.textContent = 'Enter your email.'; return; }
-  if(newPw.length < 8){ errBox.classList.add('show'); errTxt.textContent = 'Password must be at least 8 characters.'; return; }
-  if(newPw !== confirmPw){ errBox.classList.add('show'); errTxt.textContent = 'Passwords do not match.'; return; }
+// Helpers
+function showErr(s,msg){
+  var id=s==='reset'?'reset':s;
+  document.getElementById(id+'-err-txt').textContent=msg;
+  document.getElementById(id+'-err').classList.add('show');
+}
+function clearErr(s){
+  var id=s==='reset'?'reset':s;
+  document.getElementById(id+'-err').classList.remove('show');
+}
+function setLoading(s,on){
+  document.getElementById(s+'-btn').disabled=on;
+  document.getElementById(s+'-btn-txt').style.display=on?'none':'';
+  document.getElementById(s+'-spinner').style.display=on?'block':'none';
+}
+function showSuccess(s){
+  setLoading(s,false);
+  document.getElementById(s+'-form').style.display='none';
+  document.getElementById(s+'-success').classList.add('show');
+  document.getElementById('proof-mobile').style.display='none';
+}
 
-  var storedEmail = localStorage.getItem('peptrak_auth_email') || '';
-  if(email !== storedEmail){
-    errBox.classList.add('show');
-    errTxt.textContent = 'That email does not match the account on this device.';
-    return;
+// Init
+window.addEventListener('load',function(){
+  posSlider('signup');
+  // Show side panel on desktop
+  if(window.innerWidth>=768){
+    document.getElementById('side-panel').style.display='flex';
+    document.getElementById('proof-mobile').style.display='none';
   }
-
-  var newHash = await hashPassword(newPw);
-  localStorage.setItem('peptrak_auth_pw', newHash);
-  document.getElementById('reset-success').style.display = 'block';
-  errBox.classList.remove('show');
-}
-
-function showForgot(){
-  document.getElementById('main-screen').classList.add('hide');
-  document.getElementById('forgot-screen').classList.add('show');
-}
-function showMain(){
-  document.getElementById('main-screen').classList.remove('hide');
-  document.getElementById('forgot-screen').classList.remove('show');
-}
-function showSuccess(){
-  setLoading(false);
-  document.getElementById('form-wrap').style.display = 'none';
-  document.getElementById('success-wrap').classList.add('show');
-}
-function setLoading(on){
-  document.getElementById('signin-btn').disabled = on;
-  document.getElementById('btn-txt').style.display = on ? 'none' : 'block';
-  document.getElementById('spinner').style.display = on ? 'block' : 'none';
-}
-function showErr(msg){ document.getElementById('err-txt').textContent = msg; document.getElementById('err-box').classList.add('show'); }
-function clearErr(){ document.getElementById('err-box').classList.remove('show'); }
-document.addEventListener('keydown', function(e){
-  if(e.key === 'Enter'){
-    var forgotVisible = document.getElementById('forgot-screen').classList.contains('show');
-    if(forgotVisible) handleReset();
-    else handleSignIn();
+  // Pre-fill
+  var saved=localStorage.getItem('peptrak_auth_email')||'';
+  if(saved){
+    document.getElementById('si-email').value=saved;
+    document.getElementById('su-email').value=saved;
+  }
+  if(window.location.search.includes('signup=1'))switchTab('signup');
+  else if(window.location.search.includes('signin=1'))switchTab('signin');
+});
+window.addEventListener('resize',function(){
+  posSlider(cur==='forgot'?'signup':cur);
+  if(window.innerWidth>=768){
+    document.getElementById('side-panel').style.display='flex';
+    document.getElementById('proof-mobile').style.display='none';
+  } else {
+    document.getElementById('side-panel').style.display='none';
+    if(cur!=='forgot') document.getElementById('proof-mobile').style.display='flex';
   }
 });
+
+// Enter key
+document.addEventListener('keydown',function(e){
+  if(e.key!=='Enter')return;
+  if(cur==='signup')handleSignUp();
+  else if(cur==='signin')handleSignIn();
+  else if(cur==='forgot')handleReset();
+});
+</script>
+
+<script>
+(function(){
+  if('serviceWorker' in navigator){
+    window.addEventListener('load',function(){
+      navigator.serviceWorker.register('/sw.js').catch(function(){});
+    });
+  }
+})();
 </script>
 </body>
 </html>

@@ -542,6 +542,13 @@ body{
 .page > *:nth-child(5){animation-delay:0.20s;}
 .page > *:nth-child(6){animation-delay:0.24s;}
 </style>
+<link rel="manifest" href="/manifest.json"/>
+<meta name="theme-color" content="#0876FF"/>
+<meta name="mobile-web-app-capable" content="yes"/>
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+<meta name="apple-mobile-web-app-status-bar-style" content="default"/>
+<meta name="apple-mobile-web-app-title" content="PepTrak"/>
+<link rel="apple-touch-icon" href="/apple-touch-icon.png"/>
 </head>
 <body>
 
@@ -1274,9 +1281,10 @@ async function handlePay(){
     if(apiData.trialEnd) localStorage.setItem('peptrak_trial_end', apiData.trialEnd);
     if(apiData.currentPeriodEnd) localStorage.setItem('peptrak_period_end', apiData.currentPeriodEnd);
 
-    // Save to Supabase (non-blocking)
+    // Save to Supabase (non-blocking) — upsert subscription + full intake
     var intakeData = {};
     try{ intakeData = JSON.parse(localStorage.getItem('peptrak_intake')||'{}'); }catch(e){}
+    // 1. Upsert subscription record
     fetch('/api/supabase?action=upsert-user', {
       method:'POST',
       headers:{'Content-Type':'application/json'},
@@ -1291,7 +1299,18 @@ async function handlePay(){
         goal: intakeData.goal1 || null,
         refCode: localStorage.getItem('peptrak_ref_code') || null
       })
-    }).catch(function(){}); // silent fail — don't block checkout
+    }).catch(function(){});
+    // 2. Save full intake to profile so it loads on any device
+    if(Object.keys(intakeData).length > 0){
+      fetch('/api/supabase?action=save-data', {
+        method:'POST',
+        headers:{'Content-Type':'application/json'},
+        body: JSON.stringify({
+          email: email,
+          intake: intakeData
+        })
+      }).catch(function(){});
+    }
 
     showSuccess();
   }catch(e){ showErr('Something went wrong. Please try again.'); setLoading(false); }
@@ -1347,6 +1366,17 @@ function saveExitEmail(){
   localStorage.setItem('peptrak_exit_email',e);
   closeModal();
 }
+</script>
+
+
+<script>
+(function(){
+  if('serviceWorker' in navigator){
+    window.addEventListener('load', function(){
+      navigator.serviceWorker.register('/sw.js').catch(function(){});
+    });
+  }
+})();
 </script>
 </body>
 </html>

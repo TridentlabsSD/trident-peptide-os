@@ -209,3 +209,10 @@ CREATE INDEX IF NOT EXISTS affiliate_commissions_status_idx      ON affiliate_co
 CREATE INDEX IF NOT EXISTS affiliate_commissions_invoice_id_idx  ON affiliate_commissions (invoice_id);
 CREATE INDEX IF NOT EXISTS affiliate_commissions_charge_id_idx   ON affiliate_commissions (stripe_charge_id);
 CREATE INDEX IF NOT EXISTS affiliate_commissions_release_at_idx  ON affiliate_commissions (release_at);
+
+
+-- Add auth_pw to user_profiles for cross-device login
+ALTER TABLE user_profiles ADD COLUMN IF NOT EXISTS auth_pw TEXT;
+
+-- Update user_subscriptions to support 'free' status
+-- (no migration needed — 'free' is just a new value for the status column)
