@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "npx serve public -l 3000",
-    "build": "npm install",
+    "build": "echo 'No build step required'",
     "deploy": "vercel --prod"
   },
   "dependencies": {
