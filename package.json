@@ -2,8 +2,16 @@
   "name": "peptrak",
   "version": "1.0.0",
   "private": true,
+  "scripts": {
+    "dev": "vercel dev",
+    "build": "npm install",
+    "deploy": "vercel --prod"
+  },
   "dependencies": {
     "stripe": "^14.0.0"
+  },
+  "devDependencies": {
+    "vercel": "latest"
   },
   "engines": {
     "node": "20.x"
