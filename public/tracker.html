@@ -56,7 +56,6 @@ body{
 /* ── PAGE ── */
 .page{max-width:520px;margin:0 auto;padding:20px 16px 24px;}
 
-
 /* ── 7-DAY STREAK DOTS ── */
 .streak-row{background:var(--white);border:1px solid var(--gray-2);border-radius:18px;padding:16px 14px 14px;margin-bottom:14px;}
 .streak-row-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;}
@@ -183,227 +182,6 @@ body{
 .note-input:focus{border-color:var(--blue);}
 .note-input::placeholder{color:var(--gray-3);}
 
-/* ── VIAL CALCULATOR ── */
-.vials{display:flex;flex-direction:column;gap:8px;margin-bottom:14px;}
-.vial-row{
-  background:var(--white);border:1px solid var(--gray-2);
-  border-radius:14px;padding:12px 14px;
-  display:flex;align-items:center;justify-content:space-between;gap:10px;
-}
-.vial-name{font-size:13px;font-weight:600;color:var(--ink);}
-.vial-sub{font-size:11px;color:var(--gray-4);margin-top:1px;}
-.vial-right{text-align:right;flex-shrink:0;}
-.vial-doses{font-size:13px;font-weight:700;color:var(--ink);}
-.vial-days{font-size:11px;margin-top:1px;}
-.vial-warn{color:var(--red);font-weight:600;}
-.vial-ok{color:var(--green);}
-
-/* ── STATS CARD ── */
-.stats-card{
-  background:var(--white);border:1px solid var(--gray-2);
-  border-radius:16px;padding:16px;
-  margin-bottom:14px;
-}
-.stats-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;}
-.stat-item{text-align:center;padding:10px 6px;background:var(--gray-1);border-radius:12px;}
-.stat-num{font-size:20px;font-weight:700;letter-spacing:-0.5px;color:var(--ink);}
-.stat-lbl{font-size:10px;color:var(--gray-4);margin-top:2px;line-height:1.3;}
-
-
-
-/* ── CONFETTI ── */
-.confetti-wrap{
-  position:fixed;inset:0;z-index:999;
-  pointer-events:none;overflow:hidden;
-}
-.confetti-piece{
-  position:absolute;
-  width:8px;height:8px;
-  border-radius:2px;
-  animation:confettiFall linear forwards;
-}
-@keyframes confettiFall{
-  0%{transform:translateY(-20px) rotate(0deg);opacity:1;}
-  100%{transform:translateY(110vh) rotate(720deg);opacity:0;}
-}
-
-/* ── MILESTONE OVERLAY ── */
-.milestone-overlay{
-  display:none;
-  position:fixed;inset:0;z-index:998;
-  background:rgba(7,9,13,0.7);backdrop-filter:blur(10px);
-  align-items:center;justify-content:center;padding:24px;
-}
-.milestone-overlay.show{display:flex;}
-.milestone-card{
-  background:#fff;border-radius:28px;padding:36px 28px;
-  text-align:center;max-width:320px;width:100%;
-  animation:pop 0.4s cubic-bezier(0.34,1.56,0.64,1);
-}
-@keyframes pop{from{transform:scale(0.7);opacity:0;}to{transform:scale(1);opacity:1;}}
-.milestone-icon{font-size:52px;margin-bottom:14px;}
-.milestone-title{font-size:24px;font-weight:700;letter-spacing:-0.5px;color:var(--ink);margin-bottom:8px;}
-.milestone-sub{font-size:14px;color:var(--gray-5);line-height:1.65;margin-bottom:24px;}
-.milestone-btn{
-  width:100%;padding:14px;
-  background:var(--blue);color:#fff;border:none;
-  border-radius:980px;font-size:15px;font-weight:600;
-  cursor:pointer;font-family:var(--font);
-}
-
-/* ── CYCLE END BANNER ── */
-.cycle-end-banner{
-  background:linear-gradient(135deg,#07090D,#1A1D23);
-  border-radius:18px;padding:20px;margin-bottom:14px;
-  position:relative;overflow:hidden;
-}
-.cycle-end-banner::before{
-  content:'';position:absolute;top:-50px;right:-50px;
-  width:180px;height:180px;
-  background:radial-gradient(circle,rgba(240,165,0,0.18),transparent 65%);
-  pointer-events:none;
-}
-.ceb-eyebrow{font-size:10px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:var(--gold);margin-bottom:6px;position:relative;z-index:1;}
-.ceb-title{font-size:18px;font-weight:700;letter-spacing:-0.3px;color:#fff;margin-bottom:4px;position:relative;z-index:1;}
-.ceb-sub{font-size:12px;color:rgba(255,255,255,0.45);margin-bottom:16px;line-height:1.5;position:relative;z-index:1;}
-.ceb-actions{display:flex;gap:8px;position:relative;z-index:1;}
-.ceb-btn{
-  flex:1;padding:11px 10px;border-radius:12px;
-  font-size:13px;font-weight:600;border:none;
-  cursor:pointer;font-family:var(--font);text-align:center;
-  text-decoration:none;display:flex;align-items:center;justify-content:center;
-  -webkit-tap-highlight-color:transparent;
-}
-.ceb-btn.primary{background:var(--blue);color:#fff;}
-.ceb-btn.secondary{background:rgba(255,255,255,0.08);color:rgba(255,255,255,0.7);}
-.ceb-btn.secondary:active,.ceb-btn.primary:active{opacity:0.8;}
-
-/* ── RECON MODAL ── */
-.modal-overlay{
-  display:none;position:fixed;inset:0;
-  background:rgba(7,9,13,0.6);backdrop-filter:blur(6px);
-  z-index:400;align-items:flex-end;justify-content:center;
-}
-.modal-overlay.open{display:flex;}
-.modal-sheet{
-  background:#fff;border-radius:22px 22px 0 0;
-  padding:20px 20px calc(28px + env(safe-area-inset-bottom));
-  width:100%;max-width:560px;
-  animation:slideUp 0.32s cubic-bezier(0.16,1,0.3,1);
-}
-@keyframes slideUp{from{transform:translateY(100%);}to{transform:translateY(0);}}
-.modal-handle{width:36px;height:4px;background:var(--gray-2);border-radius:99px;margin:0 auto 18px;}
-.modal-title{font-size:17px;font-weight:700;color:var(--ink);margin-bottom:4px;}
-.modal-sub{font-size:13px;color:var(--gray-4);margin-bottom:20px;line-height:1.5;}
-.recon-row{display:flex;gap:10px;margin-bottom:12px;align-items:flex-end;}
-.recon-field{flex:1;}
-.recon-label{font-size:10px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:var(--gray-4);margin-bottom:5px;}
-.recon-input{
-  width:100%;background:var(--gray-1);border:1.5px solid var(--gray-2);
-  border-radius:10px;padding:11px 12px;font-size:16px;
-  color:var(--ink);font-family:var(--font);outline:none;
-  transition:border-color 0.15s;
-}
-.recon-input:focus{border-color:var(--blue);}
-.recon-result{
-  background:var(--ink-2);border-radius:14px;
-  padding:16px;margin-top:4px;
-}
-.recon-result-row{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;}
-.recon-result-row:last-child{margin-bottom:0;}
-.recon-result-lbl{font-size:12px;color:rgba(255,255,255,0.45);}
-.recon-result-val{font-size:15px;font-weight:700;color:#fff;}
-.recon-result-val.blue{color:rgba(100,170,255,0.95);}
-.modal-close{
-  width:100%;padding:14px;background:var(--gray-1);border:none;
-  border-radius:12px;font-size:14px;font-weight:600;
-  color:var(--gray-5);cursor:pointer;font-family:var(--font);margin-top:14px;
-}
-
-/* ── INJECTION SITE ROTATOR ── */
-.site-rotator{
-  background:var(--white);border:1px solid var(--gray-2);
-  border-radius:16px;padding:16px;margin-bottom:14px;
-}
-.site-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;}
-.site-title{font-size:13px;font-weight:700;color:var(--ink);}
-.site-reset{font-size:11px;font-weight:600;color:var(--blue);cursor:pointer;background:none;border:none;font-family:var(--font);padding:0;}
-.site-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
-.site-zone{
-  background:var(--gray-1);border-radius:12px;
-  padding:12px;text-align:center;cursor:pointer;
-  border:1.5px solid transparent;
-  transition:all 0.18s;-webkit-tap-highlight-color:transparent;
-}
-.site-zone:active{transform:scale(0.97);}
-.site-zone.used{background:#FEF3C7;border-color:#F59E0B;}
-.site-zone.recent{background:var(--green-pale);border-color:var(--green);}
-.site-zone-name{font-size:12px;font-weight:600;color:var(--ink);}
-.site-zone.used .site-zone-name{color:#92400E;}
-.site-zone.recent .site-zone-name{color:var(--green-dark);}
-.site-zone-days{font-size:10px;color:var(--gray-4);margin-top:3px;}
-.site-zone.used .site-zone-days{color:#B45309;}
-.site-zone.recent .site-zone-days{color:var(--green-dark);}
-.site-recommend{
-  margin-top:10px;padding:10px 12px;
-  background:var(--blue-pale);border-radius:10px;
-  font-size:12px;color:var(--blue);font-weight:500;line-height:1.5;
-}
-
-/* ── CURRENT DOSES ── */
-.titration-row{
-  display:flex;align-items:center;justify-content:space-between;
-  padding:10px 0;border-bottom:1px solid var(--gray-2);
-}
-.titration-row:last-child{border-bottom:none;}
-.titration-name{font-size:13px;font-weight:600;color:var(--ink);}
-.titration-current{font-size:11px;color:var(--gray-4);margin-top:2px;}
-
-/* ── COMPOUND SIDE EFFECTS ── */
-.side-compound-select{
-  display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px;
-}
-.side-comp-pill{
-  font-size:11px;font-weight:600;padding:4px 10px;
-  border-radius:20px;border:1.5px solid var(--gray-2);
-  background:var(--white);color:var(--gray-5);
-  cursor:pointer;-webkit-tap-highlight-color:transparent;
-  transition:all 0.15s;
-}
-.side-comp-pill.sel{
-  background:var(--blue-pale);border-color:var(--blue);
-  color:var(--blue);
-}
-.side-comp-pill:active{transform:scale(0.97);}
-
-
-/* ── SUNDAY RECAP ── */
-.recap-card{background:var(--ink-2);border-radius:22px;padding:20px;margin-bottom:14px;position:relative;overflow:hidden;}
-.recap-card::before{content:'';position:absolute;top:-50px;right:-50px;width:180px;height:180px;background:radial-gradient(circle,rgba(240,165,0,0.15),transparent 65%);pointer-events:none;}
-.recap-header{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:16px;}
-.recap-eyebrow{font-size:10px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:var(--gold);margin-bottom:4px;}
-.recap-title{font-size:18px;font-weight:700;letter-spacing:-0.3px;color:#fff;}
-.recap-dismiss{width:28px;height:28px;border-radius:50%;background:rgba(255,255,255,0.08);border:none;display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;margin-top:-2px;color:rgba(255,255,255,0.4);font-size:16px;-webkit-tap-highlight-color:transparent;}
-.recap-stats{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px;}
-.recap-stat{background:rgba(255,255,255,0.06);border-radius:12px;padding:11px 13px;}
-.recap-stat-val{font-size:20px;font-weight:700;letter-spacing:-0.4px;color:#fff;line-height:1;}
-.recap-stat-val.green{color:var(--green);}
-.recap-stat-val.gold{color:var(--gold);}
-.recap-stat-val.red{color:#FF6B6B;}
-.recap-stat-lbl{font-size:10px;font-weight:600;letter-spacing:0.05em;text-transform:uppercase;color:rgba(255,255,255,0.35);margin-top:3px;}
-.recap-sides{background:rgba(255,255,255,0.05);border-radius:12px;padding:10px 13px;margin-bottom:14px;}
-.recap-sides-label{font-size:10px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:rgba(255,255,255,0.3);margin-bottom:4px;}
-.recap-sides-val{font-size:12px;color:rgba(255,255,255,0.7);font-weight:500;}
-.recap-alex{border-top:1px solid rgba(255,255,255,0.08);padding-top:14px;}
-.recap-alex-label{font-size:10px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:rgba(8,118,255,0.6);margin-bottom:6px;}
-.recap-alex-txt{font-size:13px;color:rgba(255,255,255,0.75);line-height:1.65;font-style:italic;}
-.recap-alex-loading{display:flex;align-items:center;gap:6px;}
-.recap-dot{width:4px;height:4px;border-radius:50%;background:rgba(255,255,255,0.3);animation:recapPulse 1.2s ease-in-out infinite;}
-.recap-dot:nth-child(2){animation-delay:0.2s;}
-.recap-dot:nth-child(3){animation-delay:0.4s;}
-@keyframes recapPulse{0%,80%,100%{opacity:0.3;}40%{opacity:1;}}
-
-
 /* ── INSTALL PROMPT ── */
 .install-sheet-overlay{
   display:none;position:fixed;inset:0;z-index:998;
@@ -453,52 +231,62 @@ body{
 .bnav-lbl{font-size:10px;font-weight:500;}
 .bnav-item.active .bnav-lbl{font-weight:700;}
 
-/* ── START CYCLE BANNER ── */
-.start-banner{
-  background:var(--ink-2);
-  border-radius:20px;
-  padding:22px 20px;
-  margin-bottom:16px;
+/* ── CONFETTI ── */
+.confetti-wrap{
+  position:fixed;inset:0;z-index:999;
+  pointer-events:none;overflow:hidden;
+}
+.confetti-piece{
+  position:absolute;
+  width:8px;height:8px;
+  border-radius:2px;
+  animation:confettiFall linear forwards;
+}
+@keyframes confettiFall{
+  0%{transform:translateY(-20px) rotate(0deg);opacity:1;}
+  100%{transform:translateY(110vh) rotate(720deg);opacity:0;}
+}
+
+/* ── MILESTONE OVERLAY ── */
+.milestone-overlay{
   display:none;
-  position:relative;
-  overflow:hidden;
+  position:fixed;inset:0;z-index:998;
+  background:rgba(7,9,13,0.7);backdrop-filter:blur(10px);
+  align-items:center;justify-content:center;padding:24px;
 }
-.start-banner::before{
-  content:'';position:absolute;top:-50px;right:-50px;
-  width:180px;height:180px;
-  background:radial-gradient(circle,rgba(8,118,255,0.2),transparent 65%);
-  pointer-events:none;
+.milestone-overlay.show{display:flex;}
+.milestone-card{
+  background:#fff;border-radius:28px;padding:36px 28px;
+  text-align:center;max-width:320px;width:100%;
+  animation:pop 0.4s cubic-bezier(0.34,1.56,0.64,1);
 }
-.start-banner-title{
-  font-size:17px;font-weight:700;color:#fff;
-  margin-bottom:6px;position:relative;z-index:1;
-  letter-spacing:-0.3px;line-height:1.3;
-}
-.start-banner-sub{
-  font-size:13px;color:rgba(255,255,255,0.45);
-  line-height:1.6;margin-bottom:18px;
-  position:relative;z-index:1;
-}
-.start-banner-btn{
+@keyframes pop{from{transform:scale(0.7);opacity:0;}to{transform:scale(1);opacity:1;}}
+.milestone-icon{font-size:52px;margin-bottom:14px;}
+.milestone-title{font-size:24px;font-weight:700;letter-spacing:-0.5px;color:var(--ink);margin-bottom:8px;}
+.milestone-sub{font-size:14px;color:var(--gray-5);line-height:1.65;margin-bottom:24px;}
+.milestone-btn{
   width:100%;padding:14px;
   background:var(--blue);color:#fff;border:none;
   border-radius:980px;font-size:15px;font-weight:600;
-  font-family:var(--font);cursor:pointer;
-  box-shadow:0 4px 14px rgba(8,118,255,0.35);
-  position:relative;z-index:1;
-  display:block;margin-bottom:10px;
-  -webkit-tap-highlight-color:transparent;
-  transition:opacity 0.15s;
+  cursor:pointer;font-family:var(--font);
 }
-.start-banner-btn:active{opacity:0.8;}
-.start-banner-skip{
-  display:block;width:100%;text-align:center;
-  font-size:12px;color:rgba(255,255,255,0.3);
-  background:none;border:none;font-family:var(--font);
-  cursor:pointer;padding:6px;
-  position:relative;z-index:1;
-  -webkit-tap-highlight-color:transparent;
+
+/* ── COMPOUND SIDE EFFECTS ── */
+.side-compound-select{
+  display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px;
 }
+.side-comp-pill{
+  font-size:11px;font-weight:600;padding:4px 10px;
+  border-radius:20px;border:1.5px solid var(--gray-2);
+  background:var(--white);color:var(--gray-5);
+  cursor:pointer;-webkit-tap-highlight-color:transparent;
+  transition:all 0.15s;
+}
+.side-comp-pill.sel{
+  background:var(--blue-pale);border-color:var(--blue);
+  color:var(--blue);
+}
+.side-comp-pill:active{transform:scale(0.97);}
 
 </style>
 <link rel="manifest" href="/manifest.json"/>
@@ -548,8 +336,6 @@ body{
 
 <div class="page">
 
-
-
   <!-- 7-DAY STREAK -->
   <div class="streak-row" id="streak-row-wrap">
     <div class="streak-label">This Week</div>
@@ -563,8 +349,6 @@ body{
   <!-- TODAY'S DOSES -->
   <div class="section-label">Today's Doses</div>
   <div class="doses" id="doses-list"></div>
-
-
 
   <!-- SIDE EFFECTS TOGGLE -->
   <button onclick="toggleSides()" id="sides-toggle" class="sides-toggle-btn">
@@ -595,7 +379,6 @@ body{
       <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="var(--gray-3)" stroke-width="2.5" stroke-linecap="round"><polyline points="9 18 15 12 9 6"/></svg>
     </a>
   </div>
-
 
   <!-- MANAGE PROTOCOL CARD -->
   <div style="background:var(--white);border:1px solid var(--gray-2);border-radius:16px;margin-bottom:14px;overflow:hidden;">
@@ -730,21 +513,13 @@ function getProgress(){
 function init(){
   var progress = getProgress();
   var now = new Date();
-  var hour = now.getHours();
-  var greeting = hour < 12 ? 'Good morning.' : hour < 17 ? 'Good afternoon.' : 'Good evening.';
-  var name = intake.first_name ? ', ' + intake.first_name : '';
 
-  // Hero
-  var days = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
-  var months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
   // Week pill in header
   var weekPill = document.getElementById('week-pill');
   if(weekPill && progress && progress.week){
     weekPill.textContent = 'Week ' + progress.week;
     weekPill.style.display = 'block';
   }
-  // Week shown in streak badge
-  var badge = document.getElementById('streak-badge');
 
   // Streak dots
   buildStreakDots();
@@ -906,10 +681,8 @@ function buildDoses(){
       var row = document.createElement('div');
       var cycleStarted = !!localStorage.getItem('peptrak_protocol_start');
       row.className = 'dose-row' + (taken?' taken':'') + (!cycleStarted?' not-started':'');
-      // Clean dose string - strip parenthetical titration notes
       var cleanDose = (c.dose||'').replace(/\s*\([^)]*\)/g, '').trim();
       var metaParts = [cleanDose, c.route].filter(Boolean);
-      // Shorten timing for display — long strings get clipped
       var timingShort = (c.timing||'').split(',')[0].trim().slice(0,28);
       var timingMap = {
         'Same day/time each week, morning preferred': 'Weekly · Morning',
@@ -924,7 +697,6 @@ function buildDoses(){
         'Bedtime, fasted': 'Bedtime · Fasted',
       };
       if(timingMap[timingShort]) timingShort = timingMap[timingShort];
-      // Generic shortener: if still >30 chars, truncate at last space before 30
       if(timingShort.length > 32){
         var cut = timingShort.lastIndexOf(' ', 28);
         timingShort = timingShort.slice(0, cut > 0 ? cut : 28) + '…';
@@ -950,7 +722,6 @@ function buildDoses(){
 // ── TOGGLE DOSE ──
 function toggleDose(key, idx, rowEl, compound){
   var wasTaken = dosesState[key] && dosesState[key].taken;
-
   dosesState[key] = {
     taken: !wasTaken,
     time: !wasTaken ? new Date().toTimeString().slice(0,5) : null,
@@ -959,7 +730,7 @@ function toggleDose(key, idx, rowEl, compound){
   rowEl.classList.toggle('taken', !wasTaken);
   updateProgress();
   saveToTracker();
-  setTimeout(syncToSupabase, 1000); // sync after dose tap
+  setTimeout(syncToSupabase, 1000);
 }
 
 // ── UPDATE PROGRESS ──
@@ -980,15 +751,6 @@ function updateProgress(){
     }, 400);
   }
 }
-
-// ── VIAL CALCULATOR ──
-var VIAL_SIZES = {
-  'CJC+IPA':10,'CJC-1295':5,'Ipamorelin':5,'BPC-157':5,'TB-500':5,
-  'GLOW':70,'KLOW':80,'Semax':5,'Selank':5,'Retatrutide':5,
-  'Tesamorelin':5,'AOD-9604':5,'IGF-1 LR3':1,'GHK-Cu':50,
-  'Semaglutide':5,'Tirzepatide':5,'SS-31':10,'NAD+':100
-};
-
 
 // ── SIDE CHIPS ──
 var SIDES = ['Water retention','Fatigue','Hunger changes','Mood changes','Headache','Flushing','Nausea','Sleep changes','Joint soreness','Libido changes'];
@@ -1014,17 +776,6 @@ function buildSideChips(){
   });
 }
 
-
-var WEEK_TAKES = {
-  1: "Week 1 is about consistency, not results. Just stay on schedule.",
-  2: "Sleep quality usually shifts around now — notice anything different when you wake up?",
-  3: "Recovery between sessions is the main thing to watch this week.",
-  4: "Week 4 is the results window. Body composition and energy are the markers.",
-  6: "You are past the halfway point. The compounds are fully saturated now.",
-  8: "Most people notice the compounding effect here — results build on results.",
-  12: "End of first cycle approaching. Start thinking about what you want to adjust next run."
-};
-
 function askAlexProtocol(){
   localStorage.setItem('peptrak_prefill_msg', 'I want to adjust my protocol — can you help me add or change a compound?');
   window.location.href = '/chat';
@@ -1043,25 +794,17 @@ function showToast(msg){
   setTimeout(function(){ t.style.opacity = '0'; }, 2000);
 }
 
-
 // ── INSTALL PROMPT ──
 function checkInstallPrompt(){
-  // Show if: never shown before, not already installed
   var shown = localStorage.getItem('peptrak_install_shown');
   var isStandalone = window.navigator.standalone || window.matchMedia('(display-mode: standalone)').matches;
   if(shown || isStandalone) return;
-
-  // Detect device
   var ua = navigator.userAgent;
   var isAndroid = /Android/.test(ua);
   var isIOS = /iPad|iPhone|iPod/.test(ua);
-  if(!isIOS && !isAndroid) return; // Desktop — skip
-
-  // Show correct steps
+  if(!isIOS && !isAndroid) return;
   document.getElementById('install-steps-ios').style.display = isIOS ? 'flex' : 'none';
   document.getElementById('install-steps-android').style.display = isAndroid ? 'flex' : 'none';
-
-  // Show after 3 seconds so tracker loads first
   setTimeout(function(){
     document.getElementById('install-overlay').classList.add('show');
     setTimeout(function(){
@@ -1070,6 +813,11 @@ function checkInstallPrompt(){
   }, 3000);
 }
 
+function dismissInstall(){
+  document.getElementById('install-overlay').classList.remove('show');
+  document.getElementById('install-sheet').classList.remove('show');
+  localStorage.setItem('peptrak_install_shown','1');
+}
 
 // ── TOGGLE SIDES ──
 function toggleSides(){
@@ -1102,7 +850,7 @@ function calcStreak(){
     var key = d.toISOString().split('T')[0];
     var log = trackerData.logs.find(function(l){ return l.date === key; });
     if(log && log.complete){ streak++; d.setDate(d.getDate()-1); }
-    else if(key === todayKey){ d.setDate(d.getDate()-1); } // today not complete yet, skip
+    else if(key === todayKey){ d.setDate(d.getDate()-1); }
     else break;
   }
   return streak;
@@ -1114,7 +862,6 @@ function saveToTracker(){
   var total = protocol.compounds ? protocol.compounds.length : 0;
   var done = Object.values(dosesState).filter(function(d){ return d.taken; }).length;
   var complete = total > 0 && done === total;
-
   var log = {
     date: todayKey,
     doses: dosesState,
@@ -1123,11 +870,8 @@ function saveToTracker(){
     note: (document.getElementById('note-input')||{}).value || '',
     complete: complete
   };
-
   if(logIdx > -1) trackerData.logs[logIdx] = log;
   else trackerData.logs.push(log);
-
-  // Update streak before saving
   if(complete) trackerData.streak = calcStreak();
   localStorage.setItem('peptrak_tracker', JSON.stringify(trackerData));
   showSaveToast();
@@ -1135,17 +879,14 @@ function saveToTracker(){
 
 // ── DAY COMPLETE ──
 function showDayComplete(animate){
-  // Turn streak card green
   var streakRow = document.getElementById('streak-row-wrap');
   if(streakRow) streakRow.classList.add('day-complete');
-  // Update progress text
   var ptxt = document.getElementById('streak-progress-txt');
   if(ptxt) ptxt.classList.add('complete');
   var doneEl = document.getElementById('hero-done-txt');
   if(doneEl) doneEl.textContent = 'All done — come back tomorrow';
   var pctEl = document.getElementById('hero-pct-txt');
   if(pctEl) pctEl.textContent = '100%';
-  // Update streak count in header
   var streak = calcStreak();
   document.getElementById('streak-count').textContent = streak;
   document.getElementById('streak-fire').style.opacity = streak > 0 ? '1' : '0.2';
@@ -1176,24 +917,20 @@ function triggerConfetti(){
 }
 
 // ── MILESTONE CHECK ──
-
 function checkMilestone(){
   var progress = getProgress();
   var totalWeeks = progress.totalWeeks || 12;
   var totalDays = totalWeeks * 7;
   var halfDay = Math.floor(totalDays / 2);
   var threeQDay = Math.floor(totalDays * 0.75);
-
   var MILESTONES_DYNAMIC = {
     7:  {icon:'🔥', title:'One Week Strong', sub:'First week done. The peptides are building up — keep the consistency.'},
     14: {icon:'💪', title:'Two Weeks In', sub:'Your GH pulse is responding. Most people notice sleep quality shifting around now.'},
     28: {icon:'🎯', title:'One Month Complete', sub:'This is where real results become visible. Your consistency is what got you here.'},
   };
-  // Add dynamic milestones based on actual cycle length
   MILESTONES_DYNAMIC[halfDay] = {icon:'⚡', title:'Halfway Through', sub:'Week ' + Math.round(totalWeeks/2) + ' of ' + totalWeeks + '. Compounds are fully saturated. The second half is where results compound.'};
   MILESTONES_DYNAMIC[threeQDay] = {icon:'🏃', title:'Final Quarter', sub:Math.round(totalWeeks * 0.25) + ' weeks left. Start thinking about your next cycle goals.'};
   MILESTONES_DYNAMIC[totalDays] = {icon:'🏆', title:'Cycle Complete', sub:totalWeeks + '-week cycle done. Time to assess, adjust, and plan cycle 2.'};
-
   var m = MILESTONES_DYNAMIC[progress.day];
   if(m && !localStorage.getItem('peptrak_milestone_' + progress.day)){
     localStorage.setItem('peptrak_milestone_' + progress.day, '1');
@@ -1210,506 +947,11 @@ function closeMilestone(){
   document.getElementById('milestone-overlay').classList.remove('show');
 }
 
-// ── RECON_REMOVED ──
-var _RECON_REMOVED_BLOCK_START = true;
-var _RECON_TB500 = {
-    vials:[2,5,10], defaultVial:5, defaultDose:2000, defaultUnit:'mcg',
-    bacMl:{2:1, 5:1, 10:2},
-    note:'5mg vial + 1mL = 5mg/mL; 2mg dose = 40 units. Loading: 2–5mg twice weekly for 4–6 weeks. Maintenance: 2mg once weekly. Dissolves easily — swirl gently until clear.',
-    shelf:'4–6 weeks refrigerated'
-  },
-  'GLOW (BPC-157 + TB-500 + GHK-Cu)': {
-    vials:[70], defaultVial:70, defaultDose:250, defaultUnit:'mcg',
-    bacMl:{70:3},
-    note:'70mg blend + 3mL BAC water = ~23mg/mL concentration. Each 250mcg BPC-157 equivalent ≈ 10 units on a 100u syringe. Swirl gently — high-concentration blend takes 1–2 min to fully dissolve. Store refrigerated.',
-    shelf:'4–6 weeks refrigerated'
-  },
-  'KLOW': {
-    vials:[80], defaultVial:80, defaultDose:250, defaultUnit:'mcg',
-    bacMl:{80:3},
-    note:'80mg blend + 3mL BAC water = ~27mg/mL. Swirl gently until fully dissolved. High peptide concentration — takes 1–2 min. Store refrigerated immediately after reconstitution.',
-    shelf:'4–6 weeks refrigerated'
-  },
-  'Wolverine': {
-    vials:[10,20], defaultVial:10, defaultDose:500, defaultUnit:'mcg',
-    bacMl:{10:2, 20:2},
-    note:'10mg + 2mL = 5mg/mL; 500mcg dose = 10 units. Contains IGF-1 LR3 fraction — use within 3–4 weeks. Store refrigerated.',
-    shelf:'3–4 weeks refrigerated'
-  },
-  'GHK-Cu': {
-    vials:[50,100], defaultVial:50, defaultDose:1000, defaultUnit:'mcg',
-    bacMl:{50:2, 100:2},
-    note:'50mg + 2mL = 25mg/mL; 1mg (1000mcg) dose = 4 units. Highly water soluble — dissolves quickly. Use the 50mg vial for better draw precision. Can be used SubQ or diluted further for topical application.',
-    shelf:'6–8 weeks refrigerated'
-  },
-  'Thymosin Alpha-1': {
-    vials:[5,10], defaultVial:5, defaultDose:1600, defaultUnit:'mcg',
-    bacMl:{5:1, 10:2},
-    note:'5mg + 1mL = 5mg/mL; 1.6mg (1600mcg) dose = 32 units. Standard research protocol: 1.6mg SubQ twice weekly. Use within 4 weeks after reconstitution.',
-    shelf:'4 weeks refrigerated'
-  },
-  'LL-37': {
-    vials:[5], defaultVial:5, defaultDose:100, defaultUnit:'mcg',
-    bacMl:{5:1},
-    note:'5mg + 1mL = 5mg/mL; 100mcg dose = 2 units. Low-volume draw — use a 31g insulin syringe for precision. Research doses 100–500mcg SubQ. Handle in sterile conditions.',
-    shelf:'4 weeks refrigerated'
-  },
-  'Snap-8': {
-    vials:[10], defaultVial:10, defaultDose:200, defaultUnit:'mcg',
-    bacMl:{10:2},
-    note:'10mg + 2mL = 5mg/mL. Primarily topical — dissolve and mix into serum or moisturizer. For SubQ research use: 200mcg = 4 units. Anti-wrinkle peptide (acetyl octapeptide-3).',
-    shelf:'4 weeks refrigerated'
-  },
-  'Lysine-Proline-Valine': {
-    vials:[5], defaultVial:5, defaultDose:500, defaultUnit:'mcg',
-    bacMl:{5:1},
-    note:'5mg + 1mL = 5mg/mL; 500mcg dose = 10 units. KPV tripeptide — dissolves readily. Research doses 500mcg–1mg SubQ or oral. Anti-inflammatory, studied for IBD and wound healing.',
-    shelf:'4 weeks refrigerated'
-  },
-
-  // ── GH / IGF ──
-  'CJC-1295 (no DAC)': {
-    vials:[5,10], defaultVial:5, defaultDose:100, defaultUnit:'mcg',
-    bacMl:{5:2, 10:2},
-    note:'5mg + 2mL = 2.5mg/mL; 100mcg dose = 4 units. Always dose fasted — food blunts GH release. Bedtime is optimal. Combine with Ipamorelin for synergistic GH pulse. Can be drawn in the same syringe.',
-    shelf:'4 weeks refrigerated'
-  },
-  'Ipamorelin': {
-    vials:[5,10], defaultVial:5, defaultDose:100, defaultUnit:'mcg',
-    bacMl:{5:2, 10:2},
-    note:'5mg + 2mL = 2.5mg/mL; 100mcg dose = 4 units. Cleanest GHRP — minimal cortisol or prolactin elevation. Always dose fasted. Can be mixed in same syringe as CJC-1295.',
-    shelf:'4 weeks refrigerated'
-  },
-  'CJC+IPA Blend': {
-    vials:[10], defaultVial:10, defaultDose:200, defaultUnit:'mcg',
-    bacMl:{10:2},
-    note:'10mg + 2mL = 5mg/mL; 200mcg dose = 4 units (100mcg each peptide). Dose fasted, bedtime preferred. Pre-blended for convenience — single injection delivers both peptides.',
-    shelf:'4 weeks refrigerated'
-  },
-  'Sermorelin': {
-    vials:[5,10], defaultVial:5, defaultDose:200, defaultUnit:'mcg',
-    bacMl:{5:1, 10:2},
-    note:'5mg + 1mL = 5mg/mL; 200mcg dose = 4 units. Shorter half-life than CJC — dose 30 min before sleep on an empty stomach. Tachyphylaxis develops more slowly than synthetic GHRPs.',
-    shelf:'4 weeks refrigerated'
-  },
-  'Hexarelin': {
-    vials:[2,5,10], defaultVial:5, defaultDose:100, defaultUnit:'mcg',
-    bacMl:{2:1, 5:2, 10:2},
-    note:'5mg + 2mL = 2.5mg/mL; 100mcg dose = 4 units. Most potent GHRP — expect strong GH pulse. Desensitization occurs; cycle 8 weeks on / 4 weeks off. Dose fasted.',
-    shelf:'4 weeks refrigerated'
-  },
-  'Tesamorelin': {
-    vials:[5,10,20], defaultVial:10, defaultDose:2000, defaultUnit:'mcg',
-    bacMl:{5:2, 10:2, 20:2},
-    note:'10mg + 2mL = 5mg/mL; 2mg (2000mcg) dose = 40 units. FDA-approved (Egrifta) — reconstituted vials stable 21 days refrigerated per FDA labeling. Daily SubQ injection.',
-    shelf:'21 days refrigerated (FDA-labeled)'
-  },
-  'IGF-1 LR3': {
-    vials:[0.1,1], defaultVial:1, defaultDose:40, defaultUnit:'mcg',
-    bacMl:{0.1:0.5, 1:1},
-    note:'⚠️ Requires acidic reconstitution — use 0.6% acetic acid (NOT BAC water) first. 1mg + 1mL acetic acid = 1mg/mL; 40mcg dose = 4 units. Then dilute working dose with sterile saline. Cycle 4 weeks on / 4 weeks off minimum.',
-    shelf:'3 weeks refrigerated (acetic acid)'
-  },
-  'IGF-DES': {
-    vials:[2], defaultVial:2, defaultDose:50, defaultUnit:'mcg',
-    bacMl:{2:1},
-    note:'⚠️ 2mg + 1mL = 2mg/mL; 50mcg dose = 2.5 units. Prefers acidic reconstitution. Extremely short half-life (~20 min) — inject immediately post-workout directly into trained muscle (IM). SubQ is significantly less effective for DES.',
-    shelf:'2–3 weeks refrigerated'
-  },
-  'HGH Fragment 176-191': {
-    vials:[5], defaultVial:5, defaultDose:250, defaultUnit:'mcg',
-    bacMl:{5:2},
-    note:'5mg + 2mL = 2.5mg/mL; 250mcg dose = 10 units. Always dose fasted. Morning and pre-bed are optimal windows for lipolytic effect. No GH receptor binding — purely targets fat cell beta-3 receptors.',
-    shelf:'4 weeks refrigerated'
-  },
-  'HGH': {
-    vials:[10,15,24], defaultVial:10, defaultDose:2, defaultUnit:'iu',
-    bacMl:{10:1, 15:1.5, 24:2.4},
-    note:'10IU + 1mL = 10IU/mL; 2IU dose = 20 units. Refrigerate immediately — HGH degrades rapidly at room temperature. Rotate injection sites. Use within 3 weeks of first draw from reconstituted vial.',
-    shelf:'3 weeks refrigerated after first use'
-  },
-
-  // ── GLP-1 / WEIGHT LOSS ──
-  'Semaglutide': {
-    vials:[5,10,15,20,30], defaultVial:5, defaultDose:250, defaultUnit:'mcg',
-    bacMl:{5:1, 10:2, 15:3, 20:3, 30:3},
-    note:'5mg + 1mL = 5mg/mL; 250mcg (0.25mg) dose = 5 units. Research start: 0.25mg weekly for 4 weeks, then titrate. Same day each week — consistency matters for steady-state levels. Nausea diminishes after 2–4 weeks.',
-    shelf:'4–6 weeks refrigerated'
-  },
-  'Tirzepatide': {
-    vials:[5,10,15,20], defaultVial:5, defaultDose:2500, defaultUnit:'mcg',
-    bacMl:{5:1, 10:2, 15:3, 20:3},
-    note:'5mg + 1mL = 5mg/mL; 2.5mg (2500mcg) dose = 50 units. Research start: 2.5mg weekly, increase by 2.5mg every 4 weeks. More potent than semaglutide — titrate conservatively. Weekly SubQ.',
-    shelf:'4–6 weeks refrigerated'
-  },
-  'Retatrutide': {
-    vials:[5,10,20,30,60], defaultVial:5, defaultDose:500, defaultUnit:'mcg',
-    bacMl:{5:1, 10:2, 20:2, 30:3, 60:3},
-    note:'5mg + 1mL = 5mg/mL; 500mcg (0.5mg) starting dose = 10 units. 60mg + 3mL = 20mg/mL; 2mg dose = 10 units. Research start: 0.5mg weekly. Triple agonist — titrate slowly. Weekly SubQ, same day.',
-    shelf:'4–6 weeks refrigerated'
-  },
-  'Cagrilintide': {
-    vials:[5,10], defaultVial:5, defaultDose:300, defaultUnit:'mcg',
-    bacMl:{5:1, 10:2},
-    note:'5mg + 1mL = 5mg/mL; 300mcg dose = 6 units. Research start: 0.3mg weekly, titrate to 2.4mg. Often combined with Semaglutide (CagriSema protocol). Once weekly SubQ.',
-    shelf:'4–6 weeks refrigerated'
-  },
-  'Cagrilintide+Semaglutide blend': {
-    vials:[5,10], defaultVial:5, defaultDose:250, defaultUnit:'mcg',
-    bacMl:{5:1, 10:2},
-    note:'5mg + 1mL = 5mg/mL. Dose based on Semaglutide component — start at 0.25mg weekly and titrate same as Sema monotherapy. Weekly SubQ injection.',
-    shelf:'4–6 weeks refrigerated'
-  },
-  'AOD-9604': {
-    vials:[5,10], defaultVial:5, defaultDose:300, defaultUnit:'mcg',
-    bacMl:{5:1, 10:2},
-    note:'5mg + 1mL = 5mg/mL; 300mcg dose = 6 units. Dose fasted — morning preferred. HGH fragment targeting fat-specific beta-3 receptors only. No IGF-1 elevation, no insulin resistance effect.',
-    shelf:'4 weeks refrigerated'
-  },
-  'Adipotide': {
-    vials:[2,5], defaultVial:2, defaultDose:500, defaultUnit:'mcg',
-    bacMl:{2:1, 5:1},
-    note:'2mg + 1mL = 2mg/mL; 500mcg dose = 25 units. Research doses 500mcg–1mg SubQ daily for 4–8 week cycles. Targets vasculature supplying white adipose tissue.',
-    shelf:'3–4 weeks refrigerated'
-  },
-  'Survodutide': {
-    vials:[10], defaultVial:10, defaultDose:600, defaultUnit:'mcg',
-    bacMl:{10:2},
-    note:'10mg + 2mL = 5mg/mL; 600mcg dose = 12 units. Glucagon + GLP-1 dual agonist. Research doses escalate from 0.6mg weekly. Strong metabolic effect via glucagon receptor activation.',
-    shelf:'4–6 weeks refrigerated'
-  },
-  '5-Amino-1MQ': {
-    vials:[5,10], defaultVial:5, defaultDose:50, defaultUnit:'mg',
-    bacMl:{5:1, 10:2},
-    note:'5mg + 1mL = 5mg/mL; 50mg dose — note this is a high-concentration compound dosed in mg. Research doses 50–100mg SubQ. NNMT inhibitor — novel metabolic pathway, limited long-term data.',
-    shelf:'4 weeks refrigerated'
-  },
-
-  // ── COGNITIVE / NEURO ──
-  'Semax': {
-    vials:[5,10], defaultVial:5, defaultDose:300, defaultUnit:'mcg',
-    bacMl:{5:1, 10:2},
-    note:'5mg + 1mL = 5mg/mL. Intranasal delivery — transfer to nasal spray bottle after reconstitution. Each spray pump delivers ~100mcg. Research dose: 300–600mcg (3–6 pumps). Use AM only. Effects within 30–60 min.',
-    shelf:'30 days refrigerated in nasal bottle'
-  },
-  'Selank': {
-    vials:[5,10], defaultVial:5, defaultDose:250, defaultUnit:'mcg',
-    bacMl:{5:1, 10:2},
-    note:'5mg + 1mL = 5mg/mL. Intranasal only — transfer to nasal spray. Can be combined with Semax in same bottle. Research dose: 250–750mcg. Anxiolytic effects in 30–60 min.',
-    shelf:'30 days refrigerated'
-  },
-  'Pinealon': {
-    vials:[10,15,20], defaultVial:10, defaultDose:1000, defaultUnit:'mcg',
-    bacMl:{10:2, 15:3, 20:3},
-    note:'10mg + 2mL = 5mg/mL; 1mg (1000mcg) dose = 20 units. SubQ or intranasal. Research: 1–5mg/day for 10-day courses. Morning dosing preferred. Dissolves quickly.',
-    shelf:'4 weeks refrigerated'
-  },
-  'Cerebrolysin': {
-    vials:[60], defaultVial:60, defaultDose:10, defaultUnit:'mg',
-    bacMl:{60:3},
-    note:'60mg + 3mL = 20mg/mL; 10mg dose = 50 units. IM injection strongly preferred. Clinical protocols use 10–30mL IV — for research SubQ use, 10mg IM is standard starting point. Do not mix with other compounds.',
-    shelf:'Use same session after reconstitution'
-  },
-  'PT-141': {
-    vials:[10], defaultVial:10, defaultDose:1000, defaultUnit:'mcg',
-    bacMl:{10:2},
-    note:'10mg + 2mL = 5mg/mL; 1mg (1000mcg) dose = 20 units. Dose 1–2 hours before activity. SubQ preferred over intranasal for consistent absorption. Start at 500mcg — flushing and nausea common above 2mg.',
-    shelf:'4 weeks refrigerated'
-  },
-  'Oxytocin Acetate': {
-    vials:[2,5], defaultVial:2, defaultDose:100, defaultUnit:'iu',
-    bacMl:{2:1, 5:2},
-    note:'2mg + 1mL = 2mg/mL. Oxytocin is dosed in IU — verify IU content on your specific vial (typically ~500IU per mg). SubQ or intranasal. Research doses 10–40IU. Refrigerate immediately — temperature sensitive.',
-    shelf:'4 weeks refrigerated'
-  },
-  'KissPeptin': {
-    vials:[5,10], defaultVial:5, defaultDose:100, defaultUnit:'mcg',
-    bacMl:{5:1, 10:2},
-    note:'5mg + 1mL = 5mg/mL; 100mcg dose = 2 units. Research doses 1–100mcg SubQ. LH/FSH stimulator via GnRH pathway. Verify whether your vial is Kisspeptin-10 or Kisspeptin-54. Use 31g syringe for low-volume precision.',
-    shelf:'4 weeks refrigerated'
-  },
-
-  // ── LONGEVITY ──
-  'Epithalon': {
-    vials:[10,50], defaultVial:10, defaultDose:5000, defaultUnit:'mcg',
-    bacMl:{10:2, 50:2},
-    note:'10mg + 2mL = 5mg/mL; 5mg (5000mcg) dose = 100 units. Research protocol: 5–10mg/day for 10 consecutive days, 2–4 cycles per year. Store lyophilized powder frozen until use — refrigerate after reconstitution.',
-    shelf:'30 days refrigerated (store powder frozen)'
-  },
-  'SS-31': {
-    vials:[10,50], defaultVial:10, defaultDose:5000, defaultUnit:'mcg',
-    bacMl:{10:1, 50:2},
-    note:'10mg + 1mL = 10mg/mL; 5mg (5000mcg) dose = 50 units. Mitochondrial membrane-targeted. SubQ or IM. Research doses 10–40mg — note these are mg, not mcg. Use fresh BAC water.',
-    shelf:'3–4 weeks refrigerated'
-  },
-  'MOTS-c': {
-    vials:[10,40], defaultVial:10, defaultDose:5000, defaultUnit:'mcg',
-    bacMl:{10:1, 40:2},
-    note:'10mg + 1mL = 10mg/mL; 5mg (5000mcg) dose = 50 units. Research doses 5–15mg SubQ, 3–5x per week. First mitochondria-encoded peptide. Morning dosing preferred.',
-    shelf:'3–4 weeks refrigerated'
-  },
-  'NAD+': {
-    vials:[100,500,1000], defaultVial:500, defaultDose:100, defaultUnit:'mg',
-    bacMl:{100:1, 500:1, 1000:2},
-    note:'500mg + 1mL = 500mg/mL; 100mg dose = 20 units. 1000mg + 2mL = 500mg/mL; 100mg dose = 20 units. ⚠️ Inject slowly — rapid injection causes flushing, nausea, and chest tightness. SubQ over 30–60 seconds. Use within 24h of reconstitution.',
-    shelf:'24 hours after reconstitution'
-  },
-  'Thymalin': {
-    vials:[10], defaultVial:10, defaultDose:5000, defaultUnit:'mcg',
-    bacMl:{10:2},
-    note:'10mg + 2mL = 5mg/mL; 5mg (5000mcg) dose = 100 units. Research: 5–10mg/day IM for 10 days, 1–2 cycles per year. Thymus-derived immune modulator. Often stacked with Epithalon.',
-    shelf:'4 weeks refrigerated'
-  },
-  'SLU-PP-322': {
-    vials:[5], defaultVial:5, defaultDose:5, defaultUnit:'mg',
-    bacMl:{5:1},
-    note:'5mg + 1mL = 5mg/mL; 5mg dose = 100 units. ERR nuclear receptor agonist — exercise mimetic. Very limited human data. Research doses 5–10mg SubQ. Handle as experimental compound.',
-    shelf:'4 weeks refrigerated'
-  },
-  'FOX04': {
-    vials:[10], defaultVial:10, defaultDose:1000, defaultUnit:'mcg',
-    bacMl:{10:2},
-    note:'10mg + 2mL = 5mg/mL; 1mg (1000mcg) dose = 20 units. Senolytic peptide — research doses 1–3mg SubQ/IP for 3 consecutive days per month. Selectively induces apoptosis in senescent cells. Very experimental.',
-    shelf:'4 weeks refrigerated'
-  },
-  'AICAR': {
-    vials:[50], defaultVial:50, defaultDose:10, defaultUnit:'mg',
-    bacMl:{50:1},
-    note:'50mg + 1mL = 50mg/mL; 10mg dose = 20 units. AMPK activator — exercise mimetic. Research doses 10–50mg SubQ daily. Store refrigerated.',
-    shelf:'4 weeks refrigerated'
-  },
-
-  // ── HORMONES / OTHER ──
-  'HCG': {
-    vials:[5000,10000], defaultVial:5000, defaultDose:500, defaultUnit:'iu',
-    bacMl:{5000:1, 10000:2},
-    note:'5000IU + 1mL = 5000IU/mL; 500IU dose = 10 units. Refrigerate immediately — sensitive to heat and light. Use within 30 days. Do not freeze reconstituted vial.',
-    shelf:'30 days refrigerated'
-  },
-  'HMG': {
-    vials:[75], defaultVial:75, defaultDose:75, defaultUnit:'iu',
-    bacMl:{75:1},
-    note:'75IU + 1mL sterile water or saline = 75IU/mL; full 75IU vial = 100 units. ⚠️ Use immediately — HMG is NOT stable for multi-day storage after reconstitution. IM or SubQ.',
-    shelf:'Use same day — not stable after reconstitution'
-  },
-  'VIP': {
-    vials:[5,10], defaultVial:5, defaultDose:50, defaultUnit:'mcg',
-    bacMl:{5:1, 10:2},
-    note:'5mg + 1mL = 5mg/mL; 50mcg dose = 1 unit. Very low volume draw — use 31g insulin syringe. Research doses 25–100mcg SubQ or inhaled. Immune modulator and neuroprotective. Temperature sensitive — keep refrigerated.',
-    shelf:'3–4 weeks refrigerated'
-  },
-  'Ara-290': {
-    vials:[10], defaultVial:10, defaultDose:4000, defaultUnit:'mcg',
-    bacMl:{10:2},
-    note:'10mg + 2mL = 5mg/mL; 4mg (4000mcg) dose = 80 units. Research: 4mg SubQ daily. EPO receptor agonist (non-hematopoietic) — neuroprotective and anti-inflammatory without red blood cell effects.',
-    shelf:'4 weeks refrigerated'
-  },
-  'Glutathione': {
-    vials:[1500], defaultVial:1500, defaultDose:500, defaultUnit:'mg',
-    bacMl:{1500:3},
-    note:'1500mg + 3mL = 500mg/mL; 500mg dose = 100 units. ⚠️ Light sensitive — store in dark. Research doses 1–3g SubQ or IV. IV delivers fastest systemic effect; SubQ well-tolerated for regular use. Use within 24h.',
-    shelf:'24 hours after reconstitution'
-  },
-  'Melatonin': {
-    vials:[10], defaultVial:10, defaultDose:500, defaultUnit:'mcg',
-    bacMl:{10:2},
-    note:'10mg + 2mL = 5mg/mL; 500mcg dose = 10 units. SubQ bioavailability dramatically higher than oral — 500mcg SubQ ≈ 5–10mg oral. Start at 100–500mcg. Inject 30–60 min before sleep.',
-    shelf:'4 weeks refrigerated'
-  },
-  'MT-1': {
-    vials:[10], defaultVial:10, defaultDose:500, defaultUnit:'mcg',
-    bacMl:{10:2},
-    note:'10mg + 2mL = 5mg/mL; 500mcg dose = 10 units. More selective for MC1R than MT-2 — less nausea and fewer sexual effects. Tanning requires UV exposure. Single dose or daily protocols.',
-    shelf:'4 weeks refrigerated'
-  },
-  'MT-2 (Melanotan II)': {
-    vials:[10], defaultVial:10, defaultDose:500, defaultUnit:'mcg',
-    bacMl:{10:2},
-    note:'10mg + 2mL = 5mg/mL; 500mcg dose = 10 units. Start at 100–250mcg to assess tolerance — nausea and flushing common, dose at bedtime to sleep through it. Tanning requires UV. Do not exceed 1mg per dose.',
-    shelf:'4 weeks refrigerated'
-  },
-};
-// Full compound list for selector (superset of RECON_DB + protocol compounds)
-var RECON_ALL_COMPOUNDS = Object.keys(RECON_DB).sort();
-
-function buildReconSelector(){
-  var sel = document.getElementById('rc-compound');
-  if(!sel) return;
-
-  // Start with protocol compounds at top, then full list
-  var options = ['<option value="">— Select compound —</option>'];
-  var protoNames = [];
-
-  if(protocol.compounds && protocol.compounds.length){
-    options.push('<optgroup label="Your Protocol">');
-    protocol.compounds.forEach(function(c){
-      var name = c.name || c.compound || '';
-      if(name){ protoNames.push(name); options.push('<option value="'+name+'">'+name+'</option>'); }
-    });
-    options.push('</optgroup>');
-  }
-
-  options.push('<optgroup label="All Compounds">');
-  RECON_ALL_COMPOUNDS.forEach(function(name){
-    if(protoNames.indexOf(name) === -1) options.push('<option value="'+name+'">'+name+'</option>');
-  });
-  // Allow any compound not in DB
-  options.push('</optgroup>');
-  options.push('<optgroup label="Other"><option value="__custom__">Other / Custom</option></optgroup>');
-
-  sel.innerHTML = options.join('');
-}
-
-function onReconCompound(){
-  var sel = document.getElementById('rc-compound');
-  var name = sel ? sel.value : '';
-  var noteEl = document.getElementById('rc-note');
-  var vialSel = document.getElementById('rc-vial');
-  var doseEl = document.getElementById('rc-dose');
-  var unitSel = document.getElementById('rc-unit');
-
-  if(!name || name === '__custom__'){
-    if(noteEl) noteEl.style.display = 'none';
-    calcRecon();
-    return;
-  }
-
-  var data = RECON_DB[name];
-  if(!data){
-    // Not in DB — use defaults, hide note
-    if(noteEl) noteEl.style.display = 'none';
-    calcRecon();
-    return;
-  }
-
-  // Auto-set vial size to compound default
-  if(vialSel && data.defaultVial){
-    // Find closest option
-    var opts = Array.from(vialSel.options).map(function(o){ return parseFloat(o.value); });
-    var closest = opts.reduce(function(prev, curr){
-      return Math.abs(curr - data.defaultVial) < Math.abs(prev - data.defaultVial) ? curr : prev;
-    });
-    vialSel.value = closest;
-  }
-
-  // Auto-set dose
-  if(doseEl && data.defaultDoseMcg){
-    if(data.defaultUnit === 'mcg') doseEl.value = data.defaultDoseMcg;
-    else if(data.defaultUnit === 'mg') doseEl.value = data.defaultDoseMcg / 1000;
-    else if(data.defaultUnit === 'iu') doseEl.value = data.defaultDoseMcg;
-  }
-
-  // Auto-set unit
-  if(unitSel && data.defaultUnit) unitSel.value = data.defaultUnit;
-
-  // Show note
-  if(noteEl && data.note){
-    noteEl.textContent = data.note;
-    noteEl.style.display = 'block';
-  } else if(noteEl){
-    noteEl.style.display = 'none';
-  }
-
-  calcRecon();
-}
-
-function calcRecon(){
-  var compoundName = (document.getElementById('rc-compound')||{value:''}).value;
-  var vialMg = parseFloat((document.getElementById('rc-vial')||{value:5}).value) || 5;
-  var doseVal = parseFloat((document.getElementById('rc-dose')||{value:0}).value) || 0;
-  var unit = (document.getElementById('rc-unit')||{value:'mcg'}).value;
-  var result = document.getElementById('rc-result');
-  if(!result) return;
-  if(!doseVal){ result.style.display='none'; return; }
-
-  // Convert dose to mg
-  var doseMg;
-  if(unit === 'mcg') doseMg = doseVal / 1000;
-  else if(unit === 'iu') doseMg = doseVal / 1000; // approximate for peptide IU
-  else doseMg = doseVal;
-
-  // Get compound-specific BAC water recommendation
-  var data = RECON_DB[compoundName];
-  var bacMl;
-  if(data && data.bacMl){
-    if(typeof data.bacMl === 'object'){
-      // Find closest vial size key
-      var keys = Object.keys(data.bacMl).map(Number);
-      var closestKey = keys.reduce(function(prev, curr){
-        return Math.abs(curr - vialMg) < Math.abs(prev - vialMg) ? curr : prev;
-      });
-      bacMl = data.bacMl[closestKey];
-    } else {
-      bacMl = data.bacMl;
-    }
-  } else {
-    // Generic fallback based on vial size
-    if(vialMg <= 2) bacMl = 1;
-    else if(vialMg <= 10) bacMl = 2;
-    else if(vialMg <= 20) bacMl = 4;
-    else if(vialMg <= 50) bacMl = 5;
-    else bacMl = Math.round(vialMg / 10);
-  }
-
-  var concMgPerMl = vialMg / bacMl;
-  var drawMl = doseMg / concMgPerMl;
-  var drawUnits = Math.round(drawMl * 100);
-  var dosesPerVial = doseMg > 0 ? Math.floor(vialMg / doseMg) : 0;
-
-  var concDisplay;
-  if(unit === 'mcg') concDisplay = Math.round(concMgPerMl * 1000) + 'mcg/mL';
-  else if(unit === 'iu') concDisplay = Math.round(concMgPerMl * 1000) + 'IU/mL (approx)';
-  else concDisplay = concMgPerMl.toFixed(2) + 'mg/mL';
-
-  document.getElementById('rc-bac').textContent = bacMl + 'mL BAC water';
-  document.getElementById('rc-draw').textContent = drawUnits + ' units (' + drawMl.toFixed(2) + 'mL)';
-  document.getElementById('rc-doses').textContent = dosesPerVial + ' doses';
-  document.getElementById('rc-conc').textContent = concDisplay;
-
-  // Shelf life
-  var shelfRow = document.getElementById('rc-shelf-row');
-  var shelfEl = document.getElementById('rc-shelf');
-  if(data && data.shelf && shelfRow && shelfEl){
-    shelfEl.textContent = data.shelf;
-    shelfRow.style.display = 'flex';
-  } else if(shelfRow){
-    shelfRow.style.display = 'none';
-  }
-
-  result.style.display = 'block';
-}
-
-// ── CURRENT DOSES (read-only) ──
-function buildTitration(){
-  if(!protocol.compounds || !protocol.compounds.length) return;
-  var card = document.getElementById('titration-card');
-  var label = document.getElementById('titration-label');
-  var list = document.getElementById('titration-list');
-  if(!card || !list) return;
-
-  card.style.display = 'block';
-  if(label) label.style.display = 'block';
-  list.innerHTML = '';
-
-  protocol.compounds.forEach(function(c){
-    // Parse just the numeric dose + unit cleanly
-    var doseStr = (c.dose||'').trim();
-    // Extract leading number and unit — ignore any trailing parenthetical notes
-    var match = doseStr.match(/^([0-9.]+)\s*([a-zA-Z]+)/);
-    var doseNum = match ? match[1] : doseStr;
-    var doseUnit = match ? match[2] : '';
-    var cleanDose = doseNum + doseUnit;
-
-    var row = document.createElement('div');
-    row.className = 'titration-row';
-    row.innerHTML =
-      '<div>'
-      + '<div class="titration-name">' + c.name + '</div>'
-      + '<div class="titration-current">' + (c.frequency||'') + (c.timing ? ' \u00b7 ' + c.timing : '') + '</div>'
-      + '</div>'
-      + '<div style="font-size:18px;font-weight:700;letter-spacing:-0.3px;color:var(--ink);">' + cleanDose + '</div>';
-    list.appendChild(row);
-  });
+function saveMemory(k,v){
+  try{
+    var m=JSON.parse(localStorage.getItem('peptrak_alex_memory')||'{}');
+    m[k]=v; localStorage.setItem('peptrak_alex_memory',JSON.stringify(m));
+  }catch(e){}
 }
 
 // ── INIT ──
@@ -1762,7 +1004,7 @@ init();
 // ── SUPABASE SYNC ──
 function syncToSupabase(){
   var email = localStorage.getItem('peptrak_auth_email');
-  if(!email || email === 'test@peptrak.com') return; // skip test account
+  if(!email || email === 'test@peptrak.com') return;
   var payload = {
     email: email,
     intake: (() => { try{ return JSON.parse(localStorage.getItem('peptrak_intake')||'null'); }catch(e){ return null; } })(),

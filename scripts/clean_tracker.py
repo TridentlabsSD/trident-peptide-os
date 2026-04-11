@@ -2,19 +2,10 @@
 """Remove the orphaned RECON_DB data block from tracker.html."""
 import os, sys
 
-# Find the file
-candidates = [
-    os.path.join(os.path.dirname(__file__), '..', 'public', 'tracker.html'),
-]
-filepath = None
-for c in candidates:
-    p = os.path.realpath(c)
-    if os.path.exists(p):
-        filepath = p
-        break
+filepath = '/vercel/share/v0-project/public/tracker.html'
 
-if not filepath:
-    print("ERROR: tracker.html not found")
+if not os.path.exists(filepath):
+    print(f"ERROR: tracker.html not found at {filepath}")
     sys.exit(1)
 
 print(f"Found: {filepath}")
