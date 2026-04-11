@@ -548,14 +548,6 @@ body{
 
 <div class="page">
 
-  <!-- SUNDAY RECAP -->
-  <div id="sunday-recap" style="display:none;"></div>
-
-  <!-- CYCLE END BANNER (shown near end/end of cycle) -->
-  <div id="cycle-end-banner" style="display:none;"></div>
-
-
-
 
 
   <!-- 7-DAY STREAK -->
@@ -572,44 +564,6 @@ body{
   <div class="section-label">Today's Doses</div>
   <div class="doses" id="doses-list"></div>
 
-  <!-- MISSED DOSE CHECKER -->
-  <!-- READY TO START LINK (shows when banner dismissed but cycle not started) -->
-  <div id="ready-to-start-link" style="display:none;text-align:center;margin-bottom:14px;">
-    <button onclick="reshowStartBanner()" style="background:none;border:none;font-size:13px;font-weight:600;color:var(--blue);cursor:pointer;font-family:var(--font);padding:8px 16px;-webkit-tap-highlight-color:transparent;">
-      ✓ My compounds arrived — start my cycle
-    </button>
-  </div>
-
-  <!-- START CYCLE BANNER -->
-  <div class="start-banner" id="start-banner">
-    <div class="start-banner-title">Ready to start your cycle?</div>
-    <div class="start-banner-sub">Tap below when your compounds arrive and you take your first dose. This sets day 1 of your protocol and starts your tracking.</div>
-    <button class="start-banner-btn" onclick="startCycleToday()">✓ Start dosing today</button>
-    <button class="start-banner-skip" onclick="startCycleLater()">My compounds haven't arrived yet</button>
-  </div>
-
-  <div id="missed-banner" style="display:none;background:#FEF3C7;border:1px solid #F59E0B;border-radius:16px;padding:16px;margin-bottom:14px;">
-    <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px;">
-      <div style="font-size:18px;">⚠️</div>
-      <div>
-        <div style="font-size:13px;font-weight:700;color:#92400E;">Incomplete log yesterday</div>
-        <div style="font-size:12px;color:#B45309;margin-top:1px;">Mark each dose as taken or missed</div>
-      </div>
-    </div>
-    <div id="missed-doses-list" style="display:flex;flex-direction:column;gap:7px;"></div>
-    <button onclick="askAlexMissed()" style="margin-top:10px;background:none;border:none;font-size:12px;font-weight:600;color:#92400E;cursor:pointer;font-family:var(--font);text-decoration:underline;padding:0;">Ask Alex if you should catch up →</button>
-  </div>
-
-  <!-- ALEX'S TAKE -->
-  <div id="alex-take-card" style="display:none;background:var(--ink-2);border-radius:16px;padding:16px 18px;margin-bottom:14px;position:relative;overflow:hidden;">
-    <div style="position:absolute;top:-30px;right:-30px;width:120px;height:120px;background:radial-gradient(circle,rgba(8,118,255,0.15),transparent 70%);pointer-events:none;"></div>
-    <div style="font-size:10px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:rgba(8,118,255,0.6);margin-bottom:8px;">Alex's Take</div>
-    <div id="alex-take-txt" style="font-size:13px;color:rgba(255,255,255,0.8);line-height:1.6;font-style:italic;"></div>
-    <a href="/chat" style="display:inline-flex;align-items:center;gap:5px;margin-top:10px;font-size:12px;font-weight:600;color:rgba(8,118,255,0.8);text-decoration:none;">
-      <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
-      Ask Alex anything
-    </a>
-  </div>
 
 
   <!-- SIDE EFFECTS TOGGLE -->
@@ -805,21 +759,6 @@ function init(){
   // Doses
   buildDoses();
 
-  // Vials
-  buildVials();
-
-  // Stats
-  buildStats();
-  buildAlexTake();
-  buildCycleEndBanner();
-  buildTitration();
-  buildSiteRotator();
-  buildSideCompoundSelect();
-  buildReconSelector();
-  // Update stack button label
-
-  checkShowStartBanner();
-  checkMissedYesterday();
   checkInstallPrompt();
   // Restore note input
   setTimeout(function(){ var n=document.getElementById('note-input'); if(n&&todayLog&&todayLog.note) n.value=todayLog.note; }, 50);
@@ -1049,102 +988,7 @@ var VIAL_SIZES = {
   'Tesamorelin':5,'AOD-9604':5,'IGF-1 LR3':1,'GHK-Cu':50,
   'Semaglutide':5,'Tirzepatide':5,'SS-31':10,'NAD+':100
 };
-function buildVials(){
-  var wrap = document.getElementById('vials-list');
-  if(!wrap) return;
-  wrap.innerHTML = '';
-  if(!protocol.compounds || !protocol.compounds.length) return;
-  protocol.compounds.forEach(function(c){
-    var doseNum = parseFloat((c.dose||'').replace(/[^0-9.]/g,'')) || 0;
-    var unit = (c.dose||'').replace(/[0-9.]/g,'').trim().toLowerCase();
-    if(unit === 'mcg') doseNum = doseNum / 1000;
-    var freq = c.frequency || '';
-    var dosesPerWeek = 7; // default: daily
-    if(freq.match(/2x|twice|2\s*\/\s*week|every other day|eod/i)) dosesPerWeek = 3.5;
-    else if(freq.match(/3x|3\s*\/\s*week/i)) dosesPerWeek = 3;
-    else if(freq.match(/4x|4\s*\/\s*week/i)) dosesPerWeek = 4;
-    else if(freq.match(/5x|5\s*\/\s*week/i)) dosesPerWeek = 5;
-    else if(freq.match(/6x|6\s*\/\s*week/i)) dosesPerWeek = 6;
-    else if(freq.match(/weekly|1x|once\s*a?\s*week|1\s*\/\s*week/i)) dosesPerWeek = 1;
-    else if(freq.match(/twice\s*daily|2x\s*daily|bid/i)) dosesPerWeek = 14;
-    else if(freq.match(/3x\s*daily|tid/i)) dosesPerWeek = 21;
-    else if(freq.match(/daily|every\s*day|each\s*day|once\s*daily|qd/i)) dosesPerWeek = 7;
-    var vialMg = 5;
-    Object.keys(VIAL_SIZES).forEach(function(k){
-      if(c.name && c.name.toLowerCase().indexOf(k.toLowerCase()) > -1) vialMg = VIAL_SIZES[k];
-    });
-    var dosesPerVial = doseNum > 0 ? Math.floor(vialMg / doseNum) : 0;
-    var restockDate = trackerData.restocks[c.name] || null;
-    var totalTaken = 0;
-    trackerData.logs.forEach(function(log){
-      if(restockDate && log.date <= restockDate) return; // ignore doses before restock
-      if(log.doses){ Object.values(log.doses).forEach(function(d){ if(d.taken && d.name === c.name) totalTaken++; }); }
-    });
-    var dosesRemaining = Math.max(dosesPerVial - (totalTaken % (dosesPerVial||1)), 0);
-    var daysRemaining = dosesPerWeek > 0 ? Math.round((dosesRemaining / dosesPerWeek) * 7) : 0;
-    var isLow = daysRemaining <= 4;
-    var row = document.createElement('div');
-    row.className = 'vial-row';
 
-    var leftDiv = document.createElement('div');
-    leftDiv.innerHTML = '<div class="vial-name">' + c.name + '</div><div class="vial-sub">' + c.dose + ' &middot; ' + c.frequency + '</div>';
-
-    var rightDiv = document.createElement('div');
-    rightDiv.className = 'vial-right';
-    rightDiv.innerHTML =
-      '<div class="vial-doses">' + dosesRemaining + ' doses left</div>' +
-      '<div class="vial-days ' + (isLow?'vial-warn':'vial-ok') + '">' +
-        (isLow ? '⚠️ Reorder soon — ' : '') + '~' + daysRemaining + ' days left' +
-      '</div>' +
-      (isLow ? '<a href="https://usetridentlabs.com" target="_blank" style="display:inline-block;margin-top:6px;font-size:11px;font-weight:700;color:var(--blue);text-decoration:none;background:var(--blue-pale);padding:4px 10px;border-radius:20px;">Reorder at Trident Labs →</a>' : '');
-
-    // New vial button — inline confirm on first tap, execute on second
-    var newVialBtn = document.createElement('button');
-    newVialBtn.textContent = '+ New vial';
-    newVialBtn.style.cssText = 'display:block;margin-top:8px;background:var(--white);border:1.5px solid var(--gray-2);color:var(--gray-5);border-radius:20px;font-size:11px;font-weight:600;padding:5px 12px;cursor:pointer;font-family:inherit;transition:all 0.2s;';
-    var confirming = false;
-    newVialBtn.onclick = (function(compName, btn){ return function(e){
-      e.stopPropagation();
-      if(!confirming){
-        confirming = true;
-        btn.textContent = 'Tap again to confirm';
-        btn.style.background = 'var(--blue)';
-        btn.style.color = '#fff';
-        btn.style.borderColor = 'var(--blue)';
-        setTimeout(function(){
-          if(confirming){
-            confirming = false;
-            btn.textContent = '+ New vial';
-            btn.style.background = 'var(--white)';
-            btn.style.color = 'var(--gray-5)';
-            btn.style.borderColor = 'var(--gray-2)';
-          }
-        }, 3000);
-      } else {
-        confirming = false;
-        trackerData.restocks[compName] = new Date().toISOString().split('T')[0];
-        localStorage.setItem('peptrak_tracker', JSON.stringify(trackerData));
-        showSaveToast();
-        buildVials();
-      }
-    }; })(c.name, newVialBtn);
-    if(dosesRemaining === 0) rightDiv.appendChild(newVialBtn);
-
-    row.appendChild(leftDiv);
-    row.appendChild(rightDiv);
-    wrap.appendChild(row);
-  });
-}
-
-
-function buildStats(){
-  var logs = trackerData.logs;
-  var totalDoses = 0, takenDoses = 0;
-  logs.forEach(function(log){
-    if(log.doses){ Object.values(log.doses).forEach(function(d){ totalDoses++; if(d.taken) takenDoses++; }); }
-  });
-  var adherence = totalDoses ? Math.round((takenDoses/totalDoses)*100) : null;
-}
 
 // ── SIDE CHIPS ──
 var SIDES = ['Water retention','Fatigue','Hunger changes','Mood changes','Headache','Flushing','Nausea','Sleep changes','Joint soreness','Libido changes'];
@@ -1181,38 +1025,6 @@ var WEEK_TAKES = {
   12: "End of first cycle approaching. Start thinking about what you want to adjust next run."
 };
 
-function buildAlexTake(){
-  var hasStart = !!localStorage.getItem('peptrak_protocol_start');
-  if(!hasStart){
-    var card0 = document.getElementById('alex-take-card');
-    if(card0) card0.style.display = 'none';
-    return;
-  }
-  var progress = getProgress();
-  var keys = Object.keys(WEEK_TAKES).map(Number).sort(function(a,b){return b-a;});
-  var take = null;
-  for(var i=0;i<keys.length;i++){
-    if(progress.week >= keys[i]){ take = WEEK_TAKES[keys[i]]; break; }
-  }
-  if(!take) take = "Stay consistent — peptides reward daily discipline more than perfect dosing.";
-  var card = document.getElementById('alex-take-card');
-  var txt = document.getElementById('alex-take-txt');
-  if(card && txt){
-    // Only show week 2+, and not when all doses are already logged today
-    var prog2 = getProgress();
-    var doneToday = Object.values(dosesState).filter(function(d){return d.taken;}).length;
-    var totalToday = protocol.compounds ? protocol.compounds.length : 0;
-    var allDoneToday = totalToday > 0 && doneToday === totalToday;
-    if(!allDoneToday && prog2 && prog2.week >= 2){
-      card.style.display = 'block';
-      txt.textContent = '"' + take + '"';
-    }
-  }
-}
-
-// ── MISSED DOSE BANNER ──
-
-
 function askAlexProtocol(){
   localStorage.setItem('peptrak_prefill_msg', 'I want to adjust my protocol — can you help me add or change a compound?');
   window.location.href = '/chat';
@@ -1229,35 +1041,6 @@ function showToast(msg){
   t.textContent = msg;
   t.style.opacity = '1';
   setTimeout(function(){ t.style.opacity = '0'; }, 2000);
-}
-
-function startCycleToday(){
-  localStorage.setItem('peptrak_protocol_start', Date.now().toString());
-  saveMemory('protocol_started', new Date().toDateString());
-  document.getElementById('start-banner').style.display = 'none';
-  showToast('Cycle started! Day 1 begins today 🔥');
-  // Re-render doses to remove grayout
-  setTimeout(function(){
-    buildDoses();
-    buildAlexTake();
-    updateProgress();
-  }, 150);
-}
-
-
-function reshowStartBanner(){
-  localStorage.removeItem('peptrak_start_dismissed');
-  document.getElementById('ready-to-start-link').style.display = 'none';
-  var banner = document.getElementById('start-banner');
-  if(banner) banner.style.display = 'block';
-}
-
-function startCycleLater(){
-  // Dismiss banner — show persistent "I'm ready" link instead
-  localStorage.setItem('peptrak_start_dismissed', new Date().toISOString().slice(0,10));
-  document.getElementById('start-banner').style.display = 'none';
-  var link = document.getElementById('ready-to-start-link');
-  if(link) link.style.display = 'block';
 }
 
 
@@ -1287,133 +1070,6 @@ function checkInstallPrompt(){
   }, 3000);
 }
 
-
-function checkShowStartBanner(){
-  var banner = document.getElementById('start-banner');
-  if(!banner) return;
-  var hasProtocol = protocol && protocol.compounds && protocol.compounds.length;
-  var hasStart = !!localStorage.getItem('peptrak_protocol_start');
-  var dismissed = localStorage.getItem('peptrak_start_dismissed');
-  var dismissedToday = dismissed === new Date().toISOString().slice(0,10);
-  var readyLink = document.getElementById('ready-to-start-link');
-  if(hasProtocol && !hasStart && !dismissedToday){
-    banner.style.display = 'block';
-    if(readyLink) readyLink.style.display = 'none';
-  } else if(hasProtocol && !hasStart && dismissedToday){
-    banner.style.display = 'none';
-    if(readyLink) readyLink.style.display = 'block';
-  } else if(hasStart){
-    banner.style.display = 'none';
-    if(readyLink) readyLink.style.display = 'none';
-  }
-}
-
-function checkMissedYesterday(){
-  if(!protocol.compounds || !protocol.compounds.length) return;
-  // Don't show missed banner if cycle hasn't started yet
-  var startTs = parseInt(localStorage.getItem('peptrak_protocol_start') || 0);
-  if(!startTs) return;
-  var yesterday = new Date();
-  yesterday.setDate(yesterday.getDate() - 1);
-  var yKey = yesterday.toISOString().split('T')[0];
-  var yLog = trackerData.logs.find(function(l){ return l.date === yKey; });
-
-  // Only show if yesterday was incomplete
-  if(yLog && yLog.complete) return;
-
-  var banner = document.getElementById('missed-banner');
-  var list = document.getElementById('missed-doses-list');
-  if(!banner || !list) return;
-
-  banner.style.display = 'flex';
-  banner.style.flexDirection = 'column';
-  list.innerHTML = '';
-
-  protocol.compounds.forEach(function(comp, i){
-    var key = 'c' + i;
-    var alreadyTaken = yLog && yLog.doses && yLog.doses[key] && yLog.doses[key].taken;
-
-    var row = document.createElement('div');
-    row.style.cssText = 'display:flex;align-items:center;justify-content:space-between;background:#fff;border-radius:10px;padding:10px 12px;gap:10px;';
-
-    var nameDiv = document.createElement('div');
-    nameDiv.style.cssText = 'font-size:13px;font-weight:500;color:#92400E;flex:1;';
-    nameDiv.textContent = comp.name + ' — ' + comp.dose;
-
-    var btnWrap = document.createElement('div');
-    btnWrap.style.cssText = 'display:flex;gap:6px;';
-
-    var takenBtn = document.createElement('button');
-    takenBtn.textContent = '✓ Taken';
-    takenBtn.style.cssText = 'padding:5px 12px;border-radius:20px;border:none;cursor:pointer;font-size:12px;font-weight:600;font-family:inherit;' + (alreadyTaken ? 'background:var(--green);color:#fff;' : 'background:var(--green-pale);color:var(--green-dark);');
-    takenBtn.onclick = (function(yk,k,nm,bw){ return function(){ logYesterdayDose(yk,k,nm,true,bw); }; })(yKey,key,comp.name,btnWrap);
-
-    var missedBtn = document.createElement('button');
-    missedBtn.textContent = '✗ Missed';
-    missedBtn.style.cssText = 'padding:5px 12px;border-radius:20px;border:none;cursor:pointer;font-size:12px;font-weight:600;font-family:inherit;' + (!alreadyTaken && yLog ? 'background:#FEE2E2;color:var(--red);' : 'background:var(--gray-1);color:var(--gray-4);');
-    missedBtn.onclick = (function(yk,k,nm,bw){ return function(){ logYesterdayDose(yk,k,nm,false,bw); }; })(yKey,key,comp.name,btnWrap);
-
-    btnWrap.appendChild(takenBtn);
-    btnWrap.appendChild(missedBtn);
-    row.appendChild(nameDiv);
-    row.appendChild(btnWrap);
-    list.appendChild(row);
-  });
-}
-
-function logYesterdayDose(yKey, doseKey, compName, taken, rowEl){
-  // Find or create yesterday log
-  var logIdx = trackerData.logs.findIndex(function(l){ return l.date === yKey; });
-  var yLog;
-  if(logIdx > -1){
-    yLog = trackerData.logs[logIdx];
-  } else {
-    yLog = {date: yKey, doses:{}, feel:{}, sides:[], complete:false};
-    trackerData.logs.push(yLog);
-    logIdx = trackerData.logs.length - 1;
-  }
-
-  if(!yLog.doses) yLog.doses = {};
-  yLog.doses[doseKey] = {taken: taken, name: compName, time: taken ? 'retroactive' : null};
-
-  // Check if all doses now marked (taken OR explicitly missed)
-  var total = protocol.compounds ? protocol.compounds.length : 0;
-  var markedCount = Object.values(yLog.doses).filter(function(d){ return d.taken === true || d.taken === false; }).length;
-  var allMarked = markedCount >= total;
-  var done = Object.values(yLog.doses).filter(function(d){ return d.taken; }).length;
-  yLog.complete = allMarked && done === total;
-
-  trackerData.logs[logIdx] = yLog;
-  localStorage.setItem('peptrak_tracker', JSON.stringify(trackerData));
-  showSaveToast();
-
-  // Update button styles in row
-  var btns = rowEl.querySelectorAll('button');
-  if(taken){
-    btns[0].style.background = 'var(--green)';
-    btns[0].style.color = '#fff';
-    btns[1].style.background = 'var(--gray-1)';
-    btns[1].style.color = 'var(--gray-4)';
-  } else {
-    btns[0].style.background = 'var(--green-pale)';
-    btns[0].style.color = 'var(--green-dark)';
-    btns[1].style.background = '#FEE2E2';
-    btns[1].style.color = 'var(--red)';
-  }
-
-  // If all marked, hide banner
-  if(allMarked){
-    setTimeout(function(){
-      var banner = document.getElementById('missed-banner');
-      if(banner) banner.style.display = 'none';
-    }, 600);
-  }
-}
-
-function askAlexMissed(){
-  localStorage.setItem('peptrak_prefill_msg', 'I missed a dose yesterday — should I double up today or skip it?');
-  window.location.href = '/chat';
-}
 
 // ── TOGGLE SIDES ──
 function toggleSides(){
@@ -1552,32 +1208,6 @@ function checkMilestone(){
 
 function closeMilestone(){
   document.getElementById('milestone-overlay').classList.remove('show');
-}
-
-// ── CYCLE END BANNER ──
-function buildCycleEndBanner(){
-  var el = document.getElementById('cycle-end-banner');
-  if(!el) return;
-  var progress = getProgress();
-  if(!progress || !progress.totalWeeks) return;
-  var totalDays = progress.totalWeeks * 7;
-  var daysLeft = totalDays - progress.day + 1;
-  // Show within last 5 days or after completion
-  if(daysLeft > 5) return;
-
-  var isDone = progress.day > totalDays;
-  var weeksLabel = progress.totalWeeks + '-week';
-
-  el.style.display = 'block';
-  el.innerHTML = '<div class="cycle-end-banner">'
-    + '<div class="ceb-eyebrow">' + (isDone ? 'Cycle Complete' : 'Cycle Ending Soon') + '</div>'
-    + '<div class="ceb-title">' + (isDone ? 'Your ' + weeksLabel + ' cycle is done.' : daysLeft + ' day' + (daysLeft === 1 ? '' : 's') + ' left in your ' + weeksLabel + ' cycle.') + '</div>'
-    + '<div class="ceb-sub">' + (isDone ? 'Time to assess your results, adjust your protocol, or take a break before cycle 2.' : 'Start thinking about what comes next — continue, adjust compounds, or cycle off.') + '</div>'
-    + '<div class="ceb-actions">'
-    +   '<a href="/onboarding?refresh=1" class="ceb-btn primary">Refresh Protocol</a>'
-    +   '<a href="/chat" class="ceb-btn secondary">Ask Alex</a>'
-    + '</div>'
-    + '</div>';
 }
 
 // ── RECONSTITUTION CALCULATOR ──
@@ -2159,96 +1789,6 @@ function buildSideCompoundSelect(){
     sel.appendChild(pill);
   });
 }
-
-// ── SUNDAY RECAP ──
-async function buildSundayRecap(){
-  var now=new Date();
-  if(now.getDay()!==0)return;
-  var dk='peptrak_recap_dismissed_'+getISOWeek(now);
-  if(localStorage.getItem(dk))return;
-  var stats=calcWeekStatsForRecap();
-  if(stats.totalDoses===0)return;
-  var el=document.getElementById('sunday-recap');if(!el)return;
-  var progress=getProgress();
-  var weekLabel='Week '+progress.week+' Recap';
-  var prevAdh=getPrevWeekAdherenceForRecap();
-  var adhColor=stats.adherence>=85?'green':stats.adherence>=60?'gold':'red';
-  var sidesHTML=stats.sides.length?'<div class="recap-sides"><div class="recap-sides-label">Side Effects</div><div class="recap-sides-val">'+stats.sides.join(', ')+'</div></div>':'';
-  el.innerHTML='<div class="recap-card">'
-    +'<div class="recap-header"><div><div class="recap-eyebrow">Sunday Recap</div><div class="recap-title">'+weekLabel+'</div></div>'
-    +'<button class="recap-dismiss" onclick="dismissSundayRecap()">&#x2715;</button></div>'
-    +'<div class="recap-stats">'
-    +'<div class="recap-stat"><div class="recap-stat-val '+adhColor+'">'+(stats.adherence!==null?stats.adherence+'%':'—')+'</div><div class="recap-stat-lbl">Adherence</div></div>'
-    +'<div class="recap-stat"><div class="recap-stat-val green">'+(stats.bestDay||'—')+'</div><div class="recap-stat-lbl">Best Day</div></div>'
-    +'<div class="recap-stat"><div class="recap-stat-val">'+(stats.worstDay||'—')+'</div><div class="recap-stat-lbl">Missed Most</div></div>'
-    +'<div class="recap-stat"><div class="recap-stat-val">'+(stats.sides.length||'0')+'</div><div class="recap-stat-lbl">Side Effects</div></div>'
-    +'</div>'+sidesHTML
-    +'<div class="recap-alex"><div class="recap-alex-label">Alex\'s Take</div>'
-    +'<div class="recap-alex-loading" id="recap-loading"><div class="recap-dot"></div><div class="recap-dot"></div><div class="recap-dot"></div></div>'
-    +'<div class="recap-alex-txt" id="recap-txt" style="display:none;"></div></div></div>';
-  el.style.display='block';
-  // AI commentary
-  var cacheKey='peptrak_recap_commentary_'+getISOWeek(now);
-  var commentary=localStorage.getItem(cacheKey);
-  if(!commentary){
-    try{
-      var prompt='You are Alex, PepTrak advisor. One warm personal paragraph (4-5 sentences) summarizing this week. Lead with the human story, reference numbers naturally. No greeting or sign-off.\n\nAdherence: '+(stats.adherence!==null?stats.adherence+'%':'unknown')+'\nBest day: '+(stats.bestDay||'N/A')+'\nSides: '+(stats.sides.length?stats.sides.join(', '):'none')+'\nProtocol week: '+progress.week;
-      var res=await fetch('/api/chat',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-sonnet-4-6',max_tokens:400,messages:[{role:'user',content:prompt}]})});
-      var data=await res.json();
-      commentary=(data.content&&data.content[0])?data.content[0].text.trim():null;
-      if(commentary)localStorage.setItem(cacheKey,commentary);
-    }catch(e){}
-  }
-  var loadEl=document.getElementById('recap-loading');
-  var txtEl=document.getElementById('recap-txt');
-  if(loadEl)loadEl.style.display='none';
-  if(txtEl){txtEl.style.display='block';txtEl.textContent=commentary?'“'+commentary+'”':'“Stay consistent — peptides reward daily discipline.”';}
-  // Save to history
-  var recaps=[];try{recaps=JSON.parse(localStorage.getItem('peptrak_weekly_recaps')||'[]');}catch(e){}
-  var week=getISOWeek(now);
-  recaps=recaps.filter(function(r){return r.week!==week;});
-  recaps.unshift({week:week,weekLabel:weekLabel,date:now.toISOString().slice(0,10),adherence:stats.adherence,bestDay:stats.bestDay,worstDay:stats.worstDay,sides:stats.sides,commentary:commentary});
-  localStorage.setItem('peptrak_weekly_recaps',JSON.stringify(recaps.slice(0,12)));
-}
-function dismissSundayRecap(){
-  localStorage.setItem('peptrak_recap_dismissed_'+getISOWeek(new Date()),'1');
-  var el=document.getElementById('sunday-recap');
-  if(el){el.style.opacity='0';el.style.transition='opacity 0.3s';setTimeout(function(){el.style.display='none';},300);}
-}
-function getISOWeek(date){
-  var d=new Date(Date.UTC(date.getFullYear(),date.getMonth(),date.getDate()));
-  var dayNum=d.getUTCDay()||7;d.setUTCDate(d.getUTCDate()+4-dayNum);
-  var yearStart=new Date(Date.UTC(d.getUTCFullYear(),0,1));
-  return 'W'+d.getUTCFullYear()+'-'+Math.ceil((((d-yearStart)/86400000)+1)/7);
-}
-function calcWeekStatsForRecap(){
-  var stats={adherence:null,totalDoses:0,takenDoses:0,bestDay:null,worstDay:null,sides:[]};
-  var now=new Date();var dayNames=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
-  for(var i=6;i>=0;i--){
-    var d=new Date(now);d.setDate(d.getDate()-i);
-    var key=d.toISOString().slice(0,10);
-    var log=trackerData.logs.find(function(l){return l.date===key;});
-    var total=protocol.compounds?protocol.compounds.length:0;
-    var taken=0;
-    if(log&&log.doses)Object.values(log.doses).forEach(function(dose){if(dose.taken)taken++;});
-    if(log&&log.sides)log.sides.forEach(function(s){if(stats.sides.indexOf(s)<0)stats.sides.push(s);});
-    stats.totalDoses+=total;stats.takenDoses+=taken;
-  }
-  if(stats.totalDoses>0)stats.adherence=Math.round(stats.takenDoses/stats.totalDoses*100);
-  return stats;
-}
-function getPrevWeekAdherenceForRecap(){
-  var now=new Date();var total=0,taken=0;
-  for(var i=13;i>=7;i--){
-    var d=new Date(now);d.setDate(d.getDate()-i);
-    var key=d.toISOString().slice(0,10);
-    var log=trackerData.logs.find(function(l){return l.date===key;});
-    var dt=protocol.compounds?protocol.compounds.length:0;total+=dt;
-    if(log&&log.doses)Object.values(log.doses).forEach(function(d){if(d.taken)taken++;});
-  }
-  return total>0?Math.round(taken/total*100):null;
-}
-
 
 // ── INIT ──
 init();
