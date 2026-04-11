@@ -294,38 +294,6 @@ select.field-input{cursor:pointer;}
 
 <script>
 
-// ── PAYWALL GUARD (server-side) ──
-(function(){
-  var email  = localStorage.getItem('peptrak_auth_email');
-  var paid   = localStorage.getItem('peptrak_paid');
-  var isTest = localStorage.getItem('peptrak_test_account') === '1';
-
-  if(isTest) return; // test account always passes
-
-  if(!email || !paid){
-    window.location.replace('/checkout');
-    return;
-  }
-
-  // Async server-side check — catches past_due / cancelled without blocking page load
-  fetch('/api/check-access?email=' + encodeURIComponent(email))
-    .then(function(r){ return r.json(); })
-    .then(function(data){
-      if(data.access) return;
-      if(data.status === 'past_due' || data.status === 'unpaid'){
-        localStorage.removeItem('peptrak_paid');
-        localStorage.setItem('peptrak_subscription_status','past_due');
-        window.location.replace('/rebill');
-      } else if(data.status === 'cancelled' || data.status === 'canceled'){
-        localStorage.removeItem('peptrak_paid');
-        window.location.replace('/rebill');
-      } else if(data.redirect){
-        localStorage.removeItem('peptrak_paid');
-        window.location.replace(data.redirect);
-      }
-    })
-    .catch(function(){}); // network error — fail open
-})();
 
 var protocol={}, customStack={source:null,compounds:[],globalStartDate:null,activeIdxs:[]}, activeIdxs=[], entryCount=0;
 try{protocol=JSON.parse(localStorage.getItem('peptrak_protocol')||'{}');}catch(e){}

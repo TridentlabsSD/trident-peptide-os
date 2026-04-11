@@ -59,24 +59,18 @@ module.exports = async function handler(req, res) {
     const sub = result.data[0] || null;
 
     if (!sub) {
-      return res.status(200).json({ access: false, status: 'none', redirect: '/checkout' });
+      return res.status(200).json({ access: false, status: 'none', redirect: '/signin' });
     }
 
     const accessStatuses = ['trialing', 'active', 'free'];
-    const pastDueStatuses = ['past_due', 'unpaid'];
-    const cancelledStatuses = ['cancelled', 'canceled'];
+    const blockedStatuses = ['past_due', 'unpaid', 'cancelled', 'canceled'];
 
     if (accessStatuses.includes(sub.status)) {
       return res.status(200).json({ access: true, status: sub.status });
     }
 
-    if (pastDueStatuses.includes(sub.status)) {
-      return res.status(200).json({ access: false, status: 'past_due', redirect: '/rebill',
-        stripeCustomerId: sub.stripe_customer_id });
-    }
-
-    if (cancelledStatuses.includes(sub.status)) {
-      return res.status(200).json({ access: false, status: 'cancelled', redirect: '/checkout' });
+    if (blockedStatuses.includes(sub.status)) {
+      return res.status(200).json({ access: false, status: sub.status, redirect: '/signin' });
     }
 
     // Unknown status — fail open (better than locking out a paying customer)

@@ -599,7 +599,6 @@ async function handleSignUp(){
   localStorage.setItem('peptrak_auth_email',email);
   localStorage.setItem('peptrak_auth_pw',hash);
   localStorage.removeItem('peptrak_test_account');
-  localStorage.removeItem('peptrak_paid');
   var intake={};try{intake=JSON.parse(localStorage.getItem('peptrak_intake')||'{}');}catch(e){}
   intake.first_name=name;intake.email=email;
   localStorage.setItem('peptrak_intake',JSON.stringify(intake));
@@ -620,7 +619,6 @@ async function handleSignIn(){
     localStorage.setItem('peptrak_auth_email','test@peptrak.com');
     localStorage.setItem('peptrak_auth_pw','TEST');
     localStorage.setItem('peptrak_test_account','1');
-    localStorage.setItem('peptrak_paid','1');
     showSuccess('signin');
     setTimeout(function(){window.location.href='/protocol';},1000);
     return;
@@ -647,7 +645,6 @@ async function handleSignIn(){
       if(d.advisorContext)localStorage.setItem('peptrak_advisor_context',d.advisorContext);
       if(d.alexMemory)localStorage.setItem('peptrak_alex_memory',typeof d.alexMemory==='string'?d.alexMemory:JSON.stringify(d.alexMemory));
       if(d.cycleHistory)localStorage.setItem('peptrak_cycle_history',typeof d.cycleHistory==='string'?d.cycleHistory:JSON.stringify(d.cycleHistory));
-      if(d.status==='active'||d.status==='trialing'||d.status==='free') localStorage.setItem('peptrak_paid','1');
       showSuccess('signin');
       setTimeout(function(){window.location.href=d.protocol?'/protocol':'/questionnaire';},1000);
       return;

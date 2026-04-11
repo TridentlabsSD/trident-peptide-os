@@ -411,15 +411,6 @@ body{
 </style>
 <script>
 
-// ── PAYWALL GUARD ──
-(function(){
-  var paid = localStorage.getItem('peptrak_paid');
-  var isTest = localStorage.getItem('peptrak_test_account') === '1';
-  if(!paid && !isTest){
-    // no auth required — continue to protocol
-  }
-})();
-
 // Early definitions so onclick handlers work before main script loads
 function toggleWhy(n){
   var el = document.getElementById('why-'+n);
@@ -467,7 +458,7 @@ function charCount(el, id){
 
 <!-- ═══════════════════════════════════
      STEP 1 — PRIMARY GOAL
-═══════════════════════════════════ -->
+══════���════════════════════════════ -->
 <div class="step active" id="step-1">
   <div class="step-meta">
     <div class="step-eyebrow">Your goals</div>

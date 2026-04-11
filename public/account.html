@@ -141,46 +141,6 @@ body{-webkit-tap-highlight-color:transparent;
 .empty-state-sub{font-size:13px;color:var(--gray-4);margin-bottom:16px;line-height:1.5;}
 .empty-cta{display:inline-block;background:var(--blue);color:#fff;font-size:14px;font-weight:600;padding:11px 24px;border-radius:980px;text-decoration:none;}
 
-/* ── MEMBERSHIP CARD ── */
-.membership-card{
-  background:var(--ink-2);border-radius:16px;
-  margin-bottom:14px;overflow:hidden;position:relative;
-}
-.membership-card::before{
-  content:'';position:absolute;top:-40px;right:-40px;
-  width:160px;height:160px;
-  background:radial-gradient(circle,rgba(240,165,0,0.12),transparent 65%);
-  pointer-events:none;z-index:0;
-}
-.membership-main{display:flex;align-items:center;gap:14px;padding:18px 18px 16px;position:relative;z-index:1;}
-.membership-icon{
-  width:44px;height:44px;border-radius:12px;
-  background:rgba(240,165,0,0.15);border:1px solid rgba(240,165,0,0.25);
-  display:flex;align-items:center;justify-content:center;
-  font-size:20px;flex-shrink:0;
-}
-.membership-icon.free-icon{background:rgba(255,255,255,0.06);border-color:rgba(255,255,255,0.1);}
-.membership-info{flex:1;}
-.membership-plan{font-size:16px;font-weight:700;color:#fff;letter-spacing:-0.2px;}
-.membership-billing{font-size:12px;color:rgba(255,255,255,0.38);margin-top:3px;}
-.membership-status{flex-shrink:0;font-size:10px;font-weight:700;letter-spacing:0.06em;padding:4px 10px;border-radius:20px;}
-.membership-status.active{background:rgba(0,192,118,0.15);border:1px solid rgba(0,192,118,0.3);color:var(--green);}
-.membership-status.free-status{background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.12);color:rgba(255,255,255,0.38);}
-.billing-row{display:flex;gap:1px;background:rgba(255,255,255,0.06);position:relative;z-index:1;}
-.billing-cell{flex:1;padding:11px 14px;background:rgba(255,255,255,0.02);}
-.billing-val{font-size:13px;font-weight:600;color:#fff;}
-.billing-lbl{font-size:10px;color:rgba(255,255,255,0.28);font-weight:500;margin-top:2px;text-transform:uppercase;letter-spacing:0.05em;}
-.membership-divider{height:1px;background:rgba(255,255,255,0.06);position:relative;z-index:1;}
-.membership-actions{display:flex;position:relative;z-index:1;}
-.membership-action{
-  flex:1;padding:13px 16px;font-size:13px;font-weight:600;
-  color:rgba(255,255,255,0.45);background:none;border:none;
-  cursor:pointer;font-family:var(--font);text-align:center;
-  -webkit-tap-highlight-color:transparent;transition:color 0.15s,background 0.15s;
-}
-.membership-action:active{background:rgba(255,255,255,0.04);color:rgba(255,255,255,0.8);}
-.membership-action.primary{color:var(--blue);}
-.membership-action-divider{width:1px;background:rgba(255,255,255,0.06);flex-shrink:0;}
 
 /* ── LIST CARDS ── */
 .list-card{background:var(--white);border:1px solid var(--gray-2);border-radius:16px;overflow:hidden;margin-bottom:14px;}
@@ -265,163 +225,6 @@ body{-webkit-tap-highlight-color:transparent;
 #save-toast{display:none;position:fixed;top:68px;left:50%;transform:translateX(-50%);background:var(--ink);color:#fff;font-size:12px;font-weight:600;padding:8px 18px;border-radius:20px;z-index:400;white-space:nowrap;pointer-events:none;transition:opacity 0.3s;}
 
 
-/* ── AFFILIATE CARD ── */
-.affiliate-card{
-  background:var(--ink-2);
-  border-radius:20px;overflow:hidden;
-  margin-bottom:24px;
-  position:relative;
-}
-.affiliate-card::before{
-  content:'';position:absolute;top:-60px;right:-60px;
-  width:220px;height:220px;
-  background:radial-gradient(circle,rgba(8,118,255,0.18),transparent 65%);
-  pointer-events:none;
-}
-.aff-header{
-  padding:20px 20px 16px;
-  position:relative;z-index:1;
-}
-.aff-eyebrow{
-  font-size:10px;font-weight:700;letter-spacing:0.1em;
-  text-transform:uppercase;color:rgba(8,118,255,0.8);
-  margin-bottom:8px;
-}
-.aff-title{
-  font-size:18px;font-weight:700;letter-spacing:-0.4px;
-  color:#fff;margin-bottom:4px;
-}
-.aff-sub{font-size:13px;color:rgba(255,255,255,0.4);line-height:1.55;}
-
-.aff-stats{
-  display:grid;grid-template-columns:1fr 1fr 1fr;
-  gap:1px;background:rgba(255,255,255,0.06);
-  margin:0 0 0;
-  position:relative;z-index:1;
-}
-.aff-stat{background:rgba(255,255,255,0.03);padding:14px 16px;}
-.aff-stat-val{font-size:22px;font-weight:700;letter-spacing:-0.5px;color:#fff;}
-.aff-stat-val.blue{color:rgba(100,170,255,0.95);}
-.aff-stat-val.green{color:var(--green);}
-.aff-stat-lbl{font-size:9px;font-weight:600;letter-spacing:0.07em;text-transform:uppercase;color:rgba(255,255,255,0.25);margin-top:3px;}
-
-.aff-code-section{
-  padding:16px 20px;
-  border-top:1px solid rgba(255,255,255,0.06);
-  position:relative;z-index:1;
-}
-.aff-code-label{
-  font-size:10px;font-weight:700;letter-spacing:0.1em;
-  text-transform:uppercase;color:rgba(255,255,255,0.3);
-  margin-bottom:10px;
-}
-.aff-code-row{
-  display:flex;align-items:center;gap:8px;
-}
-.aff-code-display{
-  flex:1;background:rgba(255,255,255,0.07);
-  border:1px solid rgba(255,255,255,0.1);
-  border-radius:12px;padding:12px 14px;
-  font-size:15px;font-weight:700;color:#fff;
-  letter-spacing:0.05em;font-family:monospace;
-  display:flex;align-items:center;justify-content:space-between;
-}
-.aff-code-edit{
-  font-size:11px;color:rgba(8,118,255,0.7);
-  cursor:pointer;font-weight:600;
-  -webkit-tap-highlight-color:transparent;
-}
-.aff-copy-btn{
-  padding:12px 16px;background:var(--blue);
-  border:none;border-radius:12px;
-  font-size:13px;font-weight:600;color:#fff;
-  cursor:pointer;font-family:var(--font);
-  transition:opacity 0.15s;white-space:nowrap;
-  -webkit-tap-highlight-color:transparent;
-}
-.aff-copy-btn:active{opacity:0.8;}
-.aff-copy-btn.copied{background:var(--green);}
-
-.aff-link-section{
-  padding:0 20px 16px;
-  position:relative;z-index:1;
-}
-.aff-link-box{
-  background:rgba(255,255,255,0.04);
-  border:1px solid rgba(255,255,255,0.08);
-  border-radius:12px;padding:11px 14px;
-  font-size:11px;color:rgba(255,255,255,0.35);
-  word-break:break-all;line-height:1.5;
-}
-.aff-actions{
-  display:flex;gap:8px;margin-top:10px;
-}
-.aff-action-btn{
-  flex:1;padding:12px;border:none;border-radius:12px;
-  font-size:13px;font-weight:600;font-family:var(--font);
-  cursor:pointer;transition:opacity 0.15s;
-  -webkit-tap-highlight-color:transparent;
-}
-.aff-action-btn.share{background:rgba(255,255,255,0.1);color:#fff;}
-.aff-action-btn.copy-link{background:var(--blue);color:#fff;}
-.aff-action-btn:active{opacity:0.75;}
-
-.aff-payout-section{
-  padding:14px 20px 20px;
-  border-top:1px solid rgba(255,255,255,0.06);
-  position:relative;z-index:1;
-}
-.aff-payout-row{
-  display:flex;align-items:center;justify-content:space-between;
-  margin-bottom:10px;
-}
-.aff-payout-label{font-size:13px;color:rgba(255,255,255,0.5);}
-.aff-payout-val{font-size:14px;font-weight:700;color:var(--green);}
-.aff-payout-note{
-  font-size:11px;color:rgba(255,255,255,0.2);
-  line-height:1.6;
-}
-
-/* Code edit modal */
-.aff-edit-modal{
-  display:none;position:fixed;inset:0;z-index:999;
-  background:rgba(7,9,13,0.7);backdrop-filter:blur(8px);
-  align-items:flex-end;justify-content:center;
-}
-.aff-edit-modal.open{display:flex;}
-.aff-edit-sheet{
-  background:var(--white);border-radius:22px 22px 0 0;
-  padding:24px 20px calc(28px + env(safe-area-inset-bottom));
-  width:100%;max-width:520px;
-}
-.aff-edit-handle{width:36px;height:4px;background:var(--gray-2);border-radius:99px;margin:0 auto 20px;}
-.aff-edit-title{font-size:18px;font-weight:700;color:var(--ink);margin-bottom:6px;}
-.aff-edit-sub{font-size:13px;color:var(--gray-5);line-height:1.6;margin-bottom:16px;}
-.aff-edit-input{
-  width:100%;padding:13px 14px;
-  border:1.5px solid var(--gray-2);border-radius:12px;
-  font-size:16px;font-weight:700;letter-spacing:0.05em;
-  font-family:monospace;color:var(--ink);
-  background:var(--white);outline:none;
-  text-transform:uppercase;
-  transition:border-color 0.18s;
-  -webkit-appearance:none;
-  margin-bottom:8px;
-}
-.aff-edit-input:focus{border-color:var(--blue);}
-.aff-edit-err{font-size:12px;color:var(--red);margin-bottom:10px;display:none;}
-.aff-edit-save{
-  width:100%;padding:14px;background:var(--blue);
-  color:#fff;border:none;border-radius:980px;
-  font-size:15px;font-weight:600;cursor:pointer;
-  font-family:var(--font);margin-bottom:8px;
-}
-.aff-edit-cancel{
-  width:100%;padding:14px;background:var(--gray-1);
-  color:var(--gray-5);border:none;border-radius:980px;
-  font-size:15px;font-weight:600;cursor:pointer;
-  font-family:var(--font);
-}
 
 /* ── BOTTOM NAV ── */
 .bnav{position:fixed;bottom:0;left:0;right:0;z-index:100;background:rgba(255,255,255,0.97);backdrop-filter:blur(20px);border-top:1px solid var(--gray-2);height:calc(60px + env(safe-area-inset-bottom));padding-bottom:env(safe-area-inset-bottom);display:flex;align-items:center;}
@@ -489,9 +292,6 @@ body{-webkit-tap-highlight-color:transparent;
   <div class="section-label">Active Protocol</div>
   <div class="protocol-card" id="protocolCard" onclick="window.location.href='/protocol'"></div>
 
-  <div class="section-label">Membership</div>
-  <div class="membership-card" id="membershipCard"></div>
-
   <div class="section-label">Cycle History</div>
   <div class="recap-hist-card" id="cycleHistCard">
     <div class="recap-hist-empty"><div class="recap-hist-empty-icon">🧬</div>No cycles yet — generate your first protocol to begin.</div>
@@ -542,107 +342,6 @@ body{-webkit-tap-highlight-color:transparent;
       <div class="list-icon gray"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="var(--gray-5)" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg></div>
       <div class="list-text"><div class="list-title">Version</div></div>
       <div class="list-right"><div class="list-value">1.0.0</div></div>
-    </div>
-  </div>
-
-  <div class="section-label" style="margin-top:28px;">Refer a Friend</div>
-  <div class="affiliate-card" id="affiliateCard">
-
-    <div class="aff-header">
-      <div class="aff-eyebrow">Affiliate Program</div>
-      <div class="aff-title">Earn 50% for life</div>
-      <div class="aff-sub">Share your link. Every friend who subscribes earns you 50% of their payments — forever on monthly plans, or the full annual amount upfront.</div>
-    </div>
-
-    <div class="aff-stats">
-      <div class="aff-stat">
-        <div class="aff-stat-val blue" id="aff-referrals">0</div>
-        <div class="aff-stat-lbl">Referrals</div>
-      </div>
-      <div class="aff-stat">
-        <div class="aff-stat-val green" id="aff-active">0</div>
-        <div class="aff-stat-lbl">Active Subs</div>
-      </div>
-      <div class="aff-stat">
-        <div class="aff-stat-val" id="aff-earnings">$0</div>
-        <div class="aff-stat-lbl">Est. Monthly</div>
-      </div>
-    </div>
-
-    <!-- Hold status bar -->
-    <div id="aff-hold-bar" style="display:none;background:rgba(255,165,0,0.08);border:1px solid rgba(255,165,0,0.18);border-radius:10px;padding:11px 14px;margin:0 0 2px;">
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;">
-        <span style="font-size:12px;font-weight:600;color:rgba(255,165,0,0.9);">&#9679; Pending (30-day hold)</span>
-        <span style="font-size:13px;font-weight:700;color:rgba(255,255,255,0.85);" id="aff-pending-amt">$0.00</span>
-      </div>
-      <div style="font-size:11px;color:rgba(255,255,255,0.35);line-height:1.5;" id="aff-hold-note">Releases after dispute window closes.</div>
-    </div>
-
-    <div id="aff-available-bar" style="display:none;background:rgba(0,192,118,0.08);border:1px solid rgba(0,192,118,0.18);border-radius:10px;padding:11px 14px;margin:8px 0 2px;">
-      <div style="display:flex;justify-content:space-between;align-items:center;">
-        <span style="font-size:12px;font-weight:600;color:var(--green);">&#10003; Ready to pay out</span>
-        <span style="font-size:13px;font-weight:700;color:var(--green);" id="aff-available-amt">$0.00</span>
-      </div>
-      <div style="font-size:11px;color:rgba(255,255,255,0.35);margin-top:4px;">Connect your bank to receive this.</div>
-    </div>
-
-    <div class="aff-code-section">
-      <div class="aff-code-label">Your Code</div>
-      <div class="aff-code-row">
-        <div class="aff-code-display">
-          <span id="aff-code-text">LOADING</span>
-          <span class="aff-code-edit" onclick="openCodeEdit()">Edit</span>
-        </div>
-        <button class="aff-copy-btn" id="aff-copy-code-btn" onclick="copyCode()">Copy</button>
-      </div>
-    </div>
-
-    <div class="aff-link-section">
-      <div class="aff-code-label">Your Referral Link</div>
-      <div class="aff-link-box" id="aff-link-display">https://www.peptrak.com?ref=LOADING</div>
-      <div class="aff-actions">
-        <button class="aff-action-btn share" onclick="shareLink()">
-          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" style="margin-right:5px;vertical-align:-2px;"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>Share
-        </button>
-        <button class="aff-action-btn copy-link" onclick="copyLink()">Copy Link</button>
-      </div>
-    </div>
-
-    <div class="aff-payout-section">
-      <div class="aff-payout-row">
-        <div class="aff-payout-label">Payout rate</div>
-        <div class="aff-payout-val">50% lifetime</div>
-      </div>
-      <div class="aff-payout-row">
-        <div class="aff-payout-label">Hold period</div>
-        <div class="aff-payout-val">30 days</div>
-      </div>
-      <div class="aff-payout-row">
-        <div class="aff-payout-label">Total paid out</div>
-        <div class="aff-payout-val green" id="aff-total-paid">$0.00</div>
-      </div>
-      <div class="aff-payout-row" style="margin-bottom:0;">
-        <div class="aff-payout-label">Total earned</div>
-        <div class="aff-payout-val" id="aff-total-earned">$0.00</div>
-      </div>
-      <button id="connect-btn" data-label="Set Up Payouts" onclick="openConnectOnboarding()" style="width:100%;margin-top:14px;padding:13px;background:var(--blue);color:#fff;border:none;border-radius:980px;font-size:14px;font-weight:600;cursor:pointer;font-family:var(--font);">Set Up Payouts via Stripe</button>
-      <div style="margin-top:12px;font-size:11px;color:rgba(255,255,255,0.3);text-align:center;line-height:1.6;">
-        Commissions are held for 30 days to cover payment disputes, then transferred automatically to your bank. Monthly referrals pay every month. Annual referrals pay once, upfront.
-      </div>
-    </div>
-
-  </div>
-
-  <!-- Code Edit Modal -->
-  <div class="aff-edit-modal" id="aff-edit-modal">
-    <div class="aff-edit-sheet">
-      <div class="aff-edit-handle"></div>
-      <div class="aff-edit-title">Set your affiliate code</div>
-      <div class="aff-edit-sub">3–12 characters. Letters and numbers only. This is what your friends will see in their URL.</div>
-      <input class="aff-edit-input" id="aff-edit-input" type="text" maxlength="12" placeholder="YOURCODE" oninput="this.value=this.value.toUpperCase().replace(/[^A-Z0-9]/g,'')"/>
-      <div class="aff-edit-err" id="aff-edit-err"></div>
-      <button class="aff-edit-save" onclick="saveAffCode()">Save Code</button>
-      <button class="aff-edit-cancel" onclick="closeCodeEdit()">Cancel</button>
     </div>
   </div>
 
@@ -721,12 +420,12 @@ body{-webkit-tap-highlight-color:transparent;
 
 <script>
 
-// ── PAYWALL GUARD ──
+// ── AUTH GUARD ──
 (function(){
-  var paid = localStorage.getItem('peptrak_paid');
+  var email = localStorage.getItem('peptrak_auth_email');
   var isTest = localStorage.getItem('peptrak_test_account') === '1';
-  if(!paid && !isTest){
-    window.location.replace('/checkout');
+  if(!email && !isTest){
+    window.location.replace('/questionnaire');
   }
 })();
 
@@ -736,201 +435,6 @@ var KEYS={
   saved:'peptrak_lib_saved',recent:'peptrak_lib_recent',
   stack:'peptrak_custom_stack',profile:'peptrak_profile'
 };
-
-// ── AFFILIATE SYSTEM ──
-function generateDefaultCode(name){
-  var base = (name||'USER').toUpperCase().replace(/[^A-Z0-9]/g,'').slice(0,6);
-  if(base.length < 3) base = 'PT' + base;
-  var suffix = Math.floor(100 + Math.random() * 900);
-  return base + suffix;
-}
-
-function getAffCode(){
-  var stored = localStorage.getItem('peptrak_aff_code');
-  if(stored) return stored;
-  // Generate from name
-  var profile = {};
-  try{ profile = JSON.parse(localStorage.getItem('peptrak_profile')||'{}'); }catch(e){}
-  var intake = {};
-  try{ intake = JSON.parse(localStorage.getItem('peptrak_intake')||'{}'); }catch(e){}
-  var name = profile.name || intake.first_name || intake.name || '';
-  var code = generateDefaultCode(name);
-  localStorage.setItem('peptrak_aff_code', code);
-  return code;
-}
-
-function getAffLink(code){
-  return 'https://www.peptrak.com/?ref=' + (code || getAffCode());
-}
-
-function getAffStats(){
-  try{
-    var stored = localStorage.getItem('peptrak_aff_stats');
-    if(!stored){
-      var defaults = {referrals:0, active:0, earned:0};
-      localStorage.setItem('peptrak_aff_stats', JSON.stringify(defaults));
-      return defaults;
-    }
-    return JSON.parse(stored);
-  }catch(e){ return {referrals:0,active:0,earned:0}; }
-}
-
-async function loadAffiliate(){
-  var code = getAffCode();
-  var link = getAffLink(code);
-
-  var codeEl = document.getElementById('aff-code-text');
-  var linkEl = document.getElementById('aff-link-display');
-  if(codeEl) codeEl.textContent = code;
-  if(linkEl) linkEl.textContent = link;
-
-  try{
-    var res = await fetch('/api/affiliate?action=stats?refCode=' + encodeURIComponent(code));
-    var s = await res.json();
-
-    // Summary stats
-    var refEl = document.getElementById('aff-referrals');
-    var actEl = document.getElementById('aff-active');
-    var earnEl = document.getElementById('aff-earnings');
-    if(refEl) refEl.textContent = s.referrals || 0;
-    if(actEl) actEl.textContent = s.active || 0;
-    if(earnEl) earnEl.textContent = '$' + (s.monthlyEstimate || '0.00');
-
-    // Payout section
-    var paidEl = document.getElementById('aff-total-paid');
-    var totalEl = document.getElementById('aff-total-earned');
-    if(paidEl) paidEl.textContent = '$' + (s.totalPaid || '0.00');
-    if(totalEl) totalEl.textContent = '$' + (s.totalEarned || '0.00');
-
-    // Pending hold bar
-    var pendingBar = document.getElementById('aff-hold-bar');
-    var pendingAmt = document.getElementById('aff-pending-amt');
-    var holdNote = document.getElementById('aff-hold-note');
-    if(s.pendingCents > 0 && pendingBar){
-      pendingBar.style.display = 'block';
-      if(pendingAmt) pendingAmt.textContent = '$' + s.pendingDollars;
-      if(holdNote && s.nextRelease){
-        var releaseDate = new Date(s.nextRelease).toLocaleDateString('en-US',{month:'short',day:'numeric'});
-        holdNote.textContent = 'Earliest release: ' + releaseDate + '. Held 30 days to protect against payment disputes.';
-      }
-    }
-
-    // Available bar (hold expired, not yet transferred)
-    var availBar = document.getElementById('aff-available-bar');
-    var availAmt = document.getElementById('aff-available-amt');
-    if(parseFloat(s.availableDollars) > 0 && availBar){
-      availBar.style.display = 'block';
-      if(availAmt) availAmt.textContent = '$' + s.availableDollars;
-    }
-
-  }catch(e){
-    ['aff-referrals','aff-active','aff-earnings'].forEach(function(id){
-      var el = document.getElementById(id);
-      if(el) el.textContent = '—';
-    });
-  }
-}
-
-async function openConnectOnboarding(){
-  var code = getAffCode();
-  var email = localStorage.getItem('peptrak_auth_email') || '';
-  if(!email){ showToast('Please sign in first.'); return; }
-  var btn = document.getElementById('connect-btn');
-  if(btn){ btn.disabled = true; btn.textContent = 'Opening...'; }
-  try{
-    var res = await fetch('/api/affiliate?action=connect?refCode=' + encodeURIComponent(code) + '&email=' + encodeURIComponent(email));
-    var data = await res.json();
-    if(data.url) window.location.href = data.url;
-    else showToast('Could not open payout setup. Try again.');
-  }catch(e){
-    showToast('Could not open payout setup. Try again.');
-  }
-  if(btn){ btn.disabled = false; btn.textContent = btn.dataset.label || 'Set Up Payouts'; }
-}
-
-function copyCode(){
-  var code = getAffCode();
-  navigator.clipboard.writeText(code).then(function(){
-    var btn = document.getElementById('aff-copy-code-btn');
-    if(btn){ btn.textContent = 'Copied!'; btn.classList.add('copied'); }
-    setTimeout(function(){
-      if(btn){ btn.textContent = 'Copy'; btn.classList.remove('copied'); }
-    }, 2000);
-  }).catch(function(){
-    // Fallback
-    var ta = document.createElement('textarea');
-    ta.value = code; document.body.appendChild(ta);
-    ta.select(); document.execCommand('copy');
-    document.body.removeChild(ta);
-    showToast('Code copied!');
-  });
-}
-
-function copyLink(){
-  var link = getAffLink();
-  navigator.clipboard.writeText(link).then(function(){
-    showToast('Link copied!');
-  }).catch(function(){
-    var ta = document.createElement('textarea');
-    ta.value = link; document.body.appendChild(ta);
-    ta.select(); document.execCommand('copy');
-    document.body.removeChild(ta);
-    showToast('Link copied!');
-  });
-}
-
-function shareLink(){
-  var link = getAffLink();
-  var code = getAffCode();
-  if(navigator.share){
-    navigator.share({
-      title: 'PepTrak — Personalized Peptide Protocols',
-      text: 'Get your personalized peptide protocol built from your exact biology. Use my code ' + code + ' for 50% off.',
-      url: link
-    }).catch(function(){});
-  } else {
-    copyLink();
-  }
-}
-
-function openCodeEdit(){
-  var code = getAffCode();
-  var input = document.getElementById('aff-edit-input');
-  if(input) input.value = code;
-  var err = document.getElementById('aff-edit-err');
-  if(err) err.style.display = 'none';
-  var modal = document.getElementById('aff-edit-modal');
-  if(modal) modal.classList.add('open');
-}
-
-function closeCodeEdit(){
-  var modal = document.getElementById('aff-edit-modal');
-  if(modal) modal.classList.remove('open');
-}
-
-function saveAffCode(){
-  var input = document.getElementById('aff-edit-input');
-  var val = (input ? input.value : '').trim().toUpperCase();
-  var err = document.getElementById('aff-edit-err');
-
-  if(val.length < 3){
-    if(err){ err.textContent = 'Code must be at least 3 characters.'; err.style.display = 'block'; }
-    return;
-  }
-  if(val.length > 12){
-    if(err){ err.textContent = 'Code must be 12 characters or less.'; err.style.display = 'block'; }
-    return;
-  }
-  if(!/^[A-Z0-9]+$/.test(val)){
-    if(err){ err.textContent = 'Letters and numbers only.'; err.style.display = 'block'; }
-    return;
-  }
-
-  localStorage.setItem('peptrak_aff_code', val);
-  closeCodeEdit();
-  loadAffiliate();
-  showToast('Affiliate code saved!');
-}
 
 function showErr(msg){
   var t = document.getElementById('save-toast');
@@ -978,19 +482,6 @@ function fmtDate(ts){
   if(!ts) return null;
   return new Date(parseInt(ts)).toLocaleDateString('en-US',{month:'long',day:'numeric',year:'numeric'});
 }
-function nextBillingDate(ts,plan){
-  if(!ts) return 'N/A';
-  var d=new Date(parseInt(ts));
-  if(plan==='annual') d.setFullYear(d.getFullYear()+1);
-  else d.setMonth(d.getMonth()+1);
-  return d.toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'});
-}
-function trialDaysLeft(ts){
-  if(!ts) return null;
-  var diff=Math.ceil((parseInt(ts)+21*86400000-Date.now())/86400000);
-  return diff>0?diff:0;
-}
-
 function loadPage(){
   var profile=load(KEYS.profile)||{};
   var intake=load(KEYS.intake)||{};
@@ -998,9 +489,6 @@ function loadPage(){
   var tracker=load(KEYS.tracker)||{};
   var startRaw=localStorage.getItem(KEYS.start);
   var intakeTs=localStorage.getItem('peptrak_intake_ts');
-  var paidTs=localStorage.getItem('peptrak_paid_ts');
-  var isPro=!!(profile.isPro||localStorage.getItem('peptrak_paid'));
-  var plan=profile.plan||'annual';
 
   var name=profile.name||intake.name||intake.first_name||intake.firstName||'Researcher';
   var goal=profile.goal||intake.primaryGoal||intake.goal||'';
@@ -1014,8 +502,7 @@ function loadPage(){
   document.getElementById('profileSince').textContent=since?'Member since '+since:'PepTrak member';
 
   var planBadge=document.getElementById('planBadge');
-  if(isPro){planBadge.textContent='\u2605 Pro';planBadge.className='profile-badge plan-pro';}
-  else{planBadge.style.display='none';}
+  if(planBadge) planBadge.style.display='none';
 
   var goalBadge=document.getElementById('goalBadge');
   if(goal){goalBadge.textContent=goal;goalBadge.style.display='inline-flex';}
@@ -1036,10 +523,8 @@ function loadPage(){
   }
 
   renderProtocol(protocol,week);
-  renderMembership(isPro,plan,paidTs||intakeTs);
   renderCycles();
   renderRecaps();
-  loadAffiliate();
 }
 
 function renderProtocol(p,week){
@@ -1068,178 +553,6 @@ function renderProtocol(p,week){
   setTimeout(function(){var f=document.getElementById('wbf');if(f)f.style.width=pct+'%';},80);
 }
 
-function renderMembership(isPro, plan, billingTs){
-  // Always try to fetch live data from Stripe first
-  var customerId = localStorage.getItem('peptrak_stripe_customer_id');
-  var el = document.getElementById('membershipCard');
-  if(!el) return;
-
-  if(customerId){
-    // Show skeleton while loading
-    el.innerHTML = '<div style="padding:20px;text-align:center;">'
-      + '<div style="width:80px;height:12px;background:rgba(255,255,255,0.08);border-radius:6px;margin:0 auto 10px;"></div>'
-      + '<div style="width:120px;height:8px;background:rgba(255,255,255,0.05);border-radius:6px;margin:0 auto;"></div>'
-      + '</div>';
-    fetchStripeStatus(customerId, el, plan);
-  } else {
-    // No customer ID yet — show activate CTA
-    renderMembershipActivate(el);
-  }
-}
-
-async function fetchStripeStatus(customerId, el, fallbackPlan){
-  try{
-    var res = await fetch('/api/stripe?action=status?customerId=' + customerId);
-    if(!res.ok) throw new Error('API error');
-    var data = await res.json();
-
-    // Cache for offline use
-    localStorage.setItem('peptrak_sub_cache', JSON.stringify({ts: Date.now(), data: data}));
-    renderMembershipCard(el, data);
-
-  }catch(err){
-    // Network error — try cached data
-    var cached = null;
-    try{ cached = JSON.parse(localStorage.getItem('peptrak_sub_cache')||'null'); }catch(e){}
-    if(cached && cached.data && (Date.now() - cached.ts) < 3600000){
-      renderMembershipCard(el, cached.data);
-    } else {
-      // Complete fallback from localStorage
-      renderMembershipFallback(el, fallbackPlan);
-    }
-  }
-}
-
-function renderMembershipCard(el, data){
-  // data: { status, plan, amountStr, trialDaysLeft, nextBillingDate, cancelAtPeriodEnd, cardLast4 }
-  var status = data.status || 'trialing';
-  var isCanceling = data.cancelAtPeriodEnd;
-
-  var statusLabel, statusColor, statusBg;
-  if(status === 'trialing'){
-    statusLabel = data.trialDaysLeft > 0 ? data.trialDaysLeft + 'd trial left' : 'Trial ending';
-    statusColor = '#F0A500'; statusBg = 'rgba(240,165,0,0.15)';
-  } else if(status === 'active'){
-    statusLabel = isCanceling ? 'Cancels ' + data.nextBillingDate : 'ACTIVE';
-    statusColor = isCanceling ? '#FF6B6B' : 'var(--green)';
-    statusBg = isCanceling ? 'rgba(255,59,48,0.12)' : 'rgba(0,192,118,0.12)';
-  } else if(status === 'past_due'){
-    statusLabel = 'PAST DUE';
-    statusColor = 'var(--red)'; statusBg = 'rgba(255,59,48,0.15)';
-  } else if(status === 'canceled'){
-    statusLabel = 'CANCELED';
-    statusColor = 'var(--gray-4)'; statusBg = 'rgba(255,255,255,0.07)';
-  } else {
-    statusLabel = status.toUpperCase();
-    statusColor = 'var(--gray-4)'; statusBg = 'rgba(255,255,255,0.07)';
-  }
-
-  // Build billing cells
-  var cells = '';
-  if(status === 'trialing' && data.trialDaysLeft > 0){
-    cells += billingCell(data.trialDaysLeft + ' days', 'Trial Remaining');
-    cells += billingCell(data.nextBillingDate, 'First Charge');
-    cells += billingCell(data.plan === 'annual' ? 'Annual' : 'Monthly', 'Billing Cycle');
-  } else if(status === 'active'){
-    cells += billingCell(data.nextBillingDate, isCanceling ? 'Access Until' : 'Next Billing');
-    cells += billingCell(data.plan === 'annual' ? 'Annual' : 'Monthly', 'Billing Cycle');
-    if(data.cardLast4) cells += billingCell('···· ' + data.cardLast4, 'Payment Method');
-  } else if(status === 'past_due'){
-    cells += billingCell(data.nextBillingDate, 'Due Date');
-    cells += billingCell(data.plan === 'annual' ? 'Annual' : 'Monthly', 'Billing Cycle');
-  }
-
-  // Past due alert
-  var alertHtml = '';
-  if(status === 'past_due'){
-    alertHtml = '<div style="background:rgba(255,59,48,0.1);border:1px solid rgba(255,59,48,0.2);border-radius:10px;padding:10px 14px;margin:12px 0;font-size:12px;color:#FF6B6B;line-height:1.5;">'
-      + '⚠️ Your last payment failed. Please update your payment method to keep access.'
-      + '</div>';
-  }
-
-  el.innerHTML = '<div class="membership-main">'
-    + '<div class="membership-icon">🧬</div>'
-    + '<div class="membership-info">'
-    + '<div class="membership-plan">PepTrak Pro</div>'
-    + '<div class="membership-billing">' + (data.amountStr || '') + '</div>'
-    + '</div>'
-    + '<div class="membership-status" style="background:'+statusBg+';color:'+statusColor+';border:none;font-size:10px;font-weight:700;letter-spacing:0.04em;padding:4px 10px;border-radius:20px;">'+statusLabel+'</div>'
-    + '</div>'
-    + (cells ? '<div class="billing-row">' + cells + '</div>' : '')
-    + alertHtml
-    + '<div class="membership-divider"></div>'
-    + '<div class="membership-actions">'
-    + (status === 'past_due'
-        ? '<button class="membership-action primary" onclick="openBillingPortal()">Update Payment Method</button>'
-        : isCanceling
-          ? '<button class="membership-action primary" onclick="openBillingPortal()">Reactivate</button>'
-          : '<button class="membership-action" onclick="openBillingPortal()">Manage Subscription</button>'
-      )
-    + '</div>';
-}
-
-function billingCell(val, lbl){
-  return '<div class="billing-cell">'
-    + '<div class="billing-val">'+val+'</div>'
-    + '<div class="billing-lbl">'+lbl+'</div>'
-    + '</div>';
-}
-
-function renderMembershipActivate(el){
-  el.innerHTML = '<div class="membership-main">'
-    + '<div class="membership-icon">🧬</div>'
-    + '<div class="membership-info"><div class="membership-plan">PepTrak Pro</div><div class="membership-billing">21-day free trial · then $12/mo</div></div>'
-    + '</div>'
-    + '<div class="membership-divider"></div>'
-    + '<div class="membership-actions">'
-    + '<button class="membership-action primary" onclick="window.location.href=\'/checkout\'">Activate Subscription</button>'
-    + '</div>';
-}
-
-function renderMembershipFallback(el, plan){
-  // Use localStorage timestamps as best guess
-  var trialEndStr = localStorage.getItem('peptrak_trial_end');
-  var periodEndStr = localStorage.getItem('peptrak_period_end');
-  var status = localStorage.getItem('peptrak_subscription_status') || 'trialing';
-  var now = Date.now();
-
-  var trialDaysLeft = null;
-  if(trialEndStr){
-    var trialEndMs = new Date(trialEndStr).getTime();
-    trialDaysLeft = Math.max(0, Math.ceil((trialEndMs - now) / 86400000));
-  }
-  var nextDate = periodEndStr
-    ? new Date(periodEndStr).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'})
-    : '—';
-
-  renderMembershipCard(el, {
-    status: trialDaysLeft > 0 ? 'trialing' : status,
-    plan: plan || 'monthly',
-    amountStr: plan === 'annual' ? '$12/mo · billed $149/yr' : '$24.99/mo',
-    trialDaysLeft: trialDaysLeft,
-    nextBillingDate: nextDate,
-    cancelAtPeriodEnd: false,
-    cardLast4: null,
-  });
-}
-
-async function openBillingPortal(){
-  var customerId = localStorage.getItem('peptrak_stripe_customer_id');
-  if(!customerId){ window.location.href = '/checkout'; return; }
-  try{
-    var res = await fetch('/api/stripe?action=portal', {
-      method: 'POST',
-      headers: {'Content-Type':'application/json'},
-      body: JSON.stringify({ customerId: customerId, returnUrl: window.location.href })
-    });
-    var data = await res.json();
-    if(data.url) window.location.href = data.url;
-    else throw new Error('No portal URL');
-  }catch(err){
-    // Fallback: open Stripe's generic portal
-    window.open('https://billing.stripe.com', '_blank');
-  }
-}
 
 
 function renderCycles(){
@@ -1348,11 +661,8 @@ function logout(){
 function confirmLogout(){
   // Clear all auth and session keys — data (protocol, tracker, intake) preserved for same-device re-login
   var AUTH_KEYS = [
-    'peptrak_paid','peptrak_paid_ts',
     'peptrak_auth_email','peptrak_auth_pw',
-    'peptrak_test_account',
-    'peptrak_stripe_customer_id','peptrak_stripe_subscription_id',
-    'peptrak_subscription_status','peptrak_trial_end','peptrak_period_end'
+    'peptrak_test_account'
   ];
   AUTH_KEYS.forEach(function(k){ localStorage.removeItem(k); });
   sessionStorage.clear();
@@ -1377,11 +687,9 @@ function confirmReset(){
   ['peptrak_protocol','peptrak_intake','peptrak_tracker','peptrak_protocol_start',
    'peptrak_lib_saved','peptrak_lib_recent','peptrak_custom_stack','peptrak_profile',
    'peptrak_intake_ts','peptrak_protocol_ts','peptrak_weekly_recaps','peptrak_alex_memory',
-   'peptrak_chat_history','peptrak_paid','peptrak_paid_ts',
+   'peptrak_chat_history',
    'peptrak_auth_email','peptrak_auth_pw','peptrak_test_account',
-   'peptrak_stripe_customer_id','peptrak_stripe_subscription_id',
-   'peptrak_subscription_status','peptrak_trial_end','peptrak_period_end',
-   'peptrak_aff_code','peptrak_ref_code','peptrak_response_profile_v1',
+   'peptrak_response_profile_v1',
    'peptrak_body_metrics','peptrak_advisor_context','peptrak_alex_memory',
    'peptrak_cycle_history','peptrak_sub_cache'].forEach(function(k){localStorage.removeItem(k);});
   sessionStorage.clear();

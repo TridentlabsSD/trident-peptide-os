@@ -1085,14 +1085,6 @@ async function generateProtocol(){
   }
 }
 
-// ── PAYWALL CHECK ──
-(function(){
-  var paid = localStorage.getItem('peptrak_paid');
-  var isTest = localStorage.getItem('peptrak_test_account') === '1';
-  if(!paid && !isTest){
-    window.location.replace('/checkout');
-  }
-})();
 
 // ── INIT — show cache first, only generate if none exists ──
 (function(){

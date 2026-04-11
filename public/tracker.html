@@ -1263,11 +1263,10 @@ function startCycleLater(){
 
 // ── INSTALL PROMPT ──
 function checkInstallPrompt(){
-  // Only show if: paid user, never shown before, not already installed
-  var paid = localStorage.getItem('peptrak_paid');
+  // Show if: never shown before, not already installed
   var shown = localStorage.getItem('peptrak_install_shown');
   var isStandalone = window.navigator.standalone || window.matchMedia('(display-mode: standalone)').matches;
-  if(!paid || shown || isStandalone) return;
+  if(shown || isStandalone) return;
 
   // Detect device
   var ua = navigator.userAgent;
@@ -3100,11 +3099,10 @@ function startCycleLater(){
 
 // ── INSTALL PROMPT ──
 function checkInstallPrompt(){
-  // Only show if: paid user, never shown before, not already installed
-  var paid = localStorage.getItem('peptrak_paid');
+  // Show if: never shown before, not already installed
   var shown = localStorage.getItem('peptrak_install_shown');
   var isStandalone = window.navigator.standalone || window.matchMedia('(display-mode: standalone)').matches;
-  if(!paid || shown || isStandalone) return;
+  if(shown || isStandalone) return;
 
   // Detect device
   var ua = navigator.userAgent;

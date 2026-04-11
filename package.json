@@ -7,9 +7,7 @@
     "build": "echo 'No build step required'",
     "deploy": "vercel --prod"
   },
-  "dependencies": {
-    "stripe": "^14.0.0"
-  },
+  "dependencies": {},
   "devDependencies": {
     "vercel": "latest"
   },
