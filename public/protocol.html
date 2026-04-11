@@ -51,11 +51,11 @@ body{
   text-decoration:none;
 }
 .hdr-mark{
-  width:26px;height:26px;border-radius:7px;
-  background:var(--blue);
+  width:30px;height:30px;
   display:flex;align-items:center;justify-content:center;
-  font-size:12px;font-weight:800;color:#fff;
+  flex-shrink:0;
 }
+.hdr-mark img{width:30px;height:30px;object-fit:contain;display:block;}
 .hdr-badge{
   font-size:11px;font-weight:600;color:var(--blue);
   background:var(--blue-pale);
@@ -73,13 +73,11 @@ body{
 }
 .gen-screen.fade-out{opacity:0;pointer-events:none;}
 .gen-logo{
-  width:52px;height:52px;border-radius:16px;
-  background:var(--blue);
+  width:64px;height:64px;
   display:flex;align-items:center;justify-content:center;
-  font-size:22px;font-weight:800;color:#fff;
   margin-bottom:28px;
-  box-shadow:0 8px 24px rgba(8,118,255,0.3);
 }
+.gen-logo img{width:64px;height:64px;object-fit:contain;display:block;}
 .gen-title{
   font-size:22px;font-weight:700;letter-spacing:-0.4px;
   color:var(--ink);margin-bottom:8px;text-align:center;
@@ -442,7 +440,7 @@ body{
 <!-- HEADER -->
 <header class="hdr">
   <a href="/" class="hdr-logo">
-    <div class="hdr-mark">P</div>
+    <div class="hdr-mark"><img src="/logo.png" alt="PepTrak logo"/></div>
     PepTrak
   </a>
   <div class="hdr-badge" id="hdr-badge">Generating...</div>
@@ -450,7 +448,7 @@ body{
 
 <!-- GENERATING SCREEN -->
 <div class="gen-screen" id="gen-screen">
-  <div class="gen-logo">P</div>
+  <div class="gen-logo"><img src="/logo.png" alt="PepTrak logo"/></div>
   <div class="gen-title" id="gen-title">Building your protocol</div>
   <div class="gen-sub" id="gen-sub">Our research team is reviewing your biometrics and selecting the right compounds for you...</div>
 

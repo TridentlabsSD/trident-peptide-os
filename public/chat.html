@@ -53,11 +53,11 @@ body{-webkit-tap-highlight-color:transparent;
   text-decoration:none;
 }
 .hdr-mark{
-  width:26px;height:26px;border-radius:7px;
-  background:var(--blue);
+  width:30px;height:30px;
   display:flex;align-items:center;justify-content:center;
-  font-size:12px;font-weight:800;color:#fff;
+  flex-shrink:0;
 }
+.hdr-mark img{width:30px;height:30px;object-fit:contain;display:block;}
 .hdr-title{font-size:15px;font-weight:600;color:var(--ink);}
 .hdr-sub{font-size:11px;color:var(--gray-4);}
 .hdr-status{
@@ -266,7 +266,7 @@ body{-webkit-tap-highlight-color:transparent;
 <header class="hdr">
   <div class="hdr-left">
     <a href="/" class="hdr-logo">
-      <div class="hdr-mark">P</div>
+      <div class="hdr-mark"><img src="/logo.png" alt="PepTrak logo"/></div>
     </a>
     <div>
       <div class="hdr-title">Alex</div>
@@ -457,7 +457,7 @@ function getMemory(key){ return memory[key] || null; }
 
 // ══════════════════════════════════════════════════════════
 // CHURN DETECTION
-// ════════════════════════════════════════════��═════════════
+// ════════════════════════════════════════════���═════════════
 function detectChurnRisk(){
   var progress = getProtocolWeek();
   if(!progress) return null;

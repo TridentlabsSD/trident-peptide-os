@@ -45,11 +45,10 @@ body{-webkit-tap-highlight-color:transparent;
   text-decoration:none;display:flex;align-items:center;gap:7px;
 }
 .header-logo-mark{
-  width:26px;height:26px;border-radius:7px;
-  background:var(--blue);
+  width:30px;height:30px;
   display:flex;align-items:center;justify-content:center;
-  font-size:13px;font-weight:800;color:white;
 }
+.header-logo-mark img{width:30px;height:30px;object-fit:contain;display:block;}
 .header-meta{display:flex;flex-direction:column;align-items:flex-end;gap:1px;}
 .header-step{font-size:12px;color:var(--gray-4);font-weight:500;}
 .header-time{font-size:11px;color:var(--gray-4);}
@@ -438,7 +437,7 @@ function charCount(el, id){
     Back
   </button>
   <a href="/" class="header-logo">
-    <div class="header-logo-mark">P</div>
+    <div class="header-logo-mark"><img src="/logo.png" alt="PepTrak logo"/></div>
     PepTrak
   </a>
   <div class="header-meta">
@@ -1080,7 +1079,7 @@ function charCount(el, id){
   </div>
 </div>
 
-<!-- ════════════════════════════���══════
+<!-- ════════════════════════════�����══════
      STEP 16 — PREVIOUS PEPTIDES
 ═══════════════════════════════════ -->
 <div class="step" id="step-16">
@@ -1732,7 +1731,7 @@ function buildS2(){
   });
 }
 
-// ═════════��═════════════
+// ═══════��═��═════════════
 // RESTORE STEP
 // ═══════════════════════
 function restoreStep(s){

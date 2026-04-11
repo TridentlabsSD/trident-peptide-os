@@ -23,7 +23,7 @@ body{font-family:var(--font);background:var(--bg);color:var(--t);-webkit-font-sm
 /* ── LOGIN ── */
 .login-wrap{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px;}
 .login-card{background:var(--surf);border:1px solid var(--bdr2);border-radius:20px;padding:40px 36px;width:100%;max-width:360px;text-align:center;}
-.login-logo{width:48px;height:48px;border-radius:14px;background:var(--blue);display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:800;color:#fff;margin:0 auto 20px;}
+.login-logo{width:56px;height:56px;display:flex;align-items:center;justify-content:center;margin:0 auto 20px;}.login-logo img{width:56px;height:56px;object-fit:contain;display:block;}
 .login-title{font-size:20px;font-weight:700;margin-bottom:6px;}
 .login-sub{font-size:13px;color:var(--t3);margin-bottom:28px;}
 .login-input{width:100%;background:rgba(255,255,255,0.06);border:1px solid var(--bdr2);border-radius:10px;padding:13px 14px;font-size:16px;font-family:var(--font);color:var(--t);outline:none;margin-bottom:10px;}
@@ -37,7 +37,7 @@ body{font-family:var(--font);background:var(--bg);color:var(--t);-webkit-font-sm
 .layout{display:flex;min-height:100vh;}
 .sidebar{width:216px;flex-shrink:0;background:var(--bg);border-right:1px solid var(--bdr);display:flex;flex-direction:column;position:fixed;top:0;left:0;bottom:0;z-index:50;}
 .sb-logo{display:flex;align-items:center;gap:10px;padding:18px 16px;border-bottom:1px solid var(--bdr);}
-.sb-mark{width:30px;height:30px;border-radius:9px;background:var(--blue);display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:800;color:#fff;flex-shrink:0;}
+.sb-mark{width:30px;height:30px;display:flex;align-items:center;justify-content:center;flex-shrink:0;}.sb-mark img{width:30px;height:30px;object-fit:contain;display:block;}
 .sb-name{font-size:14px;font-weight:700;}
 .sb-badge{font-size:9px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:rgba(248,113,113,0.8);margin-top:1px;}
 .sb-nav{padding:14px 10px;flex:1;display:flex;flex-direction:column;gap:2px;}
@@ -215,7 +215,7 @@ tr:hover td{background:rgba(255,255,255,0.02);}
 <!-- LOGIN -->
 <div class="login-wrap" id="login-wrap">
   <div class="login-card">
-    <div class="login-logo">P</div>
+    <div class="login-logo"><img src="/logo.png" alt="PepTrak logo"/></div>
     <div class="login-title">PepTrak Admin</div>
     <div class="login-sub">Enter your admin secret to continue</div>
     <input class="login-input" type="password" id="secret-input" placeholder="Admin secret" onkeydown="if(event.key==='Enter')doLogin()"/>
@@ -231,7 +231,7 @@ tr:hover td{background:rgba(255,255,255,0.02);}
 <!-- SIDEBAR -->
 <div class="sidebar">
   <div class="sb-logo">
-    <div class="sb-mark">P</div>
+    <div class="sb-mark"><img src="/logo.png" alt="PepTrak logo"/></div>
     <div><div class="sb-name">PepTrak</div><div class="sb-badge">Admin</div></div>
   </div>
   <div class="sb-nav">

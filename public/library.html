@@ -24,7 +24,7 @@ body{-webkit-tap-highlight-color:transparent;font-family:var(--font);background:
 .hdr{position:sticky;top:0;z-index:200;background:rgba(247,248,250,0.96);backdrop-filter:blur(20px);border-bottom:1px solid var(--gray-2);}
 .hdr-top{height:56px;display:flex;align-items:center;justify-content:space-between;padding:0 20px;}
 .hdr-logo{display:flex;align-items:center;gap:7px;font-size:16px;font-weight:700;color:var(--ink);text-decoration:none;}
-.hdr-mark{width:26px;height:26px;border-radius:7px;background:var(--blue);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;color:#fff;}
+.hdr-mark{width:30px;height:30px;display:flex;align-items:center;justify-content:center;flex-shrink:0;}.hdr-mark img{width:30px;height:30px;object-fit:contain;display:block;}
 .hdr-title{font-size:16px;font-weight:700;color:var(--ink);}
 
 /* SEARCH */
@@ -372,7 +372,7 @@ body{-webkit-tap-highlight-color:transparent;font-family:var(--font);background:
 
 <header class="hdr">
   <div class="hdr-top">
-    <a href="/tracker" class="hdr-logo"><div class="hdr-mark">P</div></a>
+    <a href="/tracker" class="hdr-logo"><div class="hdr-mark"><img src="/logo.png" alt="PepTrak logo"/></div></a>
     <div class="hdr-title">Library</div>
     <div id="compound-count-badge" style="font-size:11px;font-weight:700;color:var(--blue);background:var(--blue-pale);padding:4px 10px;border-radius:20px;"></div>
   </div>
