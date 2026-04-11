@@ -1080,7 +1080,7 @@ function charCount(el, id){
   </div>
 </div>
 
-<!-- ═══════════════════════════════════
+<!-- ════════════════════════════���══════
      STEP 16 — PREVIOUS PEPTIDES
 ═══════════════════════════════════ -->
 <div class="step" id="step-16">
@@ -1732,7 +1732,7 @@ function buildS2(){
   });
 }
 
-// ═══════════════════════
+// ═════════��═════════════
 // RESTORE STEP
 // ═══════════════════════
 function restoreStep(s){
@@ -1943,21 +1943,50 @@ function buildSummary(){
 
 
 // ═══════════════════════
+// HASH HELPER
+// ═══════════════════════
+async function hashPassword(pw){
+  var data = new TextEncoder().encode(pw + 'peptrak_salt_2026');
+  var hash = await crypto.subtle.digest('SHA-256', data);
+  return Array.from(new Uint8Array(hash)).map(function(b){ return b.toString(16).padStart(2,'0'); }).join('');
+}
+
+// ═══════════════════════
 // SUBMIT
 // ═══════════════════════
-function submitForm(){
+async function submitForm(){
   saveStep(cur);
+  var name = (document.getElementById('first-name')||{}).value||'';
+  var email = ((document.getElementById('acct-email')||{}).value||'').trim().toLowerCase();
+  var pw = (document.getElementById('acct-pw')||{}).value||'';
+  if(!email || !email.includes('@')){ alert('Please enter a valid email address.'); return; }
+  if(pw.length < 8){ alert('Password must be at least 8 characters.'); return; }
+
+  A.first_name = name;
+  A.email = email;
   localStorage.setItem('peptrak_intake', JSON.stringify(A));
   localStorage.setItem('peptrak_intake_ts', Date.now().toString());
-  // Clear stale protocol — forces fresh generation on protocol page
   localStorage.removeItem('peptrak_protocol');
   localStorage.removeItem('peptrak_protocol_ts');
-  // Check if already paid — if so go straight to protocol
-  if(localStorage.getItem('peptrak_paid')){
-    window.location.href = '/protocol';
-  } else {
-    window.location.href = '/protocol';
-  }
+
+  var hash = await hashPassword(pw);
+  localStorage.setItem('peptrak_auth_email', email);
+  localStorage.setItem('peptrak_auth_pw', hash);
+  localStorage.removeItem('peptrak_test_account');
+
+  // Save account + intake to Supabase
+  fetch('/api/supabase?action=upsert-user', {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify({ email: email, name: name, status: 'free', plan: 'free', authPw: hash })
+  }).catch(function(){});
+  fetch('/api/supabase?action=save-data', {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify({ email: email, intake: A, authPw: hash })
+  }).catch(function(){});
+
+  window.location.href = '/protocol';
 }
 
 // ═══════════════════════

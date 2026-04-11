@@ -462,7 +462,7 @@ function charCount(el, id){
   <div class="progress-fill" id="progress-fill" style="width:5%"></div>
 </div>
 
-<!-- STEPS WRAP -->
+<!-- STEPS WRAP — steps 1-6 intact, 7-20 rebuilt with correct IDs -->
 <div class="steps-wrap" id="steps-wrap">
 
 <!-- ═══════════════════════════════════
@@ -738,7 +738,7 @@ function charCount(el, id){
       Why we ask
     </button>
   </div>
-  <h1 class="step-title">Height & weight</h1>
+  <h1 class="step-title">Height &amp; weight</h1>
   <p class="step-sub">Used to calculate doses precisely to your body size — not one-size-fits-all.</p>
   <div class="why-tooltip" id="why-7">
     <strong>Why this matters:</strong> Most peptide doses are weight-based (mcg/kg). A 200lb person needs a different dose than a 140lb person. BMI also helps us understand body composition context and calibrate fat loss vs. muscle-building compound ratios.
@@ -768,7 +768,7 @@ function charCount(el, id){
   </div>
   <div class="tell-more">
     <div class="tell-more-lbl">Add more context <span class="opt-badge">Optional</span></div>
-    <textarea id="notes-7" placeholder="e.g. I carry most weight around my midsection, fairly lean everywhere else. Currently about 18% body fat..." maxlength="500" oninput="charCount(this,'cc-7')"></textarea>
+    <textarea id="notes-7" placeholder="e.g. I carry most weight around my midsection, fairly lean everywhere else..." maxlength="500" oninput="charCount(this,'cc-7')"></textarea>
     <div class="tell-more-count" id="cc-7">0 / 500</div>
   </div>
 </div>
@@ -797,7 +797,7 @@ function charCount(el, id){
   </div>
   <div class="tell-more">
     <div class="tell-more-lbl">Add more context <span class="opt-badge">Optional</span></div>
-    <textarea id="notes-8" placeholder="e.g. I've been cutting for 8 weeks and I'm about 15% body fat currently. Trying to get to 10%..." maxlength="500" oninput="charCount(this,'cc-8')"></textarea>
+    <textarea id="notes-8" placeholder="e.g. I've been cutting for 8 weeks and I'm about 15% body fat currently..." maxlength="500" oninput="charCount(this,'cc-8')"></textarea>
     <div class="tell-more-count" id="cc-8">0 / 500</div>
   </div>
 </div>
@@ -827,7 +827,7 @@ function charCount(el, id){
   </div>
   <div class="tell-more">
     <div class="tell-more-lbl">Add more context <span class="opt-badge">Optional</span></div>
-    <textarea id="notes-9" placeholder="e.g. I mostly do powerlifting 4x/week and 1 day of cardio. Currently dealing with mild joint pain from heavy squats..." maxlength="500" oninput="charCount(this,'cc-9')"></textarea>
+    <textarea id="notes-9" placeholder="e.g. I mostly do powerlifting 4x/week and 1 day of cardio..." maxlength="500" oninput="charCount(this,'cc-9')"></textarea>
     <div class="tell-more-count" id="cc-9">0 / 500</div>
   </div>
 </div>
@@ -843,9 +843,41 @@ function charCount(el, id){
       Why we ask
     </button>
   </div>
+  <h1 class="step-title">Primary sport<br>or activity?</h1>
+  <p class="step-sub">Your sport shapes which recovery and performance compounds are most relevant for you.</p>
+  <div class="why-tooltip" id="why-10">
+    <strong>Why this matters:</strong> Endurance athletes benefit more from EPO-pathway peptides and mitochondrial support. Strength athletes need more joint and anabolic support. Combat athletes need rapid recovery compounds. This helps us fine-tune your stack beyond just your primary goal.
+  </div>
+  <div class="options" id="s10-opts">
+    <div class="option" data-val="strength" onclick="selectOpt(this,'s10','sport')"><div class="option-radio"></div><div class="option-text"><div class="option-label">Strength / Powerlifting</div><div class="option-desc">Barbell training, maximal strength focus</div></div></div>
+    <div class="option" data-val="bodybuilding" onclick="selectOpt(this,'s10','sport')"><div class="option-radio"></div><div class="option-text"><div class="option-label">Bodybuilding / Physique</div><div class="option-desc">Muscle aesthetics, body composition</div></div></div>
+    <div class="option" data-val="combat" onclick="selectOpt(this,'s10','sport')"><div class="option-radio"></div><div class="option-text"><div class="option-label">Combat Sports</div><div class="option-desc">MMA, BJJ, boxing, wrestling</div></div></div>
+    <div class="option" data-val="endurance" onclick="selectOpt(this,'s10','sport')"><div class="option-radio"></div><div class="option-text"><div class="option-label">Endurance</div><div class="option-desc">Running, cycling, triathlon</div></div></div>
+    <div class="option" data-val="crossfit" onclick="selectOpt(this,'s10','sport')"><div class="option-radio"></div><div class="option-text"><div class="option-label">CrossFit / HIIT</div><div class="option-desc">High-intensity mixed modality</div></div></div>
+    <div class="option" data-val="recreational" onclick="selectOpt(this,'s10','sport')"><div class="option-radio"></div><div class="option-text"><div class="option-label">Recreational Fitness</div><div class="option-desc">General health, no competitive focus</div></div></div>
+    <div class="option" data-val="sedentary_work" onclick="selectOpt(this,'s10','sport')"><div class="option-radio"></div><div class="option-text"><div class="option-label">Primarily Sedentary</div><div class="option-desc">Desk job, limited physical activity</div></div></div>
+  </div>
+  <div class="tell-more">
+    <div class="tell-more-lbl">Add more context <span class="opt-badge">Optional</span></div>
+    <textarea id="notes-10" placeholder="e.g. I compete in powerlifting meets twice a year. Currently dealing with elbow tendinitis..." maxlength="500" oninput="charCount(this,'cc-10')"></textarea>
+    <div class="tell-more-count" id="cc-10">0 / 500</div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════
+     STEP 11 — SLEEP
+═══════════════════════════════════ -->
+<div class="step" id="step-11">
+  <div class="step-meta">
+    <div class="step-eyebrow">Your lifestyle</div>
+    <button class="why-btn" onclick="toggleWhy(11)">
+      <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg>
+      Why we ask
+    </button>
+  </div>
   <h1 class="step-title">Sleep quality</h1>
   <p class="step-sub">Sleep is when most peptide-driven recovery and GH release happens. Poor sleep changes everything.</p>
-  <div class="why-tooltip" id="why-10">
+  <div class="why-tooltip" id="why-11">
     <strong>Why this matters:</strong> ~80% of natural GH is released during deep sleep. Poor sleep blunts the effect of GH secretagogues and impairs recovery compound absorption. Users with poor sleep often need sleep-targeting compounds added to their stack first before other goals can be optimized.
   </div>
   <div class="options" id="s11-opts">
@@ -865,17 +897,75 @@ function charCount(el, id){
 <!-- ═══════════════════════════════════
      STEP 12 — STRESS
 ═══════════════════════════════════ -->
-<div class="step" id="step-10">
+<div class="step" id="step-12">
+  <div class="step-meta">
+    <div class="step-eyebrow">Your lifestyle</div>
+    <button class="why-btn" onclick="toggleWhy(12)">
+      <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg>
+      Why we ask
+    </button>
+  </div>
+  <h1 class="step-title">Stress level</h1>
+  <p class="step-sub">Chronic stress elevates cortisol and impairs peptide effectiveness.</p>
+  <div class="why-tooltip" id="why-12">
+    <strong>Why this matters:</strong> High cortisol directly blunts GH secretion and suppresses recovery. Chronically stressed users benefit from cortisol-modulating peptides like Selank and Semax. We'll add stress-balancing compounds if your stress level is high.
+  </div>
+  <div class="options" id="s12-opts">
+    <div class="option" data-val="low" onclick="selectOpt(this,'s12','stress')"><div class="option-radio"></div><div class="option-text"><div class="option-label">Low</div><div class="option-desc">Generally relaxed, rarely stressed</div></div></div>
+    <div class="option" data-val="moderate" onclick="selectOpt(this,'s12','stress')"><div class="option-radio"></div><div class="option-text"><div class="option-label">Moderate</div><div class="option-desc">Normal life stress, manageable</div></div></div>
+    <div class="option" data-val="high" onclick="selectOpt(this,'s12','stress')"><div class="option-radio"></div><div class="option-text"><div class="option-label">High</div><div class="option-desc">Frequently stressed, affects sleep/recovery</div></div></div>
+    <div class="option" data-val="very_high" onclick="selectOpt(this,'s12','stress')"><div class="option-radio"></div><div class="option-text"><div class="option-label">Very High</div><div class="option-desc">Chronic overwhelm, significant impact on daily life</div></div></div>
+  </div>
+  <div class="tell-more">
+    <div class="tell-more-lbl">Add more context <span class="opt-badge">Optional</span></div>
+    <textarea id="notes-12" placeholder="e.g. High stress from work. I've noticed it's affecting my recovery and sleep..." maxlength="500" oninput="charCount(this,'cc-12')"></textarea>
+    <div class="tell-more-count" id="cc-12">0 / 500</div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════
+     STEP 13 — ALCOHOL
+═══════════════════════════════════ -->
+<div class="step" id="step-13">
+  <div class="step-meta">
+    <div class="step-eyebrow">Your lifestyle</div>
+    <button class="why-btn" onclick="toggleWhy(13)">
+      <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg>
+      Why we ask
+    </button>
+  </div>
+  <h1 class="step-title">Alcohol use</h1>
+  <p class="step-sub">Alcohol suppresses GH pulse amplitude and affects liver-based compound metabolism.</p>
+  <div class="why-tooltip" id="why-13">
+    <strong>Why this matters:</strong> Regular alcohol use blunts GH secretagogue effectiveness, suppresses IGF-1, and impairs BPC-157 absorption. Heavy drinkers need adjusted dosing and timing. We won't judge — but we need to know to build a protocol that actually works.
+  </div>
+  <div class="options" id="s13-opts">
+    <div class="option" data-val="none" onclick="selectOpt(this,'s13','alcohol')"><div class="option-radio"></div><div class="option-text"><div class="option-label">None</div><div class="option-desc">I don't drink</div></div></div>
+    <div class="option" data-val="occasional" onclick="selectOpt(this,'s13','alcohol')"><div class="option-radio"></div><div class="option-text"><div class="option-label">Occasional</div><div class="option-desc">A few drinks per week or less</div></div></div>
+    <div class="option" data-val="moderate" onclick="selectOpt(this,'s13','alcohol')"><div class="option-radio"></div><div class="option-text"><div class="option-label">Moderate</div><div class="option-desc">Several times per week</div></div></div>
+    <div class="option" data-val="heavy" onclick="selectOpt(this,'s13','alcohol')"><div class="option-radio"></div><div class="option-text"><div class="option-label">Heavy</div><div class="option-desc">Daily use or significant consumption</div></div></div>
+  </div>
+  <div class="tell-more">
+    <div class="tell-more-lbl">Add more context <span class="opt-badge">Optional</span></div>
+    <textarea id="notes-13" placeholder="e.g. Social drinker on weekends, usually 2-3 drinks..." maxlength="500" oninput="charCount(this,'cc-13')"></textarea>
+    <div class="tell-more-count" id="cc-13">0 / 500</div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════
+     STEP 14 — HEALTH CONDITIONS
+═══════════════════════════════════ -->
+<div class="step" id="step-14">
   <div class="step-meta">
     <div class="step-eyebrow">Your health</div>
-    <button class="why-btn" onclick="toggleWhy(10)">
+    <button class="why-btn" onclick="toggleWhy(14)">
       <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg>
       Why we ask
     </button>
   </div>
   <h1 class="step-title">Health conditions</h1>
   <p class="step-sub">Select all that apply. Certain conditions affect which compounds are appropriate.</p>
-  <div class="why-tooltip" id="why-10">
+  <div class="why-tooltip" id="why-14">
     <strong>Why this matters:</strong> Cancer history means we exclude angiogenic compounds. Diabetes affects how GLP-1 analogs interact with blood sugar. Thyroid conditions interact with certain metabolic peptides. This isn't optional — getting this wrong can be unsafe.
   </div>
   <div class="conditions-grid" id="s14-conds">
@@ -888,7 +978,7 @@ function charCount(el, id){
     <div class="cond-chip" data-val="kidney_liver" onclick="toggleCond(this)"><div class="cond-check"></div>Kidney / Liver condition</div>
     <div class="cond-chip" data-val="mental_health" onclick="toggleCond(this)"><div class="cond-check"></div>Mental health condition</div>
   </div>
-  <div class="cancer-warn" id="cancer-warn">⚠️ <strong>Important:</strong> Due to your cancer history, angiogenic compounds including high-dose BPC-157 will be excluded from your protocol. We'll flag safer alternatives and strongly recommend consulting your oncologist.</div>
+  <div class="cancer-warn" id="cancer-warn">&#9888;&#65039; <strong>Important:</strong> Due to your cancer history, angiogenic compounds including high-dose BPC-157 will be excluded from your protocol.</div>
   <div class="tell-more">
     <div class="tell-more-lbl">Add more context <span class="opt-badge">Optional</span></div>
     <textarea id="notes-14" placeholder="e.g. I had a knee surgery 6 months ago. I also take metformin for blood sugar management..." maxlength="500" oninput="charCount(this,'cc-14')"></textarea>
@@ -899,15 +989,15 @@ function charCount(el, id){
 <!-- ═══════════════════════════════════
      STEP 15 — MEDICATIONS / SUPPLEMENTS
 ═══════════════════════════════════ -->
-<div class="step" id="step-12">
+<div class="step" id="step-15">
   <div class="step-meta">
     <div class="step-eyebrow">Your health</div>
-    <button class="why-btn" onclick="toggleWhy(12)">
+    <button class="why-btn" onclick="toggleWhy(15)">
       <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg>
       Why we ask
     </button>
   </div>
-  <h1 class="step-title">Current medications<br>& supplements</h1>
+  <h1 class="step-title">Current medications<br>&amp; supplements</h1>
   <p class="step-sub">Select all that apply. Some peptides interact with common medications.</p>
   <div class="why-tooltip" id="why-12">
     <strong>Why this matters:</strong> TRT increases the effectiveness of GH secretagogues significantly. Metformin affects insulin signaling, which interacts with GLP-1 analogs. Thyroid medications interact with metabolic peptides. We need to know this to avoid conflicts and optimize dosing.
@@ -954,19 +1044,19 @@ function charCount(el, id){
 </div>
 
 <!-- ═══════════════════════════════════
-     STEP 16 — PREVIOUS PEPTIDES
+     STEP 16 — PEPTIDE EXPERIENCE
 ═══════════════════════════════════ -->
-<div class="step" id="step-13">
+<div class="step" id="step-16">
   <div class="step-meta">
     <div class="step-eyebrow">Your experience</div>
-    <button class="why-btn" onclick="toggleWhy(13)">
+    <button class="why-btn" onclick="toggleWhy(16)">
       <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg>
       Why we ask
     </button>
   </div>
   <h1 class="step-title">Peptide experience</h1>
   <p class="step-sub">What have you used before? And critically — what didn't work?</p>
-  <div class="why-tooltip" id="why-13">
+  <div class="why-tooltip" id="why-16">
     <strong>Why this matters:</strong> We won't prescribe something you've already tried that didn't work. We'll also adjust starting doses based on your tolerance. Knowing your history prevents us from recommending a beginner protocol to an experienced user or vice versa.
   </div>
   <div class="options" id="s16-opts">
@@ -977,7 +1067,7 @@ function charCount(el, id){
   </div>
   <div class="tell-more">
     <div class="tell-more-lbl">What have you tried — and what happened? <span class="opt-badge">Optional but valuable</span></div>
-    <textarea id="notes-16" placeholder="e.g. I've used BPC-157 for a shoulder injury — it helped. Tried TB-500 once but noticed water retention. Never tried GH peptides..." maxlength="500" oninput="charCount(this,'cc-16')"></textarea>
+    <textarea id="notes-16" placeholder="e.g. I've used BPC-157 for a shoulder injury — it helped. Tried TB-500 once but noticed water retention..." maxlength="500" oninput="charCount(this,'cc-16')"></textarea>
     <div class="tell-more-count" id="cc-16">0 / 500</div>
   </div>
 </div>
@@ -985,34 +1075,34 @@ function charCount(el, id){
 <!-- ═══════════════════════════════════
      STEP 17 — INJECTION COMFORT
 ═══════════════════════════════════ -->
-<div class="step" id="step-10">
+<div class="step" id="step-17">
   <div class="step-meta">
     <div class="step-eyebrow">Your experience</div>
-    <button class="why-btn" onclick="toggleWhy(10)">
+    <button class="why-btn" onclick="toggleWhy(17)">
       <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg>
       Why we ask
     </button>
   </div>
   <h1 class="step-title">Injection comfort</h1>
   <p class="step-sub">Be honest — there are excellent intranasal options if needles aren't for you.</p>
-  <div class="why-tooltip" id="why-10">
+  <div class="why-tooltip" id="why-17">
     <strong>Why this matters:</strong> Some peptides are only available as injectables. Others have effective intranasal forms. If you're not comfortable with injections, we'll build you an intranasal-first stack and include our full first-pin walkthrough if you ever want to transition.
   </div>
   <div class="scale-options" id="s17-opts">
     <div class="scale-option" data-val="terrified" onclick="selectScale(this,'s17','injection_comfort')">
-      <div class="option-radio"></div><div class="scale-icon">😰</div>
+      <div class="option-radio"></div><div class="scale-icon">&#128560;</div>
       <div><div class="option-label">Terrified</div><div class="option-desc">Intranasal options only please</div></div>
     </div>
     <div class="scale-option" data-val="nervous" onclick="selectScale(this,'s17','injection_comfort')">
-      <div class="option-radio"></div><div class="scale-icon">😬</div>
+      <div class="option-radio"></div><div class="scale-icon">&#128556;</div>
       <div><div class="option-label">Nervous but willing</div><div class="option-desc">I'll try with thorough guidance</div></div>
     </div>
     <div class="scale-option" data-val="okay" onclick="selectScale(this,'s17','injection_comfort')">
-      <div class="option-radio"></div><div class="scale-icon">😐</div>
+      <div class="option-radio"></div><div class="scale-icon">&#128528;</div>
       <div><div class="option-label">Comfortable enough</div><div class="option-desc">Done it before or willing to learn</div></div>
     </div>
     <div class="scale-option" data-val="comfortable" onclick="selectScale(this,'s17','injection_comfort')">
-      <div class="option-radio"></div><div class="scale-icon">💉</div>
+      <div class="option-radio"></div><div class="scale-icon">&#128137;</div>
       <div><div class="option-label">Fully comfortable</div><div class="option-desc">Experienced, no issues SubQ or IM</div></div>
     </div>
   </div>
@@ -1026,22 +1116,22 @@ function charCount(el, id){
 <!-- ═══════════════════════════════════
      STEP 18 — BLOODWORK
 ═══════════════════════════════════ -->
-<div class="step" id="step-12">
+<div class="step" id="step-18">
   <div class="step-meta">
     <div class="step-eyebrow">Bloodwork <span style="font-size:10px;background:var(--blue-pale);color:var(--blue);padding:2px 7px;border-radius:10px;letter-spacing:0.04em;">Optional</span></div>
-    <button class="why-btn" onclick="toggleWhy(12)">
+    <button class="why-btn" onclick="toggleWhy(18)">
       <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg>
       Why we ask
     </button>
   </div>
   <h1 class="step-title">Bloodwork results</h1>
   <p class="step-sub">The most powerful input we can receive. Even partial data dramatically improves your protocol accuracy.</p>
-  <div class="why-tooltip" id="why-12">
-    <strong>Why this matters:</strong> This is what no other peptide platform does. Knowing your actual testosterone, IGF-1, and thyroid numbers lets us build a protocol calibrated to your real hormonal baseline — not an estimate. Low IGF-1 changes GH peptide selection entirely. Low testosterone changes anabolic compound priorities. Skip it if you don't have recent results — but if you do, enter what you can.
+  <div class="why-tooltip" id="why-18">
+    <strong>Why this matters:</strong> Knowing your actual testosterone, IGF-1, and thyroid numbers lets us build a protocol calibrated to your real hormonal baseline. Low IGF-1 changes GH peptide selection entirely. Skip it if you don't have recent results — but if you do, enter what you can.
   </div>
   <div class="bloodwork-intro">
-    <div class="bloodwork-intro-icon">🧪</div>
-    <p>Enter what you have from recent bloodwork. <strong>All fields optional.</strong> Skip anything you don't know — we'll work with whatever you provide. Results from the last 6 months are most useful.</p>
+    <div class="bloodwork-intro-icon">&#129514;</div>
+    <p>Enter what you have from recent bloodwork. <strong>All fields optional.</strong> Skip anything you don't know — we'll work with whatever you provide.</p>
   </div>
   <div class="bloodwork-grid">
     <div class="bloodwork-field">
@@ -1087,7 +1177,7 @@ function charCount(el, id){
   </div>
   <div class="tell-more" style="margin-top:16px;">
     <div class="tell-more-lbl">Other markers or notes <span class="opt-badge">Optional</span></div>
-    <textarea id="notes-18" placeholder="e.g. My estradiol was 28 pg/mL. SHBG was high at 65 nmol/L. I got these results from my last annual physical in January..." maxlength="500" oninput="charCount(this,'cc-18')"></textarea>
+    <textarea id="notes-18" placeholder="e.g. My estradiol was 28 pg/mL. SHBG was high at 65 nmol/L..." maxlength="500" oninput="charCount(this,'cc-18')"></textarea>
     <div class="tell-more-count" id="cc-18">0 / 500</div>
   </div>
 </div>
@@ -1095,7 +1185,7 @@ function charCount(el, id){
 <!-- ═══════════════════════════════════
      STEP 19 — SUMMARY / REVIEW
 ═══════════════════════════════════ -->
-<div class="step" id="step-13">
+<div class="step" id="step-19">
   <div class="step-meta">
     <div class="step-eyebrow">Almost there</div>
   </div>
@@ -1176,7 +1266,7 @@ function charCount(el, id){
 <!-- ═══════════════════════════════════
      STEP 20 — ACCOUNT CREATION
 ═══════════════════════════════════ -->
-<div class="step" id="step-10">
+<div class="step" id="step-20">
   <div class="step-meta">
     <div class="step-eyebrow">Last step</div>
   </div>
@@ -1219,10 +1309,10 @@ function charCount(el, id){
 // STATE
 // ═══════════════════════
 var cur = 1;
-var total = 17;
+var total = 20;
 var A = {}; // answers object
 
-var TIME_PER_STEP = [0,60,45,45,40,30,30,60,40,40,40,40,50,50,50,40,90,30,60];
+var TIME_PER_STEP = [0,60,45,45,40,30,30,60,40,40,40,40,40,40,50,50,50,40,90,60,45];
 
 // ═══════════════════════
 // NAVIGATION
@@ -1232,6 +1322,10 @@ function goNext(){
   saveStep(cur);
   if(cur === total){ submitForm(); return; }
   go(cur + 1, false);
+  // Build summary when arriving at step 19
+  if(cur + 1 === 19){
+    setTimeout(buildSummary, 80);
+  }
 }
 
 function goBack(){
@@ -1284,8 +1378,8 @@ function updateUI(){
   var pct = Math.round((cur / total) * 100);
   document.getElementById('progress-fill').style.width = pct + '%';
 
-  // Section labels
-  var sections = ['','Goals','Goals','Goals','Goals','Biology','Biology','Biology','Biology','Lifestyle','Health','Health','Experience','Experience','Bloodwork','Account','Account','Account'];
+  // Section labels (index 0 unused, 1-20)
+  var sections = ['','Goals','Goals','Goals','Goals','Biology','Biology','Biology','Biology','Lifestyle','Lifestyle','Lifestyle','Lifestyle','Lifestyle','Health','Health','Experience','Experience','Bloodwork','Review','Account'];
   document.getElementById('step-label').textContent = sections[cur] || 'Step ' + cur;
 
   // Time remaining
@@ -1313,10 +1407,10 @@ function updateContinue(){
     hint.textContent = 'Bloodwork is optional — tap to continue';
     btn.disabled = false;
   } else if(cur === 19){
-    btn.textContent = 'Create My Account & Generate Protocol →';
-    hint.textContent = '';
+    btn.textContent = 'Continue to Create Account →';
+    hint.textContent = 'Review complete';
     btn.disabled = false;
-  } else if(cur === total){
+  } else if(cur === total){ // step 20
     btn.textContent = 'Generate My Protocol →';
     hint.textContent = 'Your card is collected on the next screen';
     btn.disabled = !canContinue();
@@ -1385,6 +1479,11 @@ function saveStep(s){
   if(s === 15) saveMedications();
   if(s === 18) saveBloodwork();
   if(s === 20) saveAccount();
+  // save sport and other fields if answered
+  if(s === 10 && A.sport === undefined) {
+    var el = document.querySelector('#s10-opts .option.selected');
+    if(el) A.sport = el.dataset.val;
+  }
 }
 
 function saveNotes(s){
@@ -1827,15 +1926,49 @@ function devFill(){
 }
 
 // ═══════════════════════
+// HASH HELPER
+// ═══════════════════════
+async function hashPassword(pw){
+  var data = new TextEncoder().encode(pw + 'peptrak_salt_2026');
+  var hash = await crypto.subtle.digest('SHA-256', data);
+  return Array.from(new Uint8Array(hash)).map(function(b){ return b.toString(16).padStart(2,'0'); }).join('');
+}
+
+// ═══════════════════════
 // SUBMIT
 // ═══════════════════════
-function submitForm(){
+async function submitForm(){
   saveStep(cur);
+  var name = (document.getElementById('first-name')||{}).value||'';
+  var email = ((document.getElementById('acct-email')||{}).value||'').trim().toLowerCase();
+  var pw = (document.getElementById('acct-pw')||{}).value||'';
+  if(!email || !email.includes('@')){ alert('Please enter a valid email address.'); return; }
+  if(pw.length < 8){ alert('Password must be at least 8 characters.'); return; }
+
+  A.first_name = name;
+  A.email = email;
   localStorage.setItem('peptrak_intake', JSON.stringify(A));
   localStorage.setItem('peptrak_intake_ts', Date.now().toString());
-  // Clear cached protocol so fresh generation happens on protocol page
   localStorage.removeItem('peptrak_protocol');
   localStorage.removeItem('peptrak_protocol_ts');
+
+  var hash = await hashPassword(pw);
+  localStorage.setItem('peptrak_auth_email', email);
+  localStorage.setItem('peptrak_auth_pw', hash);
+  localStorage.removeItem('peptrak_test_account');
+
+  // Save to Supabase (fire-and-forget ok — localStorage is the fallback)
+  fetch('/api/supabase?action=upsert-user', {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify({ email: email, name: name, status: 'free', plan: 'free', authPw: hash })
+  }).catch(function(){});
+  fetch('/api/supabase?action=save-data', {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify({ email: email, intake: A, authPw: hash })
+  }).catch(function(){});
+
   window.location.href = '/protocol';
 }
 
