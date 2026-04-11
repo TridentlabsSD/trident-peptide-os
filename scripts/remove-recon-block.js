@@ -1,6 +1,23 @@
-import { readFileSync, writeFileSync } from 'fs';
+import { readFileSync, writeFileSync, existsSync } from 'fs';
 
-const filePath = '/vercel/share/v0-project/public/tracker.html';
+// Try multiple possible paths
+const candidates = [
+  '/vercel/share/v0-project/public/tracker.html',
+  process.cwd() + '/public/tracker.html',
+  '/home/user/public/tracker.html',
+];
+
+let filePath = null;
+for (const c of candidates) {
+  if (existsSync(c)) { filePath = c; break; }
+}
+
+if (!filePath) {
+  console.log('ERROR: tracker.html not found. Tried:', candidates);
+  process.exit(1);
+}
+
+console.log('Using file:', filePath);
 const lines = readFileSync(filePath, 'utf8').split('\n');
 
 // Find the start line: '// ── RECONSTITUTION CALCULATOR ──'
@@ -11,10 +28,8 @@ for (let i = 0; i < lines.length; i++) {
   if (startIdx === -1 && lines[i].trim() === '// ── RECONSTITUTION CALCULATOR ──') {
     startIdx = i;
   }
-  // Find 'function buildSideCompoundSelect' end — look for closing brace after it
   if (startIdx !== -1 && endIdx === -1) {
     if (lines[i].trim() === 'function buildSideCompoundSelect(){') {
-      // Find the closing brace of this function
       let depth = 0;
       for (let j = i; j < lines.length; j++) {
         for (const ch of lines[j]) {
@@ -32,7 +47,13 @@ for (let i = 0; i < lines.length; i++) {
 }
 
 if (startIdx === -1 || endIdx === -1) {
-  console.log('ERROR: Could not find block boundaries. startIdx=' + startIdx + ' endIdx=' + endIdx);
+  console.log('ERROR: Could not find block. startIdx=' + startIdx + ' endIdx=' + endIdx);
+  // Print surrounding lines for debug
+  lines.forEach((l, i) => {
+    if (l.includes('RECONSTITUTION') || l.includes('buildSideCompound')) {
+      console.log('  Line ' + (i+1) + ': ' + l);
+    }
+  });
   process.exit(1);
 }
 

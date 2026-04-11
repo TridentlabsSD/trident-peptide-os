@@ -1210,17 +1210,9 @@ function closeMilestone(){
   document.getElementById('milestone-overlay').classList.remove('show');
 }
 
-// ── RECONSTITUTION CALCULATOR ──
-var RECON_DB = {
-
-  // ── RECOVERY / REPAIR ──
-  'BPC-157': {
-    vials:[2,5,10], defaultVial:5, defaultDose:250, defaultUnit:'mcg',
-    bacMl:{2:1, 5:2, 10:2},
-    note:'Add BAC water slowly down the vial wall — never shake, only swirl. 5mg vial + 2mL = 2.5mg/mL; 250mcg dose = 10 units. Standard research dose: 250–500mcg/day SubQ. Store refrigerated immediately.',
-    shelf:'4–6 weeks refrigerated'
-  },
-  'TB-500': {
+// ── RECON_REMOVED ──
+var _RECON_REMOVED_BLOCK_START = true;
+var _RECON_TB500 = {
     vials:[2,5,10], defaultVial:5, defaultDose:2000, defaultUnit:'mcg',
     bacMl:{2:1, 5:1, 10:2},
     note:'5mg vial + 1mL = 5mg/mL; 2mg dose = 40 units. Loading: 2–5mg twice weekly for 4–6 weeks. Maintenance: 2mg once weekly. Dissolves easily — swirl gently until clear.',
@@ -1717,76 +1709,6 @@ function buildTitration(){
       + '</div>'
       + '<div style="font-size:18px;font-weight:700;letter-spacing:-0.3px;color:var(--ink);">' + cleanDose + '</div>';
     list.appendChild(row);
-  });
-}
-
-// ── INJECTION SITE ROTATOR ──
-var SITES = ['Abdomen — Left Upper','Abdomen — Right Upper','Abdomen — Left Lower','Abdomen — Right Lower','Left Thigh','Right Thigh'];
-function buildSiteRotator(){
-  var grid = document.getElementById('site-grid');
-  var rec = document.getElementById('site-recommend');
-  if(!grid) return;
-
-  var siteLog = {};
-  try{ siteLog = JSON.parse(localStorage.getItem('peptrak_site_log')||'{}'); }catch(e){}
-
-  var today = new Date().toISOString().slice(0,10);
-  grid.innerHTML = '';
-
-  var recommended = null;
-  var maxDaysAgo = -1;
-
-  SITES.forEach(function(site){
-    var lastUsed = siteLog[site] || null;
-    var daysAgo = lastUsed ? Math.floor((Date.now() - new Date(lastUsed).getTime())/86400000) : 999;
-    if(daysAgo > maxDaysAgo){ maxDaysAgo = daysAgo; recommended = site; }
-
-    var isToday = lastUsed === today;
-    var isRecent = !isToday && daysAgo <= 2;
-
-    var zone = document.createElement('div');
-    zone.className = 'site-zone' + (isToday ? ' used' : isRecent ? ' recent' : '');
-    zone.innerHTML = '<div class="site-zone-name">' + site + '</div>'
-      + '<div class="site-zone-days">' + (isToday ? 'Used today' : lastUsed ? daysAgo + 'd ago' : 'Not recently used') + '</div>';
-    zone.onclick = (function(s){ return function(){
-      siteLog[s] = today;
-      localStorage.setItem('peptrak_site_log', JSON.stringify(siteLog));
-      buildSiteRotator();
-    }; })(site);
-    grid.appendChild(zone);
-  });
-
-  if(rec && rec.style) rec = document.getElementById('site-recommend');
-  var recEl = document.getElementById('site-recommend');
-  if(recEl) recEl.textContent = recommended
-    ? 'Tap to log: ' + recommended + ' is best today — ' + (maxDaysAgo === 999 ? 'never used recently' : maxDaysAgo + ' days since last use')
-    : 'All sites used recently — rotate back to abdomen';
-}
-
-function resetSites(){
-  localStorage.removeItem('peptrak_site_log');
-  buildSiteRotator();
-}
-
-// ── COMPOUND-LINKED SIDE EFFECTS ──
-function buildSideCompoundSelect(){
-  if(!protocol.compounds || !protocol.compounds.length) return;
-  var row = document.getElementById('side-compound-row');
-  var sel = document.getElementById('side-compound-select');
-  if(!row || !sel) return;
-  row.style.display = 'block';
-  sel.innerHTML = '';
-  protocol.compounds.forEach(function(c){
-    var pill = document.createElement('button');
-    pill.className = 'side-comp-pill' + (sidesState.compound === c.name ? ' sel' : '');
-    pill.textContent = c.name;
-    pill.onclick = function(){
-      sel.querySelectorAll('.side-comp-pill').forEach(function(p){ p.classList.remove('sel'); });
-      if(sidesState.compound === c.name){ sidesState.compound = null; }
-      else { sidesState.compound = c.name; pill.classList.add('sel'); }
-      saveToTracker();
-    };
-    sel.appendChild(pill);
   });
 }
 
