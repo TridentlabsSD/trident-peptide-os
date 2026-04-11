@@ -1,6 +1,14 @@
 import { readFileSync, writeFileSync } from 'fs';
 
-const filePath = '/vercel/share/v0-project/public/tracker.html';
+// Try multiple possible paths for the execution environment
+import { existsSync } from 'fs';
+const candidates = [
+  '/app/public/tracker.html',
+  '/vercel/share/v0-project/public/tracker.html',
+  process.cwd() + '/public/tracker.html',
+];
+const filePath = candidates.find(p => existsSync(p));
+if (!filePath) throw new Error('tracker.html not found. Tried: ' + candidates.join(', '));
 const content = readFileSync(filePath, 'utf8');
 const lines = content.split('\n');
 
